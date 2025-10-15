@@ -28,7 +28,10 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    default: 'https://res.cloudinary.com/demo/image/upload/avatar-placeholder.png',
+    default: () =>
+        `https://avatar.iran.liara.run/public/${
+          Math.floor(Math.random() * 100) + 1
+        }`,
   },
   totalPosts: {
     type: Number,
