@@ -37,11 +37,7 @@ export const getPosts = async (req, res) => {
     // Add total reactions count
     const postsWithTotal = posts.map((post) => ({
       ...post.toObject(),
-      totalReactions:
-        post.reactions.laugh +
-        post.reactions.cry +
-        post.reactions.love +
-        post.reactions.angry,
+      totalReactions: post.reactions.love,
     }));
 
     const total = await Post.countDocuments(query);
@@ -72,14 +68,7 @@ export const getTopPosts = async (req, res) => {
       },
       {
         $addFields: {
-          totalReactions: {
-            $add: [
-              "$reactions.laugh",
-              "$reactions.cry",
-              "$reactions.love",
-              "$reactions.angry",
-            ],
-          },
+          totalReactions: "$reactions.love",
         },
       },
       { $sort: { totalReactions: -1 } },
@@ -121,7 +110,6 @@ export const createPost = async (req, res) => {
         }
 
         try {
-
           // Get current active theme
           const currentTheme = await Theme.findOne({
             isActive: true,
@@ -169,9 +157,7 @@ export const createPost = async (req, res) => {
 export const reactToPost = async (req, res) => {
   try {
     const { emoji } = req.body;
-    const validEmojis = ["laugh", "cry", "love", "angry"];
-
-    if (!validEmojis.includes(emoji)) {
+    if (emoji !== "love") {
       return res.status(400).json({ message: "Invalid emoji" });
     }
 
@@ -210,15 +196,10 @@ export const reactToPost = async (req, res) => {
 
     // Update post owner's total reactions by aggregating all their posts
     const userPosts = await Post.find({ userId: post.userId });
-    const totalReactions = userPosts.reduce((sum, p) => {
-      return (
-        sum +
-        p.reactions.laugh +
-        p.reactions.cry +
-        p.reactions.love +
-        p.reactions.angry
-      );
-    }, 0);
+    const totalReactions = userPosts.reduce(
+      (sum, p) => sum + p.reactions.love,
+      0
+    );
 
     await User.findByIdAndUpdate(post.userId, {
       totalReactions: totalReactions,

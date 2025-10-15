@@ -42,10 +42,7 @@ const postSchema = new mongoose.Schema({
     default: null,
   },
   reactions: {
-    laugh: { type: Number, default: 0 },
-    cry: { type: Number, default: 0 },
     love: { type: Number, default: 0 },
-    angry: { type: Number, default: 0 },
   },
   reactedBy: [
     {
@@ -55,7 +52,7 @@ const postSchema = new mongoose.Schema({
       },
       emoji: {
         type: String,
-        enum: ["laugh", "cry", "love", "angry"],
+        enum: ["love"],
       },
     },
   ],

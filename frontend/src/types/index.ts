@@ -19,14 +19,11 @@ export interface Post {
   mediaType: "image" | "video";
   theme: string | null;
   reactions: {
-    laugh: number;
-    cry: number;
     love: number;
-    angry: number;
   };
   reactedBy: Array<{
     userId: string;
-    emoji: "laugh" | "cry" | "love" | "angry";
+    emoji: "love";
   }>;
   comments: Comment[];
   isTopPost: boolean;
@@ -94,4 +91,4 @@ export interface Leaderboard {
   hallOfFame: User[];
 }
 
-export type EmojiType = "laugh" | "cry" | "love" | "angry";
+export type EmojiType = "love";

@@ -2,9 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import {
   Heart,
   MessageCircle,
-  Laugh,
-  Frown,
-  Angry,
   Play,
   Pause,
   RotateCcw,
@@ -51,10 +48,7 @@ const PostCard = ({ post }: PostCardProps) => {
   const { user } = useAuthStore();
 
   const emojiIcons = {
-    laugh: { icon: Laugh, color: "text-yellow-500" },
-    cry: { icon: Frown, color: "text-blue-500" },
     love: { icon: Heart, color: "text-pink-500" },
-    angry: { icon: Angry, color: "text-red-500" },
   };
 
   useEffect(() => setLocalPost(post), [post]);
@@ -329,34 +323,29 @@ const PostCard = ({ post }: PostCardProps) => {
       {/* Reactions */}
       <div className="px-5 pb-4 mt-3 border-t border-gray-200 dark:border-gray-800 pt-3 flex items-center justify-between flex-shrink-0">
         <div className="flex gap-2 flex-wrap">
-          {Object.entries(emojiIcons).map(([emoji, { icon: Icon, color }]) => {
-            const isActive = userReaction?.emoji === emoji;
-            return (
-              <button
-                key={emoji}
-                onClick={() => handleReact(emoji as EmojiType)}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-all duration-200 ${
-                  isActive
-                    ? "bg-gray-100 dark:bg-gray-700"
-                    : "bg-gray-50 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-                }`}>
-                <Icon
-                  size={18}
-                  className={
-                    isActive ? color : "text-gray-400 dark:text-gray-500"
-                  }
-                  fill={isActive ? "currentColor" : "none"} // fill the emoji if active
-                />
-                <span className={`${isActive ? "font-semibold" : ""}`}>
-                  {
-                    localPost.reactions[
-                      emoji as keyof typeof localPost.reactions
-                    ]
-                  }
-                </span>
-              </button>
-            );
-          })}
+          <button
+            onClick={() => handleReact("love")}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-all duration-200 ${
+              userReaction?.emoji === "love"
+                ? "bg-gray-100 dark:bg-gray-700"
+                : "bg-gray-50 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}>
+            <Heart
+              size={18}
+              className={
+                userReaction?.emoji === "love"
+                  ? "text-pink-500"
+                  : "text-gray-400 dark:text-gray-500"
+              }
+              fill={userReaction?.emoji === "love" ? "currentColor" : "none"}
+            />
+            <span
+              className={`${
+                userReaction?.emoji === "love" ? "font-semibold" : ""
+              }`}>
+              {localPost.reactions.love}
+            </span>
+          </button>
         </div>
 
         <button
@@ -366,7 +355,7 @@ const PostCard = ({ post }: PostCardProps) => {
           <span>{localPost.comments.length}</span>
         </button>
       </div>
-      
+
       {/* Comments */}
       {showComments && (
         <div className="px-5 pb-5 space-y-3 overflow-y-auto">
