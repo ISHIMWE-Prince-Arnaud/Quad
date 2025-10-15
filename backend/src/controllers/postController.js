@@ -1,20 +1,20 @@
-import Post from '../models/Post.js';
-import User from '../models/User.js';
-import Theme from '../models/Theme.js';
-import cloudinary from '../config/cloudinary.js';
-import { sanitizeText, extractTags } from '../utils/sanitize.js';
+import Post from "../models/Post.js";
+import User from "../models/User.js";
+import Theme from "../models/Theme.js";
+import cloudinary from "../config/cloudinary.js";
+import { sanitizeText, extractTags } from "../utils/sanitize.js";
 
 // @desc    Get all posts
 // @route   GET /api/posts
 // @access  Public
 export const getPosts = async (req, res) => {
   try {
-    const { tag, theme, sort = 'newest' } = req.query;
+    const { tag, theme, sort = "newest" } = req.query;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
-    let query = { isFlagged: false };
+    let query = {};
 
     if (tag) {
       query.tags = tag.toLowerCase();
@@ -25,22 +25,26 @@ export const getPosts = async (req, res) => {
     }
 
     let sortOption = {};
-    if (sort === 'newest') {
+    if (sort === "newest") {
       sortOption = { createdAt: -1 };
-    } else if (sort === 'top') {
+    } else if (sort === "top") {
       sortOption = { totalReactions: -1, createdAt: -1 };
     }
 
     const posts = await Post.find(query)
-      .populate('userId', 'username avatar')
+      .populate("userId", "username avatar")
       .sort(sortOption)
       .skip(skip)
       .limit(limit);
 
     // Add total reactions count
-    const postsWithTotal = posts.map(post => ({
+    const postsWithTotal = posts.map((post) => ({
       ...post.toObject(),
-      totalReactions: post.reactions.laugh + post.reactions.cry + post.reactions.love + post.reactions.angry,
+      totalReactions:
+        post.reactions.laugh +
+        post.reactions.cry +
+        post.reactions.love +
+        post.reactions.angry,
     }));
 
     const total = await Post.countDocuments(query);
@@ -67,13 +71,17 @@ export const getTopPosts = async (req, res) => {
       {
         $match: {
           createdAt: { $gte: oneWeekAgo },
-          isFlagged: false,
         },
       },
       {
         $addFields: {
           totalReactions: {
-            $add: ['$reactions.laugh', '$reactions.cry', '$reactions.love', '$reactions.angry'],
+            $add: [
+              "$reactions.laugh",
+              "$reactions.cry",
+              "$reactions.love",
+              "$reactions.angry",
+            ],
           },
         },
       },
@@ -81,7 +89,7 @@ export const getTopPosts = async (req, res) => {
       { $limit: 10 },
     ]);
 
-    await Post.populate(posts, { path: 'userId', select: 'username avatar' });
+    await Post.populate(posts, { path: "userId", select: "username avatar" });
 
     res.json(posts);
   } catch (error) {
@@ -97,18 +105,22 @@ export const createPost = async (req, res) => {
     const { caption } = req.body;
 
     if (!req.file) {
-      return res.status(400).json({ message: 'Please upload an image or video' });
+      return res
+        .status(400)
+        .json({ message: "Please upload an image or video" });
     }
 
     // Upload to Cloudinary
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        resource_type: 'auto',
-        folder: 'quad_posts',
+        resource_type: "auto",
+        folder: "quad_posts",
       },
       async (error, result) => {
         if (error) {
-          return res.status(500).json({ message: 'Upload failed', error: error.message });
+          return res
+            .status(500)
+            .json({ message: "Upload failed", error: error.message });
         }
 
         try {
@@ -126,7 +138,7 @@ export const createPost = async (req, res) => {
             userId: req.user._id,
             caption: sanitizeText(caption),
             mediaUrl: result.secure_url,
-            mediaType: result.resource_type === 'video' ? 'video' : 'image',
+            mediaType: result.resource_type === "video" ? "video" : "image",
             tags,
             theme: currentTheme ? currentTheme.title : null,
           });
@@ -136,7 +148,10 @@ export const createPost = async (req, res) => {
             $inc: { totalPosts: 1 },
           });
 
-          const populatedPost = await Post.findById(post._id).populate('userId', 'username avatar');
+          const populatedPost = await Post.findById(post._id).populate(
+            "userId",
+            "username avatar"
+          );
 
           res.status(201).json(populatedPost);
         } catch (dbError) {
@@ -157,31 +172,31 @@ export const createPost = async (req, res) => {
 export const reactToPost = async (req, res) => {
   try {
     const { emoji } = req.body;
-    const validEmojis = ['laugh', 'cry', 'love', 'angry'];
+    const validEmojis = ["laugh", "cry", "love", "angry"];
 
     if (!validEmojis.includes(emoji)) {
-      return res.status(400).json({ message: 'Invalid emoji' });
+      return res.status(400).json({ message: "Invalid emoji" });
     }
 
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
+      return res.status(404).json({ message: "Post not found" });
     }
 
     // Check if user already reacted
     const existingReaction = post.reactedBy.find(
-      r => r.userId.toString() === req.user._id.toString()
+      (r) => r.userId.toString() === req.user._id.toString()
     );
 
     if (existingReaction) {
       // Remove old reaction
       post.reactions[existingReaction.emoji] -= 1;
-      
+
       if (existingReaction.emoji === emoji) {
         // Remove reaction entirely
         post.reactedBy = post.reactedBy.filter(
-          r => r.userId.toString() !== req.user._id.toString()
+          (r) => r.userId.toString() !== req.user._id.toString()
         );
       } else {
         // Update to new reaction
@@ -199,9 +214,15 @@ export const reactToPost = async (req, res) => {
     // Update post owner's total reactions by aggregating all their posts
     const userPosts = await Post.find({ userId: post.userId });
     const totalReactions = userPosts.reduce((sum, p) => {
-      return sum + p.reactions.laugh + p.reactions.cry + p.reactions.love + p.reactions.angry;
+      return (
+        sum +
+        p.reactions.laugh +
+        p.reactions.cry +
+        p.reactions.love +
+        p.reactions.angry
+      );
     }, 0);
-    
+
     await User.findByIdAndUpdate(post.userId, {
       totalReactions: totalReactions,
     });
@@ -220,13 +241,13 @@ export const addComment = async (req, res) => {
     const { text } = req.body;
 
     if (!text || text.trim().length === 0) {
-      return res.status(400).json({ message: 'Comment text is required' });
+      return res.status(400).json({ message: "Comment text is required" });
     }
 
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
+      return res.status(404).json({ message: "Post not found" });
     }
 
     post.comments.push({
@@ -237,30 +258,10 @@ export const addComment = async (req, res) => {
     await post.save();
 
     const populatedPost = await Post.findById(post._id)
-      .populate('userId', 'username avatar')
-      .populate('comments.userId', 'username avatar');
+      .populate("userId", "username avatar")
+      .populate("comments.userId", "username avatar");
 
     res.json(populatedPost);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// @desc    Report/flag a post
-// @route   POST /api/posts/:id/report
-// @access  Private
-export const reportPost = async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-
-    if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
-    }
-
-    post.isFlagged = true;
-    await post.save();
-
-    res.json({ message: 'Post reported successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -271,11 +272,10 @@ export const reportPost = async (req, res) => {
 // @access  Public
 export const getUserPosts = async (req, res) => {
   try {
-    const posts = await Post.find({ 
+    const posts = await Post.find({
       userId: req.params.userId,
-      isFlagged: false 
     })
-      .populate('userId', 'username avatar')
+      .populate("userId", "username avatar")
       .sort({ createdAt: -1 });
 
     res.json(posts);

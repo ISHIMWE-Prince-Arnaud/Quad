@@ -185,7 +185,6 @@ Quad/
 - `POST /api/posts` - Create new post (protected, multipart)
 - `POST /api/posts/:id/react` - React to post (protected)
 - `POST /api/posts/:id/comment` - Add comment (protected)
-- `POST /api/posts/:id/report` - Report post (protected)
 
 ### Polls
 - `GET /api/polls` - Get all polls
@@ -197,7 +196,6 @@ Quad/
 - `GET /api/confessions` - Get all confessions
 - `POST /api/confessions` - Submit confession (rate limited)
 - `POST /api/confessions/:id/like` - Like confession
-- `POST /api/confessions/:id/report` - Report confession
 
 ### Leaderboard
 - `GET /api/leaderboard` - Get leaderboard data
@@ -307,7 +305,7 @@ MONGODB_URI=mongodb://localhost:27017/quad
 ### Entertainment Board
 - Three tabs: Polls, Would You Rather, Confessions
 - Create and vote on polls
-- Like and report confessions
+- Like confessions
 
 ### Leaderboard
 - Top 5 funniest posts (most laugh reactions)

@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const commentSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
   text: {
@@ -20,27 +20,29 @@ const commentSchema = new mongoose.Schema({
 const postSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
   caption: {
     type: String,
-    required: [true, 'Please provide a caption'],
-    maxlength: [500, 'Caption cannot exceed 500 characters'],
+    required: [true, "Please provide a caption"],
+    maxlength: [500, "Caption cannot exceed 500 characters"],
   },
   mediaUrl: {
     type: String,
-    required: [true, 'Please upload an image or video'],
+    required: [true, "Please upload an image or video"],
   },
   mediaType: {
     type: String,
-    enum: ['image', 'video'],
-    default: 'image',
+    enum: ["image", "video"],
+    default: "image",
   },
-  tags: [{
-    type: String,
-    lowercase: true,
-  }],
+  tags: [
+    {
+      type: String,
+      lowercase: true,
+    },
+  ],
   theme: {
     type: String,
     default: null,
@@ -51,22 +53,20 @@ const postSchema = new mongoose.Schema({
     love: { type: Number, default: 0 },
     angry: { type: Number, default: 0 },
   },
-  reactedBy: [{
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+  reactedBy: [
+    {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      emoji: {
+        type: String,
+        enum: ["laugh", "cry", "love", "angry"],
+      },
     },
-    emoji: {
-      type: String,
-      enum: ['laugh', 'cry', 'love', 'angry'],
-    },
-  }],
+  ],
   comments: [commentSchema],
   isTopPost: {
-    type: Boolean,
-    default: false,
-  },
-  isFlagged: {
     type: Boolean,
     default: false,
   },
@@ -81,6 +81,6 @@ postSchema.index({ createdAt: -1 });
 postSchema.index({ tags: 1 });
 postSchema.index({ theme: 1 });
 
-const Post = mongoose.model('Post', postSchema);
+const Post = mongoose.model("Post", postSchema);
 
 export default Post;

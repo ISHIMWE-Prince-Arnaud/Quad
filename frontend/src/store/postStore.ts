@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import api from '../utils/api';
-import { Post, EmojiType } from '../types';
+import { create } from "zustand";
+import api from "../utils/api";
+import { Post, EmojiType } from "../types";
 
 interface PostState {
   posts: Post[];
@@ -11,7 +11,7 @@ interface PostState {
   uploadPost: (formData: FormData) => Promise<void>;
   reactToPost: (postId: string, emoji: EmojiType) => Promise<void>;
   addComment: (postId: string, text: string) => Promise<void>;
-  reportPost: (postId: string) => Promise<void>;
+
   setFilter: (filter: string) => void;
   setTag: (tag: string | null) => void;
 }
@@ -19,16 +19,16 @@ interface PostState {
 export const usePostStore = create<PostState>((set, get) => ({
   posts: [],
   isLoading: false,
-  currentFilter: 'newest',
+  currentFilter: "newest",
   currentTag: null,
 
-  fetchPosts: async (filter = 'newest', tag?: string) => {
+  fetchPosts: async (filter = "newest", tag?: string) => {
     try {
       set({ isLoading: true });
       const params: any = { sort: filter };
       if (tag) params.tag = tag;
-      
-      const response = await api.get('/posts', { params });
+
+      const response = await api.get("/posts", { params });
       set({
         posts: response.data.posts,
         isLoading: false,
@@ -43,25 +43,25 @@ export const usePostStore = create<PostState>((set, get) => ({
 
   uploadPost: async (formData: FormData) => {
     try {
-      const response = await api.post('/posts', formData, {
+      const response = await api.post("/posts", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
-      
+
       // Add new post to the beginning of the list
       set((state) => ({
         posts: [response.data, ...state.posts],
       }));
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Upload failed');
+      throw new Error(error.response?.data?.message || "Upload failed");
     }
   },
 
   reactToPost: async (postId: string, emoji: EmojiType) => {
     try {
       const response = await api.post(`/posts/${postId}/react`, { emoji });
-      
+
       // Update post in the list
       set((state) => ({
         posts: state.posts.map((post) =>
@@ -69,14 +69,14 @@ export const usePostStore = create<PostState>((set, get) => ({
         ),
       }));
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Reaction failed');
+      throw new Error(error.response?.data?.message || "Reaction failed");
     }
   },
 
   addComment: async (postId: string, text: string) => {
     try {
       const response = await api.post(`/posts/${postId}/comment`, { text });
-      
+
       // Update post with new comment
       set((state) => ({
         posts: state.posts.map((post) =>
@@ -84,20 +84,7 @@ export const usePostStore = create<PostState>((set, get) => ({
         ),
       }));
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Comment failed');
-    }
-  },
-
-  reportPost: async (postId: string) => {
-    try {
-      await api.post(`/posts/${postId}/report`);
-      
-      // Remove reported post from the list
-      set((state) => ({
-        posts: state.posts.filter((post) => post._id !== postId),
-      }));
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Report failed');
+      throw new Error(error.response?.data?.message || "Comment failed");
     }
   },
 

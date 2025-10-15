@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Heart, MessageCircle, Flag, Laugh, Frown, HeartCrack, Angry } from 'lucide-react';
-import { Post, EmojiType } from '../types';
-import { formatDate } from '../utils/formatDate';
-import { usePostStore } from '../store/postStore';
-import { useAuthStore } from '../store/authStore';
-import { toast } from 'react-toastify';
+import { useState } from "react";
+import { Heart, MessageCircle, Laugh, Frown, Angry } from "lucide-react";
+import { Post, EmojiType } from "../types";
+import { formatDate } from "../utils/formatDate";
+import { usePostStore } from "../store/postStore";
+import { useAuthStore } from "../store/authStore";
+import { toast } from "react-toastify";
 
 interface PostCardProps {
   post: Post;
@@ -12,15 +12,15 @@ interface PostCardProps {
 
 const PostCard = ({ post }: PostCardProps) => {
   const [showComments, setShowComments] = useState(false);
-  const [commentText, setCommentText] = useState('');
-  const { reactToPost, addComment, reportPost } = usePostStore();
+  const [commentText, setCommentText] = useState("");
+  const { reactToPost, addComment } = usePostStore();
   const { user } = useAuthStore();
 
   const emojiIcons = {
-    laugh: { icon: Laugh, label: '😂', color: 'text-yellow-500' },
-    cry: { icon: Frown, label: '😭', color: 'text-blue-500' },
-    love: { icon: Heart, label: '❤️', color: 'text-red-500' },
-    angry: { icon: Angry, label: '😡', color: 'text-orange-500' },
+    laugh: { icon: Laugh, label: "😂", color: "text-yellow-500" },
+    cry: { icon: Frown, label: "😭", color: "text-blue-500" },
+    love: { icon: Heart, label: "❤️", color: "text-red-500" },
+    angry: { icon: Angry, label: "😡", color: "text-orange-500" },
   };
 
   const handleReact = async (emoji: EmojiType) => {
@@ -37,25 +37,14 @@ const PostCard = ({ post }: PostCardProps) => {
 
     try {
       await addComment(post._id, commentText);
-      setCommentText('');
-      toast.success('Comment added!');
+      setCommentText("");
+      toast.success("Comment added!");
     } catch (error: any) {
       toast.error(error.message);
     }
   };
 
-  const handleReport = async () => {
-    if (window.confirm('Are you sure you want to report this post?')) {
-      try {
-        await reportPost(post._id);
-        toast.success('Post reported');
-      } catch (error: any) {
-        toast.error(error.message);
-      }
-    }
-  };
-
-  const userReaction = post.reactedBy?.find(r => r.userId === user?._id);
+  const userReaction = post.reactedBy?.find((r) => r.userId === user?._id);
 
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
@@ -76,18 +65,11 @@ const PostCard = ({ post }: PostCardProps) => {
             </p>
           </div>
         </div>
-        <button
-          onClick={handleReport}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-          title="Report post"
-        >
-          <Flag size={18} className="text-gray-500" />
-        </button>
       </div>
 
       {/* Media */}
       <div className="relative">
-        {post.mediaType === 'video' ? (
+        {post.mediaType === "video" ? (
           <video
             src={post.mediaUrl}
             controls
@@ -111,15 +93,14 @@ const PostCard = ({ post }: PostCardProps) => {
       {/* Content */}
       <div className="p-4">
         <p className="text-gray-800 dark:text-gray-200 mb-3">{post.caption}</p>
-        
+
         {/* Tags */}
         {post.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {post.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-sm text-primary dark:text-accent font-medium hover:underline cursor-pointer"
-              >
+                className="text-sm text-primary dark:text-accent font-medium hover:underline cursor-pointer">
                 #{tag}
               </span>
             ))}
@@ -136,27 +117,32 @@ const PostCard = ({ post }: PostCardProps) => {
         {/* Reactions */}
         <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-3 mb-3">
           <div className="flex space-x-1">
-            {Object.entries(emojiIcons).map(([emoji, { icon: Icon, label, color }]) => (
-              <button
-                key={emoji}
-                onClick={() => handleReact(emoji as EmojiType)}
-                className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-all ${
-                  userReaction?.emoji === emoji
-                    ? 'bg-primary text-white scale-110'
-                    : 'bg-gray-100 dark:bg-gray-700 hover:scale-105'
-                }`}
-              >
-                <Icon size={18} className={userReaction?.emoji === emoji ? 'text-white' : color} />
-                <span className="text-sm font-medium">
-                  {post.reactions[emoji as keyof typeof post.reactions]}
-                </span>
-              </button>
-            ))}
+            {Object.entries(emojiIcons).map(
+              ([emoji, { icon: Icon, label, color }]) => (
+                <button
+                  key={emoji}
+                  onClick={() => handleReact(emoji as EmojiType)}
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-all ${
+                    userReaction?.emoji === emoji
+                      ? "bg-primary text-white scale-110"
+                      : "bg-gray-100 dark:bg-gray-700 hover:scale-105"
+                  }`}>
+                  <Icon
+                    size={18}
+                    className={
+                      userReaction?.emoji === emoji ? "text-white" : color
+                    }
+                  />
+                  <span className="text-sm font-medium">
+                    {post.reactions[emoji as keyof typeof post.reactions]}
+                  </span>
+                </button>
+              )
+            )}
           </div>
           <button
             onClick={() => setShowComments(!showComments)}
-            className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors"
-          >
+            className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
             <MessageCircle size={20} />
             <span className="text-sm font-medium">{post.comments.length}</span>
           </button>
@@ -166,7 +152,9 @@ const PostCard = ({ post }: PostCardProps) => {
         {showComments && (
           <div className="space-y-3">
             {post.comments.map((comment) => (
-              <div key={comment._id} className="flex space-x-3 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+              <div
+                key={comment._id}
+                className="flex space-x-3 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                 <img
                   src={comment.userId.avatar}
                   alt={comment.userId.username}
@@ -199,8 +187,7 @@ const PostCard = ({ post }: PostCardProps) => {
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
-              >
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
                 Post
               </button>
             </form>

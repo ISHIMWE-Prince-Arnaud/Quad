@@ -14,7 +14,7 @@ export interface Post {
   userId: User;
   caption: string;
   mediaUrl: string;
-  mediaType: 'image' | 'video';
+  mediaType: "image" | "video";
   tags: string[];
   theme: string | null;
   reactions: {
@@ -25,11 +25,10 @@ export interface Post {
   };
   reactedBy: Array<{
     userId: string;
-    emoji: 'laugh' | 'cry' | 'love' | 'angry';
+    emoji: "laugh" | "cry" | "love" | "angry";
   }>;
   comments: Comment[];
   isTopPost: boolean;
-  isFlagged: boolean;
   createdAt: string;
   totalReactions?: number;
 }
@@ -61,7 +60,6 @@ export interface Confession {
   _id: string;
   text: string;
   likes: number;
-  reports: number;
   createdAt: string;
 }
 
@@ -81,4 +79,4 @@ export interface Leaderboard {
   hallOfFame: User[];
 }
 
-export type EmojiType = 'laugh' | 'cry' | 'love' | 'angry';
+export type EmojiType = "laugh" | "cry" | "love" | "angry";
