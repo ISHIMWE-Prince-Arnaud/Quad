@@ -322,27 +322,17 @@ const PostCard = ({ post }: PostCardProps) => {
 
       {/* Reactions */}
       <div className="px-5 pb-4 mt-3 border-t border-gray-200 dark:border-gray-800 pt-3 flex items-center justify-between flex-shrink-0">
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => handleReact("love")}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-all duration-200 ${
-              userReaction?.emoji === "love"
-                ? "bg-gray-100 dark:bg-gray-700"
-                : "bg-gray-50 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-            }`}>
+            className="flex items-center gap-2 transition-all duration-200 hover:scale-110">
             <Heart
-              size={18}
-              className={
-                userReaction?.emoji === "love"
-                  ? "text-pink-500"
-                  : "text-gray-400 dark:text-gray-500"
-              }
+              size={24}
+              className="text-gray-900 dark:text-white transition-colors"
               fill={userReaction?.emoji === "love" ? "currentColor" : "none"}
+              strokeWidth={1.5}
             />
-            <span
-              className={`${
-                userReaction?.emoji === "love" ? "font-semibold" : ""
-              }`}>
+            <span className="text-gray-900 dark:text-white font-medium text-sm">
               {localPost.reactions.love}
             </span>
           </button>
@@ -350,7 +340,7 @@ const PostCard = ({ post }: PostCardProps) => {
 
         <button
           onClick={() => setShowComments(!showComments)}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full dark:text-white bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
           <MessageCircle size={18} />
           <span>{localPost.comments.length}</span>
         </button>
@@ -360,7 +350,7 @@ const PostCard = ({ post }: PostCardProps) => {
       {showComments && (
         <div className="px-5 pb-5 space-y-3 overflow-y-auto">
           {/* Comment Form */}
-          <form onSubmit={handleComment} className="flex gap-2 mb-2">
+          <form onSubmit={handleComment} className="flex gap-2 m-2">
             <input
               type="text"
               value={commentText}
