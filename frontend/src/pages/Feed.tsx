@@ -9,7 +9,7 @@ import { Theme } from '../types';
 const Feed = () => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme | null>(null);
-  const { posts, isLoading, currentFilter, fetchPosts, setFilter } = usePostStore();
+  const { posts, isLoading, fetchPosts } = usePostStore();
 
   useEffect(() => {
     fetchPosts();
@@ -19,11 +19,6 @@ const Feed = () => {
       .then(res => setCurrentTheme(res.data))
       .catch(() => {});
   }, [fetchPosts]);
-
-  const filters = [
-    { value: 'newest', label: '🆕 Newest', icon: '🆕' },
-    { value: 'top', label: '🔥 Top of the Week', icon: '🔥' },
-  ];
 
   return (
     <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
@@ -44,32 +39,6 @@ const Feed = () => {
         <div className="flex gap-6">
           {/* Main Content */}
           <div className="flex-1">
-            {/* Header Actions */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex space-x-2">
-                {filters.map((filter) => (
-                  <button
-                    key={filter.value}
-                    onClick={() => setFilter(filter.value)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                      currentFilter === filter.value
-                        ? 'bg-primary-500 text-white shadow-md scale-105'
-                        : 'bg-white dark:bg-dark-card text-gray-700 dark:text-gray-300 hover:bg-light-hover dark:hover:bg-dark-hover'
-                    }`}
-                  >
-                    {filter.label}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => setShowUploadModal(true)}
-                className="flex items-center space-x-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all hover:scale-105"
-              >
-                <Plus size={20} />
-                <span className="hidden sm:inline">Create Post</span>
-              </button>
-            </div>
 
             {/* Posts Grid */}
             {isLoading ? (
@@ -92,6 +61,15 @@ const Feed = () => {
           </div>
         </div>
       </div>
+
+      {/* Floating Action Button */}
+      <button
+        onClick={() => setShowUploadModal(true)}
+        className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all hover:scale-110 flex items-center justify-center z-50 group"
+        aria-label="Create Post"
+      >
+        <Plus size={28} className="group-hover:rotate-90 transition-transform duration-300" />
+      </button>
 
       {/* Upload Modal */}
       <UploadModal isOpen={showUploadModal} onClose={() => setShowUploadModal(false)} />
