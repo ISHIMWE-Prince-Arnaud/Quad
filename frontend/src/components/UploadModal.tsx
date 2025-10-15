@@ -152,7 +152,9 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
           <button
             type="submit"
             disabled={isUploading || !file || !caption.trim()}
-            className="w-full py-3 bg-primary text-white rounded-lg font-semibold hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+            className="w-full py-3 bg-blue-300 text-white rounded-lg font-semibold hover:bg-blue-600 
+             disabled:bg-blue-300 disabled:text-white disabled:cursor-not-allowed 
+             transition-colors flex items-center justify-center space-x-2"
           >
             {isUploading ? (
               <>
