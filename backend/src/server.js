@@ -6,6 +6,7 @@ import connectDB from "./config/db.js";
 import cron from "node-cron";
 import Post from "./models/Post.js";
 import User from "./models/User.js";
+import { initSocket } from "./config/socket.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -29,6 +30,8 @@ const startServer = async () => {
           process.env.NODE_ENV || "development"
         })`
       );
+      // Initialize Socket.IO
+      initSocket(server);
     });
 
     // 🕓 Weekly Cron Job

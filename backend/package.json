@@ -9,25 +9,31 @@
     "dev": "nodemon src/server.js",
     "lint": "eslint src/**/*.js"
   },
-  "keywords": ["social", "students", "memes", "polls"],
+  "keywords": [
+    "social",
+    "students",
+    "memes",
+    "polls"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "express": "^5.1.0",
-    "mongoose": "^8.19.1",
     "bcryptjs": "^3.0.2",
-    "jsonwebtoken": "^9.0.2",
-    "dotenv": "^17.2.3",
+    "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
-    "helmet": "^8.1.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
     "express-validator": "^7.2.1",
-    "cloudinary": "^2.7.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.1",
     "multer": "^2.0.2",
-    "node-cron": "^4.2.1"
+    "node-cron": "^4.2.1",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10",
-    "eslint": "^9.37.0"
+    "eslint": "^9.37.0",
+    "nodemon": "^3.1.10"
   }
 }

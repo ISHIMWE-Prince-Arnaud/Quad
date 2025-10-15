@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import Theme from "../models/Theme.js";
 import cloudinary from "../config/cloudinary.js";
 import { sanitizeText, extractTags } from "../utils/sanitize.js";
+import { getIO } from "../config/socket.js";
 
 // @desc    Get all posts
 // @route   GET /api/posts
@@ -153,6 +154,9 @@ export const createPost = async (req, res) => {
             "username avatar"
           );
 
+          // Emit new post event
+          getIO().emit("post:new", populatedPost);
+
           res.status(201).json(populatedPost);
         } catch (dbError) {
           res.status(500).json({ message: dbError.message });
@@ -227,6 +231,13 @@ export const reactToPost = async (req, res) => {
       totalReactions: totalReactions,
     });
 
+    // Emit reaction event
+    getIO().emit("post:reaction", {
+      postId: post._id,
+      reaction: emoji,
+      userId: req.user._id,
+    });
+
     res.json(post);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -260,6 +271,19 @@ export const addComment = async (req, res) => {
     const populatedPost = await Post.findById(post._id)
       .populate("userId", "username avatar")
       .populate("comments.userId", "username avatar");
+
+    // Emit new comment event
+    const newComment =
+      populatedPost.comments[populatedPost.comments.length - 1];
+    getIO().emit("post:newComment", {
+      postId: post._id,
+      comment: {
+        ...newComment.toObject(),
+        userId: await User.findById(newComment.userId).select(
+          "username avatar"
+        ),
+      },
+    });
 
     res.json(populatedPost);
   } catch (error) {

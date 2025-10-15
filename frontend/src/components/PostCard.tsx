@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, MessageCircle, Laugh, Frown, Angry } from "lucide-react";
 import { Post, EmojiType } from "../types";
+import {
+  PostReactionData,
+  PostCommentData,
+} from "../types/socket";
 import { formatDate } from "../utils/formatDate";
 import { usePostStore } from "../store/postStore";
 import { useAuthStore } from "../store/authStore";
 import { toast } from "react-toastify";
+import { socketService } from "../services/socketService";
 
 interface PostCardProps {
   post: Post;
@@ -23,9 +28,37 @@ const PostCard = ({ post }: PostCardProps) => {
     angry: { icon: Angry, label: "😡", color: "text-orange-500" },
   };
 
+  // Socket.IO event handlers
+  useEffect(() => {
+    // Subscribe to post reactions
+    socketService.subscribeToPostReactions((data: PostReactionData) => {
+      if (data.postId === post._id) {
+        // Update post reactions in store
+        reactToPost(data.postId, data.reaction as EmojiType);
+      }
+    });
+
+    // Subscribe to new comments
+    socketService.subscribeToNewComments((data: PostCommentData) => {
+      if (data.postId === post._id) {
+        // Update comments in store
+        addComment(data.postId, data.comment.text);
+      }
+    });
+
+    // Join post room for real-time updates
+    socketService.joinPostRoom(post._id);
+
+    return () => {
+      socketService.leavePostRoom(post._id);
+    };
+  }, [post._id]);
+
   const handleReact = async (emoji: EmojiType) => {
     try {
       await reactToPost(post._id, emoji);
+      // Emit reaction event
+      socketService.emitPostReact(post._id, emoji, user?._id || "");
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -36,12 +69,19 @@ const PostCard = ({ post }: PostCardProps) => {
     if (!commentText.trim()) return;
 
     try {
-      await addComment(post._id, commentText);
+      const newComment = await addComment(post._id, commentText);
       setCommentText("");
+      // Emit comment event
+      socketService.emitPostComment(post._id, newComment);
       toast.success("Comment added!");
     } catch (error: any) {
       toast.error(error.message);
     }
+  };
+
+  // Handle typing indicator
+  const handleTyping = () => {
+    socketService.emitUserTyping(post._id);
   };
 
   const userReaction = post.reactedBy?.find((r) => r.userId === user?._id);

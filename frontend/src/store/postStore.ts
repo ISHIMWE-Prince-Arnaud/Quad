@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import api from "../utils/api";
 import { Post, EmojiType } from "../types";
+import { socketService } from "../services/socketService";
 
 interface PostState {
   posts: Post[];
@@ -49,10 +50,17 @@ export const usePostStore = create<PostState>((set, get) => ({
         },
       });
 
+      const newPost = response.data;
+
       // Add new post to the beginning of the list
       set((state) => ({
-        posts: [response.data, ...state.posts],
+        posts: [newPost, ...state.posts],
       }));
+
+      // Emit new post event
+      socketService.emitPostCreate(newPost);
+
+      return newPost;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "Upload failed");
     }
@@ -76,13 +84,17 @@ export const usePostStore = create<PostState>((set, get) => ({
   addComment: async (postId: string, text: string) => {
     try {
       const response = await api.post(`/posts/${postId}/comment`, { text });
+      const updatedPost = response.data;
 
       // Update post with new comment
       set((state) => ({
         posts: state.posts.map((post) =>
-          post._id === postId ? response.data : post
+          post._id === postId ? updatedPost : post
         ),
       }));
+
+      // Return the new comment for socket emission
+      return updatedPost.comments[updatedPost.comments.length - 1];
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "Comment failed");
     }

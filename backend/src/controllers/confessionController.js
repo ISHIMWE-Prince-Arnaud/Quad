@@ -1,5 +1,6 @@
 import Confession from "../models/Confession.js";
 import { sanitizeText } from "../utils/sanitize.js";
+import { getIO } from "../config/socket.js";
 
 // @desc    Get all confessions
 // @route   GET /api/confessions
@@ -45,6 +46,9 @@ export const createConfession = async (req, res) => {
       createdAt: confession.createdAt,
     };
 
+    // Emit new confession event
+    getIO().emit("confession:new", safeConfession);
+
     res.status(201).json(safeConfession);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -79,11 +83,16 @@ export const likeConfession = async (req, res) => {
 
     await confession.save();
 
-    res.json({
+    const confessionUpdate = {
       _id: confession._id,
       likes: confession.likes,
       hasLiked: !hasLiked,
-    });
+    };
+
+    // Emit confession update event
+    getIO().emit(`confession:${confession._id}:update`, confessionUpdate);
+
+    res.json(confessionUpdate);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

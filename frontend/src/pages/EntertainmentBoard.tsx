@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
-import { Plus, ThumbsUp } from 'lucide-react';
-import api from '../utils/api';
-import { Poll, Confession } from '../types';
-import { formatDate } from '../utils/formatDate';
-import { toast } from 'react-toastify';
+import { useEffect, useState } from "react";
+import { Plus, ThumbsUp } from "lucide-react";
+import api from "../utils/api";
+import { Poll, Confession } from "../types";
+import { formatDate } from "../utils/formatDate";
+import { toast } from "react-toastify";
+import { socketService } from "../services/socketService";
 
 const EntertainmentBoard = () => {
-  const [activeTab, setActiveTab] = useState<'polls' | 'wyr' | 'confessions'>('polls');
+  const [activeTab, setActiveTab] = useState<"polls" | "wyr" | "confessions">(
+    "polls"
+  );
   const [polls, setPolls] = useState<Poll[]>([]);
   const [wouldYouRather, setWouldYouRather] = useState<Poll[]>([]);
   const [confessions, setConfessions] = useState<Confession[]>([]);
@@ -15,29 +18,54 @@ const EntertainmentBoard = () => {
   // Modal states
   const [showPollModal, setShowPollModal] = useState(false);
   const [showConfessionModal, setShowConfessionModal] = useState(false);
-  const [pollQuestion, setPollQuestion] = useState('');
-  const [pollOptions, setPollOptions] = useState(['', '']);
-  const [confessionText, setConfessionText] = useState('');
+  const [pollQuestion, setPollQuestion] = useState("");
+  const [pollOptions, setPollOptions] = useState(["", ""]);
+  const [confessionText, setConfessionText] = useState("");
 
   useEffect(() => {
     fetchData();
-  }, [activeTab]);
+
+    // Subscribe to real-time updates
+    const subscribeToUpdates = () => {
+      // Subscribe to new poll votes
+      if (activeTab === "polls" || activeTab === "wyr") {
+        polls.forEach((poll) => {
+          socketService.subscribeToPollUpdates(poll._id, (results) => {
+            setPolls((currentPolls) =>
+              currentPolls.map((p) =>
+                p._id === poll._id ? { ...p, ...results } : p
+              )
+            );
+          });
+        });
+      }
+
+      // Subscribe to new confessions
+      if (activeTab === "confessions") {
+        socketService.subscribeToNewConfessions((confession) => {
+          setConfessions((current) => [confession, ...current]);
+        });
+      }
+    };
+
+    subscribeToUpdates();
+  }, [activeTab, polls]);
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      if (activeTab === 'polls') {
-        const res = await api.get('/polls');
+      if (activeTab === "polls") {
+        const res = await api.get("/polls");
         setPolls(res.data.filter((p: Poll) => !p.isWouldYouRather));
-      } else if (activeTab === 'wyr') {
-        const res = await api.get('/polls?type=would-you-rather');
+      } else if (activeTab === "wyr") {
+        const res = await api.get("/polls?type=would-you-rather");
         setWouldYouRather(res.data);
       } else {
-        const res = await api.get('/confessions');
+        const res = await api.get("/confessions");
         setConfessions(res.data);
       }
     } catch (error) {
-      toast.error('Failed to load data');
+      toast.error("Failed to load data");
     } finally {
       setIsLoading(false);
     }
@@ -45,49 +73,61 @@ const EntertainmentBoard = () => {
 
   const handleVote = async (pollId: string, optionIndex: number) => {
     try {
-      await api.post(`/polls/${pollId}/vote`, { optionIndex });
-      toast.success('Voted! 🎉');
+      const response = await api.post(`/polls/${pollId}/vote`, { optionIndex });
+      toast.success("Voted! 🎉");
+
+      // Emit the vote event with updated results
+      socketService.emitPollVote(pollId, optionIndex.toString(), response.data);
+
       fetchData();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to vote');
+      toast.error(error.response?.data?.message || "Failed to vote");
     }
   };
 
   const handleCreatePoll = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const validOptions = pollOptions.filter(opt => opt.trim());
+      const validOptions = pollOptions.filter((opt) => opt.trim());
       if (validOptions.length < 2) {
-        toast.error('Please provide at least 2 options');
+        toast.error("Please provide at least 2 options");
         return;
       }
 
-      await api.post('/polls', {
+      const response = await api.post("/polls", {
         question: pollQuestion,
-        options: validOptions.map(text => ({ text })),
-        isWouldYouRather: activeTab === 'wyr',
+        options: validOptions.map((text) => ({ text })),
+        isWouldYouRather: activeTab === "wyr",
       });
 
-      toast.success('Poll created! 🎉');
-      setPollQuestion('');
-      setPollOptions(['', '']);
+      const newPoll = response.data;
+
+      // Add new poll to the state
+      if (activeTab === "wyr") {
+        setWouldYouRather((current) => [newPoll, ...current]);
+      } else {
+        setPolls((current) => [newPoll, ...current]);
+      }
+
+      toast.success("Poll created! 🎉");
+      setPollQuestion("");
+      setPollOptions(["", ""]);
       setShowPollModal(false);
-      fetchData();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to create poll');
+      toast.error(error.response?.data?.message || "Failed to create poll");
     }
   };
 
   const handleCreateConfession = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/confessions', { text: confessionText });
-      toast.success('Confession posted anonymously! 🤫');
-      setConfessionText('');
+      await api.post("/confessions", { text: confessionText });
+      toast.success("Confession posted anonymously! 🤫");
+      setConfessionText("");
       setShowConfessionModal(false);
       fetchData();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to post confession');
+      toast.error(error.response?.data?.message || "Failed to post confession");
     }
   };
 
@@ -96,14 +136,14 @@ const EntertainmentBoard = () => {
       await api.post(`/confessions/${id}/like`);
       fetchData();
     } catch (error) {
-      toast.error('Failed to like confession');
+      toast.error("Failed to like confession");
     }
   };
 
   const tabs = [
-    { id: 'polls', label: '📊 Polls' },
-    { id: 'wyr', label: '🤔 Would You Rather' },
-    { id: 'confessions', label: '🤫 Confessions' },
+    { id: "polls", label: "📊 Polls" },
+    { id: "wyr", label: "🤔 Would You Rather" },
+    { id: "confessions", label: "🤫 Confessions" },
   ];
 
   return (
@@ -115,7 +155,8 @@ const EntertainmentBoard = () => {
             Entertainment Board 🎮
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Vote on polls, play Would You Rather, and share anonymous confessions
+            Vote on polls, play Would You Rather, and share anonymous
+            confessions
           </p>
         </div>
 
@@ -127,10 +168,9 @@ const EntertainmentBoard = () => {
               onClick={() => setActiveTab(tab.id as any)}
               className={`px-6 py-3 font-semibold transition-all ${
                 activeTab === tab.id
-                  ? 'border-b-2 border-primary text-primary'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
+                  ? "border-b-2 border-primary text-primary"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              }`}>
               {tab.label}
             </button>
           ))}
@@ -139,12 +179,15 @@ const EntertainmentBoard = () => {
         {/* Create Button */}
         <div className="mb-6 flex justify-end">
           <button
-            onClick={() => activeTab === 'confessions' ? setShowConfessionModal(true) : setShowPollModal(true)}
-            className="flex items-center space-x-2 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors"
-          >
+            onClick={() =>
+              activeTab === "confessions"
+                ? setShowConfessionModal(true)
+                : setShowPollModal(true)
+            }
+            className="flex items-center space-x-2 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors">
             <Plus size={20} />
             <span>
-              {activeTab === 'confessions' ? 'Post Confession' : 'Create Poll'}
+              {activeTab === "confessions" ? "Post Confession" : "Create Poll"}
             </span>
           </button>
         </div>
@@ -156,11 +199,26 @@ const EntertainmentBoard = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {activeTab === 'polls' && polls.map((poll) => <PollCard key={poll._id} poll={poll} onVote={handleVote} />)}
-            {activeTab === 'wyr' && wouldYouRather.map((poll) => <WouldYouRatherCard key={poll._id} poll={poll} onVote={handleVote} />)}
-            {activeTab === 'confessions' && confessions.map((confession) => (
-              <ConfessionCard key={confession._id} confession={confession} onLike={handleLikeConfession} />
-            ))}
+            {activeTab === "polls" &&
+              polls.map((poll) => (
+                <PollCard key={poll._id} poll={poll} onVote={handleVote} />
+              ))}
+            {activeTab === "wyr" &&
+              wouldYouRather.map((poll) => (
+                <WouldYouRatherCard
+                  key={poll._id}
+                  poll={poll}
+                  onVote={handleVote}
+                />
+              ))}
+            {activeTab === "confessions" &&
+              confessions.map((confession) => (
+                <ConfessionCard
+                  key={confession._id}
+                  confession={confession}
+                  onLike={handleLikeConfession}
+                />
+              ))}
           </div>
         )}
 
@@ -169,7 +227,7 @@ const EntertainmentBoard = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
             <div className="bg-white dark:bg-dark-card rounded-2xl shadow-2xl max-w-md w-full p-6">
               <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-                Create {activeTab === 'wyr' ? 'Would You Rather' : 'Poll'}
+                Create {activeTab === "wyr" ? "Would You Rather" : "Poll"}
               </h2>
               <form onSubmit={handleCreatePoll} className="space-y-4">
                 <div>
@@ -203,24 +261,24 @@ const EntertainmentBoard = () => {
                     />
                   </div>
                 ))}
-                {activeTab !== 'wyr' && pollOptions.length < 6 && (
+                {activeTab !== "wyr" && pollOptions.length < 6 && (
                   <button
                     type="button"
-                    onClick={() => setPollOptions([...pollOptions, ''])}
-                    className="text-primary hover:underline text-sm"
-                  >
+                    onClick={() => setPollOptions([...pollOptions, ""])}
+                    className="text-primary hover:underline text-sm">
                     + Add Option
                   </button>
                 )}
                 <div className="flex space-x-2">
-                  <button type="submit" className="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-blue-600">
+                  <button
+                    type="submit"
+                    className="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-blue-600">
                     Create
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowPollModal(false)}
-                    className="flex-1 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg hover:bg-gray-400"
-                  >
+                    className="flex-1 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg hover:bg-gray-400">
                     Cancel
                   </button>
                 </div>
@@ -246,16 +304,19 @@ const EntertainmentBoard = () => {
                   className="w-full px-4 py-2 border rounded-lg dark:bg-dark-bg dark:border-gray-600 dark:text-white resize-none"
                   placeholder="Share your secret... (completely anonymous)"
                 />
-                <p className="text-sm text-gray-500">{confessionText.length}/1000</p>
+                <p className="text-sm text-gray-500">
+                  {confessionText.length}/1000
+                </p>
                 <div className="flex space-x-2">
-                  <button type="submit" className="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-blue-600">
+                  <button
+                    type="submit"
+                    className="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-blue-600">
                     Post Anonymously
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowConfessionModal(false)}
-                    className="flex-1 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg hover:bg-gray-400"
-                  >
+                    className="flex-1 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg hover:bg-gray-400">
                     Cancel
                   </button>
                 </div>
@@ -268,53 +329,75 @@ const EntertainmentBoard = () => {
   );
 };
 
-const PollCard = ({ poll, onVote }: { poll: Poll; onVote: (id: string, index: number) => void }) => {
+const PollCard = ({
+  poll,
+  onVote,
+}: {
+  poll: Poll;
+  onVote: (id: string, index: number) => void;
+}) => {
   const totalVotes = poll.options.reduce((sum, opt) => sum + opt.votes, 0);
 
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl p-6 shadow-md">
-      <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">{poll.question}</h3>
+      <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">
+        {poll.question}
+      </h3>
       <div className="space-y-3">
         {poll.options.map((option, index) => {
-          const percentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
+          const percentage =
+            totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
           return (
             <button
               key={index}
               onClick={() => onVote(poll._id, index)}
-              className="w-full text-left p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary transition-all relative overflow-hidden"
-            >
+              className="w-full text-left p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary transition-all relative overflow-hidden">
               <div
                 className="absolute inset-0 bg-primary/10"
                 style={{ width: `${percentage}%` }}
               />
               <div className="relative flex justify-between items-center">
-                <span className="font-medium text-gray-800 dark:text-white">{option.text}</span>
-                <span className="text-sm font-bold text-primary">{option.votes} ({percentage.toFixed(0)}%)</span>
+                <span className="font-medium text-gray-800 dark:text-white">
+                  {option.text}
+                </span>
+                <span className="text-sm font-bold text-primary">
+                  {option.votes} ({percentage.toFixed(0)}%)
+                </span>
               </div>
             </button>
           );
         })}
       </div>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">{totalVotes} total votes</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+        {totalVotes} total votes
+      </p>
     </div>
   );
 };
 
-const WouldYouRatherCard = ({ poll, onVote }: { poll: Poll; onVote: (id: string, index: number) => void }) => {
+const WouldYouRatherCard = ({
+  poll,
+  onVote,
+}: {
+  poll: Poll;
+  onVote: (id: string, index: number) => void;
+}) => {
   const totalVotes = poll.options.reduce((sum, opt) => sum + opt.votes, 0);
 
   return (
     <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 shadow-lg text-white">
-      <h3 className="text-2xl font-bold mb-6 text-center">Would You Rather...</h3>
+      <h3 className="text-2xl font-bold mb-6 text-center">
+        Would You Rather...
+      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {poll.options.map((option, index) => {
-          const percentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
+          const percentage =
+            totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
           return (
             <button
               key={index}
               onClick={() => onVote(poll._id, index)}
-              className="bg-white/20 backdrop-blur-sm p-6 rounded-xl hover:bg-white/30 transition-all"
-            >
+              className="bg-white/20 backdrop-blur-sm p-6 rounded-xl hover:bg-white/30 transition-all">
               <p className="font-semibold text-lg mb-3">{option.text}</p>
               <div className="text-2xl font-bold">{percentage.toFixed(0)}%</div>
               <div className="text-sm opacity-80">{option.votes} votes</div>
@@ -326,7 +409,13 @@ const WouldYouRatherCard = ({ poll, onVote }: { poll: Poll; onVote: (id: string,
   );
 };
 
-const ConfessionCard = ({ confession, onLike }: { confession: Confession; onLike: (id: string) => void }) => {
+const ConfessionCard = ({
+  confession,
+  onLike,
+}: {
+  confession: Confession;
+  onLike: (id: string) => void;
+}) => {
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl p-6 shadow-md">
       <p className="text-gray-800 dark:text-gray-200 mb-4">{confession.text}</p>
@@ -334,8 +423,7 @@ const ConfessionCard = ({ confession, onLike }: { confession: Confession; onLike
         <span>{formatDate(confession.createdAt)}</span>
         <button
           onClick={() => onLike(confession._id)}
-          className="flex items-center space-x-2 hover:text-red-500 transition-colors"
-        >
+          className="flex items-center space-x-2 hover:text-red-500 transition-colors">
           <ThumbsUp size={16} />
           <span>{confession.likes}</span>
         </button>
