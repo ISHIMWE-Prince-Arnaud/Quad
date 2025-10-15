@@ -47,10 +47,6 @@ const PostCard = ({ post }: PostCardProps) => {
   const { reactToPost, addComment } = usePostStore();
   const { user } = useAuthStore();
 
-  const emojiIcons = {
-    love: { icon: Heart, color: "text-pink-500" },
-  };
-
   useEffect(() => setLocalPost(post), [post]);
 
   useEffect(() => {
