@@ -2,7 +2,7 @@ export const sanitizeText = (text) => {
   if (!text) return '';
 
   // Sanitize HTML special characters to prevent XSS
-  return cleanText
+  return text
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')

@@ -65,7 +65,7 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div className="bg-white dark:bg-dark-card rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             Create New Post
           </h2>
@@ -78,7 +78,7 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           {/* File Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -111,7 +111,7 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
                     drop
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    PNG, JPG, GIF, MP4 (MAX. 10MB)
+                    PNG, JPG, GIF, MP4 (MAX. 1GB)
                   </p>
                 </div>
                 <input
@@ -134,7 +134,7 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
               onChange={(e) => setCaption(e.target.value)}
               placeholder="Write something funny..."
               rows={4}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-bg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-bg text-gray-900 dark:text-white resize-none"
               maxLength={500}
             />
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -146,8 +146,7 @@ const UploadModal = ({ isOpen, onClose }: UploadModalProps) => {
           <button
             type="submit"
             disabled={isUploading || !file || !caption.trim()}
-            className="w-full py-3 text-black dark:text-white rounded-lg font-semibold hover:bg-blue-600 hover:text-white
-             disabled:bg-blue-300 disabled:text-white disabled:cursor-not-allowed 
+            className="w-full py-3 bg-blue-600 text-white dark:text-white rounded-lg font-semibold hover:text-white disabled:cursor-not-allowed 
              transition-colors flex items-center justify-center space-x-2"
           >
             {isUploading ? (
