@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import PostCard from '../components/PostCard';
-import Sidebar from '../components/Sidebar';
 import UploadModal from '../components/UploadModal';
 import { usePostStore } from '../store/postStore';
 import api from '../utils/api';
@@ -91,9 +90,6 @@ const Feed = () => {
               </div>
             )}
           </div>
-
-          {/* Sidebar */}
-          <Sidebar />
         </div>
       </div>
 

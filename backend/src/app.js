@@ -10,7 +10,6 @@ import pollRoutes from "./routes/pollRoutes.js";
 import confessionRoutes from "./routes/confessionRoutes.js";
 import leaderboardRoutes from "./routes/leaderboardRoutes.js";
 import themeRoutes from "./routes/themeRoutes.js";
-import statsRoutes from "./routes/statsRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 
 const app = express();
@@ -37,7 +36,6 @@ app.use("/api/polls", pollRoutes);
 app.use("/api/confessions", confessionRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/themes", themeRoutes);
-app.use("/api/stats", statsRoutes);
 app.use("/api/users", userRoutes);
 
 // Health check
