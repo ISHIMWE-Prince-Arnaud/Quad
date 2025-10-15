@@ -1,6 +1,6 @@
 import User from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
-import { body, validationResult } from 'express-validator';
+import { body } from 'express-validator';
 
 // @desc    Register new user
 // @route   POST /api/auth/register

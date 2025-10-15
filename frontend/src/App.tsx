@@ -31,7 +31,7 @@ function App() {
     if (savedTheme) {
       setTheme(savedTheme === 'dark');
     }
-  }, []);
+  }, [checkAuth, setTheme]);
 
   return (
     <Router>

@@ -196,8 +196,12 @@ export const reactToPost = async (req, res) => {
 
     await post.save();
 
-    // Update post owner's total reactions
-    const totalReactions = post.reactions.laugh + post.reactions.cry + post.reactions.love + post.reactions.angry;
+    // Update post owner's total reactions by aggregating all their posts
+    const userPosts = await Post.find({ userId: post.userId });
+    const totalReactions = userPosts.reduce((sum, p) => {
+      return sum + p.reactions.laugh + p.reactions.cry + p.reactions.love + p.reactions.angry;
+    }, 0);
+    
     await User.findByIdAndUpdate(post.userId, {
       totalReactions: totalReactions,
     });

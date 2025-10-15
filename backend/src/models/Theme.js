@@ -31,7 +31,7 @@ const themeSchema = new mongoose.Schema({
 // Validate that endDate is after startDate
 themeSchema.pre('save', function(next) {
   if (this.endDate <= this.startDate) {
-    next(new Error('End date must be after start date'));
+    return next(new Error('End date must be after start date'));
   }
   next();
 });

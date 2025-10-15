@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Filter } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import PostCard from '../components/PostCard';
 import Sidebar from '../components/Sidebar';
 import UploadModal from '../components/UploadModal';
@@ -19,7 +19,7 @@ const Feed = () => {
     api.get('/themes/current')
       .then(res => setCurrentTheme(res.data))
       .catch(() => {});
-  }, []);
+  }, [fetchPosts]);
 
   const filters = [
     { value: 'newest', label: '🆕 Newest', icon: '🆕' },

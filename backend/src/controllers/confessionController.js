@@ -62,7 +62,7 @@ export const likeConfession = async (req, res) => {
     }
 
     // Use IP address as identifier for anonymous likes
-    const identifier = req.ip || req.connection.remoteAddress;
+    const identifier = req.ip || req.socket.remoteAddress;
 
     const hasLiked = confession.likedBy.includes(identifier);
 
@@ -99,7 +99,7 @@ export const reportConfession = async (req, res) => {
       return res.status(404).json({ message: 'Confession not found' });
     }
 
-    const identifier = req.ip || req.connection.remoteAddress;
+    const identifier = req.ip || req.socket.remoteAddress;
 
     const hasReported = confession.reportedBy.includes(identifier);
 
