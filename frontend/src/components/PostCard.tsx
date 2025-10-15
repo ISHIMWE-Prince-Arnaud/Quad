@@ -79,11 +79,6 @@ const PostCard = ({ post }: PostCardProps) => {
     }
   };
 
-  // Handle typing indicator
-  const handleTyping = () => {
-    socketService.emitUserTyping(post._id);
-  };
-
   const userReaction = post.reactedBy?.find((r) => r.userId === user?._id);
 
   return (
@@ -158,7 +153,7 @@ const PostCard = ({ post }: PostCardProps) => {
         <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-3 mb-3">
           <div className="flex space-x-1">
             {Object.entries(emojiIcons).map(
-              ([emoji, { icon: Icon, label, color }]) => (
+              ([emoji, { icon: Icon, color }]) => (
                 <button
                   key={emoji}
                   onClick={() => handleReact(emoji as EmojiType)}

@@ -85,7 +85,6 @@ class SocketService {
 
   // User events
   subscribeToUserTyping(
-    postId: string,
     callback: (data: { userId: string }) => void
   ) {
     this.socket?.on("user:typing", callback);
