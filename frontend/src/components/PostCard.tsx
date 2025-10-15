@@ -327,23 +327,36 @@ const PostCard = ({ post }: PostCardProps) => {
       </div>
 
       {/* Reactions */}
-      <div className="px-5 pb-4 mt-3 border-t border-gray-200 text-black dark:text-white dark:border-gray-800 pt-3 flex items-center justify-between flex-shrink-0">
+      <div className="px-5 pb-4 mt-3 border-t border-gray-200 dark:border-gray-800 pt-3 flex items-center justify-between flex-shrink-0">
         <div className="flex gap-2 flex-wrap">
-          {Object.entries(emojiIcons).map(([emoji, { icon: Icon, color }]) => (
-            <button
-              key={emoji}
-              onClick={() => handleReact(emoji as EmojiType)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-all duration-200 ${
-                userReaction?.emoji === emoji
-                  ? "bg-primary"
-                  : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-              }`}>
-              <Icon size={16} className={color} />
-              <span>
-                {localPost.reactions[emoji as keyof typeof localPost.reactions]}
-              </span>
-            </button>
-          ))}
+          {Object.entries(emojiIcons).map(([emoji, { icon: Icon, color }]) => {
+            const isActive = userReaction?.emoji === emoji;
+            return (
+              <button
+                key={emoji}
+                onClick={() => handleReact(emoji as EmojiType)}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-all duration-200 ${
+                  isActive
+                    ? "bg-gray-100 dark:bg-gray-700"
+                    : "bg-gray-50 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                }`}>
+                <Icon
+                  size={18}
+                  className={
+                    isActive ? color : "text-gray-400 dark:text-gray-500"
+                  }
+                  fill={isActive ? "currentColor" : "none"} // fill the emoji if active
+                />
+                <span className={`${isActive ? "font-semibold" : ""}`}>
+                  {
+                    localPost.reactions[
+                      emoji as keyof typeof localPost.reactions
+                    ]
+                  }
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         <button
@@ -353,7 +366,7 @@ const PostCard = ({ post }: PostCardProps) => {
           <span>{localPost.comments.length}</span>
         </button>
       </div>
-
+      
       {/* Comments */}
       {showComments && (
         <div className="px-5 pb-5 space-y-3 overflow-y-auto">
@@ -374,32 +387,38 @@ const PostCard = ({ post }: PostCardProps) => {
             </button>
           </form>
 
-          {[...localPost.comments].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((comment) => (
-            <div
-              key={comment._id}
-              className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
-              <div className="flex gap-3">
-                <img
-                  src={comment.userId.avatar}
-                  alt={comment.userId.username}
-                  className="w-8 h-8 rounded-full"
-                />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm text-gray-800 dark:text-gray-200">
-                      {comment.userId.username}
-                    </span>
-                    <time className="text-xs text-gray-500">
-                      {formatDate(comment.createdAt)}
-                    </time>
+          {[...localPost.comments]
+            .sort(
+              (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+            )
+            .map((comment) => (
+              <div
+                key={comment._id}
+                className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                <div className="flex gap-3">
+                  <img
+                    src={comment.userId.avatar}
+                    alt={comment.userId.username}
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm text-gray-800 dark:text-gray-200">
+                        {comment.userId.username}
+                      </span>
+                      <time className="text-xs text-gray-500">
+                        {formatDate(comment.createdAt)}
+                      </time>
+                    </div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                      {comment.text}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
-                    {comment.text}
-                  </p>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
     </div>
