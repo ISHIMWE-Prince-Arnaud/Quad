@@ -5,6 +5,8 @@ import { Poll, Confession } from "../types";
 import { formatDate } from "../utils/formatDate";
 import { toast } from "react-toastify";
 import { socketService } from "../services/socketService";
+import { PollCard } from "../components/PollCard";
+import { WouldYouRatherCard } from "../components/WouldYouRatherCard";
 
 const EntertainmentBoard = () => {
   const [activeTab, setActiveTab] = useState<"polls" | "wyr" | "confessions">(
@@ -24,32 +26,47 @@ const EntertainmentBoard = () => {
 
   useEffect(() => {
     fetchData();
+  }, [activeTab]);
 
-    // Subscribe to real-time updates
-    const subscribeToUpdates = () => {
-      // Subscribe to new poll votes
-      if (activeTab === "polls" || activeTab === "wyr") {
-        polls.forEach((poll) => {
-          socketService.subscribeToPollUpdates(poll._id, (results) => {
+  // Separate useEffect for socket subscriptions
+  useEffect(() => {
+    if (activeTab === "polls" || activeTab === "wyr") {
+      const pollList = activeTab === "polls" ? polls : wouldYouRather;
+      pollList.forEach((poll) => {
+        socketService.subscribeToPollUpdates(poll._id, (results) => {
+          if (activeTab === "polls") {
             setPolls((currentPolls) =>
               currentPolls.map((p) =>
                 p._id === poll._id ? { ...p, ...results } : p
               )
             );
-          });
+          } else {
+            setWouldYouRather((currentPolls) =>
+              currentPolls.map((p) =>
+                p._id === poll._id ? { ...p, ...results } : p
+              )
+            );
+          }
         });
-      }
+      });
+    } else if (activeTab === "confessions") {
+      socketService.subscribeToNewConfessions((confession) => {
+        setConfessions((current) => [confession, ...current]);
+      });
+    }
 
-      // Subscribe to new confessions
-      if (activeTab === "confessions") {
-        socketService.subscribeToNewConfessions((confession) => {
-          setConfessions((current) => [confession, ...current]);
+    return () => {
+      // Clean up socket subscriptions
+      if (activeTab === "polls" || activeTab === "wyr") {
+        const pollList = activeTab === "polls" ? polls : wouldYouRather;
+        pollList.forEach((poll) => {
+          socketService.getSocket()?.off(`poll:${poll._id}:update`);
         });
+      } else if (activeTab === "confessions") {
+        socketService.getSocket()?.off("confession:new");
       }
     };
-
-    subscribeToUpdates();
-  }, [activeTab, polls]);
+  }, [activeTab, polls, wouldYouRather]);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -324,86 +341,6 @@ const EntertainmentBoard = () => {
             </div>
           </div>
         )}
-      </div>
-    </div>
-  );
-};
-
-const PollCard = ({
-  poll,
-  onVote,
-}: {
-  poll: Poll;
-  onVote: (id: string, index: number) => void;
-}) => {
-  const totalVotes = poll.options.reduce((sum, opt) => sum + opt.votes, 0);
-
-  return (
-    <div className="bg-white dark:bg-dark-card rounded-xl p-6 shadow-md">
-      <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">
-        {poll.question}
-      </h3>
-      <div className="space-y-3">
-        {poll.options.map((option, index) => {
-          const percentage =
-            totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
-          return (
-            <button
-              key={index}
-              onClick={() => onVote(poll._id, index)}
-              className="w-full text-left p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary transition-all relative overflow-hidden">
-              <div
-                className="absolute inset-0 bg-primary/10"
-                style={{ width: `${percentage}%` }}
-              />
-              <div className="relative flex justify-between items-center">
-                <span className="font-medium text-gray-800 dark:text-white">
-                  {option.text}
-                </span>
-                <span className="text-sm font-bold text-primary">
-                  {option.votes} ({percentage.toFixed(0)}%)
-                </span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-        {totalVotes} total votes
-      </p>
-    </div>
-  );
-};
-
-const WouldYouRatherCard = ({
-  poll,
-  onVote,
-}: {
-  poll: Poll;
-  onVote: (id: string, index: number) => void;
-}) => {
-  const totalVotes = poll.options.reduce((sum, opt) => sum + opt.votes, 0);
-
-  return (
-    <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 shadow-lg text-white">
-      <h3 className="text-2xl font-bold mb-6 text-center">
-        Would You Rather...
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {poll.options.map((option, index) => {
-          const percentage =
-            totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0;
-          return (
-            <button
-              key={index}
-              onClick={() => onVote(poll._id, index)}
-              className="bg-white/20 backdrop-blur-sm p-6 rounded-xl hover:bg-white/30 transition-all">
-              <p className="font-semibold text-lg mb-3">{option.text}</p>
-              <div className="text-2xl font-bold">{percentage.toFixed(0)}%</div>
-              <div className="text-sm opacity-80">{option.votes} votes</div>
-            </button>
-          );
-        })}
       </div>
     </div>
   );
