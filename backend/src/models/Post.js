@@ -37,12 +37,6 @@ const postSchema = new mongoose.Schema({
     enum: ["image", "video"],
     default: "image",
   },
-  tags: [
-    {
-      type: String,
-      lowercase: true,
-    },
-  ],
   theme: {
     type: String,
     default: null,
@@ -78,7 +72,6 @@ const postSchema = new mongoose.Schema({
 
 // Index for faster queries
 postSchema.index({ createdAt: -1 });
-postSchema.index({ tags: 1 });
 postSchema.index({ theme: 1 });
 
 const Post = mongoose.model("Post", postSchema);

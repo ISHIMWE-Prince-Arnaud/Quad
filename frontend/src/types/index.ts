@@ -17,7 +17,6 @@ export interface Post {
   caption: string;
   mediaUrl: string;
   mediaType: "image" | "video";
-  tags: string[];
   theme: string | null;
   reactions: {
     laugh: number;

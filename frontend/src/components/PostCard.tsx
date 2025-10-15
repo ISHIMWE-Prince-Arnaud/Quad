@@ -68,7 +68,7 @@ const PostCard = ({ post }: PostCardProps) => {
   return (
     <div className="max-w-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 mx-auto my-6 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3 p-5 border-b border-gray-100 dark:border-gray-800">
+      <div className="flex items-center gap-3 p-5 border-gray-100 dark:border-gray-800">
         <div className="avatar">
           <div className="w-10 h-10 rounded-full ring-2 ring-primary/20 overflow-hidden">
             <img src={post.userId.avatar} alt={post.userId.username} />
@@ -111,19 +111,6 @@ const PostCard = ({ post }: PostCardProps) => {
         <p className="text-gray-800 dark:text-gray-100 leading-relaxed">
           {post.caption}
         </p>
-
-        {/* Tags */}
-        {post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
-              <span
-                key={tag}
-                className="bg-primary/10 text-primary px-2 py-1 rounded-full text-sm hover:bg-primary/20 transition">
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
 
         {/* Theme */}
         {post.theme && (

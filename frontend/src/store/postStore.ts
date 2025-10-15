@@ -7,34 +7,29 @@ interface PostState {
   posts: Post[];
   isLoading: boolean;
   currentFilter: string;
-  currentTag: string | null;
-  fetchPosts: (filter?: string, tag?: string) => Promise<void>;
+  fetchPosts: (filter?: string) => Promise<void>;
   uploadPost: (formData: FormData) => Promise<void>;
   reactToPost: (postId: string, emoji: EmojiType) => Promise<void>;
   addComment: (postId: string, text: string) => Promise<void>;
 
   setFilter: (filter: string) => void;
-  setTag: (tag: string | null) => void;
 }
 
 export const usePostStore = create<PostState>((set, get) => ({
   posts: [],
   isLoading: false,
   currentFilter: "newest",
-  currentTag: null,
-
-  fetchPosts: async (filter = "newest", tag?: string) => {
+  
+  fetchPosts: async (filter = "newest") => {
     try {
       set({ isLoading: true });
       const params: any = { sort: filter };
-      if (tag) params.tag = tag;
 
       const response = await api.get("/posts", { params });
       set({
         posts: response.data.posts,
         isLoading: false,
         currentFilter: filter,
-        currentTag: tag || null,
       });
     } catch (error) {
       set({ isLoading: false });
@@ -102,11 +97,5 @@ export const usePostStore = create<PostState>((set, get) => ({
 
   setFilter: (filter: string) => {
     set({ currentFilter: filter });
-    get().fetchPosts(filter, get().currentTag || undefined);
-  },
-
-  setTag: (tag: string | null) => {
-    set({ currentTag: tag });
-    get().fetchPosts(get().currentFilter, tag || undefined);
   },
 }));

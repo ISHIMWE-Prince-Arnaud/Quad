@@ -2,7 +2,7 @@ import Post from "../models/Post.js";
 import User from "../models/User.js";
 import Theme from "../models/Theme.js";
 import cloudinary from "../config/cloudinary.js";
-import { sanitizeText, extractTags } from "../utils/sanitize.js";
+import { sanitizeText } from "../utils/sanitize.js";
 import { getIO } from "../config/socket.js";
 
 // @desc    Get all posts
@@ -10,16 +10,12 @@ import { getIO } from "../config/socket.js";
 // @access  Public
 export const getPosts = async (req, res) => {
   try {
-    const { tag, theme, sort = "newest" } = req.query;
+    const { theme, sort = "newest" } = req.query;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
 
     let query = {};
-
-    if (tag) {
-      query.tags = tag.toLowerCase();
-    }
 
     if (theme) {
       query.theme = theme;
@@ -125,8 +121,6 @@ export const createPost = async (req, res) => {
         }
 
         try {
-          // Extract tags from caption
-          const tags = extractTags(caption);
 
           // Get current active theme
           const currentTheme = await Theme.findOne({
@@ -140,7 +134,6 @@ export const createPost = async (req, res) => {
             caption: sanitizeText(caption),
             mediaUrl: result.secure_url,
             mediaType: result.resource_type === "video" ? "video" : "image",
-            tags,
             theme: currentTheme ? currentTheme.title : null,
           });
 
