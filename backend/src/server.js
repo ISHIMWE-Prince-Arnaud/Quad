@@ -7,6 +7,7 @@ import cron from "node-cron";
 import Post from "./models/Post.js";
 import User from "./models/User.js";
 import { initSocket } from "./config/socket.js";
+import { startThemeScheduler } from "./services/themeScheduler.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -32,6 +33,9 @@ const startServer = async () => {
       );
       // Initialize Socket.IO
       initSocket(server);
+      
+      // Start theme scheduler
+      startThemeScheduler();
     });
 
     // 🕓 Weekly Cron Job

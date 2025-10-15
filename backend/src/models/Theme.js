@@ -10,6 +10,16 @@ const themeSchema = new mongoose.Schema({
     type: String,
     maxlength: [500, 'Description cannot exceed 500 characters'],
   },
+  emoji: {
+    type: String,
+    default: '🎨',
+  },
+  dayOfWeek: {
+    type: Number,
+    min: 0,
+    max: 6,
+    // 0 = Sunday, 1 = Monday, 2 = Tuesday, etc.
+  },
   startDate: {
     type: Date,
     required: [true, 'Start date is required'],
@@ -19,6 +29,10 @@ const themeSchema = new mongoose.Schema({
     required: [true, 'End date is required'],
   },
   isActive: {
+    type: Boolean,
+    default: false,
+  },
+  isRecurring: {
     type: Boolean,
     default: false,
   },

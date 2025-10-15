@@ -15,6 +15,8 @@ interface PostCardProps {
 const PostCard = ({ post }: PostCardProps) => {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localPost, setLocalPost] = useState(post);
   const { reactToPost, addComment } = usePostStore();
   const { user } = useAuthStore();
 
@@ -25,20 +27,40 @@ const PostCard = ({ post }: PostCardProps) => {
     angry: { icon: Angry, color: "text-red-500" },
   };
 
-  // Real-time updates
+  // Sync local post with prop changes
   useEffect(() => {
-    socketService.subscribeToPostReactions((data: PostReactionData) => {
-      if (data.postId === post._id)
+    setLocalPost(post);
+  }, [post]);
+
+  // Real-time updates - only update local state, don't make API calls
+  useEffect(() => {
+    const handleReaction = (data: PostReactionData) => {
+      if (data.postId === post._id && data.userId !== user?._id) {
+        // Only update for other users' reactions, not our own
         reactToPost(data.postId, data.reaction as EmojiType);
-    });
+      }
+    };
 
-    socketService.subscribeToNewComments((data: PostCommentData) => {
-      if (data.postId === post._id) addComment(data.postId, data.comment.text);
-    });
+    const handleComment = (data: PostCommentData) => {
+      if (data.postId === post._id && data.comment.userId._id !== user?._id) {
+        // Only update for other users' comments, not our own
+        setLocalPost((prev) => ({
+          ...prev,
+          comments: [...prev.comments, data.comment as any],
+        }));
+      }
+    };
 
+    socketService.subscribeToPostReactions(handleReaction);
+    socketService.subscribeToNewComments(handleComment);
     socketService.joinPostRoom(post._id);
-    return () => socketService.leavePostRoom(post._id);
-  }, [post._id]);
+
+    return () => {
+      socketService.leavePostRoom(post._id);
+      socketService.getSocket()?.off("post:reaction", handleReaction);
+      socketService.getSocket()?.off("post:newComment", handleComment);
+    };
+  }, [post._id, user?._id]);
 
   const handleReact = async (emoji: EmojiType) => {
     try {
@@ -51,8 +73,9 @@ const PostCard = ({ post }: PostCardProps) => {
 
   const handleComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       const newComment = await addComment(post._id, commentText);
       setCommentText("");
@@ -60,10 +83,12 @@ const PostCard = ({ post }: PostCardProps) => {
       toast.success("Comment added!");
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const userReaction = post.reactedBy?.find((r) => r.userId === user?._id);
+  const userReaction = localPost.reactedBy?.find((r) => r.userId === user?._id);
 
   return (
     <div className="max-w-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 mx-auto my-6 overflow-hidden">
@@ -130,12 +155,12 @@ const PostCard = ({ post }: PostCardProps) => {
                   className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-all duration-200 
                   ${
                     userReaction?.emoji === emoji
-                      ? "bg-primary text-white"
-                      : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      ? "bg-primary-500 text-white"
+                      : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
                   }`}>
                   <Icon size={16} className={`${color}`} />
                   <span>
-                    {post.reactions[emoji as keyof typeof post.reactions]}
+                    {localPost.reactions[emoji as keyof typeof localPost.reactions]}
                   </span>
                 </button>
               )
@@ -144,16 +169,34 @@ const PostCard = ({ post }: PostCardProps) => {
 
           <button
             onClick={() => setShowComments(!showComments)}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition">
             <MessageCircle size={18} />
-            <span>{post.comments.length}</span>
+            <span>{localPost.comments.length}</span>
           </button>
         </div>
 
         {/* Comments */}
         {showComments && (
           <div className="mt-4 space-y-3 animate-fadeIn">
-            {post.comments.map((comment) => (
+            {/* Comment form */}
+            <form onSubmit={handleComment} className="flex gap-2 pb-3 border-b border-gray-200 dark:border-gray-700">
+              <input
+                type="text"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Write a comment..."
+                className="flex-1 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-primary-500 transition-colors"
+              />
+              <button
+                type="submit"
+                disabled={!commentText.trim() || isSubmitting}
+                className="btn btn-primary px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold shadow-md hover:shadow-lg transition-all">
+                {isSubmitting ? "Posting..." : "Post"}
+              </button>
+            </form>
+
+            {/* Comments list */}
+            {localPost.comments.map((comment) => (
               <div
                 key={comment._id}
                 className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
@@ -179,23 +222,6 @@ const PostCard = ({ post }: PostCardProps) => {
                 </div>
               </div>
             ))}
-
-            {/* Comment form */}
-            <form onSubmit={handleComment} className="flex gap-2 mt-2">
-              <input
-                type="text"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Write a comment..."
-                className="flex-1 bg-transparent text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none p-2"
-              />
-              <button
-                type="submit"
-                disabled={!commentText.trim()}
-                className="btn btn-primary px-4 py-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-900 text-white font-semibold shadow-md hover:shadow-lg transition-all">
-                Post
-              </button>
-            </form>
           </div>
         )}
       </div>

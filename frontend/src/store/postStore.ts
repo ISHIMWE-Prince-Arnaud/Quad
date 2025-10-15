@@ -15,7 +15,7 @@ interface PostState {
   setFilter: (filter: string) => void;
 }
 
-export const usePostStore = create<PostState>((set, get) => ({
+export const usePostStore = create<PostState>((set) => ({
   posts: [],
   isLoading: false,
   currentFilter: "newest",
