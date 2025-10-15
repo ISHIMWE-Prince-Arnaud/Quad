@@ -36,7 +36,7 @@ const PostCard = ({ post }: PostCardProps) => {
   const [aspectRatio, setAspectRatio] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const likeTimeout = useRef<number | null>(null); // Changed from NodeJS.Timeout to number | null
+  const likeTimeout = useRef<number | null>(null);
 
   // --- video states ---
   const [isPlaying, setIsPlaying] = useState(false);
@@ -84,7 +84,7 @@ const PostCard = ({ post }: PostCardProps) => {
       if (data.postId === post._id && data.comment.userId._id !== user?._id) {
         setLocalPost((prev) => ({
           ...prev,
-          comments: [...prev.comments, data.comment as any],
+          comments: [data.comment as any, ...prev.comments],
         }));
       }
     };
@@ -160,7 +160,7 @@ const PostCard = ({ post }: PostCardProps) => {
 
   const handleDoubleTap = () => {
     if (likeTimeout.current) {
-      clearTimeout(likeTimeout.current); // Use clearTimeout with number
+      clearTimeout(likeTimeout.current);
       likeTimeout.current = null;
       setShowHeart(true);
       setTimeout(() => setShowHeart(false), 800);
@@ -327,7 +327,7 @@ const PostCard = ({ post }: PostCardProps) => {
       </div>
 
       {/* Reactions */}
-      <div className="px-5 pb-4 mt-3 border-t border-gray-200 dark:border-gray-800 pt-3 flex items-center justify-between flex-shrink-0">
+      <div className="px-5 pb-4 mt-3 border-t border-gray-200 text-black dark:text-white dark:border-gray-800 pt-3 flex items-center justify-between flex-shrink-0">
         <div className="flex gap-2 flex-wrap">
           {Object.entries(emojiIcons).map(([emoji, { icon: Icon, color }]) => (
             <button
@@ -335,7 +335,7 @@ const PostCard = ({ post }: PostCardProps) => {
               onClick={() => handleReact(emoji as EmojiType)}
               className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm transition-all duration-200 ${
                 userReaction?.emoji === emoji
-                  ? "bg-primary text-white"
+                  ? "bg-primary"
                   : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
               }`}>
               <Icon size={16} className={color} />
@@ -357,7 +357,24 @@ const PostCard = ({ post }: PostCardProps) => {
       {/* Comments */}
       {showComments && (
         <div className="px-5 pb-5 space-y-3 overflow-y-auto">
-          {localPost.comments.map((comment) => (
+          {/* Comment Form */}
+          <form onSubmit={handleComment} className="flex gap-2 mb-2">
+            <input
+              type="text"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Write a comment..."
+              className="flex-1 border border-gray-300 dark:border-gray-600 bg-transparent rounded-full px-4 py-2 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+            <button
+              type="submit"
+              disabled={!commentText.trim() || isSubmitting}
+              className="px-4 py-2 rounded-full font-semibold text-white transition-all bg-gradient-to-r from-primary-600 to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed">
+              {isSubmitting ? "Posting..." : "Post"}
+            </button>
+          </form>
+
+          {[...localPost.comments].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((comment) => (
             <div
               key={comment._id}
               className="bg-gray-50 dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
@@ -383,23 +400,6 @@ const PostCard = ({ post }: PostCardProps) => {
               </div>
             </div>
           ))}
-
-          {/* Comment Form */}
-          <form onSubmit={handleComment} className="flex gap-2 mt-2">
-            <input
-              type="text"
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Write a comment..."
-              className="flex-1 border border-gray-300 dark:border-gray-600 bg-transparent rounded-full px-4 py-2 text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/50"
-            />
-            <button
-              type="submit"
-              disabled={!commentText.trim() || isSubmitting}
-              className="px-4 py-2 rounded-full font-semibold text-white transition-all disabled:bg-red-500 bg-primary hover:bg-primary/90 disabled:cursor-not-allowed">
-              {isSubmitting ? "Posting..." : "Post"}
-            </button>
-          </form>
         </div>
       )}
     </div>
