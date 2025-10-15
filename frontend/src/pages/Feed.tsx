@@ -27,15 +27,15 @@ const Feed = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Theme Banner */}
         {currentTheme && (
-          <div className="mb-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-6 text-white shadow-lg">
+          <div className="mb-6 bg-gradient-to-r from-primary-600 to-primary-800 rounded-2xl p-6 text-white shadow-soft">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold mb-2">🎭 {currentTheme.title}</h2>
-                <p className="text-purple-100">{currentTheme.description}</p>
+                <p className="text-primary-100">{currentTheme.description}</p>
               </div>
               <div className="hidden md:block text-6xl">🎉</div>
             </div>
@@ -54,8 +54,8 @@ const Feed = () => {
                     onClick={() => setFilter(filter.value)}
                     className={`px-4 py-2 rounded-lg font-medium transition-all ${
                       currentFilter === filter.value
-                        ? 'bg-primary text-white shadow-lg scale-105'
-                        : 'bg-white dark:bg-dark-card text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        ? 'bg-primary-500 text-white shadow-md scale-105'
+                        : 'bg-white dark:bg-dark-card text-gray-700 dark:text-gray-300 hover:bg-light-hover dark:hover:bg-dark-hover'
                     }`}
                   >
                     {filter.label}
@@ -65,7 +65,7 @@ const Feed = () => {
 
               <button
                 onClick={() => setShowUploadModal(true)}
-                className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-white rounded-lg font-semibold hover:shadow-lg transition-all hover:scale-105"
+                className="flex items-center space-x-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all hover:scale-105"
               >
                 <Plus size={20} />
                 <span className="hidden sm:inline">Create Post</span>
@@ -75,10 +75,10 @@ const Feed = () => {
             {/* Posts Grid */}
             {isLoading ? (
               <div className="flex justify-center items-center h-64">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
               </div>
             ) : posts.length === 0 ? (
-              <div className="text-center py-12 bg-white dark:bg-dark-card rounded-xl">
+              <div className="text-center py-12 bg-white dark:bg-dark-card rounded-xl shadow-card">
                 <p className="text-gray-500 dark:text-gray-400 text-lg">
                   No posts yet. Be the first to share! 🚀
                 </p>

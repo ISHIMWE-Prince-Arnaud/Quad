@@ -164,8 +164,8 @@ const EntertainmentBoard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -185,7 +185,7 @@ const EntertainmentBoard = () => {
               onClick={() => setActiveTab(tab.id as any)}
               className={`px-6 py-3 font-semibold transition-all ${
                 activeTab === tab.id
-                  ? "border-b-2 border-primary text-primary"
+                  ? "border-b-2 border-primary-500 text-primary-600 dark:text-primary-400"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
               }`}>
               {tab.label}
@@ -201,7 +201,7 @@ const EntertainmentBoard = () => {
                 ? setShowConfessionModal(true)
                 : setShowPollModal(true)
             }
-            className="flex items-center space-x-2 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+            className="flex items-center space-x-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all">
             <Plus size={20} />
             <span>
               {activeTab === "confessions" ? "Post Confession" : "Create Poll"}
@@ -212,7 +212,7 @@ const EntertainmentBoard = () => {
         {/* Content */}
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
           <div className="space-y-4">
@@ -289,13 +289,13 @@ const EntertainmentBoard = () => {
                 <div className="flex space-x-2">
                   <button
                     type="submit"
-                    className="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-blue-600">
+                    className="flex-1 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors">
                     Create
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowPollModal(false)}
-                    className="flex-1 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg hover:bg-gray-400">
+                    className="flex-1 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors">
                     Cancel
                   </button>
                 </div>
@@ -327,13 +327,13 @@ const EntertainmentBoard = () => {
                 <div className="flex space-x-2">
                   <button
                     type="submit"
-                    className="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-blue-600">
+                    className="flex-1 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors">
                     Post Anonymously
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowConfessionModal(false)}
-                    className="flex-1 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg hover:bg-gray-400">
+                    className="flex-1 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors">
                     Cancel
                   </button>
                 </div>

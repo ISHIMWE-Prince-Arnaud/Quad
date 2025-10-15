@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import { Heart, MessageCircle, Laugh, Frown, Angry } from "lucide-react";
 import { Post, EmojiType } from "../types";
-import {
-  PostReactionData,
-  PostCommentData,
-} from "../types/socket";
+import { PostReactionData, PostCommentData } from "../types/socket";
 import { formatDate } from "../utils/formatDate";
 import { usePostStore } from "../store/postStore";
 import { useAuthStore } from "../store/authStore";
@@ -22,10 +19,10 @@ const PostCard = ({ post }: PostCardProps) => {
   const { user } = useAuthStore();
 
   const emojiIcons = {
-    laugh: { icon: Laugh, label: "😂", color: "text-yellow-500" },
-    cry: { icon: Frown, label: "😭", color: "text-blue-500" },
-    love: { icon: Heart, label: "❤️", color: "text-red-500" },
-    angry: { icon: Angry, label: "😡", color: "text-orange-500" },
+    laugh: { icon: Laugh, label: "Haha", color: "text-yellow-500" },
+    cry: { icon: Frown, label: "Sad", color: "text-blue-500" },
+    love: { icon: Heart, label: "Love", color: "text-red-500" },
+    angry: { icon: Angry, label: "Angry", color: "text-orange-500" },
   };
 
   // Socket.IO event handlers
@@ -82,52 +79,50 @@ const PostCard = ({ post }: PostCardProps) => {
   const userReaction = post.reactedBy?.find((r) => r.userId === user?._id);
 
   return (
-    <div className="bg-white dark:bg-dark-card rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+    <div className="card bg-base-100 shadow-xl max-w-3xl mx-auto">
       {/* Header */}
-      <div className="p-4 flex items-center justify-between">
+      <div className="card-body pb-0">
         <div className="flex items-center space-x-3">
-          <img
-            src={post.userId.avatar}
-            alt={post.userId.username}
-            className="w-10 h-10 rounded-full"
-          />
+          <div className="avatar">
+            <div className="w-10 h-10 rounded-full">
+              <img src={post.userId.avatar} alt={post.userId.username} />
+            </div>
+          </div>
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">
-              {post.userId.username}
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <h3 className="font-semibold">{post.userId.username}</h3>
+            <time className="text-sm opacity-70">
               {formatDate(post.createdAt)}
-            </p>
+            </time>
           </div>
         </div>
       </div>
 
       {/* Media */}
-      <div className="relative">
+      <figure className="relative">
         {post.mediaType === "video" ? (
           <video
             src={post.mediaUrl}
             controls
-            className="w-full max-h-[600px] object-cover"
+            className="w-full aspect-[4/3] object-contain bg-base-200"
           />
         ) : (
           <img
             src={post.mediaUrl}
             alt={post.caption}
-            className="w-full max-h-[600px] object-cover"
+            className="w-full aspect-[4/3] object-contain bg-base-200"
           />
         )}
         {post.isTopPost && (
-          <div className="absolute top-4 right-4 bg-accent text-gray-900 px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
-            <span>🏆</span>
+          <div className="badge badge-accent absolute top-4 right-4 gap-1">
+            <span className="font-bold">★</span>
             <span>Top Post</span>
           </div>
         )}
-      </div>
+      </figure>
 
       {/* Content */}
-      <div className="p-4">
-        <p className="text-gray-800 dark:text-gray-200 mb-3">{post.caption}</p>
+      <div className="card-body pt-4">
+        <p className="mb-3">{post.caption}</p>
 
         {/* Tags */}
         {post.tags.length > 0 && (
@@ -135,7 +130,7 @@ const PostCard = ({ post }: PostCardProps) => {
             {post.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-sm text-primary dark:text-accent font-medium hover:underline cursor-pointer">
+                className="link link-primary text-sm no-underline hover:underline">
                 #{tag}
               </span>
             ))}
@@ -144,85 +139,83 @@ const PostCard = ({ post }: PostCardProps) => {
 
         {/* Theme Badge */}
         {post.theme && (
-          <div className="inline-block bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-3 py-1 rounded-full text-sm mb-3">
-            🎭 {post.theme}
+          <div className="badge badge-secondary gap-1 mb-3">
+            <span className="font-normal">Theme:</span> {post.theme}
           </div>
         )}
 
         {/* Reactions */}
-        <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-3 mb-3">
+        <div className="flex items-center justify-between border-t pt-3 mb-3">
           <div className="flex space-x-1">
             {Object.entries(emojiIcons).map(
-              ([emoji, { icon: Icon, color }]) => (
+              ([emoji, { icon: Icon, color, label }]) => (
                 <button
                   key={emoji}
                   onClick={() => handleReact(emoji as EmojiType)}
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-all ${
+                  className={`btn btn-sm gap-1 ${
                     userReaction?.emoji === emoji
-                      ? "bg-primary text-white scale-110"
-                      : "bg-gray-100 dark:bg-gray-700 hover:scale-105"
+                      ? "btn-primary"
+                      : "btn-ghost hover:btn-primary hover:btn-outline"
                   }`}>
-                  <Icon
-                    size={18}
-                    className={
-                      userReaction?.emoji === emoji ? "text-white" : color
-                    }
-                  />
-                  <span className="text-sm font-medium">
+                  <Icon size={18} />
+                  <span>
                     {post.reactions[emoji as keyof typeof post.reactions]}
                   </span>
+                  <span className="hidden md:inline">{label}</span>
                 </button>
               )
             )}
           </div>
           <button
             onClick={() => setShowComments(!showComments)}
-            className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
-            <MessageCircle size={20} />
-            <span className="text-sm font-medium">{post.comments.length}</span>
+            className="btn btn-ghost btn-sm gap-1">
+            <MessageCircle size={18} />
+            <span>{post.comments.length}</span>
           </button>
         </div>
 
         {/* Comments */}
         {showComments && (
-          <div className="space-y-3">
+          <div className="space-y-3 mt-2">
             {post.comments.map((comment) => (
-              <div
-                key={comment._id}
-                className="flex space-x-3 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                <img
-                  src={comment.userId.avatar}
-                  alt={comment.userId.username}
-                  className="w-8 h-8 rounded-full"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-semibold text-sm text-gray-900 dark:text-white">
-                      {comment.userId.username}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {formatDate(comment.createdAt)}
-                    </span>
+              <div key={comment._id} className="bg-base-200 rounded-lg p-3">
+                <div className="flex space-x-3">
+                  <div className="avatar">
+                    <div className="w-8 h-8 rounded-full">
+                      <img
+                        src={comment.userId.avatar}
+                        alt={comment.userId.username}
+                      />
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
-                    {comment.text}
-                  </p>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">
+                        {comment.userId.username}
+                      </span>
+                      <time className="text-xs opacity-70">
+                        {formatDate(comment.createdAt)}
+                      </time>
+                    </div>
+                    <p className="text-sm mt-1">{comment.text}</p>
+                  </div>
                 </div>
               </div>
             ))}
 
             {/* Comment Form */}
-            <form onSubmit={handleComment} className="flex space-x-2">
+            <form onSubmit={handleComment} className="flex gap-2 mt-4">
               <input
                 type="text"
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 placeholder="Add a comment..."
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-bg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="input input-bordered flex-1"
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors font-medium">
+                disabled={!commentText.trim()}
+                className="btn btn-primary">
                 Post
               </button>
             </form>

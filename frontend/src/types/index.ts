@@ -7,11 +7,13 @@ export interface User {
   totalReactions?: number;
   badges?: string[];
   isAdmin?: boolean;
+  createdAt?: string;
 }
 
 export interface Post {
   _id: string;
   userId: User;
+  user: User;
   caption: string;
   mediaUrl: string;
   mediaType: "image" | "video";
@@ -56,10 +58,24 @@ export interface Poll {
   createdAt: string;
 }
 
+export interface FakeProfile {
+  name: string;
+  avatar: string;
+}
+
+export interface ConfessionComment {
+  text: string;
+  fakeProfile: FakeProfile;
+  createdAt: string;
+}
+
 export interface Confession {
   _id: string;
   text: string;
   likes: number;
+  likedBy: string[];
+  comments: ConfessionComment[];
+  fakeProfile: FakeProfile;
   createdAt: string;
 }
 

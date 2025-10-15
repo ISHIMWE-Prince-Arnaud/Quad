@@ -1,74 +1,130 @@
-import { Hash, TrendingUp } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Hash } from "lucide-react";
+import api from "../utils/api";
+
+interface Stats {
+  activeUsers: number;
+  postsToday: number;
+  totalReactions: number;
+}
+
+interface TrendingTag {
+  tag: string;
+  count: number;
+}
 
 const Sidebar = () => {
-  const trendingTags = [
-    { tag: 'schoollife', count: 234 },
-    { tag: 'fail', count: 189 },
-    { tag: 'relatable', count: 156 },
-    { tag: 'professor', count: 143 },
-    { tag: 'exams', count: 128 },
-    { tag: 'dormlife', count: 112 },
-    { tag: 'cafeteria', count: 98 },
-    { tag: 'weekend', count: 87 },
-  ];
+  const [stats, setStats] = useState<Stats>({
+    activeUsers: 0,
+    postsToday: 0,
+    totalReactions: 0,
+  });
+  const [trendingTags, setTrendingTags] = useState<TrendingTag[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [statsRes, tagsRes] = await Promise.all([
+          api.get("/stats/community"),
+          api.get("/stats/trending-tags"),
+        ]);
+        setStats(statsRes.data);
+        setTrendingTags(tagsRes.data);
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+    const interval = setInterval(fetchStats, 5 * 60 * 1000); // Refresh every 5 minutes
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <aside className="hidden lg:block w-80 card bg-base-200 p-6 sticky top-20 h-fit">
+        <div className="animate-pulse">
+          <div className="h-4 bg-base-300 rounded w-1/2 mb-6"></div>
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-8 bg-base-300 rounded"></div>
+            ))}
+          </div>
+          <div className="mt-6 pt-6 border-t">
+            <div className="h-4 bg-base-300 rounded w-1/3 mb-4"></div>
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex justify-between">
+                  <div className="h-4 bg-base-300 rounded w-1/3"></div>
+                  <div className="h-4 bg-base-300 rounded w-1/4"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
   return (
-    <aside className="hidden lg:block w-80 bg-white dark:bg-dark-card rounded-xl shadow-md p-6 sticky top-20 h-fit">
+    <aside className="hidden lg:block w-80 sticky top-20 h-fit space-y-4">
       {/* Trending Tags */}
-      <div className="mb-6">
-        <div className="flex items-center space-x-2 mb-4">
-          <TrendingUp size={20} className="text-primary" />
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-            Trending Tags
-          </h2>
-        </div>
-        <div className="space-y-2">
-          {trendingTags.map((item) => (
-            <button
-              key={item.tag}
-              className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
-            >
-              <div className="flex items-center space-x-2">
-                <Hash size={16} className="text-gray-500 group-hover:text-primary" />
-                <span className="font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary">
-                  {item.tag}
-                </span>
-              </div>
-              <span className="text-sm text-gray-500">{item.count}</span>
-            </button>
-          ))}
+      <div className="card bg-base-200">
+        <div className="card-body">
+          <h2 className="card-title text-lg mb-4">Trending Tags</h2>
+          <div className="space-y-2">
+            {trendingTags.map((item) => (
+              <button
+                key={item.tag}
+                className="btn btn-ghost justify-between normal-case w-full">
+                <div className="flex items-center gap-2">
+                  <Hash size={16} className="opacity-70" />
+                  <span>{item.tag}</span>
+                </div>
+                <span className="badge badge-primary">{item.count}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-4">
-          Community Stats
-        </h3>
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">Active Users</span>
-            <span className="font-bold text-primary">1,234</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">Posts Today</span>
-            <span className="font-bold text-primary">89</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">Total Reactions</span>
-            <span className="font-bold text-primary">12.5k</span>
+      <div className="card bg-base-200">
+        <div className="card-body">
+          <h3 className="card-title text-lg mb-4">Community Stats</h3>
+          <div className="stats stats-vertical shadow bg-base-100">
+            <div className="stat">
+              <div className="stat-title">Active Users</div>
+              <div className="stat-value text-primary">{stats.activeUsers}</div>
+            </div>
+            <div className="stat">
+              <div className="stat-title">Posts Today</div>
+              <div className="stat-value text-primary">{stats.postsToday}</div>
+            </div>
+            <div className="stat">
+              <div className="stat-title">Total Reactions</div>
+              <div className="stat-value text-primary">
+                {stats.totalReactions > 1000
+                  ? `${(stats.totalReactions / 1000).toFixed(1)}k`
+                  : stats.totalReactions}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* About */}
-      <div className="mt-6 p-4 bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg">
-        <h3 className="font-bold text-gray-900 dark:text-white mb-2">
-          Welcome to Quad! 🎉
-        </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Share your funniest moments, vote on polls, and connect with fellow students.
-        </p>
+      <div className="card bg-primary text-primary-content">
+        <div className="card-body">
+          <h3 className="card-title">Welcome to Quad</h3>
+          <p>
+            Share your moments, vote on polls, and connect with fellow students.
+          </p>
+        </div>
       </div>
     </aside>
   );

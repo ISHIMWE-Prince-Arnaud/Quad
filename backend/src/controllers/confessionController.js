@@ -2,6 +2,47 @@ import Confession from "../models/Confession.js";
 import { sanitizeText } from "../utils/sanitize.js";
 import { getIO } from "../config/socket.js";
 
+// @desc    Add comment to confession
+// @route   POST /api/confessions/:id/comment
+// @access  Public
+export const addComment = async (req, res) => {
+  try {
+    const { text, fakeProfile } = req.body;
+
+    if (!text || text.trim().length === 0) {
+      return res.status(400).json({ message: "Comment text is required" });
+    }
+
+    if (!fakeProfile || !fakeProfile.name || !fakeProfile.avatar) {
+      return res
+        .status(400)
+        .json({ message: "Fake profile information is required" });
+    }
+
+    const confession = await Confession.findById(req.params.id);
+
+    if (!confession) {
+      return res.status(404).json({ message: "Confession not found" });
+    }
+
+    const comment = {
+      text: sanitizeText(text),
+      fakeProfile,
+      createdAt: new Date(),
+    };
+
+    confession.comments.push(comment);
+    await confession.save();
+
+    // Emit comment event
+    getIO().emit(`confession:${confession._id}:comment`, comment);
+
+    res.status(201).json(comment);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Get all confessions
 // @route   GET /api/confessions
 // @access  Public
@@ -22,7 +63,7 @@ export const getConfessions = async (req, res) => {
 // @access  Public (with rate limiting)
 export const createConfession = async (req, res) => {
   try {
-    const { text } = req.body;
+    const { text, fakeProfile } = req.body;
 
     if (!text || text.trim().length === 0) {
       return res.status(400).json({ message: "Confession text is required" });
@@ -34,8 +75,15 @@ export const createConfession = async (req, res) => {
         .json({ message: "Confession cannot exceed 1000 characters" });
     }
 
+    if (!fakeProfile || !fakeProfile.name || !fakeProfile.avatar) {
+      return res
+        .status(400)
+        .json({ message: "Fake profile information is required" });
+    }
+
     const confession = await Confession.create({
       text: sanitizeText(text),
+      fakeProfile,
     });
 
     // Don't send back sensitive fields

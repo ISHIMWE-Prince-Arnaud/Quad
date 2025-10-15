@@ -8,9 +8,10 @@ import {
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import Navbar from "./components/Navbar";
+import LeftSidebar from "./components/LeftSidebar";
 import Feed from "./pages/Feed";
 import EntertainmentBoard from "./pages/EntertainmentBoard";
+import ConfessionsPage from "./pages/ConfessionsPage";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
@@ -20,14 +21,18 @@ import { socketService } from "./services/socketService";
 import { useAuthStore } from "./store/authStore";
 import { useThemeStore } from "./store/themeStore";
 
-const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+interface PrivateRouteProps {
+  children: React.ReactNode;
+}
+
+const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const { isAuthenticated } = useAuthStore();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
 function App() {
   const { checkAuth, isAuthenticated } = useAuthStore();
-  const { isDark, setTheme } = useThemeStore();
+  const { setTheme, isDark } = useThemeStore();
 
   useEffect(() => {
     checkAuth();
@@ -36,6 +41,8 @@ function App() {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
       setTheme(savedTheme === "dark");
+    } else {
+      setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
     }
   }, [checkAuth, setTheme]);
 
@@ -54,10 +61,12 @@ function App() {
 
   return (
     <Router>
-      <div className={isDark ? "dark" : ""}>
-        <div className="min-h-screen bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-white">
-          <Navbar />
+      <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
+        {/* Show sidebar only when authenticated */}
+        {isAuthenticated && <LeftSidebar />}
 
+        {/* Main content area with left margin when sidebar is visible */}
+        <div className={isAuthenticated ? "ml-64" : ""}>
           <Routes>
             <Route
               path="/login"
@@ -67,7 +76,6 @@ function App() {
               path="/register"
               element={!isAuthenticated ? <Register /> : <Navigate to="/" />}
             />
-
             <Route
               path="/"
               element={
@@ -104,25 +112,25 @@ function App() {
               path="/confess"
               element={
                 <PrivateRoute>
-                  <EntertainmentBoard />
+                  <ConfessionsPage />
                 </PrivateRoute>
               }
             />
           </Routes>
-
-          <ToastContainer
-            position="bottom-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme={isDark ? "dark" : "light"}
-          />
         </div>
+
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme={isDark ? "dark" : "light"}
+        />
       </div>
     </Router>
   );
