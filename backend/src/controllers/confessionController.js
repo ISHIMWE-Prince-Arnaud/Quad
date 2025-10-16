@@ -1,5 +1,4 @@
 import Confession from "../models/Confession.js";
-import { sanitizeText } from "../utils/sanitize.js";
 import { getIO } from "../config/socket.js";
 
 // @desc    Add comment to confession
@@ -26,7 +25,7 @@ export const addComment = async (req, res) => {
     }
 
     const comment = {
-      text: sanitizeText(text),
+      text: text,
       fakeProfile,
       createdAt: new Date(),
     };
@@ -82,7 +81,7 @@ export const createConfession = async (req, res) => {
     }
 
     const confession = await Confession.create({
-      text: sanitizeText(text),
+      text: text,
       fakeProfile,
     });
 

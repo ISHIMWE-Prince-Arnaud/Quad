@@ -2,7 +2,6 @@ import Post from "../models/Post.js";
 import User from "../models/User.js";
 import Theme from "../models/Theme.js";
 import cloudinary from "../config/cloudinary.js";
-import { sanitizeText } from "../utils/sanitize.js";
 import { getIO } from "../config/socket.js";
 
 // @desc    Get all posts
@@ -37,7 +36,7 @@ export const getPosts = async (req, res) => {
     // Add total reactions count
     const postsWithTotal = posts.map((post) => ({
       ...post.toObject(),
-      totalReactions: post.reactions.love,
+      totalReactions: post.reactions.love + post.reactions.laugh + post.reactions.cry + post.reactions.angry,
     }));
 
     const total = await Post.countDocuments(query);
@@ -68,7 +67,9 @@ export const getTopPosts = async (req, res) => {
       },
       {
         $addFields: {
-          totalReactions: "$reactions.love",
+          totalReactions: {
+            $add: ["$reactions.love", "$reactions.laugh", "$reactions.cry", "$reactions.angry"],
+          },
         },
       },
       { $sort: { totalReactions: -1 } },
@@ -119,7 +120,7 @@ export const createPost = async (req, res) => {
 
           const post = await Post.create({
             userId: req.user._id,
-            caption: sanitizeText(caption),
+            caption: caption,
             mediaUrl: result.secure_url,
             mediaType: result.resource_type === "video" ? "video" : "image",
             theme: currentTheme ? currentTheme.title : null,
@@ -157,8 +158,9 @@ export const createPost = async (req, res) => {
 export const reactToPost = async (req, res) => {
   try {
     const { emoji } = req.body;
-    if (emoji !== "love") {
-      return res.status(400).json({ message: "Invalid emoji" });
+    const validEmojis = ["love", "laugh", "cry", "angry"];
+    if (!validEmojis.includes(emoji)) {
+      return res.status(400).json({ message: "Invalid emoji. Must be one of: love, laugh, cry, angry" });
     }
 
     const post = await Post.findById(req.params.id);
@@ -197,7 +199,7 @@ export const reactToPost = async (req, res) => {
     // Update post owner's total reactions by aggregating all their posts
     const userPosts = await Post.find({ userId: post.userId });
     const totalReactions = userPosts.reduce(
-      (sum, p) => sum + p.reactions.love,
+      (sum, p) => sum + p.reactions.love + p.reactions.laugh + p.reactions.cry + p.reactions.angry,
       0
     );
 
@@ -237,7 +239,7 @@ export const addComment = async (req, res) => {
 
     post.comments.push({
       userId: req.user._id,
-      text: sanitizeText(text),
+      text: text,
     });
 
     await post.save();

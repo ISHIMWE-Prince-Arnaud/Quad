@@ -22,7 +22,10 @@ class SocketService {
       return;
     }
 
-    this.socket = io(import.meta.env.VITE_API_URL.replace("/api", ""), {
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    const socketUrl = apiUrl.replace("/api", "");
+
+    this.socket = io(socketUrl, {
       auth: { token },
     });
 

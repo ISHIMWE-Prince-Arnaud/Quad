@@ -1,5 +1,4 @@
 import Poll from "../models/Poll.js";
-import { sanitizeText } from "../utils/sanitize.js";
 import { getIO } from "../config/socket.js";
 
 // @desc    Get all polls
@@ -43,14 +42,9 @@ export const createPoll = async (req, res) => {
         .json({ message: "Would You Rather must have exactly 2 options" });
     }
 
-    const sanitizedOptions = options.map((opt) => ({
-      text: sanitizeText(opt.text || opt),
-      votes: 0,
-    }));
-
     const poll = await Poll.create({
-      question: sanitizeText(question),
-      options: sanitizedOptions,
+      question: question,
+      options: options,
       createdBy: req.user._id,
       isWouldYouRather: isWouldYouRather || false,
     });

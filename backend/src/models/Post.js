@@ -43,6 +43,9 @@ const postSchema = new mongoose.Schema({
   },
   reactions: {
     love: { type: Number, default: 0 },
+    laugh: { type: Number, default: 0 },
+    cry: { type: Number, default: 0 },
+    angry: { type: Number, default: 0 },
   },
   reactedBy: [
     {
@@ -52,12 +55,16 @@ const postSchema = new mongoose.Schema({
       },
       emoji: {
         type: String,
-        enum: ["love"],
+        enum: ["love", "laugh", "cry", "angry"],
       },
     },
   ],
   comments: [commentSchema],
   isTopPost: {
+    type: Boolean,
+    default: false,
+  },
+  isFlagged: {
     type: Boolean,
     default: false,
   },

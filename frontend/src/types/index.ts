@@ -20,13 +20,17 @@ export interface Post {
   theme: string | null;
   reactions: {
     love: number;
+    laugh: number;
+    cry: number;
+    angry: number;
   };
   reactedBy: Array<{
     userId: string;
-    emoji: "love";
+    emoji: "love" | "laugh" | "cry" | "angry";
   }>;
   comments: Comment[];
   isTopPost: boolean;
+  isFlagged?: boolean;
   createdAt: string;
   totalReactions?: number;
 }
@@ -91,4 +95,4 @@ export interface Leaderboard {
   hallOfFame: User[];
 }
 
-export type EmojiType = "love";
+export type EmojiType = "love" | "laugh" | "cry" | "angry";
