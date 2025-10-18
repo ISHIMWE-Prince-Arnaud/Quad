@@ -1,138 +1,148 @@
-import { useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { SocketProvider } from './context/SocketContext';
+import MainLayout from './components/layout/MainLayout';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import FeedPage from './pages/FeedPage';
+import PollsPage from './pages/PollsPage';
+import ChatPage from './pages/ChatPage';
+import ConfessionsPage from './pages/ConfessionsPage';
+import ProfilePage from './pages/ProfilePage';
 
-import LeftSidebar from "./components/LeftSidebar";
-import Feed from "./pages/Feed";
-import EntertainmentBoard from "./pages/EntertainmentBoard";
-import ConfessionsPage from "./pages/ConfessionsPage";
-import Leaderboard from "./pages/Leaderboard";
-import Profile from "./pages/Profile";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import { socketService } from "./services/socketService";
+/**
+ * Protected Route Component
+ */
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading } = useAuth();
 
-import { useAuthStore } from "./store/authStore";
-import { useThemeStore } from "./store/themeStore";
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+      </div>
+    );
+  }
 
-interface PrivateRouteProps {
-  children: React.ReactNode;
-}
-
-const PrivateRoute = ({ children }: PrivateRouteProps) => {
-  const { isAuthenticated } = useAuthStore();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  return user ? <>{children}</> : <Navigate to="/login" />;
 };
 
-function App() {
-  const { checkAuth, isAuthenticated } = useAuthStore();
-  const { setTheme, isDark } = useThemeStore();
+/**
+ * Public Route Component (redirects to feed if already logged in)
+ */
+const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    checkAuth();
-
-    // Initialize theme
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-      setTheme(savedTheme === "dark");
-    } else {
-      setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
-    }
-  }, [checkAuth, setTheme]);
-
-  // Handle socket connection
-  useEffect(() => {
-    if (isAuthenticated) {
-      socketService.connect();
-    } else {
-      socketService.disconnect();
-    }
-
-    return () => {
-      socketService.disconnect();
-    };
-  }, [isAuthenticated]);
-
-  return (
-    <Router>
-      <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
-        {/* Show sidebar only when authenticated */}
-        {isAuthenticated && <LeftSidebar />}
-
-        {/* Main content area with left margin when sidebar is visible */}
-        <div className={isAuthenticated ? "ml-64" : ""}>
-          <Routes>
-            <Route
-              path="/login"
-              element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
-            />
-            <Route
-              path="/register"
-              element={!isAuthenticated ? <Register /> : <Navigate to="/" />}
-            />
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <Feed />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/entertainment"
-              element={
-                <PrivateRoute>
-                  <EntertainmentBoard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/leaderboard"
-              element={
-                <PrivateRoute>
-                  <Leaderboard />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute>
-                  <Profile />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/confess"
-              element={
-                <PrivateRoute>
-                  <ConfessionsPage />
-                </PrivateRoute>
-              }
-            />
-          </Routes>
-        </div>
-
-        <ToastContainer
-          position="bottom-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme={isDark ? "dark" : "light"}
-        />
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
       </div>
-    </Router>
+    );
+  }
+
+  return !user ? <>{children}</> : <Navigate to="/feed" />;
+};
+
+/**
+ * App Routes Component
+ */
+const AppRoutes: React.FC = () => {
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <RegisterPage />
+          </PublicRoute>
+        }
+      />
+
+      {/* Protected Routes */}
+      <Route
+        path="/feed"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <FeedPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/polls"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <PollsPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ChatPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/confessions"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ConfessionsPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile/:username"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ProfilePage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Default Route */}
+      <Route path="/" element={<Navigate to="/feed" />} />
+      <Route path="*" element={<Navigate to="/feed" />} />
+    </Routes>
+  );
+};
+
+/**
+ * Main App Component
+ */
+function App() {
+  return (
+    <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider>
+          <SocketProvider>
+            <AppRoutes />
+          </SocketProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }
 

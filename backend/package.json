@@ -1,40 +1,38 @@
 {
-  "name": "quad-backend",
+  "name": "quad-server",
   "version": "1.0.0",
-  "description": "Backend API for Quad - Student Social Platform",
-  "main": "src/server.js",
-  "type": "module",
+  "description": "Backend server for Quad - Student Social Platform",
+  "main": "dist/server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "lint": "eslint src/**/*.js",
-    "seed:themes": "node src/scripts/seedWeeklyThemes.js"
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
-  "keywords": [
-    "social",
-    "students",
-    "memes",
-    "polls"
-  ],
+  "keywords": ["social", "platform", "websocket", "express"],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "cloudinary": "^1.21.0",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "express-validator": "^7.2.1",
-    "helmet": "^8.1.0",
+    "express": "^4.18.2",
+    "mongoose": "^8.0.3",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.19.1",
-    "multer": "^2.0.2",
-    "multer-storage-cloudinary": "^4.0.0",
-    "node-cron": "^4.2.1",
-    "socket.io": "^4.8.1"
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "socket.io": "^4.6.1",
+    "multer": "^1.4.5-lts.1",
+    "cloudinary": "^1.41.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "eslint": "^9.37.0",
-    "nodemon": "^3.1.10"
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/multer": "^1.4.11",
+    "@types/uuid": "^9.0.7",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2",
+    "nodemon": "^3.0.2"
   }
 }

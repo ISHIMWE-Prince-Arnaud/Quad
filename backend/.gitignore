@@ -1,7 +1,5 @@
-node_modules/
+node_modules
+dist
 .env
-.DS_Store
+uploads
 *.log
-coverage/
-dist/
-build/

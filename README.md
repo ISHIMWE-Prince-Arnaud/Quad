@@ -1,90 +1,80 @@
-# 🏫 Quad - Student Social Platform
+# Quad - Student Social Platform
 
-**Tagline:** "Where students laugh, share, and vibe together."
+A modern, real-time social platform for students to share memes, posts, polls, and confessions. Built with the MERN stack (MongoDB, Express, React, Node.js) and Socket.IO for real-time features.
 
-Quad is a modern social platform built specifically for students to share memes, funny posts, polls, and anonymous confessions. Think of it as a combination of Instagram, Twitter polls, and a confession board—all in one fun, school-themed app.
-
----
-
-## 🎯 Features
+## 🚀 Features
 
 ### Core Features
-- **📸 Meme & Media Feed** - Share images and videos with captions and hashtags
-- **😂 Emoji Reactions** - React with laugh, cry, love, or angry emojis
-- **💬 Comments** - Engage with posts through comments
-- **📊 Polls** - Create and vote on community polls
-- **🤔 Would You Rather** - Fun two-option decision games
-- **🤫 Anonymous Confessions** - Share secrets anonymously
-- **🏆 Leaderboard** - Weekly top posts and active users
-- **🎭 Weekly Themes** - Participate in themed challenges
-- **🌓 Dark Mode** - Full dark/light theme support
-- **🔒 JWT Authentication** - Secure user authentication
+- **Feed** - Share images and videos with captions, like and comment on posts
+- **Polls** - Create polls and "Would You Rather" questions with real-time voting
+- **Chat** - Global chat room for all users with real-time messaging
+- **Confessions** - Post anonymously with generated identities
+- **Profiles** - User profiles with activity tracking and customizable avatars
 
----
-
-## 🛠️ Tech Stack
-
-### Backend
-- **Framework:** Node.js + Express.js
-- **Database:** MongoDB with Mongoose ODM
-- **Authentication:** JWT (JSON Web Tokens)
-- **File Storage:** Cloudinary
-- **Security:** Helmet, CORS, express-rate-limit
-- **Validation:** express-validator
-- **Automation:** node-cron for weekly tasks
-
-### Frontend
-- **Framework:** React 18 + TypeScript
-- **Styling:** TailwindCSS
-- **State Management:** Zustand
-- **Routing:** React Router DOM v6
-- **HTTP Client:** Axios
-- **Icons:** Lucide React
-- **Notifications:** React Toastify
-- **Build Tool:** Vite
-
----
+### Technical Features
+- **Real-time updates** with Socket.IO
+- **JWT Authentication** for secure sessions
+- **Image/Video uploads** via Cloudinary
+- **Dark/Light mode** toggle
+- **Fully responsive** design
+- **Type-safe** with TypeScript
 
 ## 📁 Project Structure
 
 ```
 Quad/
-├── backend/
+├── backend/         # Backend API (Node.js + Express)
 │   ├── src/
-│   │   ├── config/          # Database & Cloudinary config
-│   │   ├── models/          # MongoDB models
-│   │   ├── controllers/     # Route handlers
-│   │   ├── routes/          # API routes
-│   │   ├── middlewares/     # Auth, error handling, rate limiting
-│   │   ├── utils/           # Helper functions
-│   │   ├── app.js           # Express app setup
-│   │   └── server.js        # Server entry point
-│   ├── .env.example         # Environment variables template
-│   └── package.json
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── sockets/
+│   │   ├── utils/
+│   │   └── server.ts
+│   ├── package.json
+│   └── README.md
 │
-└── frontend/
+└── frontend/        # Frontend (React + Vite)
     ├── src/
-    │   ├── components/      # Reusable UI components
-    │   ├── pages/           # Route pages
-    │   ├── store/           # Zustand stores
-    │   ├── types/           # TypeScript types
-    │   ├── utils/           # Helper functions
-    │   ├── App.tsx          # Main app component
-    │   ├── main.tsx         # Entry point
-    │   └── index.css        # Global styles
-    ├── index.html
-    ├── vite.config.ts
-    └── package.json
+    │   ├── components/
+    │   ├── context/
+    │   ├── pages/
+    │   ├── services/
+    │   ├── types/
+    │   ├── utils/
+    │   └── App.tsx
+    ├── package.json
+    └── README.md
 ```
 
----
+## 🛠️ Tech Stack
 
-## 🚀 Getting Started
+### Backend
+- **Node.js** with **Express.js**
+- **TypeScript** for type safety
+- **MongoDB** with Mongoose ODM
+- **Socket.IO** for real-time communication
+- **JWT** for authentication
+- **Cloudinary** for media storage
+- **bcryptjs** for password hashing
+
+### Frontend
+- **React 18** with **TypeScript**
+- **Vite** for fast development
+- **Tailwind CSS** for styling
+- **Socket.IO Client** for real-time updates
+- **React Router** for navigation
+- **Axios** for API requests
+- **Lucide React** for icons
+
+## 🚦 Getting Started
 
 ### Prerequisites
-- **Node.js** (v16 or higher)
-- **MongoDB** (local or MongoDB Atlas)
-- **Cloudinary Account** (for image/video uploads)
+- Node.js (v16 or higher)
+- MongoDB (local or MongoDB Atlas)
+- Cloudinary account (for media uploads)
 
 ### Backend Setup
 
@@ -99,40 +89,22 @@ Quad/
    ```
 
 3. **Create `.env` file:**
-   ```bash
-   cp .env.example .env
-   ```
-
-4. **Configure environment variables in `.env`:**
    ```env
-   NODE_ENV=development
    PORT=5000
-
-   # MongoDB (use local or Atlas URL)
-   MONGODB_URI=mongodb://localhost:27017/quad
-
-   # JWT Secret (change this!)
-   JWT_SECRET=your_super_secret_jwt_key_change_this
-   JWT_EXPIRE=7d
-
-   # Cloudinary Credentials
-   CLOUDINARY_CLOUD_NAME=your_cloud_name
-   CLOUDINARY_API_KEY=your_api_key
-   CLOUDINARY_API_SECRET=your_api_secret
-
-   # Frontend URL
-   FRONTEND_URL=http://localhost:5173
-
-   # Rate Limiting
-   CONFESSION_RATE_LIMIT=5
+   MONGO_URI=mongodb://localhost:27017/quad
+   JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
+   CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+   CLOUDINARY_API_KEY=your_cloudinary_api_key
+   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+   CLIENT_URL=http://localhost:5173
    ```
 
-5. **Start the development server:**
+4. **Start the server:**
    ```bash
    npm run dev
    ```
 
-   Backend will run on `http://localhost:5000`
+   Server runs on `http://localhost:5000`
 
 ### Frontend Setup
 
@@ -147,260 +119,140 @@ Quad/
    ```
 
 3. **Create `.env` file:**
-   ```bash
-   cp .env.example .env
-   ```
-
-4. **Configure environment variables:**
    ```env
-   VITE_API_URL=http://localhost:5000/api
+   VITE_API_URL=http://localhost:5000
    ```
 
-5. **Start the development server:**
+4. **Start the development server:**
    ```bash
    npm run dev
    ```
 
-   Frontend will run on `http://localhost:5173`
+   App runs on `http://localhost:5173`
 
-### First Time Setup
+### Database Setup
 
-1. **Access the app** at `http://localhost:5173`
-2. **Register a new account** with your email
-3. **Start posting memes!** 🎉
+If using local MongoDB:
+```bash
+mongod
+```
 
----
+If using MongoDB Atlas:
+- Create a cluster
+- Get your connection string
+- Update `MONGO_URI` in backend `.env`
 
-## 📡 API Endpoints
+### Cloudinary Setup
+
+1. Sign up at [Cloudinary](https://cloudinary.com/)
+2. Get your Cloud Name, API Key, and API Secret from the dashboard
+3. Add them to your backend `.env` file
+
+## 📝 API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user (protected)
+- `GET /api/auth/me` - Get current user
 
 ### Posts
-- `GET /api/posts` - Get all posts (query: sort, tag, theme)
-- `GET /api/posts/top` - Get top posts of the week
-- `GET /api/posts/user/:userId` - Get user's posts
-- `POST /api/posts` - Create new post (protected, multipart)
-- `POST /api/posts/:id/react` - React to post (protected)
-- `POST /api/posts/:id/comment` - Add comment (protected)
+- `GET /api/posts` - Get all posts
+- `POST /api/posts` - Create post
+- `POST /api/posts/:id/like` - Like/unlike post
+- `POST /api/posts/:id/comment` - Add comment
+- `GET /api/posts/:id/comments` - Get comments
 
 ### Polls
 - `GET /api/polls` - Get all polls
-- `GET /api/polls/:id` - Get single poll
-- `POST /api/polls` - Create poll (protected)
-- `POST /api/polls/:id/vote` - Vote on poll (protected)
+- `POST /api/polls` - Create poll
+- `POST /api/polls/:id/vote` - Vote on poll
 
 ### Confessions
-- `GET /api/confessions` - Get all confessions
-- `POST /api/confessions` - Submit confession (rate limited)
+- `GET /api/confessions` - Get confessions
+- `POST /api/confessions` - Create confession
 - `POST /api/confessions/:id/like` - Like confession
+- `POST /api/confessions/:id/thought` - Add thought
 
-### Leaderboard
-- `GET /api/leaderboard` - Get leaderboard data
-- `GET /api/leaderboard/user/:id` - Get user profile with stats
+### Chat
+- `GET /api/chat/messages` - Get messages
+- `POST /api/chat/messages` - Send message
 
-### Themes
-- `GET /api/themes` - Get all themes
-- `GET /api/themes/current` - Get current active theme
-- `POST /api/themes` - Create theme (admin only)
+### Users
+- `GET /api/users/:username` - Get user profile
+- `PUT /api/users/me/profile-picture` - Update profile picture
 
----
+## 🔌 Socket.IO Events
 
-## 🎨 UI Design
+### Client → Server
+- `send_chat_message` - Send chat message
 
-### Color Scheme
-- **Primary Blue:** `#3B82F6`
-- **Accent Gold:** `#FACC15`
-- **Dark Background:** `#1F2937`
-- **Dark Card:** `#374151`
+### Server → Client
+- `new_post` - New post created
+- `update_post_likes` - Post likes updated
+- `new_comment` - Comment added
+- `new_poll` - Poll created
+- `update_poll_votes` - Poll votes updated
+- `new_confession` - Confession posted
+- `update_confession_likes` - Confession likes updated
+- `new_thought` - Thought added
+- `new_chat_message` - Chat message sent
 
-### Key Design Features
-- **Responsive Grid Layout** - Mobile-first design
-- **Card-based UI** - Modern, Instagram-like cards
-- **Smooth Animations** - Hover effects and transitions
-- **Dark Mode Support** - System preference detection
-- **Emoji Reactions** - Large, visible reaction buttons
-- **Trending Sidebar** - Popular hashtags and stats
+## 🎨 Design
 
----
+- **Primary Color:** Blue (#3b82f6)
+- **Default Theme:** Dark mode
+- **Typography:** System fonts with Tailwind CSS
+- **Icons:** Lucide React
 
-## 🔐 Security Features
+## 📱 Responsive Design
 
-- **Password Hashing** - bcrypt with salt rounds
-- **JWT Authentication** - Secure token-based auth
-- **Rate Limiting** - Protection against spam
-- **XSS Prevention** - Text sanitization
-- **CORS Configuration** - Restricted origins
-- **Helmet.js** - Security headers
-- **Input Validation** - express-validator
+- **Mobile:** < 768px
+- **Tablet:** 768px - 1024px
+- **Desktop:** > 1024px
 
----
+## 🔐 Security
 
-## 🤖 Automated Tasks
+- Passwords hashed with bcryptjs
+- JWT tokens for authentication
+- Environment variables for sensitive data
+- Input validation on both frontend and backend
+- CORS protection
 
-The backend runs weekly cron jobs every Monday at midnight to:
+## 📦 Production Build
 
-1. **Reset Top Post flags**
-2. **Calculate top 10 posts** of the previous week
-3. **Award badges** to top contributors:
-   - "TopPost" badge for top 3 posts
-   - "ActiveUser" badge for users with 10+ posts/week
-
----
-
-## 🧪 Development Tips
-
-### Backend Development
+### Backend
 ```bash
-# Run in development mode with auto-reload
-npm run dev
-
-# Run linter
-npm run lint
+cd backend
+npm run build
+npm start
 ```
 
-### Frontend Development
+### Frontend
 ```bash
-# Run development server
-npm run dev
-
-# Build for production
+cd frontend
 npm run build
-
-# Preview production build
 npm run preview
 ```
-
-### MongoDB Setup
-
-**Option 1: Local MongoDB**
-```bash
-# Install MongoDB locally
-# Then connect with:
-MONGODB_URI=mongodb://localhost:27017/quad
-```
-
-**Option 2: MongoDB Atlas (Recommended)**
-1. Create free cluster at [mongodb.com/cloud/atlas](https://mongodb.com/cloud/atlas)
-2. Get connection string
-3. Update `.env` with Atlas URL
-
-### Cloudinary Setup
-1. Sign up at [cloudinary.com](https://cloudinary.com)
-2. Get your credentials from dashboard
-3. Add to backend `.env` file
-
----
-
-## 📱 Features Walkthrough
-
-### Feed Page
-- View all posts sorted by newest or top of week
-- Filter by hashtags
-- Upload new posts with media
-- React and comment on posts
-
-### Entertainment Board
-- Three tabs: Polls, Would You Rather, Confessions
-- Create and vote on polls
-- Like confessions
-
-### Leaderboard
-- Top 5 funniest posts (most laugh reactions)
-- Most active users
-- Most reacted posts
-- Hall of Fame with badge holders
-
-### Profile Page
-- View your stats and badges
-- See all your posts
-- Display your top post
-
----
-
-## 🐛 Troubleshooting
-
-### Backend Issues
-
-**MongoDB Connection Failed:**
-```bash
-# Check if MongoDB is running (local)
-sudo systemctl status mongod
-
-# Or check Atlas connection string format
-```
-
-**Cloudinary Upload Failed:**
-- Verify API credentials in `.env`
-- Check file size (max 10MB)
-- Ensure file type is allowed
-
-### Frontend Issues
-
-**API Requests Failing:**
-- Check if backend is running on port 5000
-- Verify `VITE_API_URL` in frontend `.env`
-- Check browser console for CORS errors
-
-**Dark Mode Not Working:**
-- Clear localStorage
-- Check if `dark` class is applied to `<html>`
-
----
-
-## 🚢 Production Deployment
-
-### Backend Deployment (Heroku/Railway/Render)
-
-1. Set environment variables
-2. Set `NODE_ENV=production`
-3. Update `FRONTEND_URL` to production domain
-4. Deploy!
-
-### Frontend Deployment (Vercel/Netlify)
-
-1. Build the project: `npm run build`
-2. Deploy `dist/` folder
-3. Set environment variable: `VITE_API_URL`
-4. Configure redirects for SPA routing
-
----
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -m 'Add feature'`
-4. Push to branch: `git push origin feature-name`
-5. Submit pull request
-
----
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a pull request
 
 ## 📄 License
 
-MIT License - feel free to use this project for learning or building your own student community platform!
+MIT License - see LICENSE file for details
 
----
+## 👥 Authors
 
-## 🎉 Credits
+Built as a comprehensive social platform project.
 
-Built with ❤️ for students who love to share and laugh together.
+## 🙏 Acknowledgments
 
-**Tech Stack Credits:**
-- React Team for React
-- Vercel for Next.js inspiration
-- TailwindCSS for utility-first CSS
-- MongoDB for flexible database
+- Socket.IO for real-time capabilities
 - Cloudinary for media management
-
----
-
-## 📞 Support
-
-For issues or questions:
-- Open an issue on GitHub
-- Check existing issues for solutions
-
-**Happy Coding! 🚀**
+- MongoDB for flexible data storage
+- React and Express communities

@@ -1,98 +1,103 @@
+/**
+ * Type definitions for the Quad application
+ */
+
 export interface User {
-  _id: string;
+  id: string;
   username: string;
   email: string;
-  avatar: string;
-  totalPosts?: number;
-  totalReactions?: number;
-  badges?: string[];
-  isAdmin?: boolean;
-  createdAt?: string;
+  profilePicture: string | null;
+  createdAt: string;
 }
 
 export interface Post {
   _id: string;
-  userId: User;
-  user: User;
-  caption: string;
-  mediaUrl: string;
-  mediaType: "image" | "video";
-  theme: string | null;
-  reactions: {
-    love: number;
-    laugh: number;
-    cry: number;
-    angry: number;
+  author: {
+    _id: string;
+    username: string;
+    profilePicture: string | null;
   };
-  reactedBy: Array<{
-    userId: string;
-    emoji: "love" | "laugh" | "cry" | "angry";
-  }>;
-  comments: Comment[];
-  isTopPost: boolean;
-  isFlagged?: boolean;
+  mediaUrl: string;
+  mediaType: 'image' | 'video';
+  caption?: string;
+  likes: string[];
   createdAt: string;
-  totalReactions?: number;
 }
 
 export interface Comment {
   _id: string;
-  userId: User;
-  text: string;
+  post: string;
+  author: {
+    _id: string;
+    username: string;
+    profilePicture: string | null;
+  };
+  content: string;
   createdAt: string;
+}
+
+export interface PollOption {
+  text: string;
+  votes: string[];
 }
 
 export interface Poll {
   _id: string;
+  author: {
+    _id: string;
+    username: string;
+    profilePicture: string | null;
+  };
   question: string;
-  options: Array<{
-    text: string;
-    votes: number;
-  }>;
-  createdBy: User;
-  votedBy: Array<{
-    userId: string;
-    optionIndex: number;
-  }>;
+  mediaUrl?: string;
+  mediaType?: 'image' | 'video';
+  options: PollOption[];
   isWouldYouRather: boolean;
   createdAt: string;
 }
 
-export interface FakeProfile {
-  name: string;
-  avatar: string;
-}
-
-export interface ConfessionComment {
-  text: string;
-  fakeProfile: FakeProfile;
+export interface Thought {
+  anonymousAuthorId: string;
+  content: string;
   createdAt: string;
 }
 
 export interface Confession {
   _id: string;
-  text: string;
-  likes: number;
-  likedBy: string[];
-  comments: ConfessionComment[];
-  fakeProfile: FakeProfile;
+  anonymousAuthorId: string;
+  anonymousUsername: string;
+  anonymousAvatar: string;
+  content: string;
+  mediaUrl?: string;
+  mediaType?: 'image' | 'video';
+  likes: string[];
+  thoughts: Thought[];
   createdAt: string;
 }
 
-export interface Theme {
+export interface ChatMessage {
   _id: string;
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  isActive: boolean;
+  author: {
+    _id: string;
+    username: string;
+    profilePicture: string | null;
+  };
+  content: string;
+  mediaUrl?: string;
+  mediaType?: 'image' | 'video';
+  createdAt: string;
 }
 
-export interface Leaderboard {
-  topFunny: Post[];
-  activeUsers: User[];
-  topReacted: Post[];
-  hallOfFame: User[];
+export interface AuthContextType {
+  user: User | null;
+  token: string | null;
+  login: (username: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string) => Promise<void>;
+  logout: () => void;
+  loading: boolean;
 }
 
-export type EmojiType = "love" | "laugh" | "cry" | "angry";
+export interface ThemeContextType {
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+}
