@@ -55,15 +55,16 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
     const { content } = req.body;
     const file = req.file;
 
-    if (!content || content.trim() === '') {
-      res.status(400).json({ message: 'Message content is required' });
+    // Validate that either content or file is provided
+    if ((!content || content.trim() === '') && !file) {
+      res.status(400).json({ message: 'Message content or media is required' });
       return;
     }
 
     // Prepare message data
     const messageData: any = {
       author: req.user._id,
-      content: content.trim(),
+      content: content ? content.trim() : '',
     };
 
     // Upload media if provided
@@ -78,6 +79,12 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
     const message = new ChatMessage(messageData);
     await message.save();
     await message.populate('author', 'username profilePicture');
+
+    // Emit to all connected clients via Socket.IO
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('new_chat_message', message);
+    }
 
     res.status(201).json(message);
   } catch (error) {

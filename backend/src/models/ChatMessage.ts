@@ -16,8 +16,9 @@ const ChatMessageSchema: Schema = new Schema({
   },
   content: {
     type: String,
-    required: true,
+    required: false,
     maxlength: 1000,
+    default: '',
   },
   mediaUrl: {
     type: String,

@@ -36,7 +36,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
         }`}>
           {message.mediaUrl && (
-            <div className="mb-2">
+            <div className={message.content ? 'mb-2' : ''}>
               {message.mediaType === 'video' ? (
                 <video src={message.mediaUrl} controls className="max-w-full rounded" style={{ maxHeight: '200px' }} />
               ) : (
@@ -44,7 +44,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
               )}
             </div>
           )}
-          <p className="whitespace-pre-wrap break-words">{message.content}</p>
+          {message.content && <p className="whitespace-pre-wrap break-words">{message.content}</p>}
         </div>
         
         <span 

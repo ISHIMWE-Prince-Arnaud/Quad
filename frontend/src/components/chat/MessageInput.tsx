@@ -33,9 +33,11 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, disabled }) 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Allow sending if there's either a message or a media file
     if (!message.trim() && !mediaFile) return;
 
-    onSendMessage(message.trim(), mediaFile || undefined);
+    // Send message or empty string if only media is being sent
+    onSendMessage(message.trim() || '', mediaFile || undefined);
     setMessage('');
     setMediaFile(null);
     setMediaPreview(null);

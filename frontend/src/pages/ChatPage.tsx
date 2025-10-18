@@ -48,13 +48,23 @@ const ChatPage: React.FC = () => {
     }
   };
 
-  const handleSendMessage = (content: string, file?: File) => {
-    if (socket) {
-      socket.emit('send_chat_message', {
-        content,
-        mediaUrl: file ? '' : undefined, // TODO: Upload file to Cloudinary first
-        mediaType: file?.type.startsWith('video/') ? 'video' : file ? 'image' : undefined,
-      });
+  const handleSendMessage = async (content: string, file?: File) => {
+    try {
+      if (file) {
+        // Upload file via API (which handles Cloudinary upload)
+        const formData = new FormData();
+        formData.append('content', content);
+        formData.append('media', file);
+
+        await chatAPI.sendMessage(formData);
+      } else if (socket && content.trim()) {
+        // Send text-only message via socket
+        socket.emit('send_chat_message', {
+          content,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error);
     }
   };
 
