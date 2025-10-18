@@ -1,5 +1,5 @@
 {
-  "name": "quad-client",
+  "name": "quad-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",

@@ -96,7 +96,7 @@ Quad/
    CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
    CLOUDINARY_API_KEY=your_cloudinary_api_key
    CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-   CLIENT_URL=http://localhost:5173
+   FRONTEND_URL=http://localhost:5173
    ```
 
 4. **Start the server:**
@@ -183,10 +183,10 @@ If using MongoDB Atlas:
 
 ## 🔌 Socket.IO Events
 
-### Client → Server
+### FRONTEND → Server
 - `send_chat_message` - Send chat message
 
-### Server → Client
+### Server → FRONTEND
 - `new_post` - New post created
 - `update_post_likes` - Post likes updated
 - `new_comment` - Comment added
