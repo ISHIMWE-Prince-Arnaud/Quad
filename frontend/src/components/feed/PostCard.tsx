@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Heart, MessageCircle, MoreHorizontal, Play, Pause, Volume2, VolumeX, Maximize, Download } from 'lucide-react';
+import { Heart, MessageCircle, MoreHorizontal, Play, Pause, Volume2, VolumeX, Download } from 'lucide-react';
 import { Post, Comment as CommentType } from '../../types';
 import { postsAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -103,14 +103,6 @@ const PostCard: React.FC<PostCardProps> = ({ post, onUpdate }) => {
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
-    }
-  };
-
-  const toggleFullscreen = () => {
-    if (videoRef.current) {
-      if (videoRef.current.requestFullscreen) {
-        videoRef.current.requestFullscreen();
-      }
     }
   };
 
@@ -285,17 +277,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, onUpdate }) => {
                   {/* Download Button */}
                   <button
                     onClick={handleDownload}
-                    className="w-9 h-9 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-colors backdrop-blur-sm"
-                  >
-                    <Download size={18} className="text-white" />
-                  </button>
-
-                  {/* Fullscreen */}
-                  <button
-                    onClick={toggleFullscreen}
                     className="w-9 h-9 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-colors backdrop-blur-sm ml-auto"
                   >
-                    <Maximize size={18} className="text-white" />
+                    <Download size={18} className="text-white" />
                   </button>
                 </div>
               </div>
