@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { VenetianMask } from 'lucide-react';
 import { Confession } from '../types';
 import { confessionsAPI } from '../services/api';
 import { useSocket } from '../context/SocketContext';
 import ConfessionCard from '../components/confessions/ConfessionCard';
+import ConfessionSkeleton from '../components/common/ConfessionSkeleton';
+import EmptyState from '../components/common/EmptyState';
 
 const ConfessionsPage: React.FC = () => {
   const [confessions, setConfessions] = useState<Confession[]>([]);
@@ -11,6 +14,7 @@ const ConfessionsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
   const { socket } = useSocket();
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadConfessions();
@@ -51,6 +55,29 @@ const ConfessionsPage: React.FC = () => {
     }
   }, [socket]);
 
+  // Infinite scroll setup
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !loadingMore) {
+          loadConfessions(currentPage + 1, true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasNextPage, loadingMore, currentPage]);
+
   const loadConfessions = async (page: number = 1, append: boolean = false) => {
     try {
       if (append) {
@@ -77,12 +104,6 @@ const ConfessionsPage: React.FC = () => {
     }
   };
 
-  const loadMoreConfessions = () => {
-    if (!loadingMore && hasNextPage) {
-      loadConfessions(currentPage + 1, true);
-    }
-  };
-
   const handleConfessionUpdate = (updatedConfession: Confession) => {
     setConfessions((prev) =>
       prev.map((confession) =>
@@ -93,8 +114,16 @@ const ConfessionsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-gray-600 dark:text-gray-400">Loading confessions...</div>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <span className="text-3xl">🎭</span> Confessions
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Share your thoughts anonymously</p>
+        </div>
+        <ConfessionSkeleton />
+        <ConfessionSkeleton />
+        <ConfessionSkeleton />
       </div>
     );
   }
@@ -109,9 +138,11 @@ const ConfessionsPage: React.FC = () => {
       </div>
 
       {confessions.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
-          <p className="text-gray-600 dark:text-gray-400">No confessions yet. Share yours anonymously!</p>
-        </div>
+        <EmptyState
+          icon={VenetianMask}
+          title="No confessions yet"
+          description="Share your thoughts anonymously. No one will know it's you!"
+        />
       ) : (
         <>
           {confessions.map((confession) => (
@@ -122,15 +153,17 @@ const ConfessionsPage: React.FC = () => {
             />
           ))}
 
+          {/* Infinite scroll trigger */}
           {hasNextPage && (
-            <div className="flex justify-center">
-              <button
-                onClick={loadMoreConfessions}
-                disabled={loadingMore}
-                className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {loadingMore ? 'Loading...' : 'Load More'}
-              </button>
+            <div ref={observerTarget} className="flex justify-center py-8">
+              {loadingMore && <ConfessionSkeleton />}
+            </div>
+          )}
+
+          {/* End of confessions message */}
+          {!hasNextPage && confessions.length > 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400">All confessions revealed 🎭</p>
             </div>
           )}
         </>

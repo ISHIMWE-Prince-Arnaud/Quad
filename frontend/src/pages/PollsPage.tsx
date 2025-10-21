@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { BarChart3 } from 'lucide-react';
 import { Poll } from '../types';
 import { pollsAPI } from '../services/api';
 import { useSocket } from '../context/SocketContext';
 import PollCard from '../components/polls/PollCard';
+import PollSkeleton from '../components/common/PollSkeleton';
+import EmptyState from '../components/common/EmptyState';
 
 const PollsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'regular' | 'would-you-rather'>('all');
@@ -12,6 +15,7 @@ const PollsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
   const { socket } = useSocket();
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadPolls();
@@ -43,6 +47,29 @@ const PollsPage: React.FC = () => {
     }
   }, [socket, activeTab]);
 
+  // Infinite scroll setup
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !loadingMore) {
+          loadPolls(currentPage + 1, true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasNextPage, loadingMore, currentPage]);
+
   const loadPolls = async (page: number = 1, append: boolean = false) => {
     if (!append) {
       setLoading(true);
@@ -69,12 +96,6 @@ const PollsPage: React.FC = () => {
     } finally {
       setLoading(false);
       setLoadingMore(false);
-    }
-  };
-
-  const loadMorePolls = () => {
-    if (!loadingMore && hasNextPage) {
-      loadPolls(currentPage + 1, true);
     }
   };
 
@@ -123,28 +144,34 @@ const PollsPage: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-gray-600 dark:text-gray-400">Loading polls...</div>
+        <div className="space-y-6">
+          <PollSkeleton />
+          <PollSkeleton />
+          <PollSkeleton />
         </div>
       ) : polls.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
-          <p className="text-gray-600 dark:text-gray-400">No polls yet. Create the first one!</p>
-        </div>
+        <EmptyState
+          icon={BarChart3}
+          title="No polls yet"
+          description="Create the first poll and get opinions from the community!"
+        />
       ) : (
         <div className="space-y-6">
           {polls.map((poll) => (
             <PollCard key={poll._id} poll={poll} onUpdate={handlePollUpdate} />
           ))}
 
+          {/* Infinite scroll trigger */}
           {hasNextPage && (
-            <div className="flex justify-center">
-              <button
-                onClick={loadMorePolls}
-                disabled={loadingMore}
-                className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {loadingMore ? 'Loading...' : 'Load More'}
-              </button>
+            <div ref={observerTarget} className="flex justify-center py-8">
+              {loadingMore && <PollSkeleton />}
+            </div>
+          )}
+
+          {/* End of polls message */}
+          {!hasNextPage && polls.length > 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400">No more polls to show 🎯</p>
             </div>
           )}
         </div>
