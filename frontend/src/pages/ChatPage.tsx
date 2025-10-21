@@ -40,7 +40,9 @@ const ChatPage: React.FC = () => {
   const loadMessages = async () => {
     try {
       const response = await chatAPI.getMessages(100);
-      setMessages(response.data);
+      // Handle new response format with nested messages array
+      const messagesData = response.data.messages || response.data;
+      setMessages(messagesData);
     } catch (error) {
       console.error('Failed to load messages:', error);
     } finally {

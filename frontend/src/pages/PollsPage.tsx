@@ -45,7 +45,9 @@ const PollsPage: React.FC = () => {
     try {
       const type = activeTab === 'all' ? undefined : activeTab;
       const response = await pollsAPI.getPolls(type);
-      setPolls(response.data);
+      // Handle new response format with nested polls array
+      const pollsData = response.data.polls || response.data;
+      setPolls(pollsData);
     } catch (error) {
       console.error('Failed to load polls:', error);
     } finally {

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import { UnauthorizedError, ErrorCode } from '../utils/ApiError';
 
 /**
  * Extend Express Request to include user
@@ -22,8 +23,10 @@ export const authMiddleware = async (
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      res.status(401).json({ message: 'No token provided, authorization denied' });
-      return;
+      throw new UnauthorizedError(
+        'No token provided, authorization denied',
+        ErrorCode.NO_TOKEN
+      );
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
@@ -39,15 +42,17 @@ export const authMiddleware = async (
     const user = await User.findById(decoded.userId).select('-password');
     
     if (!user) {
-      res.status(401).json({ message: 'User not found, authorization denied' });
-      return;
+      throw new UnauthorizedError(
+        'User not found, authorization denied',
+        ErrorCode.USER_NOT_FOUND
+      );
     }
 
     // Attach user to request object
     req.user = user;
     next();
   } catch (error) {
-    console.error('Auth middleware error:', error);
-    res.status(401).json({ message: 'Token is invalid or expired' });
+    // Pass error to centralized error handler
+    next(error);
   }
 };

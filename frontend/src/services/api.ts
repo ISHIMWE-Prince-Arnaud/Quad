@@ -21,6 +21,36 @@ api.interceptors.request.use((config) => {
 });
 
 /**
+ * Handle response format
+ * Extract data from success responses, handle error responses
+ */
+api.interceptors.response.use(
+  (response) => {
+    // If response has success flag and data, extract it
+    if (response.data && typeof response.data === 'object') {
+      // Keep the original response structure but normalize it
+      return response;
+    }
+    return response;
+  },
+  (error) => {
+    // Handle error responses with structured error format
+    if (error.response?.data) {
+      const errorData = error.response.data;
+      // Create a more descriptive error message
+      const message = errorData.message || 'An error occurred';
+      const errorCode = errorData.errorCode || 'UNKNOWN_ERROR';
+      
+      // Attach error details to the error object
+      error.errorCode = errorCode;
+      error.errorDetails = errorData.details;
+      error.message = message;
+    }
+    return Promise.reject(error);
+  }
+);
+
+/**
  * Auth API calls
  */
 export const authAPI = {

@@ -36,6 +36,7 @@ const ProfilePage: React.FC = () => {
   const loadProfile = async () => {
     try {
       const response = await usersAPI.getUserProfile(username!);
+      // Response already contains user, posts, polls, comments structure
       setProfile(response.data);
     } catch (error) {
       console.error('Failed to load profile:', error);

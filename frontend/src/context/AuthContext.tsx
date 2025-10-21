@@ -15,7 +15,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (token) {
         try {
           const response = await authAPI.getMe();
-          setUser(response.data);
+          // Handle new response format with success flag
+          const userData = response.data.user || response.data;
+          setUser(userData);
         } catch (error) {
           console.error('Failed to load user:', error);
           localStorage.removeItem('token');
@@ -31,26 +33,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (username: string, password: string) => {
     try {
       const response = await authAPI.login(username, password);
+      // Handle new response format
       const { token: newToken, user: userData } = response.data;
       
       localStorage.setItem('token', newToken);
       setToken(newToken);
       setUser(userData);
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Login failed');
+      // Error message already formatted by interceptor
+      throw new Error(error.message || error.response?.data?.message || 'Login failed');
     }
   };
 
   const register = async (username: string, email: string, password: string) => {
     try {
       const response = await authAPI.register(username, email, password);
+      // Handle new response format
       const { token: newToken, user: userData } = response.data;
       
       localStorage.setItem('token', newToken);
       setToken(newToken);
       setUser(userData);
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Registration failed');
+      // Error message already formatted by interceptor
+      throw new Error(error.message || error.response?.data?.message || 'Registration failed');
     }
   };
 

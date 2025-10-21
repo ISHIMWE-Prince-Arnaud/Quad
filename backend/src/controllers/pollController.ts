@@ -4,6 +4,13 @@ import Poll from '../models/Poll';
 import cloudinary from '../config/cloudinary';
 import { Readable } from 'stream';
 import { io } from '../server';
+import {
+  BadRequestError,
+  NotFoundError,
+  InternalServerError,
+  ErrorCode,
+} from '../utils/ApiError';
+import { asyncHandler } from '../middleware/errorHandler';
 
 /**
  * Helper function to upload file to Cloudinary
@@ -30,138 +37,156 @@ const uploadToCloudinary = (buffer: Buffer, resourceType: 'image' | 'video'): Pr
  * Get all polls
  * GET /api/polls
  */
-export const getPolls = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    const { type } = req.query;
-    
-    let filter: any = {};
-    if (type === 'would-you-rather') {
-      filter.isWouldYouRather = true;
-    } else if (type === 'regular') {
-      filter.isWouldYouRather = false;
-    }
-
-    const polls = await Poll.find(filter)
-      .populate('author', 'username profilePicture')
-      .sort({ createdAt: -1 })
-      .limit(50);
-
-    res.json(polls);
-  } catch (error) {
-    console.error('Get polls error:', error);
-    res.status(500).json({ message: 'Server error' });
+export const getPolls = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+  const { type } = req.query;
+  
+  let filter: any = {};
+  if (type === 'would-you-rather') {
+    filter.isWouldYouRather = true;
+  } else if (type === 'regular') {
+    filter.isWouldYouRather = false;
   }
-};
+
+  const polls = await Poll.find(filter)
+    .populate('author', 'username profilePicture')
+    .sort({ createdAt: -1 })
+    .limit(50);
+
+  res.json({
+    success: true,
+    count: polls.length,
+    polls,
+  });
+});
 
 /**
  * Create a new poll
  * POST /api/polls
  */
-export const createPoll = async (req: AuthRequest, res: Response): Promise<void> => {
+export const createPoll = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+  const { question, options, isWouldYouRather } = req.body;
+  const file = req.file;
+
+  if (!question || !options) {
+    throw new BadRequestError(
+      'Question and options are required',
+      ErrorCode.MISSING_FIELDS,
+      { required: ['question', 'options'] }
+    );
+  }
+
+  // Parse options if it's a string
+  let parsedOptions;
   try {
-    const { question, options, isWouldYouRather } = req.body;
-    const file = req.file;
+    parsedOptions = typeof options === 'string' ? JSON.parse(options) : options;
+  } catch (error) {
+    throw new BadRequestError(
+      'Invalid options format',
+      ErrorCode.INVALID_INPUT,
+      { field: 'options' }
+    );
+  }
 
-    if (!question || !options) {
-      res.status(400).json({ message: 'Question and options are required' });
-      return;
-    }
+  // Validate options
+  if (!Array.isArray(parsedOptions) || parsedOptions.length < 2) {
+    throw new BadRequestError(
+      'At least 2 options are required',
+      ErrorCode.VALIDATION_ERROR,
+      { minOptions: 2, provided: parsedOptions?.length || 0 }
+    );
+  }
 
-    // Parse options if it's a string
-    let parsedOptions;
+  // Prepare poll data
+  const pollData: any = {
+    author: req.user._id,
+    question,
+    options: parsedOptions.map((opt: string) => ({ text: opt, votes: [] })),
+    isWouldYouRather: isWouldYouRather === 'true' || isWouldYouRather === true,
+  };
+
+  // Upload media if provided
+  if (file) {
     try {
-      parsedOptions = typeof options === 'string' ? JSON.parse(options) : options;
-    } catch (error) {
-      res.status(400).json({ message: 'Invalid options format' });
-      return;
-    }
-
-    // Validate options
-    if (!Array.isArray(parsedOptions) || parsedOptions.length < 2) {
-      res.status(400).json({ message: 'At least 2 options are required' });
-      return;
-    }
-
-    // Prepare poll data
-    const pollData: any = {
-      author: req.user._id,
-      question,
-      options: parsedOptions.map((opt: string) => ({ text: opt, votes: [] })),
-      isWouldYouRather: isWouldYouRather === 'true' || isWouldYouRather === true,
-    };
-
-    // Upload media if provided
-    if (file) {
       const mediaType = file.mimetype.startsWith('video/') ? 'video' : 'image';
       const uploadResult = await uploadToCloudinary(file.buffer, mediaType);
       pollData.mediaUrl = uploadResult.secure_url;
       pollData.mediaType = mediaType;
+    } catch (error: any) {
+      throw new InternalServerError(
+        'Failed to upload media',
+        ErrorCode.CLOUDINARY_ERROR,
+        { cloudinaryError: error.message }
+      );
     }
-
-    // Create poll
-    const poll = new Poll(pollData);
-    await poll.save();
-    await poll.populate('author', 'username profilePicture');
-
-    // Emit socket event for real-time update
-    io.emit('new_poll', poll);
-
-    res.status(201).json(poll);
-  } catch (error) {
-    console.error('Create poll error:', error);
-    res.status(500).json({ message: 'Server error creating poll' });
   }
-};
+
+  // Create poll
+  const poll = new Poll(pollData);
+  await poll.save();
+  await poll.populate('author', 'username profilePicture');
+
+  // Emit socket event for real-time update
+  io.emit('new_poll', poll);
+
+  res.status(201).json({
+    success: true,
+    poll,
+  });
+});
 
 /**
  * Vote on a poll
  * POST /api/polls/:id/vote
  */
-export const votePoll = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const { optionIndex } = req.body;
-    const userId = req.user._id;
+export const votePoll = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const { optionIndex } = req.body;
+  const userId = req.user._id;
 
-    if (optionIndex === undefined || optionIndex === null) {
-      res.status(400).json({ message: 'Option index is required' });
-      return;
-    }
-
-    const poll = await Poll.findById(id);
-    if (!poll) {
-      res.status(404).json({ message: 'Poll not found' });
-      return;
-    }
-
-    if (optionIndex < 0 || optionIndex >= poll.options.length) {
-      res.status(400).json({ message: 'Invalid option index' });
-      return;
-    }
-
-    // Check if user already voted
-    let hasVoted = false;
-    poll.options.forEach((option, index) => {
-      const voteIndex = option.votes.findIndex(vote => vote.toString() === userId.toString());
-      if (voteIndex > -1) {
-        hasVoted = true;
-        // Remove previous vote
-        option.votes.splice(voteIndex, 1);
-      }
-    });
-
-    // Add new vote
-    poll.options[optionIndex].votes.push(userId);
-
-    await poll.save();
-    await poll.populate('author', 'username profilePicture');
-
-    // Emit socket event for real-time update
-    io.emit('update_poll_votes', poll);
-
-    res.json(poll);
-  } catch (error) {
-    console.error('Vote poll error:', error);
-    res.status(500).json({ message: 'Server error' });
+  if (optionIndex === undefined || optionIndex === null) {
+    throw new BadRequestError(
+      'Option index is required',
+      ErrorCode.MISSING_FIELDS,
+      { required: ['optionIndex'] }
+    );
   }
-};
+
+  const poll = await Poll.findById(id);
+  if (!poll) {
+    throw new NotFoundError('Poll not found', ErrorCode.POLL_NOT_FOUND);
+  }
+
+  if (optionIndex < 0 || optionIndex >= poll.options.length) {
+    throw new BadRequestError(
+      'Invalid option index',
+      ErrorCode.INVALID_INPUT,
+      { optionIndex, maxIndex: poll.options.length - 1 }
+    );
+  }
+
+  // Check if user already voted
+  let hasVoted = false;
+  poll.options.forEach((option, index) => {
+    const voteIndex = option.votes.findIndex(vote => vote.toString() === userId.toString());
+    if (voteIndex > -1) {
+      hasVoted = true;
+      // Remove previous vote
+      option.votes.splice(voteIndex, 1);
+    }
+  });
+
+  // Add new vote
+  poll.options[optionIndex].votes.push(userId);
+
+  await poll.save();
+  await poll.populate('author', 'username profilePicture');
+
+  // Emit socket event for real-time update
+  io.emit('update_poll_votes', poll);
+
+  res.json({
+    success: true,
+    action: hasVoted ? 'vote_changed' : 'voted',
+    poll,
+  });
+});

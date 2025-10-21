@@ -51,7 +51,9 @@ const ConfessionsPage: React.FC = () => {
   const loadConfessions = async () => {
     try {
       const response = await confessionsAPI.getConfessions();
-      setConfessions(response.data);
+      // Handle new response format with nested confessions array
+      const confessionsData = response.data.confessions || response.data;
+      setConfessions(confessionsData);
     } catch (error) {
       console.error('Failed to load confessions:', error);
     } finally {

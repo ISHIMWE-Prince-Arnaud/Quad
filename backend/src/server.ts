@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 import { connectDB } from "./config/db"; // Assuming this returns a Promise
 import { configureCloudinary } from "./config/cloudinary";
 import { initializeSocketHandlers } from "./sockets/socketHandler";
+import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 
 // Import routes
 import authRoutes from "./routes/authRoutes";
@@ -63,18 +64,11 @@ app.use("/api/confessions", confessionRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/users", userRoutes);
 
-// 404 handler
-app.use((req: Request, res: Response) => {
-  res.status(404).json({ message: "Route not found" });
-});
+// 404 handler (must be before error handler)
+app.use(notFoundHandler);
 
-// Error handler
-app.use((err: any, req: Request, res: Response, next: any) => {
-  console.error("Server error:", err);
-  res.status(err.status || 500).json({
-    message: err.message || "Internal server error",
-  });
-});
+// Centralized error handler (must be last)
+app.use(errorHandler);
 
 // Start server function
 const startServer = async () => {
@@ -96,6 +90,47 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
+// Process-level error handlers
+process.on('unhandledRejection', (reason: Error, promise: Promise<any>) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  // Log the error but don't exit in development
+  if (process.env.NODE_ENV === 'production') {
+    console.error('🛑 Shutting down server due to unhandled rejection...');
+    // Gracefully shutdown
+    httpServer.close(() => {
+      process.exit(1);
+    });
+    // Force shutdown after 10 seconds
+    setTimeout(() => {
+      console.error('⚠️  Forced shutdown after timeout');
+      process.exit(1);
+    }, 10000);
+  }
+});
+
+process.on('uncaughtException', (error: Error) => {
+  console.error('❌ Uncaught Exception:', error);
+  console.error('🛑 Shutting down server due to uncaught exception...');
+  // Uncaught exceptions are serious - always exit
+  httpServer.close(() => {
+    process.exit(1);
+  });
+  // Force shutdown after 10 seconds
+  setTimeout(() => {
+    console.error('⚠️  Forced shutdown after timeout');
+    process.exit(1);
+  }, 10000);
+});
+
+// Graceful shutdown on SIGTERM (e.g., from Docker or PM2)
+process.on('SIGTERM', () => {
+  console.log('👋 SIGTERM signal received: closing HTTP server');
+  httpServer.close(() => {
+    console.log('✅ HTTP server closed');
+    process.exit(0);
+  });
+});
 
 // Execute the start server function
 startServer();

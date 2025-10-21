@@ -38,7 +38,9 @@ const FeedPage: React.FC = () => {
   const loadPosts = async () => {
     try {
       const response = await postsAPI.getPosts();
-      setPosts(response.data);
+      // Handle new response format with nested posts array
+      const postsData = response.data.posts || response.data;
+      setPosts(postsData);
     } catch (error) {
       console.error('Failed to load posts:', error);
     } finally {

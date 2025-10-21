@@ -6,6 +6,13 @@ import Poll from '../models/Poll';
 import Comment from '../models/Comment';
 import cloudinary from '../config/cloudinary';
 import { Readable } from 'stream';
+import {
+  BadRequestError,
+  NotFoundError,
+  InternalServerError,
+  ErrorCode,
+} from '../utils/ApiError';
+import { asyncHandler } from '../middleware/errorHandler';
 
 /**
  * Helper function to upload file to Cloudinary
@@ -35,81 +42,84 @@ const uploadToCloudinary = (buffer: Buffer): Promise<any> => {
  * Get user profile by username
  * GET /api/users/:username
  */
-export const getUserProfile = async (req: AuthRequest, res: Response): Promise<void> => {
-  try {
-    const { username } = req.params;
+export const getUserProfile = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+  const { username } = req.params;
 
-    const user = await User.findOne({ username }).select('-password');
-    if (!user) {
-      res.status(404).json({ message: 'User not found' });
-      return;
-    }
-
-    // Get user's posts
-    const posts = await Post.find({ author: user._id })
-      .populate('author', 'username profilePicture')
-      .sort({ createdAt: -1 });
-
-    // Get user's polls
-    const polls = await Poll.find({ author: user._id })
-      .populate('author', 'username profilePicture')
-      .sort({ createdAt: -1 });
-
-    // Get user's comments
-    const comments = await Comment.find({ author: user._id })
-      .populate('author', 'username profilePicture')
-      .populate('post', 'mediaUrl')
-      .sort({ createdAt: -1 });
-
-    res.json({
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        profilePicture: user.profilePicture,
-        createdAt: user.createdAt,
-      },
-      posts,
-      polls,
-      comments,
-    });
-  } catch (error) {
-    console.error('Get user profile error:', error);
-    res.status(500).json({ message: 'Server error' });
+  const user = await User.findOne({ username }).select('-password');
+  if (!user) {
+    throw new NotFoundError('User not found', ErrorCode.USER_NOT_FOUND);
   }
-};
+
+  // Get user's posts
+  const posts = await Post.find({ author: user._id })
+    .populate('author', 'username profilePicture')
+    .sort({ createdAt: -1 });
+
+  // Get user's polls
+  const polls = await Poll.find({ author: user._id })
+    .populate('author', 'username profilePicture')
+    .sort({ createdAt: -1 });
+
+  // Get user's comments
+  const comments = await Comment.find({ author: user._id })
+    .populate('author', 'username profilePicture')
+    .populate('post', 'mediaUrl')
+    .sort({ createdAt: -1 });
+
+  res.json({
+    success: true,
+    user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      profilePicture: user.profilePicture,
+      createdAt: user.createdAt,
+    },
+    posts,
+    polls,
+    comments,
+  });
+});
 
 /**
  * Update profile picture
  * PUT /api/users/me/profile-picture
  */
-export const updateProfilePicture = async (req: AuthRequest, res: Response): Promise<void> => {
+export const updateProfilePicture = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+  const file = req.file;
+
+  if (!file) {
+    throw new BadRequestError(
+      'Profile picture is required',
+      ErrorCode.FILE_REQUIRED
+    );
+  }
+
   try {
-    const file = req.file;
-
-    if (!file) {
-      res.status(400).json({ message: 'Profile picture is required' });
-      return;
-    }
-
     // Upload to Cloudinary
     const uploadResult = await uploadToCloudinary(file.buffer);
 
     // Update user
     const user = await User.findById(req.user._id);
     if (!user) {
-      res.status(404).json({ message: 'User not found' });
-      return;
+      throw new NotFoundError('User not found', ErrorCode.USER_NOT_FOUND);
     }
 
     user.profilePicture = uploadResult.secure_url;
     await user.save();
 
     res.json({
+      success: true,
       profilePicture: user.profilePicture,
     });
-  } catch (error) {
-    console.error('Update profile picture error:', error);
-    res.status(500).json({ message: 'Server error' });
+  } catch (error: any) {
+    if (error.http_code) {
+      throw new InternalServerError(
+        'Failed to upload profile picture',
+        ErrorCode.CLOUDINARY_ERROR,
+        { cloudinaryError: error.message }
+      );
+    }
+    throw error;
   }
-};
+});
