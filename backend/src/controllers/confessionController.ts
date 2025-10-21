@@ -21,15 +21,27 @@ const uploadToCloudinary = (buffer: Buffer, resourceType: 'image' | 'video'): Pr
       {
         resource_type: resourceType,
         folder: 'quad/confessions',
+        timeout: 120000, // 2 minutes timeout
+        chunk_size: 6000000, // 6MB chunks
       },
       (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
+        if (error) {
+          console.error('❌ Cloudinary upload error:', error);
+          reject(error);
+        } else {
+          console.log('✅ Confession media uploaded:', result?.secure_url);
+          resolve(result);
+        }
       }
     );
 
     const readableStream = Readable.from(buffer);
     readableStream.pipe(uploadStream);
+    
+    readableStream.on('error', (err) => {
+      console.error('❌ Stream error:', err);
+      reject(err);
+    });
   });
 };
 

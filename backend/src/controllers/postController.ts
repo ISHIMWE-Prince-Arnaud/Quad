@@ -22,15 +22,28 @@ const uploadToCloudinary = (buffer: Buffer, resourceType: 'image' | 'video'): Pr
       {
         resource_type: resourceType,
         folder: 'quad/posts',
+        timeout: 120000, // 2 minutes timeout (increased from default 60s)
+        chunk_size: 6000000, // 6MB chunks for large files
       },
       (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
+        if (error) {
+          console.error('❌ Cloudinary upload error:', error);
+          reject(error);
+        } else {
+          console.log('✅ Cloudinary upload successful:', result?.secure_url);
+          resolve(result);
+        }
       }
     );
 
     const readableStream = Readable.from(buffer);
     readableStream.pipe(uploadStream);
+    
+    // Handle stream errors
+    readableStream.on('error', (err) => {
+      console.error('❌ Stream error:', err);
+      reject(err);
+    });
   });
 };
 
