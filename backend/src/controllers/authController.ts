@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import User from '../models/User';
-import { AuthRequest } from '../middleware/authMiddleware';
+import { Request, Response } from "express";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/User";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 /**
  * Register a new user
@@ -14,14 +14,16 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     // Validate input
     if (!username || !email || !password) {
-      res.status(400).json({ message: 'Please provide all required fields' });
+      res.status(400).json({ message: "Please provide all required fields" });
       return;
     }
 
     // Check if user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
-      res.status(400).json({ message: 'User with this email or username already exists' });
+      res
+        .status(400)
+        .json({ message: "User with this email or username already exists" });
       return;
     }
 
@@ -39,8 +41,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     await user.save();
 
     // Generate JWT token
-    const jwtSecret = process.env.JWT_SECRET || 'default_secret';
-    const token = jwt.sign({ userId: user._id }, jwtSecret, { expiresIn: '30d' });
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error("JWT_SECRET is not defined");
+    }
+    const token = jwt.sign({ userId: user._id }, jwtSecret, {
+      expiresIn: "30d",
+    });
 
     res.status(201).json({
       token,
@@ -53,8 +60,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (error) {
-    console.error('Register error:', error);
-    res.status(500).json({ message: 'Server error during registration' });
+    console.error("Register error:", error);
+    res.status(500).json({ message: "Server error during registration" });
   }
 };
 
@@ -68,7 +75,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // Validate input
     if (!username || !password) {
-      res.status(400).json({ message: 'Please provide username and password' });
+      res.status(400).json({ message: "Please provide username and password" });
       return;
     }
 
@@ -78,20 +85,22 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (!user) {
-      res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: "Invalid credentials" });
       return;
     }
 
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ message: "Invalid credentials" });
       return;
     }
 
     // Generate JWT token
-    const jwtSecret = process.env.JWT_SECRET || 'default_secret';
-    const token = jwt.sign({ userId: user._id }, jwtSecret, { expiresIn: '30d' });
+    const jwtSecret = process.env.JWT_SECRET || "default_secret";
+    const token = jwt.sign({ userId: user._id }, jwtSecret, {
+      expiresIn: "30d",
+    });
 
     res.json({
       token,
@@ -104,8 +113,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error during login' });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error during login" });
   }
 };
 
@@ -115,10 +124,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
  */
 export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
-    
+    const user = await User.findById(req.user._id).select("-password");
+
     if (!user) {
-      res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ message: "User not found" });
       return;
     }
 
@@ -130,7 +139,7 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
       createdAt: user.createdAt,
     });
   } catch (error) {
-    console.error('Get me error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Get me error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

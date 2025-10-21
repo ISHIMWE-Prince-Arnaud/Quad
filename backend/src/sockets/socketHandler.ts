@@ -23,7 +23,10 @@ export const initializeSocketHandlers = (io: Server): void => {
         return next(new Error('Authentication error: No token provided'));
       }
 
-      const jwtSecret = process.env.JWT_SECRET || 'default_secret';
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        throw new Error('JWT_SECRET is not defined');
+      }
       const decoded = jwt.verify(token, jwtSecret) as { userId: string };
 
       const user = await User.findById(decoded.userId).select('-password');

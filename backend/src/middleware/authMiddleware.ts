@@ -29,7 +29,10 @@ export const authMiddleware = async (
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
     // Verify token
-    const jwtSecret = process.env.JWT_SECRET || 'default_secret';
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET is not defined');
+    }
     const decoded = jwt.verify(token, jwtSecret) as { userId: string };
 
     // Find user by ID
