@@ -6,7 +6,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(localStorage.getItem('accessToken'));
   const [loading, setLoading] = useState(true);
 
   // Load user on mount if token exists
@@ -20,7 +20,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(userData);
         } catch (error) {
           console.error('Failed to load user:', error);
-          localStorage.removeItem('token');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
           setToken(null);
         }
       }
@@ -33,11 +34,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (username: string, password: string) => {
     try {
       const response = await authAPI.login(username, password);
-      // Handle new response format
-      const { token: newToken, user: userData } = response.data;
+      // Handle new token format (accessToken + refreshToken)
+      const { accessToken, refreshToken, user: userData } = response.data;
       
-      localStorage.setItem('token', newToken);
-      setToken(newToken);
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      setToken(accessToken);
       setUser(userData);
     } catch (error: any) {
       // Error message already formatted by interceptor
@@ -48,11 +50,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (username: string, email: string, password: string) => {
     try {
       const response = await authAPI.register(username, email, password);
-      // Handle new response format
-      const { token: newToken, user: userData } = response.data;
+      // Handle new token format (accessToken + refreshToken)
+      const { accessToken, refreshToken, user: userData } = response.data;
       
-      localStorage.setItem('token', newToken);
-      setToken(newToken);
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      setToken(accessToken);
       setUser(userData);
     } catch (error: any) {
       // Error message already formatted by interceptor
@@ -61,7 +64,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     setToken(null);
     setUser(null);
   };

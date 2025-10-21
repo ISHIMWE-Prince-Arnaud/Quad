@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { AuthRequest } from "../middleware/authMiddleware";
 import {
@@ -11,6 +10,12 @@ import {
   ErrorCode,
 } from "../utils/ApiError";
 import { asyncHandler } from "../middleware/errorHandler";
+import { validatePassword } from "../utils/passwordValidator";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../utils/tokenUtils";
 
 /**
  * Register a new user
@@ -28,6 +33,16 @@ export const register = asyncHandler(async (req: Request, res: Response): Promis
     );
   }
 
+  // Validate password strength
+  const passwordValidation = validatePassword(password);
+  if (!passwordValidation.isValid) {
+    throw new BadRequestError(
+      "Password does not meet security requirements",
+      ErrorCode.VALIDATION_ERROR,
+      { requirements: passwordValidation.requirements }
+    );
+  }
+
   // Check if user already exists
   const existingUser = await User.findOne({ $or: [{ email }, { username }] });
   if (existingUser) {
@@ -40,7 +55,7 @@ export const register = asyncHandler(async (req: Request, res: Response): Promis
   }
 
   // Hash password
-  const salt = await bcrypt.genSalt(10);
+  const salt = await bcrypt.genSalt(12); // Increased from 10 to 12 for better security
   const hashedPassword = await bcrypt.hash(password, salt);
 
   // Create new user
@@ -52,18 +67,18 @@ export const register = asyncHandler(async (req: Request, res: Response): Promis
 
   await user.save();
 
-  // Generate JWT token
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!jwtSecret) {
-    throw new Error("JWT_SECRET is not defined");
-  }
-  const token = jwt.sign({ userId: user._id }, jwtSecret, {
-    expiresIn: "30d",
-  });
+  // Generate tokens (15-minute access token, 7-day refresh token)
+  const accessToken = generateAccessToken(String(user._id));
+  const refreshToken = generateRefreshToken(String(user._id));
+
+  // Store refresh token in database
+  user.refreshTokens = [refreshToken];
+  await user.save();
 
   res.status(201).json({
     success: true,
-    token,
+    accessToken,
+    refreshToken,
     user: {
       id: user._id,
       username: user.username,
@@ -90,10 +105,10 @@ export const login = asyncHandler(async (req: Request, res: Response): Promise<v
     );
   }
 
-  // Find user by username or email
+  // Find user by username or email (include refreshTokens for token management)
   const user = await User.findOne({
     $or: [{ username }, { email: username }],
-  });
+  }).select('+refreshTokens');
 
   if (!user) {
     throw new UnauthorizedError(
@@ -111,18 +126,27 @@ export const login = asyncHandler(async (req: Request, res: Response): Promise<v
     );
   }
 
-  // Generate JWT token
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!jwtSecret) {
-    throw new Error("JWT_SECRET is not defined");
+  // Generate new tokens
+  const accessToken = generateAccessToken(String(user._id));
+  const refreshToken = generateRefreshToken(String(user._id));
+
+  // Store refresh token (limit to 5 devices)
+  if (!user.refreshTokens) {
+    user.refreshTokens = [];
   }
-  const token = jwt.sign({ userId: user._id }, jwtSecret, {
-    expiresIn: "30d",
-  });
+  user.refreshTokens.push(refreshToken);
+  
+  // Keep only last 5 refresh tokens
+  if (user.refreshTokens.length > 5) {
+    user.refreshTokens = user.refreshTokens.slice(-5);
+  }
+  
+  await user.save();
 
   res.json({
     success: true,
-    token,
+    accessToken,
+    refreshToken,
     user: {
       id: user._id,
       username: user.username,
@@ -153,5 +177,52 @@ export const getMe = asyncHandler(async (req: AuthRequest, res: Response): Promi
       profilePicture: user.profilePicture,
       createdAt: user.createdAt,
     },
+  });
+});
+
+/**
+ * Refresh access token
+ * POST /api/auth/refresh
+ */
+export const refreshToken = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    throw new BadRequestError(
+      "Refresh token is required",
+      ErrorCode.MISSING_FIELDS,
+      { required: ["refreshToken"] }
+    );
+  }
+
+  // Verify refresh token
+  const decoded = verifyRefreshToken(refreshToken);
+  if (!decoded) {
+    throw new UnauthorizedError(
+      "Invalid or expired refresh token",
+      ErrorCode.TOKEN_INVALID
+    );
+  }
+
+  // Find user and check if refresh token exists
+  const user = await User.findById(decoded.userId).select('+refreshTokens');
+  if (!user) {
+    throw new NotFoundError("User not found", ErrorCode.USER_NOT_FOUND);
+  }
+
+  // Verify refresh token is stored in database
+  if (!user.refreshTokens || !user.refreshTokens.includes(refreshToken)) {
+    throw new UnauthorizedError(
+      "Refresh token not found or has been revoked",
+      ErrorCode.TOKEN_INVALID
+    );
+  }
+
+  // Generate new access token
+  const newAccessToken = generateAccessToken(String(user._id));
+
+  res.json({
+    success: true,
+    accessToken: newAccessToken,
   });
 });

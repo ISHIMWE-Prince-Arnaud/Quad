@@ -5,6 +5,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   profilePicture: string | null;
+  refreshTokens: string[];
   createdAt: Date;
 }
 
@@ -32,6 +33,11 @@ const UserSchema: Schema = new Schema({
   profilePicture: {
     type: String,
     default: null,
+  },
+  refreshTokens: {
+    type: [String],
+    default: [],
+    select: false, // Don't include in queries by default
   },
   createdAt: {
     type: Date,

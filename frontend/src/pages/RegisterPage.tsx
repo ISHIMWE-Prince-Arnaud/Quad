@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
+import { Check, X } from 'lucide-react';
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -14,6 +15,36 @@ const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  // Password validation rules
+  const passwordRequirements = useMemo(() => {
+    return [
+      {
+        met: password.length >= 8,
+        message: 'At least 8 characters',
+      },
+      {
+        met: /[A-Z]/.test(password),
+        message: 'At least one uppercase letter',
+      },
+      {
+        met: /[a-z]/.test(password),
+        message: 'At least one lowercase letter',
+      },
+      {
+        met: /\d/.test(password),
+        message: 'At least one number',
+      },
+      {
+        met: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+        message: 'At least one special character',
+      },
+    ];
+  }, [password]);
+
+  const isPasswordValid = useMemo(() => {
+    return passwordRequirements.every(req => req.met);
+  }, [passwordRequirements]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -23,8 +54,8 @@ const RegisterPage: React.FC = () => {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (!isPasswordValid) {
+      setError('Please meet all password requirements');
       return;
     }
 
@@ -80,8 +111,33 @@ const RegisterPage: React.FC = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            minLength={6}
           />
+
+          {/* Password Requirements */}
+          {password.length > 0 && (
+            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-2">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Password Requirements:
+              </p>
+              {passwordRequirements.map((req, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 text-sm"
+                >
+                  {req.met ? (
+                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  ) : (
+                    <X className="w-4 h-4 text-red-500 flex-shrink-0" />
+                  )}
+                  <span
+                    className={req.met ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}
+                  >
+                    {req.message}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
 
           <Input
             label="Confirm Password"
