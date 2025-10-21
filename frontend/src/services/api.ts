@@ -65,7 +65,8 @@ export const authAPI = {
  * Posts API calls
  */
 export const postsAPI = {
-  getPosts: () => api.get('/posts'),
+  getPosts: (page: number = 1, limit: number = 20) =>
+    api.get('/posts', { params: { page, limit } }),
   createPost: (formData: FormData) =>
     api.post('/posts', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -80,8 +81,8 @@ export const postsAPI = {
  * Polls API calls
  */
 export const pollsAPI = {
-  getPolls: (type?: 'regular' | 'would-you-rather') =>
-    api.get('/polls', { params: { type } }),
+  getPolls: (type?: 'regular' | 'would-you-rather', page: number = 1, limit: number = 20) =>
+    api.get('/polls', { params: { type, page, limit } }),
   createPoll: (formData: FormData) =>
     api.post('/polls', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -94,7 +95,8 @@ export const pollsAPI = {
  * Confessions API calls
  */
 export const confessionsAPI = {
-  getConfessions: () => api.get('/confessions'),
+  getConfessions: (page: number = 1, limit: number = 20) =>
+    api.get('/confessions', { params: { page, limit } }),
   createConfession: (formData: FormData) =>
     api.post('/confessions', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -109,8 +111,8 @@ export const confessionsAPI = {
  * Chat API calls
  */
 export const chatAPI = {
-  getMessages: (limit?: number) =>
-    api.get('/chat/messages', { params: { limit } }),
+  getMessages: (page: number = 1, limit: number = 50) =>
+    api.get('/chat/messages', { params: { page, limit } }),
   sendMessage: (formData: FormData) =>
     api.post('/chat/messages', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },

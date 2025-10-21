@@ -32,22 +32,47 @@ const uploadToCloudinary = (buffer: Buffer, resourceType: 'image' | 'video'): Pr
 };
 
 /**
- * Get chat messages
- * GET /api/chat/messages
+ * Get chat messages with pagination
+ * GET /api/chat/messages?page=1&limit=50
+ * Returns messages in chronological order (oldest first)
  */
 export const getMessages = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
-  const limit = parseInt(req.query.limit as string) || 100;
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 50;
+  const skip = (page - 1) * limit;
+
+  // Validate pagination parameters
+  if (page < 1 || limit < 1 || limit > 100) {
+    throw new BadRequestError(
+      'Invalid pagination parameters',
+      ErrorCode.INVALID_INPUT,
+      { page, limit, maxLimit: 100 }
+    );
+  }
+
+  // Get total count for pagination metadata
+  const totalMessages = await ChatMessage.countDocuments();
+  const totalPages = Math.ceil(totalMessages / limit);
   
+  // Fetch paginated messages (newest first, then reverse)
   const messages = await ChatMessage.find()
     .populate('author', 'username profilePicture')
     .sort({ createdAt: -1 })
+    .skip(skip)
     .limit(limit);
 
   // Reverse to get chronological order (oldest first)
   res.json({
     success: true,
-    count: messages.length,
     messages: messages.reverse(),
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalMessages,
+      messagesPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
   });
 });
 

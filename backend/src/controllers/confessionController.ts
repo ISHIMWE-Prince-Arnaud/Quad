@@ -34,18 +34,44 @@ const uploadToCloudinary = (buffer: Buffer, resourceType: 'image' | 'video'): Pr
 };
 
 /**
- * Get all confessions
- * GET /api/confessions
+ * Get all confessions with pagination
+ * GET /api/confessions?page=1&limit=20
  */
 export const getConfessions = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 20;
+  const skip = (page - 1) * limit;
+
+  // Validate pagination parameters
+  if (page < 1 || limit < 1 || limit > 100) {
+    throw new BadRequestError(
+      'Invalid pagination parameters',
+      ErrorCode.INVALID_INPUT,
+      { page, limit, maxLimit: 100 }
+    );
+  }
+
+  // Get total count for pagination metadata
+  const totalConfessions = await Confession.countDocuments();
+  const totalPages = Math.ceil(totalConfessions / limit);
+
+  // Fetch paginated confessions
   const confessions = await Confession.find()
     .sort({ createdAt: -1 })
-    .limit(50);
+    .skip(skip)
+    .limit(limit);
 
   res.json({
     success: true,
-    count: confessions.length,
     confessions,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalConfessions,
+      confessionsPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
   });
 });
 

@@ -34,12 +34,24 @@ const uploadToCloudinary = (buffer: Buffer, resourceType: 'image' | 'video'): Pr
 };
 
 /**
- * Get all polls
- * GET /api/polls
+ * Get all polls with pagination
+ * GET /api/polls?page=1&limit=20&type=regular
  */
 export const getPolls = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
   const { type } = req.query;
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 20;
+  const skip = (page - 1) * limit;
   
+  // Validate pagination parameters
+  if (page < 1 || limit < 1 || limit > 100) {
+    throw new BadRequestError(
+      'Invalid pagination parameters',
+      ErrorCode.INVALID_INPUT,
+      { page, limit, maxLimit: 100 }
+    );
+  }
+
   let filter: any = {};
   if (type === 'would-you-rather') {
     filter.isWouldYouRather = true;
@@ -47,15 +59,28 @@ export const getPolls = asyncHandler(async (req: AuthRequest, res: Response): Pr
     filter.isWouldYouRather = false;
   }
 
+  // Get total count for pagination metadata
+  const totalPolls = await Poll.countDocuments(filter);
+  const totalPages = Math.ceil(totalPolls / limit);
+
+  // Fetch paginated polls
   const polls = await Poll.find(filter)
     .populate('author', 'username profilePicture')
     .sort({ createdAt: -1 })
-    .limit(50);
+    .skip(skip)
+    .limit(limit);
 
   res.json({
     success: true,
-    count: polls.length,
     polls,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalPolls,
+      pollsPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
   });
 });
 

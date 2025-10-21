@@ -8,6 +8,9 @@ import MessageInput from '../components/chat/MessageInput';
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { socket } = useSocket();
 
@@ -37,16 +40,36 @@ const ChatPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const loadMessages = async () => {
+  const loadMessages = async (page: number = 1, append: boolean = false) => {
     try {
-      const response = await chatAPI.getMessages(100);
-      // Handle new response format with nested messages array
+      if (append) {
+        setLoadingMore(true);
+      }
+
+      const response = await chatAPI.getMessages(page, 50);
       const messagesData = response.data.messages || response.data;
-      setMessages(messagesData);
+      const pagination = response.data.pagination;
+
+      if (append) {
+        // Prepend older messages to the beginning
+        setMessages((prev) => [...messagesData, ...prev]);
+      } else {
+        setMessages(messagesData);
+      }
+
+      setCurrentPage(page);
+      setHasNextPage(pagination?.hasNextPage || false);
     } catch (error) {
       console.error('Failed to load messages:', error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const loadOlderMessages = () => {
+    if (!loadingMore && hasNextPage) {
+      loadMessages(currentPage + 1, true);
     }
   };
 
@@ -91,6 +114,17 @@ const ChatPage: React.FC = () => {
             </div>
           ) : (
             <>
+              {hasNextPage && (
+                <div className="flex justify-center pb-4">
+                  <button
+                    onClick={loadOlderMessages}
+                    disabled={loadingMore}
+                    className="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {loadingMore ? 'Loading...' : 'Load Older Messages'}
+                  </button>
+                </div>
+              )}
               {messages.map((message) => (
                 <ChatMessage key={message._id} message={message} />
               ))}

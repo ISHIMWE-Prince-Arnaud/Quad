@@ -35,19 +35,45 @@ const uploadToCloudinary = (buffer: Buffer, resourceType: 'image' | 'video'): Pr
 };
 
 /**
- * Get all posts
- * GET /api/posts
+ * Get all posts with pagination
+ * GET /api/posts?page=1&limit=20
  */
 export const getPosts = asyncHandler(async (req: AuthRequest, res: Response): Promise<void> => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 20;
+  const skip = (page - 1) * limit;
+
+  // Validate pagination parameters
+  if (page < 1 || limit < 1 || limit > 100) {
+    throw new BadRequestError(
+      'Invalid pagination parameters',
+      ErrorCode.INVALID_INPUT,
+      { page, limit, maxLimit: 100 }
+    );
+  }
+
+  // Get total count for pagination metadata
+  const totalPosts = await Post.countDocuments();
+  const totalPages = Math.ceil(totalPosts / limit);
+
+  // Fetch paginated posts
   const posts = await Post.find()
     .populate('author', 'username profilePicture')
     .sort({ createdAt: -1 })
-    .limit(50);
+    .skip(skip)
+    .limit(limit);
 
   res.json({
     success: true,
-    count: posts.length,
     posts,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalPosts,
+      postsPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
   });
 });
 

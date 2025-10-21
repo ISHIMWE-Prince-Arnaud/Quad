@@ -8,6 +8,9 @@ const PollsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'regular' | 'would-you-rather'>('all');
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
   const { socket } = useSocket();
 
   useEffect(() => {
@@ -40,18 +43,38 @@ const PollsPage: React.FC = () => {
     }
   }, [socket, activeTab]);
 
-  const loadPolls = async () => {
-    setLoading(true);
+  const loadPolls = async (page: number = 1, append: boolean = false) => {
+    if (!append) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
     try {
       const type = activeTab === 'all' ? undefined : activeTab;
-      const response = await pollsAPI.getPolls(type);
-      // Handle new response format with nested polls array
+      const response = await pollsAPI.getPolls(type, page, 20);
       const pollsData = response.data.polls || response.data;
-      setPolls(pollsData);
+      const pagination = response.data.pagination;
+
+      if (append) {
+        setPolls((prev) => [...prev, ...pollsData]);
+      } else {
+        setPolls(pollsData);
+      }
+
+      setCurrentPage(page);
+      setHasNextPage(pagination?.hasNextPage || false);
     } catch (error) {
       console.error('Failed to load polls:', error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const loadMorePolls = () => {
+    if (!loadingMore && hasNextPage) {
+      loadPolls(currentPage + 1, true);
     }
   };
 
@@ -112,6 +135,18 @@ const PollsPage: React.FC = () => {
           {polls.map((poll) => (
             <PollCard key={poll._id} poll={poll} onUpdate={handlePollUpdate} />
           ))}
+
+          {hasNextPage && (
+            <div className="flex justify-center">
+              <button
+                onClick={loadMorePolls}
+                disabled={loadingMore}
+                className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loadingMore ? 'Loading...' : 'Load More'}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

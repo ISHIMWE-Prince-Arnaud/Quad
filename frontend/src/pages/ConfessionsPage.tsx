@@ -7,6 +7,9 @@ import ConfessionCard from '../components/confessions/ConfessionCard';
 const ConfessionsPage: React.FC = () => {
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
   const { socket } = useSocket();
 
   useEffect(() => {
@@ -48,16 +51,35 @@ const ConfessionsPage: React.FC = () => {
     }
   }, [socket]);
 
-  const loadConfessions = async () => {
+  const loadConfessions = async (page: number = 1, append: boolean = false) => {
     try {
-      const response = await confessionsAPI.getConfessions();
-      // Handle new response format with nested confessions array
+      if (append) {
+        setLoadingMore(true);
+      }
+
+      const response = await confessionsAPI.getConfessions(page, 20);
       const confessionsData = response.data.confessions || response.data;
-      setConfessions(confessionsData);
+      const pagination = response.data.pagination;
+
+      if (append) {
+        setConfessions((prev) => [...prev, ...confessionsData]);
+      } else {
+        setConfessions(confessionsData);
+      }
+
+      setCurrentPage(page);
+      setHasNextPage(pagination?.hasNextPage || false);
     } catch (error) {
       console.error('Failed to load confessions:', error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const loadMoreConfessions = () => {
+    if (!loadingMore && hasNextPage) {
+      loadConfessions(currentPage + 1, true);
     }
   };
 
@@ -91,13 +113,27 @@ const ConfessionsPage: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400">No confessions yet. Share yours anonymously!</p>
         </div>
       ) : (
-        confessions.map((confession) => (
-          <ConfessionCard
-            key={confession._id}
-            confession={confession}
-            onUpdate={handleConfessionUpdate}
-          />
-        ))
+        <>
+          {confessions.map((confession) => (
+            <ConfessionCard
+              key={confession._id}
+              confession={confession}
+              onUpdate={handleConfessionUpdate}
+            />
+          ))}
+
+          {hasNextPage && (
+            <div className="flex justify-center">
+              <button
+                onClick={loadMoreConfessions}
+                disabled={loadingMore}
+                className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loadingMore ? 'Loading...' : 'Load More'}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

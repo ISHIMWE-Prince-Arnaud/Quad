@@ -7,6 +7,9 @@ import PostCard from '../components/feed/PostCard';
 const FeedPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
   const { socket } = useSocket();
 
   useEffect(() => {
@@ -35,16 +38,35 @@ const FeedPage: React.FC = () => {
     }
   }, [socket]);
 
-  const loadPosts = async () => {
+  const loadPosts = async (page: number = 1, append: boolean = false) => {
     try {
-      const response = await postsAPI.getPosts();
-      // Handle new response format with nested posts array
+      if (append) {
+        setLoadingMore(true);
+      }
+
+      const response = await postsAPI.getPosts(page, 20);
       const postsData = response.data.posts || response.data;
-      setPosts(postsData);
+      const pagination = response.data.pagination;
+
+      if (append) {
+        setPosts((prev) => [...prev, ...postsData]);
+      } else {
+        setPosts(postsData);
+      }
+
+      setCurrentPage(page);
+      setHasNextPage(pagination?.hasNextPage || false);
     } catch (error) {
       console.error('Failed to load posts:', error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const loadMorePosts = () => {
+    if (!loadingMore && hasNextPage) {
+      loadPosts(currentPage + 1, true);
     }
   };
 
@@ -71,9 +93,23 @@ const FeedPage: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400">No posts yet. Be the first to post!</p>
         </div>
       ) : (
-        posts.map((post) => (
-          <PostCard key={post._id} post={post} onUpdate={handlePostUpdate} />
-        ))
+        <>
+          {posts.map((post) => (
+            <PostCard key={post._id} post={post} onUpdate={handlePostUpdate} />
+          ))}
+
+          {hasNextPage && (
+            <div className="flex justify-center">
+              <button
+                onClick={loadMorePosts}
+                disabled={loadingMore}
+                className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loadingMore ? 'Loading...' : 'Load More'}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
