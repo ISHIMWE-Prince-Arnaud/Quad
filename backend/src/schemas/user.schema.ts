@@ -1,25 +1,25 @@
 import { z } from "zod";
 
-// ✅ Create User
+// Create User
 export const createUserSchema = z.object({
-  id: z.string().min(1, "User ID is required"), // Clerk user ID
+  clerkId: z.string().min(1, "User ID is required"), // Clerk user ID
   username: z.string().min(3, "Username must be at least 3 characters"),
   email: z.string().email("Invalid email address"),
   profileImage: z.string().url().optional(),
   bio: z.string().max(200).optional(),
 });
 
-// ✅ Update User (all fields optional)
+// Update User (all fields optional)
 export const updateUserSchema = createUserSchema.partial();
 
-// ✅ Get User (by ID)
+// Get User (by ID)
 export const getUserSchema = z.object({
-  id: z.string().min(1, "User ID is required"),
+  clerkId: z.string().min(1, "User ID is required"),
 });
 
 // ✅ Delete User (by ID)
 export const deleteUserSchema = z.object({
-  id: z.string().min(1, "User ID is required"),
+  clerkId: z.string().min(1, "User ID is required"),
 });
 
 // ✅ Types

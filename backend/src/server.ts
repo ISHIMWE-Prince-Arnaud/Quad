@@ -5,11 +5,15 @@ import { Server as SocketIOServer } from "socket.io";
 import { env } from "./config/env.config.js";
 import { connectDB } from "./config/db.config.js";
 import userRoutes from "./routes/user.routes.js";
+import { clerkMiddleware } from "@clerk/express";
 
 // --- Initialize Express ---
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+//clerk
+app.use(clerkMiddleware());
 
 //routes
 app.use("/api/users", userRoutes);

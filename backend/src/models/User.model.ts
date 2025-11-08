@@ -5,7 +5,7 @@ export interface IUserDocument extends IUser, Document {}
 
 const UserSchema = new Schema<IUserDocument>(
   {
-    id: { type: String, required: true, unique: true }, // Clerk user ID
+    clerkId: { type: String, required: true, unique: true }, // Clerk user ID
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     profileImage: { 

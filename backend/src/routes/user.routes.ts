@@ -1,3 +1,4 @@
+// src/routes/user.routes.ts
 import { Router } from "express";
 import {
   createUser,
@@ -5,38 +6,73 @@ import {
   updateUser,
   deleteUser,
 } from "../controllers/user.controller.js";
+
 import {
   createUserSchema,
   updateUserSchema,
   getUserSchema,
   deleteUserSchema,
 } from "../schemas/user.schema.js";
+
 import { validateSchema } from "../utils/validation.util.js";
+import { requireAuth } from "@clerk/express";
 
 const router = Router();
 
 /**
- * @route   POST /api/users
- * @desc    Create a new user
+ * -------------------------
+ * CREATE USER
+ * POST /api/users
+ * Protected: Must be signed in
+ * -------------------------
  */
-router.post("/", validateSchema(createUserSchema), createUser);
+router.post(
+  "/",
+  requireAuth(),                   // Clerk authentication
+  validateSchema(createUserSchema), // Validate request body
+  createUser                       // Controller handles creation
+);
 
 /**
- * @route   GET /api/users/:id
- * @desc    Get a user by ID
+ * -------------------------
+ * GET USER BY ID
+ * GET /api/users/:clerkId
+ * Protected: Users can only access their own info
+ * -------------------------
  */
-router.get("/:id", validateSchema(getUserSchema, "params"), getUser);
+router.get(
+  "/:clerkId",
+  requireAuth(),
+  validateSchema(getUserSchema, "params"),
+  getUser
+);
 
 /**
- * @route   PUT /api/users/:id
- * @desc    Update user information
+ * -------------------------
+ * UPDATE USER
+ * PUT /api/users/:clerkId
+ * Protected: Users can only update their own info
+ * -------------------------
  */
-router.put("/:id", validateSchema(updateUserSchema), updateUser);
+router.put(
+  "/:clerkId",
+  requireAuth(),
+  validateSchema(updateUserSchema),
+  updateUser
+);
 
 /**
- * @route   DELETE /api/users/:id
- * @desc    Delete a user
+ * -------------------------
+ * DELETE USER
+ * DELETE /api/users/:clerkId
+ * Protected: Users can only delete their own account
+ * -------------------------
  */
-router.delete("/:id", validateSchema(deleteUserSchema, "params"), deleteUser);
+router.delete(
+  "/:clerkId",
+  requireAuth(),
+  validateSchema(deleteUserSchema, "params"),
+  deleteUser
+);
 
 export default router;
