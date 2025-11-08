@@ -1,5 +1,5 @@
 export interface IUser {
-  id: string;                  // Clerk user ID
+  clerkId: string;             // Clerk user ID
   username: string;            // Display name or username
   email: string;               // Email address
   profileImage?: string;       // URL to avatar/profile picture

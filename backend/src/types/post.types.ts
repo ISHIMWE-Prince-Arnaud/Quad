@@ -6,7 +6,7 @@ export interface IMedia {
 }
 
 export interface IReaction {
-  userId: IUser["id"];
+  userId: IUser["clerkId"];
   type: string; // e.g., "heart", "like", etc.
 }
 
