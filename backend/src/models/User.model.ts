@@ -5,9 +5,9 @@ export interface IUserDocument extends IUser, Document {}
 
 const UserSchema = new Schema<IUserDocument>(
   {
-    clerkId: { type: String, required: true, unique: true }, // Clerk user ID
+    clerkId: { type: String, required: true, unique: true }, // Clerk user ID - AUTO INDEXED (unique)
     username: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true }, // AUTO INDEXED (unique)
     profileImage: { 
       type: String,
       default: () => {
@@ -21,5 +21,15 @@ const UserSchema = new Schema<IUserDocument>(
     timestamps: true, // adds createdAt & updatedAt
   }
 );
+
+// ===========================
+// INDEXES FOR PERFORMANCE
+// ===========================
+// Note: clerkId and email already have unique indexes (defined in schema)
+// Index for username search/lookup (case-insensitive future-ready)
+UserSchema.index({ username: 1 });
+
+// Index for searching users by creation date (e.g., newest users)
+UserSchema.index({ createdAt: -1 });
 
 export const User = mongoose.model<IUserDocument>("User", UserSchema);

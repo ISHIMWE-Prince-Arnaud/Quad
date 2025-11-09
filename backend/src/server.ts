@@ -5,6 +5,7 @@ import { Server as SocketIOServer } from "socket.io";
 import { env } from "./config/env.config.js";
 import { connectDB } from "./config/db.config.js";
 import { setSocketIO } from "./config/socket.config.js";
+import { ensureIndexes } from "./utils/indexes.util.js";
 import userRoutes from "./routes/user.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js"; // 👈 add this
 import { clerkMiddleware } from "@clerk/express";
@@ -55,6 +56,7 @@ io.on("connection", (socket) => {
 // --- Start server after DB connection ---
 const startServer = async () => {
   await connectDB(); // ✅ Connect to MongoDB first
+  await ensureIndexes(); // ✅ Create database indexes
   server.listen(env.PORT, () => {
     console.log(`✅ Server running on port ${env.PORT}`);
   });
