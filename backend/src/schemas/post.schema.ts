@@ -17,13 +17,19 @@ export const createPostSchema = z.object({
     profileImage: z.string().url().optional(),
   }),
   text: z.string().max(1000).optional(),
-  media: z.array(mediaSchema).optional(),
+  media: z.array(mediaSchema).min(1, "At least one media is required"), // REQUIRED
 });
 
 // ---------------------
 // UPDATE POST
 // ---------------------
-export const updatePostSchema = createPostSchema.partial();
+export const updatePostSchema = z.object({
+  text: z.string().max(1000).optional(),
+  media: z
+    .array(mediaSchema)
+    .min(1, "At least one media is required")
+    .optional(), // still optional on update
+});
 
 // ---------------------
 // GET / DELETE POST
