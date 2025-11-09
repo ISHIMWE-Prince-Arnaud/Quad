@@ -13,6 +13,7 @@ const envSchema = z.object({
   MONGODB_URI: z.string().min(1, "Missing MongoDB URI"),
   CLERK_PUBLISHABLE_KEY: z.string().min(1, "Missing CLERK_PUBLISHABLE_KEY"),
   CLERK_SECRET_KEY: z.string().min(1, "Missing CLERK_SECRET_KEY"),
+  CLERK_WEBHOOK_SECRET: z.string().min(1, "Missing CLERK_WEBHOOK_SECRET"),
   CLOUDINARY_CLOUD_NAME: z.string().min(1, "Missing CLOUDINARY_CLOUD_NAME"),
   CLOUDINARY_API_KEY: z.string().min(1, "Missing CLOUDINARY_API_KEY"),
   CLOUDINARY_API_SECRET: z.string().min(1, "Missing CLOUDINARY_API_SECRET"),

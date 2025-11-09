@@ -16,6 +16,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.3",
     "socket.io": "^4.8.1",
+    "svix": "^1.81.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {

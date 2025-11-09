@@ -5,14 +5,21 @@ import { Server as SocketIOServer } from "socket.io";
 import { env } from "./config/env.config.js";
 import { connectDB } from "./config/db.config.js";
 import userRoutes from "./routes/user.routes.js";
+import webhookRoutes from "./routes/webhook.routes.js"; // 👈 add this
 import { clerkMiddleware } from "@clerk/express";
 
 // --- Initialize Express ---
 const app = express();
 app.use(cors());
+
+// ⚠️ Important: Register webhooks BEFORE express.json()
+// because Clerk webhooks need raw body for signature verification
+app.use("/api/webhooks", webhookRoutes);
+
+// Parse JSON body for all other routes
 app.use(express.json());
 
-//clerk
+// 🔐 Clerk middleware
 app.use(clerkMiddleware());
 
 //routes
