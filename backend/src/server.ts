@@ -7,6 +7,7 @@ import { connectDB } from "./config/db.config.js";
 import userRoutes from "./routes/user.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js"; // 👈 add this
 import { clerkMiddleware } from "@clerk/express";
+import postRoutes from "./routes/post.routes.js";
 
 // --- Initialize Express ---
 const app = express();
@@ -24,6 +25,7 @@ app.use(clerkMiddleware());
 
 //routes
 app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
 
 // --- Simple test route ---
 app.get("/", (_, res) => {
