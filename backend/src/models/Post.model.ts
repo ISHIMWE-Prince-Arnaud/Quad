@@ -30,7 +30,7 @@ const PostSchema = new Schema<IPostDocument>(
     ],
     commentsCount: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true, minimize: false }
 );
 
 export const Post = mongoose.model<IPostDocument>("Post", PostSchema);
