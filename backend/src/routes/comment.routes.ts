@@ -1,0 +1,144 @@
+import { Router } from "express";
+import {
+  createComment,
+  getCommentsByContent,
+  getComment,
+  getReplies,
+  updateComment,
+  deleteComment,
+  toggleCommentLike,
+  getCommentLikes,
+} from "../controllers/comment.controller.js";
+
+import {
+  createCommentSchema,
+  updateCommentSchema,
+  commentIdSchema,
+  toggleCommentLikeSchema,
+} from "../schemas/comment.schema.js";
+
+import { validateSchema } from "../utils/validation.util.js";
+import { requireAuth } from "@clerk/express";
+
+const router = Router();
+
+/**
+ * -------------------------
+ * CREATE COMMENT
+ * POST /api/comments
+ * Protected: User must be signed in
+ * Body: { contentType, contentId, text, parentId? }
+ * -------------------------
+ */
+router.post(
+  "/",
+  requireAuth(),
+  validateSchema(createCommentSchema),
+  createComment
+);
+
+/**
+ * -------------------------
+ * GET COMMENTS BY CONTENT
+ * GET /api/comments/:contentType/:contentId
+ * Protected: User must be signed in
+ * Query params: limit, skip, parentId (optional)
+ * -------------------------
+ */
+router.get(
+  "/:contentType/:contentId",
+  requireAuth(),
+  getCommentsByContent
+);
+
+/**
+ * -------------------------
+ * GET COMMENT BY ID
+ * GET /api/comments/:id
+ * Protected: User must be signed in
+ * -------------------------
+ */
+router.get(
+  "/:id",
+  requireAuth(),
+  validateSchema(commentIdSchema, "params"),
+  getComment
+);
+
+/**
+ * -------------------------
+ * GET REPLIES TO COMMENT
+ * GET /api/comments/:id/replies
+ * Protected: User must be signed in
+ * Query params: limit, skip
+ * -------------------------
+ */
+router.get(
+  "/:id/replies",
+  requireAuth(),
+  validateSchema(commentIdSchema, "params"),
+  getReplies
+);
+
+/**
+ * -------------------------
+ * UPDATE COMMENT
+ * PUT /api/comments/:id
+ * Protected: Only comment author can update
+ * Body: { text }
+ * -------------------------
+ */
+router.put(
+  "/:id",
+  requireAuth(),
+  validateSchema(commentIdSchema, "params"),
+  validateSchema(updateCommentSchema),
+  updateComment
+);
+
+/**
+ * -------------------------
+ * DELETE COMMENT
+ * DELETE /api/comments/:id
+ * Protected: Only comment author can delete
+ * Cascades: Deletes all replies and likes
+ * -------------------------
+ */
+router.delete(
+  "/:id",
+  requireAuth(),
+  validateSchema(commentIdSchema, "params"),
+  deleteComment
+);
+
+/**
+ * -------------------------
+ * TOGGLE COMMENT LIKE
+ * POST /api/comments/like
+ * Protected: User must be signed in
+ * Body: { commentId }
+ * -------------------------
+ */
+router.post(
+  "/like",
+  requireAuth(),
+  validateSchema(toggleCommentLikeSchema),
+  toggleCommentLike
+);
+
+/**
+ * -------------------------
+ * GET COMMENT LIKES
+ * GET /api/comments/:id/likes
+ * Protected: User must be signed in
+ * Returns: All users who liked the comment
+ * -------------------------
+ */
+router.get(
+  "/:id/likes",
+  requireAuth(),
+  validateSchema(commentIdSchema, "params"),
+  getCommentLikes
+);
+
+export default router;

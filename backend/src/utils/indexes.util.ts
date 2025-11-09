@@ -1,5 +1,8 @@
 import { User } from "../models/User.model.js";
 import { Post } from "../models/Post.model.js";
+import { Reaction } from "../models/Reaction.model.js";
+import { Comment } from "../models/Comment.model.js";
+import { CommentLike } from "../models/CommentLike.model.js";
 
 /**
  * Ensures all database indexes are created.
@@ -19,6 +22,18 @@ export const ensureIndexes = async (): Promise<void> => {
     // Create indexes for Post model
     await Post.createIndexes();
     console.log("✅ Post model indexes created");
+    
+    // Create indexes for Reaction model
+    await Reaction.createIndexes();
+    console.log("✅ Reaction model indexes created");
+    
+    // Create indexes for Comment model
+    await Comment.createIndexes();
+    console.log("✅ Comment model indexes created");
+    
+    // Create indexes for CommentLike model
+    await CommentLike.createIndexes();
+    console.log("✅ CommentLike model indexes created");
     
     console.log("📊 All database indexes created successfully");
   } catch (error) {
@@ -42,6 +57,18 @@ export const listIndexes = async (): Promise<void> => {
     const postIndexes = await Post.collection.getIndexes();
     console.log("\n📝 Post Model Indexes:");
     console.log(JSON.stringify(postIndexes, null, 2));
+    
+    const reactionIndexes = await Reaction.collection.getIndexes();
+    console.log("\n👍 Reaction Model Indexes:");
+    console.log(JSON.stringify(reactionIndexes, null, 2));
+    
+    const commentIndexes = await Comment.collection.getIndexes();
+    console.log("\n💬 Comment Model Indexes:");
+    console.log(JSON.stringify(commentIndexes, null, 2));
+    
+    const commentLikeIndexes = await CommentLike.collection.getIndexes();
+    console.log("\n❤️ CommentLike Model Indexes:");
+    console.log(JSON.stringify(commentLikeIndexes, null, 2));
     
   } catch (error) {
     console.error("❌ Error listing indexes:", error);

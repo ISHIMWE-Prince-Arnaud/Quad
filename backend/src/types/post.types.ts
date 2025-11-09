@@ -5,18 +5,17 @@ export interface IMedia {
   type: "image" | "video";
 }
 
-export interface IReaction {
-  userId: IUser["clerkId"];
-  type: string; // e.g., "heart", "like", etc.
-}
+// Note: IReaction moved to reaction.types.ts (now in separate collection)
 
 export interface IPost {
   id: string;
   author: IUser;
   text?: string;
   media: IMedia[];
-  reactions?: IReaction[];
-  commentsCount?: number;
+  // Note: reactions are now stored in separate Reaction collection
+  // Note: comments are now stored in separate Comment collection
+  reactionsCount?: number;  // Cached count for performance
+  commentsCount?: number;   // Cached count for performance
   createdAt?: Date;
   updatedAt?: Date;
 }

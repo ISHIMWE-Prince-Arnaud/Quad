@@ -1,12 +1,13 @@
 import mongoose, { Schema, Document } from "mongoose";
 import type { IUser } from "../types/user.types.js";
-import type { IMedia, IReaction } from "../types/post.types.js";
+import type { IMedia } from "../types/post.types.js";
 
 export interface IPostDocument extends Document {
   author: IUser;
   text?: string;
   media: IMedia[];
-  reactions?: IReaction[];
+  // Note: reactions are now in separate Reaction collection
+  reactionsCount?: number;
   commentsCount?: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -22,13 +23,9 @@ const PostSchema = new Schema<IPostDocument>(
         type: { type: String, enum: ["image", "video"], required: true },
       },
     ],
-    reactions: [
-      {
-        userId: { type: String, required: true },
-        type: { type: String, required: true }, // e.g., "heart"
-      },
-    ],
-    commentsCount: { type: Number, default: 0 },
+    // Note: reactions moved to separate Reaction collection
+    reactionsCount: { type: Number, default: 0 },  // Cached count
+    commentsCount: { type: Number, default: 0 },   // Cached count
   },
   { timestamps: true, minimize: false }
 );
@@ -45,7 +42,6 @@ PostSchema.index({ "author.clerkId": 1 });
 // Compound index for author + date (optimizes user timeline queries)
 PostSchema.index({ "author.clerkId": 1, createdAt: -1 });
 
-// Index for finding posts with specific reactions (future feature)
-PostSchema.index({ "reactions.userId": 1 });
+// Note: Reaction indexes moved to Reaction.model.ts
 
 export const Post = mongoose.model<IPostDocument>("Post", PostSchema);
