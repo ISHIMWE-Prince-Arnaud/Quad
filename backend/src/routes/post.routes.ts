@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createPost,
+  getAllPosts,
   getPost,
   updatePost,
   deletePost,
@@ -33,6 +34,20 @@ router.post(
 
 /**
  * -------------------------
+ * GET ALL POSTS
+ * GET /api/posts
+ * Protected: Any signed-in user can access
+ * Query params: limit (default: 20), skip (default: 0)
+ * -------------------------
+ */
+router.get(
+  "/",
+  requireAuth(),
+  getAllPosts
+);
+
+/**
+ * -------------------------
  * GET POST BY ID
  * GET /api/posts/:id
  * Protected: Any signed-in user can access
@@ -55,6 +70,7 @@ router.get(
 router.put(
   "/:id",
   requireAuth(),
+  validateSchema(postIdSchema, "params"),
   validateSchema(updatePostSchema),
   updatePost
 );

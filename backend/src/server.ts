@@ -4,6 +4,7 @@ import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { env } from "./config/env.config.js";
 import { connectDB } from "./config/db.config.js";
+import { setSocketIO } from "./config/socket.config.js";
 import userRoutes from "./routes/user.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js"; // 👈 add this
 import { clerkMiddleware } from "@clerk/express";
@@ -35,8 +36,13 @@ app.get("/", (_, res) => {
 // --- Initialize HTTP server and Socket.IO ---
 const server = createServer(app);
 const io = new SocketIOServer(server, {
+  // TODO: In production, replace "*" with specific frontend URL(s)
+  // e.g., cors: { origin: process.env.FRONTEND_URL || "http://localhost:3000" }
   cors: { origin: "*" },
 });
+
+// Set the Socket.IO instance globally
+setSocketIO(io);
 
 // Optional: Socket.IO connection logging
 io.on("connection", (socket) => {

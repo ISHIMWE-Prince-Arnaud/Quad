@@ -10,14 +10,9 @@ const mediaSchema = z.object({
 // CREATE POST
 // ---------------------
 export const createPostSchema = z.object({
-  author: z.object({
-    clerkId: z.string(),
-    username: z.string(),
-    email: z.string().email(),
-    profileImage: z.string().url().optional(),
-  }),
   text: z.string().max(1000).optional(),
   media: z.array(mediaSchema).min(1, "At least one media is required"), // REQUIRED
+  // Note: author is set server-side from authenticated user
 });
 
 // ---------------------
@@ -29,6 +24,7 @@ export const updatePostSchema = z.object({
     .array(mediaSchema)
     .min(1, "At least one media is required")
     .optional(), // still optional on update
+  // Note: author cannot be changed after post creation
 });
 
 // ---------------------
