@@ -12,6 +12,7 @@ import { clerkMiddleware } from "@clerk/express";
 import postRoutes from "./routes/post.routes.js";
 import reactionRoutes from "./routes/reaction.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 
 // --- Initialize Express ---
 const app = express();
@@ -32,6 +33,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/reactions", reactionRoutes);
 app.use("/api/comments", commentRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // --- Simple test route ---
 app.get("/", (_, res) => {

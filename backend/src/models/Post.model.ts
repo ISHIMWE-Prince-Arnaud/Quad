@@ -21,6 +21,7 @@ const PostSchema = new Schema<IPostDocument>(
       {
         url: { type: String, required: true },
         type: { type: String, enum: ["image", "video"], required: true },
+        aspectRatio: { type: String, enum: ["1:1", "16:9", "9:16"] },
       },
     ],
     // Note: reactions moved to separate Reaction collection
