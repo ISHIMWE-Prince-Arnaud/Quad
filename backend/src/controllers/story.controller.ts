@@ -1,3 +1,4 @@
+/// <reference path="../types/global.d.ts" />
 import type { Request, Response } from "express";
 import { Story, type IStoryDocument } from "../models/Story.model.js";
 import { User } from "../models/User.model.js";
@@ -11,6 +12,7 @@ import {
   calculateReadingTime,
   generateExcerpt,
   validateHtmlContent,
+  sanitizeHtmlContent,
 } from "../utils/story.util.js";
 
 // =========================
@@ -27,29 +29,34 @@ export const createStory = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    // Validate HTML content (basic XSS prevention)
-    if (!validateHtmlContent(storyData.content)) {
+    // Sanitize HTML content (XSS prevention)
+    const sanitizedContent = sanitizeHtmlContent(storyData.content);
+    
+    // Validate HTML content is not empty after sanitization
+    if (!validateHtmlContent(sanitizedContent)) {
       return res.status(400).json({ 
         success: false, 
-        message: "Invalid HTML content detected" 
+        message: "Invalid or empty HTML content" 
       });
     }
 
-    // Calculate reading time
-    const readTime = calculateReadingTime(storyData.content);
+    // Calculate reading time from sanitized content
+    const readTime = calculateReadingTime(sanitizedContent);
 
-    // Generate excerpt if not provided
-    const excerpt = storyData.excerpt || generateExcerpt(storyData.content, 200);
+    // Auto-generate excerpt if not provided (from sanitized content)
+    const excerpt = storyData.excerpt || generateExcerpt(sanitizedContent, 200);
 
-    // Create story
+    // Create story with sanitized content
     const newStory = await Story.create({
       author: {
         clerkId: user.clerkId,
         username: user.username,
+        email: user.email,
         profileImage: user.profileImage,
+        bio: user.bio,
       },
       title: storyData.title,
-      content: storyData.content,
+      content: sanitizedContent,  // ← Use sanitized content
       excerpt,
       coverImage: storyData.coverImage,
       status: storyData.status || "draft",
@@ -223,26 +230,34 @@ export const updateStory = async (req: Request, res: Response) => {
       });
     }
 
-    // Validate HTML content if content is being updated
-    if (inputUpdates.content && !validateHtmlContent(inputUpdates.content)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid HTML content detected" 
-      });
+    // Sanitize and validate HTML content if being updated
+    let sanitizedContent: string | undefined;
+    if (inputUpdates.content) {
+      sanitizedContent = sanitizeHtmlContent(inputUpdates.content);
+      
+      if (!validateHtmlContent(sanitizedContent)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Invalid or empty HTML content" 
+        });
+      }
     }
 
     // Create updates object with auto-generated fields
     // Type assertion needed due to exactOptionalPropertyTypes strictness
     const updates: Partial<IStoryDocument> = { ...inputUpdates } as Partial<IStoryDocument>;
 
-    // Update reading time if content changed
-    if (inputUpdates.content) {
-      updates.readTime = calculateReadingTime(inputUpdates.content);
-    }
-
-    // Auto-generate excerpt if content changed but excerpt not provided
-    if (inputUpdates.content && !inputUpdates.excerpt) {
-      updates.excerpt = generateExcerpt(inputUpdates.content, 200);
+    // Use sanitized content if available
+    if (sanitizedContent) {
+      updates.content = sanitizedContent;
+      
+      // Update reading time with sanitized content
+      updates.readTime = calculateReadingTime(sanitizedContent);
+      
+      // Auto-generate excerpt if not provided
+      if (!inputUpdates.excerpt) {
+        updates.excerpt = generateExcerpt(sanitizedContent, 200);
+      }
     }
 
     // Track if status changed to published

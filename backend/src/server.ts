@@ -63,11 +63,19 @@ io.on("connection", (socket) => {
 
 // --- Start server after DB connection ---
 const startServer = async () => {
-  await connectDB(); // ✅ Connect to MongoDB first
-  await ensureIndexes(); // ✅ Create database indexes
-  server.listen(env.PORT, () => {
-    console.log(`✅ Server running on port ${env.PORT}`);
-  });
+  try {
+    await connectDB(); // ✅ Connect to MongoDB first
+    await ensureIndexes(); // ✅ Create database indexes
+    server.listen(env.PORT, () => {
+      console.log(`✅ Server running on port ${env.PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ Failed to start server:", error);
+    process.exit(1);
+  }
 };
 
-startServer();
+startServer().catch(error => {
+  console.error("❌ Unhandled error during startup:", error);
+  process.exit(1);
+});

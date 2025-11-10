@@ -1,5 +1,6 @@
 import { User } from "../models/User.model.js";
 import { Post } from "../models/Post.model.js";
+import { Story } from "../models/Story.model.js";
 import { Reaction } from "../models/Reaction.model.js";
 import { Comment } from "../models/Comment.model.js";
 import { CommentLike } from "../models/CommentLike.model.js";
@@ -13,6 +14,12 @@ import { CommentLike } from "../models/CommentLike.model.js";
  */
 export const ensureIndexes = async (): Promise<void> => {
   try {
+    // Skip in production if SKIP_INDEX_CREATION is set
+    if (process.env.SKIP_INDEX_CREATION === "true") {
+      console.log("⏭️  Skipping index creation (SKIP_INDEX_CREATION=true)");
+      return;
+    }
+    
     console.log("📊 Creating database indexes...");
     
     // Create indexes for User model
@@ -22,6 +29,10 @@ export const ensureIndexes = async (): Promise<void> => {
     // Create indexes for Post model
     await Post.createIndexes();
     console.log("✅ Post model indexes created");
+    
+    // Create indexes for Story model
+    await Story.createIndexes();
+    console.log("✅ Story model indexes created");
     
     // Create indexes for Reaction model
     await Reaction.createIndexes();
@@ -57,6 +68,10 @@ export const listIndexes = async (): Promise<void> => {
     const postIndexes = await Post.collection.getIndexes();
     console.log("\n📝 Post Model Indexes:");
     console.log(JSON.stringify(postIndexes, null, 2));
+    
+    const storyIndexes = await Story.collection.getIndexes();
+    console.log("\n📖 Story Model Indexes:");
+    console.log(JSON.stringify(storyIndexes, null, 2));
     
     const reactionIndexes = await Reaction.collection.getIndexes();
     console.log("\n👍 Reaction Model Indexes:");

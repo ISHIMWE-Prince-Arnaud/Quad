@@ -1,3 +1,5 @@
+import sanitizeHtml from "sanitize-html";
+
 /**
  * Calculate reading time for story content
  * Based on average reading speed of 200-250 words per minute
@@ -77,38 +79,83 @@ export const generateExcerpt = (
 };
 
 /**
- * Validate HTML content
- * Basic validation to prevent XSS and malformed HTML
- * Note: In production, use a proper HTML sanitizer like DOMPurify on frontend
+ * Sanitize HTML content to prevent XSS attacks
+ * Uses sanitize-html package with strict configuration for rich text editors
+ * @param content - Raw HTML content from editor
+ * @returns Sanitized HTML safe for storage and display
+ */
+export const sanitizeHtmlContent = (content: string): string => {
+  return sanitizeHtml(content, {
+    // Allowed tags for rich text editing
+    allowedTags: [
+      // Text formatting
+      "p", "br", "strong", "b", "em", "i", "u", "s", "del", "mark",
+      // Headings
+      "h1", "h2", "h3", "h4", "h5", "h6",
+      // Lists
+      "ul", "ol", "li",
+      // Quotes and code
+      "blockquote", "pre", "code",
+      // Links (carefully controlled)
+      "a",
+      // Tables
+      "table", "thead", "tbody", "tr", "th", "td",
+      // Misc
+      "hr", "span", "div"
+    ],
+    
+    // Allowed attributes
+    allowedAttributes: {
+      "a": ["href", "title", "target", "rel"],
+      "code": ["class"],  // For syntax highlighting
+      "pre": ["class"],
+      "span": ["class"],  // For editor styling
+      "div": ["class"],
+      "*": ["id"]  // Allow IDs for editor functionality
+    },
+    
+    // URL schemes allowed in links
+    allowedSchemes: ["http", "https", "mailto"],
+    
+    // Disallow javascript: and data: URLs
+    allowedSchemesByTag: {
+      "a": ["http", "https", "mailto"]
+    },
+    
+    // Force all links to open in new tab with security
+    transformTags: {
+      "a": (_tagName: string, attribs: sanitizeHtml.Attributes) => {
+        return {
+          tagName: "a",
+          attribs: {
+            ...attribs,
+            target: "_blank",
+            rel: "noopener noreferrer"  // Security best practice
+          }
+        };
+      }
+    },
+    
+    // Remove any style attributes (prevent CSS injection)
+    allowedStyles: {},
+    
+    // Remove all classes except for code highlighting
+    allowedClasses: {
+      "code": ["language-*"],
+      "pre": ["language-*"]
+    }
+  });
+};
+
+/**
+ * Validate that HTML content is not empty after sanitization
+ * @param content - Sanitized HTML content
+ * @returns true if content is valid, false if empty
  */
 export const validateHtmlContent = (content: string): boolean => {
-  // Check for balanced tags (basic validation)
-  const openTags = (content.match(/<[^/][^>]*>/g) || []).length;
-  const closeTags = (content.match(/<\/[^>]+>/g) || []).length;
-  
-  // Allow some difference for self-closing tags
-  const tagDiff = Math.abs(openTags - closeTags);
-  
-  // If difference is too large, likely malformed
-  if (tagDiff > 10) {
-    return false;
-  }
-  
-  // Check for dangerous scripts (should be sanitized on frontend too)
-  const dangerousPatterns = [
-    /<script/i,
-    /javascript:/i,
-    /onerror=/i,
-    /onload=/i,
-  ];
-  
-  for (const pattern of dangerousPatterns) {
-    if (pattern.test(content)) {
-      return false;
-    }
-  }
-  
-  return true;
+  const sanitized = sanitizeHtmlContent(content);
+  const textOnly = stripHtml(sanitized).trim();
+  return textOnly.length > 0;
 };
 
 /**
