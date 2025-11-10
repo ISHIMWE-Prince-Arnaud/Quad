@@ -1,6 +1,6 @@
 import { Post } from "../models/Post.model.js";
-// Import other content models when they're created
-// import { Story } from "../models/Story.model.js";
+import { Story } from "../models/Story.model.js";
+// Import when Poll model is created
 // import { Poll } from "../models/Poll.model.js";
 
 import type { ReactableContentType } from "../types/reaction.types.js";
@@ -21,9 +21,12 @@ export const verifyReactableContent = async (
         content = await Post.findById(contentId);
         break;
       case "story":
-        // TODO: Implement when Story model is ready
-        // content = await Story.findById(contentId);
-        return { exists: false }; // Placeholder
+        content = await Story.findById(contentId);
+        // Only allow reactions on published stories
+        if (content && content.status !== "published") {
+          return { exists: false };
+        }
+        break;
       case "poll":
         // TODO: Implement when Poll model is ready
         // content = await Poll.findById(contentId);
@@ -59,9 +62,12 @@ export const verifyCommentableContent = async (
         content = await Post.findById(contentId);
         break;
       case "story":
-        // TODO: Implement when Story model is ready
-        // content = await Story.findById(contentId);
-        return { exists: false }; // Placeholder
+        content = await Story.findById(contentId);
+        // Only allow comments on published stories
+        if (content && content.status !== "published") {
+          return { exists: false };
+        }
+        break;
       case "poll":
         // TODO: Implement when Poll model is ready
         // content = await Poll.findById(contentId);
@@ -91,8 +97,7 @@ export const updateContentCommentsCount = async (
         await Post.findByIdAndUpdate(contentId, { $inc: { commentsCount: increment } });
         break;
       case "story":
-        // TODO: Implement when Story model is ready
-        // await Story.findByIdAndUpdate(contentId, { $inc: { commentsCount: increment } });
+        await Story.findByIdAndUpdate(contentId, { $inc: { commentsCount: increment } });
         break;
       case "poll":
         // TODO: Implement when Poll model is ready
@@ -118,8 +123,7 @@ export const updateContentReactionsCount = async (
         await Post.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
         break;
       case "story":
-        // TODO: Implement when Story model is ready
-        // await Story.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
+        await Story.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
         break;
       case "poll":
         // TODO: Implement when Poll model is ready

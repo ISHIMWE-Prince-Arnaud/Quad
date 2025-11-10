@@ -10,6 +10,7 @@ import userRoutes from "./routes/user.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js"; // 👈 add this
 import { clerkMiddleware } from "@clerk/express";
 import postRoutes from "./routes/post.routes.js";
+import storyRoutes from "./routes/story.routes.js";
 import reactionRoutes from "./routes/reaction.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
@@ -31,6 +32,7 @@ app.use(clerkMiddleware());
 //routes
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/stories", storyRoutes);
 app.use("/api/reactions", reactionRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/upload", uploadRoutes);
