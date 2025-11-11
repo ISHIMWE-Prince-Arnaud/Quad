@@ -7,12 +7,14 @@ import { connectDB } from "./config/db.config.js";
 import { setSocketIO } from "./config/socket.config.js";
 import { ensureIndexes } from "./utils/indexes.util.js";
 import { startPollExpiryJob } from "./jobs/poll.cron.js";
+import { setupChatSocket } from "./sockets/chat.socket.js";
 import userRoutes from "./routes/user.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js"; // 👈 add this
 import { clerkMiddleware } from "@clerk/express";
 import postRoutes from "./routes/post.routes.js";
 import storyRoutes from "./routes/story.routes.js";
 import pollRoutes from "./routes/poll.routes.js";
+import chatRoutes from "./routes/chat.routes.js";
 import reactionRoutes from "./routes/reaction.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
@@ -36,6 +38,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/stories", storyRoutes);
 app.use("/api/polls", pollRoutes);
+app.use("/api/chat", chatRoutes);
 app.use("/api/reactions", reactionRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/upload", uploadRoutes);
@@ -55,6 +58,9 @@ const io = new SocketIOServer(server, {
 
 // Set the Socket.IO instance globally
 setSocketIO(io);
+
+// Setup chat socket handlers
+setupChatSocket(io);
 
 // Optional: Socket.IO connection logging
 io.on("connection", (socket) => {

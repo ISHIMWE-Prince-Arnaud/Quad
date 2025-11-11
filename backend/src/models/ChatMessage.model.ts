@@ -1,0 +1,106 @@
+import mongoose, { Schema, Document } from "mongoose";
+import type { IUser } from "../types/user.types.js";
+import type { IMedia } from "../types/post.types.js";
+
+/**
+ * ChatMessage Document Interface
+ */
+export interface IChatMessageDocument extends Document {
+  author: IUser;
+  text?: string;
+  media?: IMedia;
+  mentions: string[];
+  reactionsCount: number;
+  isEdited: boolean;
+  editedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const ChatMessageSchema = new Schema<IChatMessageDocument>(
+  {
+    // Author (embedded user snapshot)
+    author: {
+      type: Object,
+      required: true,
+    },
+
+    // Message text (optional, no limit)
+    text: {
+      type: String,
+      required: false,
+    },
+
+    // Message media (optional image/video)
+    media: {
+      url: { type: String, required: false },
+      type: {
+        type: String,
+        enum: ["image", "video"],
+        required: false,
+      },
+      aspectRatio: {
+        type: String,
+        enum: ["1:1", "16:9", "9:16"],
+        required: false,
+      },
+    },
+
+    // Mentioned usernames
+    mentions: {
+      type: [String],
+      default: [],
+    },
+
+    // Cached reaction count
+    reactionsCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    // Edit tracking
+    isEdited: {
+      type: Boolean,
+      default: false,
+    },
+
+    editedAt: {
+      type: Date,
+      required: false,
+    },
+  },
+  {
+    timestamps: true, // Adds createdAt & updatedAt
+  }
+);
+
+// ===========================
+// INDEXES FOR PERFORMANCE
+// ===========================
+
+// Index for message pagination (newest first)
+ChatMessageSchema.index({ createdAt: -1 });
+
+// Index for finding messages by author
+ChatMessageSchema.index({ "author.clerkId": 1, createdAt: -1 });
+
+// Index for finding messages with mentions
+ChatMessageSchema.index({ mentions: 1, createdAt: -1 });
+
+// ===========================
+// VALIDATION
+// ===========================
+
+// Ensure at least text or media is present
+ChatMessageSchema.pre("save", function (next) {
+  if (!this.text && !this.media) {
+    return next(new Error("Message must have text or media"));
+  }
+  next();
+});
+
+export const ChatMessage = mongoose.model<IChatMessageDocument>(
+  "ChatMessage",
+  ChatMessageSchema
+);

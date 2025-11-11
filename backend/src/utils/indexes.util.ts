@@ -2,6 +2,8 @@ import { User } from "../models/User.model.js";
 import { Post } from "../models/Post.model.js";
 import { Story } from "../models/Story.model.js";
 import { Poll } from "../models/Poll.model.js";
+import { ChatMessage } from "../models/ChatMessage.model.js";
+import { MessageReaction } from "../models/MessageReaction.model.js";
 import { Reaction } from "../models/Reaction.model.js";
 import { Comment } from "../models/Comment.model.js";
 import { CommentLike } from "../models/CommentLike.model.js";
@@ -38,6 +40,14 @@ export const ensureIndexes = async (): Promise<void> => {
     // Create indexes for Poll model
     await Poll.createIndexes();
     console.log("✅ Poll model indexes created");
+    
+    // Create indexes for ChatMessage model
+    await ChatMessage.createIndexes();
+    console.log("✅ ChatMessage model indexes created");
+    
+    // Create indexes for MessageReaction model
+    await MessageReaction.createIndexes();
+    console.log("✅ MessageReaction model indexes created");
     
     // Create indexes for Reaction model
     await Reaction.createIndexes();
@@ -81,6 +91,14 @@ export const listIndexes = async (): Promise<void> => {
     const pollIndexes = await Poll.collection.getIndexes();
     console.log("\n🗳️  Poll Model Indexes:");
     console.log(JSON.stringify(pollIndexes, null, 2));
+    
+    const chatMessageIndexes = await ChatMessage.collection.getIndexes();
+    console.log("\n💬 ChatMessage Model Indexes:");
+    console.log(JSON.stringify(chatMessageIndexes, null, 2));
+    
+    const messageReactionIndexes = await MessageReaction.collection.getIndexes();
+    console.log("\n❤️  MessageReaction Model Indexes:");
+    console.log(JSON.stringify(messageReactionIndexes, null, 2));
     
     const reactionIndexes = await Reaction.collection.getIndexes();
     console.log("\n👍 Reaction Model Indexes:");
