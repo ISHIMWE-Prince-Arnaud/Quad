@@ -16,6 +16,7 @@ import {
   validateVoteIndices,
   formatPollResponse,
 } from "../utils/poll.util.js";
+import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
 
 // =========================
 // CREATE POLL
@@ -410,13 +411,35 @@ export const voteOnPoll = async (req: Request, res: Response) => {
     });
 
     // Update poll vote counts
+    const previousTotalVotes = poll.totalVotes;
     optionIndices.forEach(index => {
       if (poll.options[index]) {
         poll.options[index].votesCount += 1;
       }
     });
     poll.totalVotes += 1;
+    const newTotalVotes = poll.totalVotes;
     await poll.save();
+
+    // Check for milestone and notify poll owner
+    const milestones = [10, 50, 100, 250, 500, 1000, 5000, 10000];
+    const reachedMilestone = milestones.find(
+      milestone => previousTotalVotes < milestone && newTotalVotes >= milestone
+    );
+
+    if (reachedMilestone) {
+      const pollOwnerId = poll.author.clerkId;
+      const pollId = poll._id ? poll._id.toString() : id;
+      if (pollOwnerId && pollId) {
+        await createNotification({
+          userId: pollOwnerId,
+          type: "poll_milestone",
+          contentId: pollId,
+          contentType: "Poll",
+          message: `Your poll reached ${reachedMilestone} votes!`,
+        });
+      }
+    }
 
     // Emit real-time event (no user info for privacy)
     getSocketIO().emit("pollVoted", {

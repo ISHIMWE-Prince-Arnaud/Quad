@@ -8,6 +8,7 @@ import { setSocketIO } from "./config/socket.config.js";
 import { ensureIndexes } from "./utils/indexes.util.js";
 import { startPollExpiryJob } from "./jobs/poll.cron.js";
 import { setupChatSocket } from "./sockets/chat.socket.js";
+import { setupNotificationSocket } from "./sockets/notification.socket.js";
 import userRoutes from "./routes/user.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js"; // 👈 add this
 import { clerkMiddleware } from "@clerk/express";
@@ -17,6 +18,7 @@ import pollRoutes from "./routes/poll.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
 import followRoutes from "./routes/follow.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
 import reactionRoutes from "./routes/reaction.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
@@ -43,6 +45,7 @@ app.use("/api/polls", pollRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/follow", followRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/reactions", reactionRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/upload", uploadRoutes);
@@ -65,6 +68,9 @@ setSocketIO(io);
 
 // Setup chat socket handlers
 setupChatSocket(io);
+
+// Setup notification socket handlers
+setupNotificationSocket(io);
 
 // Optional: Socket.IO connection logging
 io.on("connection", (socket) => {

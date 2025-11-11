@@ -5,6 +5,7 @@ import type { CreateReactionSchemaType } from "../schemas/reaction.schema.js";
 import type { ReactableContentType } from "../types/reaction.types.js";
 import { getSocketIO } from "../config/socket.config.js";
 import { verifyReactableContent, updateContentReactionsCount } from "../utils/content.util.js";
+import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
 
 // =========================
 // CREATE OR UPDATE REACTION
@@ -15,8 +16,8 @@ export const toggleReaction = async (req: Request, res: Response) => {
     const userId = req.auth.userId;
 
     // Verify content exists
-    const { exists } = await verifyReactableContent(contentType, contentId);
-    if (!exists) {
+    const { exists, content } = await verifyReactableContent(contentType, contentId);
+    if (!exists || !content) {
       return res.status(404).json({ success: false, message: `${contentType} not found` });
     }
 
@@ -25,6 +26,9 @@ export const toggleReaction = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
+
+    // Get content owner ID
+    const contentOwnerId = content.userId || content.clerkId;
 
     // Check if user already reacted to this content
     const existingReaction = await Reaction.findOne({ contentType, contentId, userId });
@@ -91,6 +95,26 @@ export const toggleReaction = async (req: Request, res: Response) => {
 
     // Get updated reaction count
     const reactionCount = await Reaction.countDocuments({ contentType, contentId });
+
+    // Create notification for content owner (if not reacting to own content)
+    if (contentOwnerId && contentOwnerId !== userId) {
+      const notificationType = contentType === "post" 
+        ? "reaction_post" 
+        : contentType === "story" 
+        ? "reaction_story" 
+        : contentType === "poll"
+        ? "reaction_poll"
+        : "reaction_post";
+
+      await createNotification({
+        userId: contentOwnerId,
+        type: notificationType as any,
+        actorId: userId,
+        contentId,
+        contentType: contentType === "post" ? "Post" : contentType === "story" ? "Story" : "Poll",
+        message: generateNotificationMessage(notificationType, user.username, contentType),
+      });
+    }
 
     // Emit real-time event
     getSocketIO().emit("reactionAdded", {

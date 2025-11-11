@@ -15,6 +15,7 @@ import {
   formatMessageResponse,
   sanitizeMessageText,
 } from "../utils/chat.util.js";
+import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
 
 // =========================
 // SEND MESSAGE
@@ -54,6 +55,24 @@ export const sendMessage = async (req: Request, res: Response) => {
 
     // Format response
     const formattedMessage = formatMessageResponse(message);
+
+    // Create notifications for mentioned users
+    if (mentions && mentions.length > 0) {
+      for (const mentionedUsername of mentions) {
+        // Find mentioned user
+        const mentionedUser = await User.findOne({ username: mentionedUsername });
+        if (mentionedUser && mentionedUser.clerkId !== userId) {
+          await createNotification({
+            userId: mentionedUser.clerkId,
+            type: "chat_mention",
+            actorId: userId,
+            contentId: (message._id as any).toString(),
+            contentType: "ChatMessage",
+            message: generateNotificationMessage("chat_mention", user.username),
+          });
+        }
+      }
+    }
 
     // Emit real-time event
     getSocketIO().emit("chat:message:new", formattedMessage);

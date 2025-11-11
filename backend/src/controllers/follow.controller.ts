@@ -11,6 +11,7 @@ import {
   updateFollowCounts,
 } from "../utils/follow.util.js";
 import { getSocketIO } from "../config/socket.config.js";
+import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
 
 // =========================
 // FOLLOW USER
@@ -54,6 +55,17 @@ export const followUser = async (req: Request, res: Response) => {
 
     // Update follow counts
     await updateFollowCounts(currentUserId, targetUserId, true);
+
+    // Get current user for notification
+    const currentUser = await User.findOne({ clerkId: currentUserId });
+
+    // Create notification for target user
+    await createNotification({
+      userId: targetUserId,
+      type: "follow",
+      actorId: currentUserId,
+      message: generateNotificationMessage("follow", currentUser?.username),
+    });
 
     // Emit real-time event
     getSocketIO().emit("follow:new", {

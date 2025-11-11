@@ -1,6 +1,7 @@
 import cron from "node-cron";
 import { Poll } from "../models/Poll.model.js";
 import { getSocketIO } from "../config/socket.config.js";
+import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
 
 /**
  * Cron job to check for expired polls and update their status
@@ -38,14 +39,26 @@ export const startPollExpiryJob = () => {
 
       console.log(`✅ Marked ${updateResult.modifiedCount} poll(s) as expired`);
 
-      // Emit real-time events for each expired poll
+      // Emit real-time events and create notifications for each expired poll
       const io = getSocketIO();
-      expiredPolls.forEach((poll) => {
+      for (const poll of expiredPolls) {
         const pollId = poll._id ? poll._id.toString() : "";
         if (pollId) {
           io.emit("pollExpired", pollId);
+
+          // Create notification for poll owner
+          const ownerId = poll.author?.clerkId;
+          if (ownerId) {
+            await createNotification({
+              userId: ownerId,
+              type: "poll_expired",
+              contentId: pollId,
+              contentType: "Poll",
+              message: generateNotificationMessage("poll_expired"),
+            });
+          }
         }
-      });
+      }
     } catch (error) {
       console.error("❌ Error in poll expiry cron job:", error);
     }

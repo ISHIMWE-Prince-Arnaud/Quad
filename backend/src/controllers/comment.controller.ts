@@ -5,6 +5,7 @@ import { User } from "../models/User.model.js";
 import type { CreateCommentSchemaType, UpdateCommentSchemaType } from "../schemas/comment.schema.js";
 import { getSocketIO } from "../config/socket.config.js";
 import { verifyCommentableContent, updateContentCommentsCount } from "../utils/content.util.js";
+import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
 
 // =========================
 // CREATE COMMENT
@@ -15,8 +16,8 @@ export const createComment = async (req: Request, res: Response) => {
     const userId = req.auth.userId;
 
     // Verify content exists
-    const { exists } = await verifyCommentableContent(contentType, contentId);
-    if (!exists) {
+    const { exists, content } = await verifyCommentableContent(contentType, contentId);
+    if (!exists || !content) {
       return res.status(404).json({ success: false, message: `${contentType} not found` });
     }
 
@@ -26,9 +27,13 @@ export const createComment = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
+    // Get content owner ID
+    const contentOwnerId = content.userId || content.clerkId;
+
     // If this is a reply, verify parent comment exists
+    let parentComment = null;
     if (parentId) {
-      const parentComment = await Comment.findById(parentId);
+      parentComment = await Comment.findById(parentId);
       if (!parentComment) {
         return res.status(404).json({ success: false, message: "Parent comment not found" });
       }
@@ -56,6 +61,40 @@ export const createComment = async (req: Request, res: Response) => {
 
     // Update content comments count
     await updateContentCommentsCount(contentType, contentId, 1);
+
+    // Create notifications
+    if (parentId && parentComment) {
+      // This is a reply - notify parent comment author
+      const parentAuthorId = parentComment.author.clerkId;
+      if (parentAuthorId !== userId) {
+        await createNotification({
+          userId: parentAuthorId,
+          type: "comment_reply",
+          actorId: userId,
+          contentId: parentId,
+          contentType: "Comment",
+          message: generateNotificationMessage("comment_reply", user.username),
+        });
+      }
+    } else {
+      // This is a top-level comment - notify content owner
+      if (contentOwnerId && contentOwnerId !== userId) {
+        const notificationType = contentType === "post" 
+          ? "comment_post" 
+          : contentType === "story" 
+          ? "comment_story" 
+          : "comment_poll";
+
+        await createNotification({
+          userId: contentOwnerId,
+          type: notificationType as any,
+          actorId: userId,
+          contentId,
+          contentType: contentType === "post" ? "Post" : contentType === "story" ? "Story" : "Poll",
+          message: generateNotificationMessage(notificationType, user.username, contentType),
+        });
+      }
+    }
 
     // Emit real-time event
     getSocketIO().emit("commentAdded", {
