@@ -167,6 +167,9 @@ PollSchema.index({ question: "text" });
 // Index for trending polls (by total votes)
 PollSchema.index({ totalVotes: -1, createdAt: -1 });
 
+// Feed-specific index for trending sort with engagement
+PollSchema.index({ status: 1, createdAt: -1, totalVotes: -1, reactionsCount: -1, commentsCount: -1 });
+
 // ===========================
 // PRE-SAVE HOOKS
 // ===========================

@@ -7,6 +7,7 @@ import type { StoryStatus } from "../types/story.types.js";
  * Extends IStory with Mongoose Document properties
  */
 export interface IStoryDocument extends Document {
+  userId: string; // Clerk ID for efficient queries
   author: IUser;
   title: string;
   content: string;              // Rich text HTML
@@ -18,6 +19,7 @@ export interface IStoryDocument extends Document {
   viewsCount?: number;
   reactionsCount?: number;
   commentsCount?: number;
+  expiresAt?: Date;
   publishedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
@@ -25,6 +27,7 @@ export interface IStoryDocument extends Document {
 
 const StorySchema = new Schema<IStoryDocument>(
   {
+    userId: { type: String, required: true }, // Clerk ID for efficient queries
     author: { type: Object, required: true }, // User snapshot (embedded)
     
     // Content fields
@@ -85,10 +88,10 @@ const StorySchema = new Schema<IStoryDocument>(
 StorySchema.index({ status: 1, publishedAt: -1 });
 
 // Index for user's stories (all statuses)
-StorySchema.index({ "author.clerkId": 1, createdAt: -1 });
+StorySchema.index({ userId: 1, createdAt: -1 });
 
 // Index for published stories by specific author
-StorySchema.index({ "author.clerkId": 1, status: 1, publishedAt: -1 });
+StorySchema.index({ userId: 1, status: 1, publishedAt: -1 });
 
 // Text index for search (title, content, tags)
 StorySchema.index({ 
@@ -102,6 +105,9 @@ StorySchema.index({ tags: 1, status: 1, publishedAt: -1 });
 
 // Index for sorting by views/popularity
 StorySchema.index({ viewsCount: -1, publishedAt: -1 });
+
+// Feed-specific index for active stories with expiry check
+StorySchema.index({ status: 1, expiresAt: 1, createdAt: -1, reactionsCount: -1, commentsCount: -1 });
 
 // ===========================
 // METHODS

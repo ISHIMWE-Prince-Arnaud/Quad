@@ -3,6 +3,7 @@ import type { IUser } from "../types/user.types.js";
 import type { IMedia } from "../types/post.types.js";
 
 export interface IPostDocument extends Document {
+  userId: string; // Clerk ID for efficient queries
   author: IUser;
   text?: string;
   media: IMedia[];
@@ -15,6 +16,7 @@ export interface IPostDocument extends Document {
 
 const PostSchema = new Schema<IPostDocument>(
   {
+    userId: { type: String, required: true }, // Clerk ID for efficient queries
     author: { type: Object, required: true }, // store user info snapshot
     text: { type: String },
     media: [
@@ -38,10 +40,16 @@ const PostSchema = new Schema<IPostDocument>(
 PostSchema.index({ createdAt: -1 });
 
 // Index for querying posts by author (e.g., user profile, user's posts)
-PostSchema.index({ "author.clerkId": 1 });
+PostSchema.index({ userId: 1 });
 
 // Compound index for author + date (optimizes user timeline queries)
-PostSchema.index({ "author.clerkId": 1, createdAt: -1 });
+PostSchema.index({ userId: 1, createdAt: -1 });
+
+// Feed-specific indexes for trending sort
+PostSchema.index({ createdAt: -1, reactionsCount: -1, commentsCount: -1 });
+
+// Feed query with user filter
+PostSchema.index({ userId: 1, createdAt: -1, reactionsCount: -1, commentsCount: -1 });
 
 // Note: Reaction indexes moved to Reaction.model.ts
 
