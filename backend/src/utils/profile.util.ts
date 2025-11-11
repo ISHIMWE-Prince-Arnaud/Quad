@@ -58,6 +58,8 @@ export const calculateProfileStats = async (
     storiesCount,
     pollsCount,
     reactionsReceived,
+    followersCount: 0, // Will be populated from user document
+    followingCount: 0, // Will be populated from user document
   };
 };
 
@@ -68,6 +70,10 @@ export const formatProfileResponse = (
   user: IUserDocument,
   stats: IProfileStats
 ): IUserProfile => {
+  // Update stats with follow counts from user document
+  stats.followersCount = user.followersCount || 0;
+  stats.followingCount = user.followingCount || 0;
+
   return {
     clerkId: user.clerkId,
     username: user.username,
@@ -75,6 +81,8 @@ export const formatProfileResponse = (
     displayName: user.displayName as any,
     profileImage: user.profileImage as any,
     bio: user.bio as any,
+    followersCount: user.followersCount as any,
+    followingCount: user.followingCount as any,
     createdAt: user.createdAt as any,
     updatedAt: user.updatedAt as any,
     stats,

@@ -8,9 +8,8 @@ export interface IProfileStats {
   storiesCount: number;
   pollsCount: number;
   reactionsReceived: number;
-  // Following/followers will be added when Follow system is implemented
-  // followersCount: number;
-  // followingCount: number;
+  followersCount: number;
+  followingCount: number;
 }
 
 /**

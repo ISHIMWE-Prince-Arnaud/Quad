@@ -4,6 +4,7 @@ import { Story } from "../models/Story.model.js";
 import { Poll } from "../models/Poll.model.js";
 import { ChatMessage } from "../models/ChatMessage.model.js";
 import { MessageReaction } from "../models/MessageReaction.model.js";
+import { Follow } from "../models/Follow.model.js";
 import { Reaction } from "../models/Reaction.model.js";
 import { Comment } from "../models/Comment.model.js";
 import { CommentLike } from "../models/CommentLike.model.js";
@@ -48,6 +49,10 @@ export const ensureIndexes = async (): Promise<void> => {
     // Create indexes for MessageReaction model
     await MessageReaction.createIndexes();
     console.log("✅ MessageReaction model indexes created");
+    
+    // Create indexes for Follow model
+    await Follow.createIndexes();
+    console.log("✅ Follow model indexes created");
     
     // Create indexes for Reaction model
     await Reaction.createIndexes();
@@ -99,6 +104,10 @@ export const listIndexes = async (): Promise<void> => {
     const messageReactionIndexes = await MessageReaction.collection.getIndexes();
     console.log("\n❤️  MessageReaction Model Indexes:");
     console.log(JSON.stringify(messageReactionIndexes, null, 2));
+    
+    const followIndexes = await Follow.collection.getIndexes();
+    console.log("\n👥 Follow Model Indexes:");
+    console.log(JSON.stringify(followIndexes, null, 2));
     
     const reactionIndexes = await Reaction.collection.getIndexes();
     console.log("\n👍 Reaction Model Indexes:");
