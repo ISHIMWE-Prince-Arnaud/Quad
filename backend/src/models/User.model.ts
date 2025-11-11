@@ -8,6 +8,7 @@ const UserSchema = new Schema<IUserDocument>(
     clerkId: { type: String, required: true, unique: true }, // Clerk user ID - AUTO INDEXED (unique)
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true }, // AUTO INDEXED (unique)
+    displayName: { type: String },
     profileImage: { 
       type: String,
       default: () => {
@@ -16,6 +17,8 @@ const UserSchema = new Schema<IUserDocument>(
       }
     },
     bio: { type: String },
+    followersCount: { type: Number, default: 0, min: 0 },
+    followingCount: { type: Number, default: 0, min: 0 },
   },
   {
     timestamps: true, // adds createdAt & updatedAt
