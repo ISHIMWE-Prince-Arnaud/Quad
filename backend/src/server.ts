@@ -6,11 +6,13 @@ import { env } from "./config/env.config.js";
 import { connectDB } from "./config/db.config.js";
 import { setSocketIO } from "./config/socket.config.js";
 import { ensureIndexes } from "./utils/indexes.util.js";
+import { startPollExpiryJob } from "./jobs/poll.cron.js";
 import userRoutes from "./routes/user.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js"; // 👈 add this
 import { clerkMiddleware } from "@clerk/express";
 import postRoutes from "./routes/post.routes.js";
 import storyRoutes from "./routes/story.routes.js";
+import pollRoutes from "./routes/poll.routes.js";
 import reactionRoutes from "./routes/reaction.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
@@ -33,6 +35,7 @@ app.use(clerkMiddleware());
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/stories", storyRoutes);
+app.use("/api/polls", pollRoutes);
 app.use("/api/reactions", reactionRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/upload", uploadRoutes);
@@ -66,6 +69,7 @@ const startServer = async () => {
   try {
     await connectDB(); // ✅ Connect to MongoDB first
     await ensureIndexes(); // ✅ Create database indexes
+    startPollExpiryJob(); // ✅ Start poll expiry cron job
     server.listen(env.PORT, () => {
       console.log(`✅ Server running on port ${env.PORT}`);
     });

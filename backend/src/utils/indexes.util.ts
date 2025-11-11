@@ -1,6 +1,7 @@
 import { User } from "../models/User.model.js";
 import { Post } from "../models/Post.model.js";
 import { Story } from "../models/Story.model.js";
+import { Poll } from "../models/Poll.model.js";
 import { Reaction } from "../models/Reaction.model.js";
 import { Comment } from "../models/Comment.model.js";
 import { CommentLike } from "../models/CommentLike.model.js";
@@ -33,6 +34,10 @@ export const ensureIndexes = async (): Promise<void> => {
     // Create indexes for Story model
     await Story.createIndexes();
     console.log("✅ Story model indexes created");
+    
+    // Create indexes for Poll model
+    await Poll.createIndexes();
+    console.log("✅ Poll model indexes created");
     
     // Create indexes for Reaction model
     await Reaction.createIndexes();
@@ -72,6 +77,10 @@ export const listIndexes = async (): Promise<void> => {
     const storyIndexes = await Story.collection.getIndexes();
     console.log("\n📖 Story Model Indexes:");
     console.log(JSON.stringify(storyIndexes, null, 2));
+    
+    const pollIndexes = await Poll.collection.getIndexes();
+    console.log("\n🗳️  Poll Model Indexes:");
+    console.log(JSON.stringify(pollIndexes, null, 2));
     
     const reactionIndexes = await Reaction.collection.getIndexes();
     console.log("\n👍 Reaction Model Indexes:");
