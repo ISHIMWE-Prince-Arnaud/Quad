@@ -161,8 +161,11 @@ PollSchema.index({ "author.clerkId": 1, createdAt: -1 });
 // Index for expiry checking (used by cron job)
 PollSchema.index({ status: 1, expiresAt: 1 });
 
-// Text search on question
-PollSchema.index({ question: "text" });
+// Text search on question and options
+PollSchema.index({ 
+  question: "text",
+  "options.text": "text"
+});
 
 // Index for trending polls (by total votes)
 PollSchema.index({ totalVotes: -1, createdAt: -1 });

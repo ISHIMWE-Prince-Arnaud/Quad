@@ -35,4 +35,11 @@ UserSchema.index({ username: 1 });
 // Index for searching users by creation date (e.g., newest users)
 UserSchema.index({ createdAt: -1 });
 
+// Text search index for user search
+UserSchema.index({ 
+  username: "text", 
+  displayName: "text", 
+  bio: "text" 
+});
+
 export const User = mongoose.model<IUserDocument>("User", UserSchema);

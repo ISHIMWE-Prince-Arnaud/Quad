@@ -24,12 +24,13 @@ import feedRoutes from "./routes/feed.routes.js";
 import reactionRoutes from "./routes/reaction.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import searchRoutes from "./routes/search.routes.js";
 
 // --- Initialize Express ---
 const app = express();
 app.use(cors());
 
-// ⚠️ Important: Register webhooks BEFORE express.json()
+// 
 // because Clerk webhooks need raw body for signature verification
 app.use("/api/webhooks", webhookRoutes);
 
@@ -52,6 +53,7 @@ app.use("/api/feed", feedRoutes);
 app.use("/api/reactions", reactionRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/search", searchRoutes);
 
 // --- Simple test route ---
 app.get("/", (_, res) => {

@@ -7,6 +7,8 @@ import { MessageReaction } from "../models/MessageReaction.model.js";
 import { Follow } from "../models/Follow.model.js";
 import { Notification } from "../models/Notification.model.js";
 import { Reaction } from "../models/Reaction.model.js";
+import { SearchHistory } from "../models/SearchHistory.model.js";
+import { SearchAnalytics } from "../models/SearchAnalytics.model.js";
 import { Comment } from "../models/Comment.model.js";
 import { CommentLike } from "../models/CommentLike.model.js";
 
@@ -62,6 +64,14 @@ export const ensureIndexes = async (): Promise<void> => {
     // Create indexes for Reaction model
     await Reaction.createIndexes();
     console.log("✅ Reaction model indexes created");
+    
+    // Create indexes for SearchHistory model
+    await SearchHistory.createIndexes();
+    console.log("✅ SearchHistory model indexes created");
+    
+    // Create indexes for SearchAnalytics model
+    await SearchAnalytics.createIndexes();
+    console.log("✅ SearchAnalytics model indexes created");
     
     // Create indexes for Comment model
     await Comment.createIndexes();
