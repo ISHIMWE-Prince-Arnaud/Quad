@@ -1,6 +1,7 @@
 /// <reference path="../types/global.d.ts" />
 import type { Request, Response } from "express";
 import { Poll, type IPollDocument } from "../models/Poll.model.js";
+import { logger } from "../utils/logger.util.js";
 import { PollVote } from "../models/PollVote.model.js";
 import { User } from "../models/User.model.js";
 import type {
@@ -71,7 +72,7 @@ export const createPoll = async (req: Request, res: Response) => {
       data: poll,
     });
   } catch (error: any) {
-    console.error("Error creating poll:", error);
+    logger.error("Error creating poll:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -177,7 +178,7 @@ export const getAllPolls = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching polls:", error);
+    logger.error("Error fetching polls:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -218,7 +219,7 @@ export const getMyPolls = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching user polls:", error);
+    logger.error("Error fetching user polls:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -260,7 +261,7 @@ export const getPoll = async (req: Request, res: Response) => {
       data: formattedPoll,
     });
   } catch (error: any) {
-    console.error("Error fetching poll:", error);
+    logger.error("Error fetching poll:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -315,7 +316,7 @@ export const updatePoll = async (req: Request, res: Response) => {
       data: poll,
     });
   } catch (error: any) {
-    console.error("Error updating poll:", error);
+    logger.error("Error updating poll:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -356,7 +357,7 @@ export const deletePoll = async (req: Request, res: Response) => {
       message: "Poll deleted successfully",
     });
   } catch (error: any) {
-    console.error("Error deleting poll:", error);
+    logger.error("Error deleting poll:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -457,7 +458,7 @@ export const voteOnPoll = async (req: Request, res: Response) => {
       data: formattedPoll,
     });
   } catch (error: any) {
-    console.error("Error voting on poll:", error);
+    logger.error("Error voting on poll:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -512,7 +513,7 @@ export const removeVote = async (req: Request, res: Response) => {
       message: "Vote removed successfully",
     });
   } catch (error: any) {
-    console.error("Error removing vote:", error);
+    logger.error("Error removing vote:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -560,7 +561,7 @@ export const closePoll = async (req: Request, res: Response) => {
       data: poll,
     });
   } catch (error: any) {
-    console.error("Error closing poll:", error);
+    logger.error("Error closing poll:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };

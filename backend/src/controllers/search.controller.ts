@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { logger } from "../utils/logger.util.js";
 import {
   searchUsers,
   searchPosts,
@@ -80,7 +81,7 @@ export const searchUsersController = async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error in searchUsersController:", error);
+    logger.error("Error in searchUsersController", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -153,7 +154,7 @@ export const searchPostsController = async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error in searchPostsController:", error);
+    logger.error("Error in searchPostsController", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -226,7 +227,7 @@ export const searchPollsController = async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error in searchPollsController:", error);
+    logger.error("Error in searchPollsController", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -299,7 +300,7 @@ export const searchStoriesController = async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error in searchStoriesController:", error);
+    logger.error("Error in searchStoriesController", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -360,7 +361,7 @@ export const globalSearchController = async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error in globalSearchController:", error);
+    logger.error("Error in globalSearchController", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -394,7 +395,7 @@ export const getSearchSuggestionsController = async (req: Request, res: Response
       }
     });
   } catch (error) {
-    console.error("Error in getSearchSuggestionsController:", error);
+    logger.error("Error in getSearchSuggestionsController", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -432,7 +433,7 @@ export const getSearchHistoryController = async (req: Request, res: Response) =>
       }
     });
   } catch (error) {
-    console.error("Error in getSearchHistoryController:", error);
+    logger.error("Error in getSearchHistoryController", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -477,7 +478,7 @@ export const deleteSearchHistoryController = async (req: Request, res: Response)
       message: "Search history deleted"
     });
   } catch (error) {
-    console.error("Error in deleteSearchHistoryController:", error);
+    logger.error("Error in deleteSearchHistoryController", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -507,7 +508,7 @@ export const clearSearchHistoryController = async (req: Request, res: Response) 
       message: `Cleared ${deletedCount} search history items`
     });
   } catch (error) {
-    console.error("Error in clearSearchHistoryController:", error);
+    logger.error("Error in clearSearchHistoryController", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -540,7 +541,7 @@ export const getPopularSearchesController = async (req: Request, res: Response) 
       }
     });
   } catch (error) {
-    console.error("Error in getPopularSearchesController:", error);
+    logger.error("Error in getPopularSearchesController", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -569,7 +570,7 @@ export const getTrendingSearchesController = async (req: Request, res: Response)
       }
     });
   } catch (error) {
-    console.error("Error in getTrendingSearchesController:", error);
+    logger.error("Error in getTrendingSearchesController", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error"

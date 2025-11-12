@@ -17,7 +17,7 @@ export class DatabaseService {
    */
   static async getUserByClerkId(clerkId: string): Promise<IUserDocument | null> {
     try {
-      return await User.findOne({ clerkId }).lean();
+      return await User.findOne({ clerkId });
     } catch (error) {
       logger.error(`Failed to get user by clerkId: ${clerkId}`, error);
       return null;
@@ -29,7 +29,7 @@ export class DatabaseService {
    */
   static async getUserById(userId: string): Promise<IUserDocument | null> {
     try {
-      return await User.findById(userId).lean();
+      return await User.findById(userId);
     } catch (error) {
       logger.error(`Failed to get user by ID: ${userId}`, error);
       return null;
@@ -38,13 +38,14 @@ export class DatabaseService {
 
   /**
    * Get multiple users by IDs (prevents N+1 queries)
+   * TODO: Fix TypeScript lean() type issues
    */
-  static async getUsersByIds(userIds: string[]): Promise<Map<string, IUserDocument>> {
+  static async getUsersByIds(userIds: string[]): Promise<Map<string, any>> {
     try {
-      const users = await User.find({ _id: { $in: userIds } }).lean();
-      const userMap = new Map<string, IUserDocument>();
+      const users = await User.find({ _id: { $in: userIds } });
+      const userMap = new Map<string, any>();
       users.forEach(user => {
-        userMap.set(user._id.toString(), user);
+        userMap.set((user._id as any).toString(), user);
       });
       return userMap;
     } catch (error) {
@@ -85,7 +86,7 @@ export class DatabaseService {
       const followMap = new Map<string, boolean>();
       followingIds.forEach(id => followMap.set(id, false));
       follows.forEach(follow => {
-        followMap.set(follow.following.toString(), true);
+        followMap.set(follow.followingId.toString(), true);
       });
 
       return followMap;
@@ -109,7 +110,7 @@ export class DatabaseService {
         contentType,
         contentId
       }).lean();
-      return reaction?.reactionType || null;
+      return reaction?.type || null;
     } catch (error) {
       logger.error('Failed to get user reaction', error);
       return null;
@@ -137,7 +138,7 @@ export class DatabaseService {
       const reactionMap = new Map<string, string>();
       reactions.forEach(reaction => {
         const key = `${reaction.contentType}:${reaction.contentId}`;
-        reactionMap.set(key, reaction.reactionType);
+        reactionMap.set(key, reaction.type);
       });
 
       return reactionMap;
@@ -156,28 +157,22 @@ export class DatabaseService {
     increment: number = 1
   ): Promise<boolean> {
     try {
-      let Model;
       switch (contentType) {
         case 'post':
-          Model = Post;
+          await Post.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
           break;
         case 'story':
-          Model = Story;
+          await Story.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
           break;
         case 'poll':
-          Model = Poll;
+          await Poll.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
           break;
         case 'comment':
-          Model = Comment;
+          await Comment.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
           break;
         default:
           return false;
       }
-
-      await Model.findByIdAndUpdate(
-        contentId,
-        { $inc: { reactionsCount: increment } }
-      );
       return true;
     } catch (error) {
       logger.error('Failed to update reaction count', error);
@@ -194,25 +189,19 @@ export class DatabaseService {
     increment: number = 1
   ): Promise<boolean> {
     try {
-      let Model;
       switch (contentType) {
         case 'post':
-          Model = Post;
+          await Post.findByIdAndUpdate(contentId, { $inc: { commentsCount: increment } });
           break;
         case 'story':
-          Model = Story;
+          await Story.findByIdAndUpdate(contentId, { $inc: { commentsCount: increment } });
           break;
         case 'poll':
-          Model = Poll;
+          await Poll.findByIdAndUpdate(contentId, { $inc: { commentsCount: increment } });
           break;
         default:
           return false;
       }
-
-      await Model.findByIdAndUpdate(
-        contentId,
-        { $inc: { commentsCount: increment } }
-      );
       return true;
     } catch (error) {
       logger.error('Failed to update comment count', error);

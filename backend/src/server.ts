@@ -7,11 +7,18 @@ import { connectDB } from "./config/db.config.js";
 import { setSocketIO } from "./config/socket.config.js";
 import { ensureIndexes } from "./utils/indexes.util.js";
 import { startPollExpiryJob } from "./jobs/poll.cron.js";
+import { logger } from "./utils/logger.util.js";
+import { 
+  generalRateLimiter, 
+  searchRateLimiter, 
+  uploadRateLimiter, 
+  writeRateLimiter 
+} from "./middlewares/rateLimiter.middleware.js";
 import { setupChatSocket } from "./sockets/chat.socket.js";
 import { setupNotificationSocket } from "./sockets/notification.socket.js";
 import { setupFeedSocket } from "./sockets/feed.socket.js";
 import userRoutes from "./routes/user.routes.js";
-import webhookRoutes from "./routes/webhook.routes.js"; // 👈 add this
+import webhookRoutes from "./routes/webhook.routes.js"; 
 import { clerkMiddleware } from "@clerk/express";
 import postRoutes from "./routes/post.routes.js";
 import storyRoutes from "./routes/story.routes.js";
@@ -40,20 +47,22 @@ app.use(express.json());
 // 🔐 Clerk middleware
 app.use(clerkMiddleware());
 
-//routes
+//routes with rate limiting
+app.use("/api/", generalRateLimiter); // Apply general rate limiting to all API routes
+
 app.use("/api/users", userRoutes);
-app.use("/api/posts", postRoutes);
-app.use("/api/stories", storyRoutes);
-app.use("/api/polls", pollRoutes);
-app.use("/api/chat", chatRoutes);
+app.use("/api/posts", writeRateLimiter, postRoutes);
+app.use("/api/stories", writeRateLimiter, storyRoutes);
+app.use("/api/polls", writeRateLimiter, pollRoutes);
+app.use("/api/chat", writeRateLimiter, chatRoutes);
 app.use("/api/profile", profileRoutes);
-app.use("/api/follow", followRoutes);
+app.use("/api/follow", writeRateLimiter, followRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/feed", feedRoutes);
-app.use("/api/reactions", reactionRoutes);
-app.use("/api/comments", commentRoutes);
-app.use("/api/upload", uploadRoutes);
-app.use("/api/search", searchRoutes);
+app.use("/api/reactions", writeRateLimiter, reactionRoutes);
+app.use("/api/comments", writeRateLimiter, commentRoutes);
+app.use("/api/upload", uploadRateLimiter, uploadRoutes);
+app.use("/api/search", searchRateLimiter, searchRoutes);
 
 // --- Simple test route ---
 app.get("/", (_, res) => {
@@ -80,30 +89,30 @@ setupNotificationSocket(io);
 // Setup feed socket handlers
 setupFeedSocket(io);
 
-// Optional: Socket.IO connection logging
+// Socket.IO connection logging (development only)
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+  logger.socket("User connected", socket.id);
   socket.on("disconnect", () => {
-    console.log("A user disconnected:", socket.id);
+    logger.socket("User disconnected", socket.id);
   });
 });
 
 // --- Start server after DB connection ---
 const startServer = async () => {
   try {
-    await connectDB(); // ✅ Connect to MongoDB first
-    await ensureIndexes(); // ✅ Create database indexes
-    startPollExpiryJob(); // ✅ Start poll expiry cron job
+    await connectDB(); // Connect to MongoDB first
+    await ensureIndexes(); // Create database indexes
+    startPollExpiryJob(); // Start poll expiry cron job
     server.listen(env.PORT, () => {
-      console.log(`✅ Server running on port ${env.PORT}`);
+      logger.server(`Server running on port ${env.PORT}`);
     });
   } catch (error) {
-    console.error("❌ Failed to start server:", error);
+    logger.error("Failed to start server", error);
     process.exit(1);
   }
 };
 
 startServer().catch(error => {
-  console.error("❌ Unhandled error during startup:", error);
+  logger.error("Unhandled error during startup", error);
   process.exit(1);
 });

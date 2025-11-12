@@ -1,4 +1,6 @@
 import cloudinary, { UPLOAD_PRESETS } from "../config/cloudinary.config.js";
+import type { UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
+import { logger } from "./logger.util.js";
 import { Readable } from "stream";
 
 // Upload result interface
@@ -116,7 +118,7 @@ export const deleteFromCloudinary = async (
       message: `Deletion failed: ${result.result}`,
     };
   } catch (error: any) {
-    console.error("Cloudinary delete error:", error);
+    logger.error("Cloudinary delete error", error);
     return {
       success: false,
       message: error.message || "Failed to delete file",
@@ -165,7 +167,7 @@ export const extractPublicIdFromUrl = (url: string): string | null => {
     const matches = url.match(/\/upload\/(?:v\d+\/)?(.+?)\.[^.]+$/);
     return matches?.[1] ?? null;
   } catch (error) {
-    console.error("Error extracting publicId:", error);
+    logger.error("Error extracting publicId", error);
     return null;
   }
 };

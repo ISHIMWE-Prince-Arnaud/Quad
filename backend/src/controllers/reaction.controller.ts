@@ -6,6 +6,8 @@ import type { ReactableContentType } from "../types/reaction.types.js";
 import { getSocketIO } from "../config/socket.config.js";
 import { verifyReactableContent, updateContentReactionsCount } from "../utils/content.util.js";
 import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
+import { DatabaseService } from "../services/database.service.js";
+import { logger } from "../utils/logger.util.js";
 
 // =========================
 // CREATE OR UPDATE REACTION
@@ -133,22 +135,24 @@ export const toggleReaction = async (req: Request, res: Response) => {
       reactionCount,
     });
   } catch (error: any) {
-    console.error("Error toggling reaction:", error);
+    logger.error("Error toggling reaction", error);
     return res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
 
 // =========================
-// GET REACTIONS BY CONTENT
+// GET REACTIONS BY CONTENT (Optimized to prevent N+1 queries)
 // =========================
 export const getReactionsByContent = async (req: Request, res: Response) => {
   try {
     const { contentType, contentId } = req.params as { contentType: ReactableContentType; contentId: string };
 
-    // Get all reactions with aggregation by type
-    const reactions = await Reaction.find({ contentType, contentId }).sort({ createdAt: -1 });
+    // Get all reactions with populated user data (prevents N+1 queries)
+    const reactions = await Reaction.find({ contentType, contentId })
+      .populate('user', 'username displayName profileImage')
+      .sort({ createdAt: -1 });
     
-    // Aggregate reactions by type
+    // Aggregate reactions by type for counts
     const reactionCounts = await Reaction.aggregate([
       { $match: { contentType, contentId } },
       { $group: { _id: "$type", count: { $sum: 1 } } },
@@ -171,7 +175,7 @@ export const getReactionsByContent = async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error("Error fetching reactions:", error);
+    logger.error("Error fetching reactions", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -202,7 +206,7 @@ export const getUserReactions = async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error("Error fetching user reactions:", error);
+    logger.error("Error fetching user reactions", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -241,7 +245,7 @@ export const deleteReaction = async (req: Request, res: Response) => {
       reactionCount,
     });
   } catch (error: any) {
-    console.error("Error deleting reaction:", error);
+    logger.error("Error deleting reaction", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };

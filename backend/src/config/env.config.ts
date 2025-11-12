@@ -5,6 +5,7 @@ import * as path from "path";
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z
     .string()
     .optional()
@@ -17,11 +18,13 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().min(1, "Missing CLOUDINARY_CLOUD_NAME"),
   CLOUDINARY_API_KEY: z.string().min(1, "Missing CLOUDINARY_API_KEY"),
   CLOUDINARY_API_SECRET: z.string().min(1, "Missing CLOUDINARY_API_SECRET"),
+  SKIP_INDEX_CREATION: z.string().optional().default('false'),
 });
 
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
+  // Use console.error here as logger isn't available yet
   console.error("❌ Invalid environment variables:");
   console.error(parsed.error.format());
   process.exit(1);

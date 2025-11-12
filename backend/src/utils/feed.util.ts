@@ -3,6 +3,8 @@ import { Poll } from "../models/Poll.model.js";
 import { Story } from "../models/Story.model.js";
 import { User } from "../models/User.model.js";
 import { Follow } from "../models/Follow.model.js";
+import { DatabaseService } from "../services/database.service.js";
+import { logger } from "./logger.util.js";
 import type {
   FeedItemType,
   ContentTab,
@@ -92,38 +94,45 @@ export const calculateContentScore = (
 };
 
 /**
- * Fetch posts with filters
+ * Fetch posts with filters and populated author data (prevents N+1 queries)
  */
 export const fetchPosts = async (
   cursor?: string,
   limit: number = 20,
   maxAgeDays: number = 30
 ): Promise<IRawContentItem[]> => {
-  const maxAgeDate = new Date();
-  maxAgeDate.setDate(maxAgeDate.getDate() - maxAgeDays);
+  try {
+    const maxAgeDate = new Date();
+    maxAgeDate.setDate(maxAgeDate.getDate() - maxAgeDays);
 
-  const query: any = {
-    createdAt: { $gte: maxAgeDate },
-  };
+    const query: any = {
+      createdAt: { $gte: maxAgeDate },
+    };
 
-  if (cursor) {
-    query._id = { $lt: cursor };
+    if (cursor) {
+      query._id = { $lt: cursor };
+    }
+
+    // Use database service to get content with author populated
+    const posts = await DatabaseService.getContentWithAuthor(
+      Post,
+      query,
+      { sort: { createdAt: -1 }, limit }
+    );
+
+    return posts.map((post: any) => ({
+      _id: post._id,
+      type: "post" as FeedItemType,
+      content: post,
+      createdAt: post.createdAt || new Date(),
+      authorId: post.userId,
+      reactionsCount: post.reactionsCount || 0,
+      commentsCount: post.commentsCount || 0,
+    }));
+  } catch (error) {
+    logger.error("Error fetching posts for feed", error);
+    return [];
   }
-
-  const posts = await Post.find(query)
-    .sort({ createdAt: -1 })
-    .limit(limit)
-    .lean();
-
-  return posts.map((post) => ({
-    _id: post._id,
-    type: "post" as FeedItemType,
-    content: post,
-    createdAt: post.createdAt || new Date(),
-    authorId: post.userId,
-    reactionsCount: post.reactionsCount || 0,
-    commentsCount: post.commentsCount || 0,
-  }));
 };
 
 /**

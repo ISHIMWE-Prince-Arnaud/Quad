@@ -1,5 +1,6 @@
 import { User } from "../models/User.model.js";
 import { Post } from "../models/Post.model.js";
+import { logger } from "./logger.util.js";
 import { Poll } from "../models/Poll.model.js";
 import { Story } from "../models/Story.model.js";
 import { SearchHistory } from "../models/SearchHistory.model.js";
@@ -135,7 +136,7 @@ export const searchUsers = async (options: SearchOptions): Promise<SearchResult<
       highlights
     };
   } catch (error) {
-    console.error("Error searching users:", error);
+    logger.error("Error searching users", error);
     return {
       results: [],
       total: 0,
@@ -250,7 +251,7 @@ export const searchPosts = async (options: SearchOptions): Promise<SearchResult<
       highlights
     };
   } catch (error) {
-    console.error("Error searching posts:", error);
+    logger.error("Error searching posts", error);
     return {
       results: [],
       total: 0,
@@ -353,7 +354,7 @@ export const searchPolls = async (options: SearchOptions): Promise<SearchResult<
       totalPages
     };
   } catch (error) {
-    console.error("Error searching polls:", error);
+    logger.error("Error searching polls", error);
     return {
       results: [],
       total: 0,
@@ -457,7 +458,7 @@ export const searchStories = async (options: SearchOptions): Promise<SearchResul
       totalPages
     };
   } catch (error) {
-    console.error("Error searching stories:", error);
+    logger.error("Error searching stories", error);
     return {
       results: [],
       total: 0,
@@ -501,7 +502,7 @@ export const globalSearch = async (options: SearchOptions) => {
       total: users.results.length + posts.results.length + polls.results.length + stories.results.length
     };
   } catch (error) {
-    console.error("Error in global search:", error);
+    logger.error("Error in global search", error);
     return {
       users: [],
       posts: [],
@@ -539,7 +540,7 @@ export const getSearchSuggestions = async (query: string, limit: number = 10) =>
       profileImage: user.profileImage
     }));
   } catch (error) {
-    console.error("Error getting search suggestions:", error);
+    logger.error("Error getting search suggestions", error);
     return [];
   }
 };
@@ -587,7 +588,7 @@ export const saveSearchHistory = async (
     // Update analytics
     await updateSearchAnalytics(query.trim(), searchType, resultsCount);
   } catch (error) {
-    console.error("Error saving search history:", error);
+    logger.error("Error saving search history", error);
   }
 };
 
@@ -604,7 +605,7 @@ export const getUserSearchHistory = async (userId: string, limit: number = 20) =
 
     return history;
   } catch (error) {
-    console.error("Error getting search history:", error);
+    logger.error("Error getting search history", error);
     return [];
   }
 };
@@ -620,7 +621,7 @@ export const deleteSearchHistory = async (userId: string, historyId: string) => 
     });
     return !!result;
   } catch (error) {
-    console.error("Error deleting search history:", error);
+    logger.error("Error deleting search history", error);
     return false;
   }
 };
@@ -633,7 +634,7 @@ export const clearSearchHistory = async (userId: string) => {
     const result = await SearchHistory.deleteMany({ userId });
     return result.deletedCount || 0;
   } catch (error) {
-    console.error("Error clearing search history:", error);
+    logger.error("Error clearing search history", error);
     return 0;
   }
 };
@@ -675,7 +676,7 @@ export const updateSearchAnalytics = async (
       });
     }
   } catch (error) {
-    console.error("Error updating search analytics:", error);
+    logger.error("Error updating search analytics", error);
   }
 };
 
@@ -697,7 +698,7 @@ export const getPopularSearches = async (searchType?: string, limit: number = 10
 
     return popularSearches;
   } catch (error) {
-    console.error("Error getting popular searches:", error);
+    logger.error("Error getting popular searches", error);
     return [];
   }
 };
@@ -724,7 +725,7 @@ export const getTrendingSearches = async (searchType?: string, limit: number = 1
 
     return trendingSearches;
   } catch (error) {
-    console.error("Error getting trending searches:", error);
+    logger.error("Error getting trending searches", error);
     return [];
   }
 };

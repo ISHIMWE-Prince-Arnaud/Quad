@@ -6,6 +6,8 @@ import type { CreateCommentSchemaType, UpdateCommentSchemaType } from "../schema
 import { getSocketIO } from "../config/socket.config.js";
 import { verifyCommentableContent, updateContentCommentsCount } from "../utils/content.util.js";
 import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
+import { DatabaseService } from "../services/database.service.js";
+import { logger } from "../utils/logger.util.js";
 
 // =========================
 // CREATE COMMENT
@@ -110,13 +112,13 @@ export const createComment = async (req: Request, res: Response) => {
       data: newComment,
     });
   } catch (error: any) {
-    console.error("Error creating comment:", error);
+    logger.error("Error creating comment", error);
     return res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
 
 // =========================
-// GET COMMENTS BY CONTENT
+// GET COMMENTS BY CONTENT (Optimized to prevent N+1 queries)
 // =========================
 export const getCommentsByContent = async (req: Request, res: Response) => {
   try {
@@ -131,7 +133,9 @@ export const getCommentsByContent = async (req: Request, res: Response) => {
       query.parentId = parentId;
     }
 
+    // Use populate to get author data in single query (prevents N+1)
     const comments = await Comment.find(query)
+      .populate('author', 'username displayName profileImage')
       .sort({ createdAt: -1 })
       .limit(Number(limit))
       .skip(Number(skip));
@@ -149,7 +153,7 @@ export const getCommentsByContent = async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error("Error fetching comments:", error);
+    logger.error("Error fetching comments", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -168,7 +172,7 @@ export const getComment = async (req: Request, res: Response) => {
 
     return res.status(200).json({ success: true, data: comment });
   } catch (error: any) {
-    console.error("Error fetching comment:", error);
+    logger.error("Error fetching comment", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };

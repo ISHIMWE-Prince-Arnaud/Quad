@@ -1,5 +1,6 @@
 import { Notification } from "../models/Notification.model.js";
 import { User } from "../models/User.model.js";
+import { logger } from "./logger.util.js";
 import type { ICreateNotification, INotificationWithActor } from "../types/notification.types.js";
 import { getSocketIO } from "../config/socket.config.js";
 
@@ -44,7 +45,7 @@ export const createNotification = async (
     // Emit real-time notification
     getSocketIO().to(data.userId).emit("notification:new", notificationWithActor);
   } catch (error) {
-    console.error("Error creating notification:", error);
+    logger.error("Error creating notification", error);
   }
 };
 

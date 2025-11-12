@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { User } from "../models/User.model.js";
 import type { CreateUserSchemaType, UpdateUserSchemaType } from "../schemas/user.schema.js";
+import { logger } from "../utils/logger.util.js";
 import { getAuth, clerkClient } from "@clerk/express";
 
 /**
@@ -38,7 +39,7 @@ export const createUser = async (req: Request, res: Response) => {
 
     return res.status(201).json({ success: true, data: newUser });
   } catch (error: any) {
-    console.error("Error creating user:", error);
+    logger.error("Error creating user", error);
     return res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
@@ -69,7 +70,7 @@ export const getUser = async (req: Request, res: Response) => {
 
     return res.status(200).json({ success: true, data: user });
   } catch (error: any) {
-    console.error("Error fetching user:", error);
+    logger.error("Error fetching user", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -102,7 +103,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
     return res.status(200).json({ success: true, data: updatedUser });
   } catch (error: any) {
-    console.error("Error updating user:", error);
+    logger.error("Error updating user", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -134,7 +135,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 
     return res.status(200).json({ success: true, message: "User deleted successfully" });
   } catch (error: any) {
-    console.error("Error deleting user:", error);
+    logger.error("Error deleting user", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };

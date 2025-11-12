@@ -1,6 +1,7 @@
 /// <reference path="../types/global.d.ts" />
 import type { Request, Response } from "express";
 import { Story, type IStoryDocument } from "../models/Story.model.js";
+import { logger } from "../utils/logger.util.js";
 import { User } from "../models/User.model.js";
 import type { 
   CreateStorySchemaType, 
@@ -78,7 +79,7 @@ export const createStory = async (req: Request, res: Response) => {
       data: newStory 
     });
   } catch (error: any) {
-    console.error("Error creating story:", error);
+    logger.error("Error creating story", error);
     return res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
@@ -155,7 +156,7 @@ export const getAllStories = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching stories:", error);
+    logger.error("Error fetching stories", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -196,13 +197,13 @@ export const getStory = async (req: Request, res: Response) => {
         });
       } catch (viewError) {
         // Don't fail request if view tracking fails
-        console.error("View tracking error:", viewError);
+        logger.error("View tracking error", viewError);
       }
     }
 
     return res.status(200).json({ success: true, data: story });
   } catch (error: any) {
-    console.error("Error fetching story:", error);
+    logger.error("Error fetching story", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -285,7 +286,7 @@ export const updateStory = async (req: Request, res: Response) => {
       data: story 
     });
   } catch (error: any) {
-    console.error("Error updating story:", error);
+    logger.error("Error updating story", error);
     return res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
@@ -325,7 +326,7 @@ export const deleteStory = async (req: Request, res: Response) => {
       message: "Story deleted successfully" 
     });
   } catch (error: any) {
-    console.error("Error deleting story:", error);
+    logger.error("Error deleting story", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -364,7 +365,7 @@ export const getMyStories = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching user stories:", error);
+    logger.error("Error fetching user stories", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };

@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import type { AspectRatio } from "../config/cloudinary.config.js";
+import { logger } from "../utils/logger.util.js";
 import {
   uploadToCloudinary,
   uploadMultipleToCloudinary,
@@ -67,7 +68,7 @@ export const uploadPostMedia = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Post media upload error:", error);
+    logger.error("Post media upload error", error);
     return res.status(500).json({
       success: false,
       message: "Failed to upload media",
@@ -132,7 +133,7 @@ export const uploadStoryMedia = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Story upload error:", error);
+    logger.error("Story upload error", error);
     return res.status(500).json({
       success: false,
       message: "Failed to upload story",
@@ -197,7 +198,7 @@ export const uploadPollMedia = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Poll upload error:", error);
+    logger.error("Poll upload error", error);
     return res.status(500).json({
       success: false,
       message: "Failed to upload poll media",
@@ -249,7 +250,7 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Profile image upload error:", error);
+    logger.error("Profile image upload error", error);
     return res.status(500).json({
       success: false,
       message: "Failed to upload profile image",
@@ -314,7 +315,7 @@ export const uploadChatMedia = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Chat media upload error:", error);
+    logger.error("Chat media upload error", error);
     return res.status(500).json({
       success: false,
       message: "Failed to upload chat media",
@@ -365,7 +366,7 @@ export const deleteFile = async (req: Request, res: Response) => {
       message: result.message,
     });
   } catch (error: any) {
-    console.error("File deletion error:", error);
+    logger.error("File deletion error", error);
     return res.status(500).json({
       success: false,
       message: "Failed to delete file",
