@@ -1,10 +1,12 @@
 import { Outlet } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { useThemeStore } from '../stores/themeStore'
+import { useAuthSync } from '../hooks/useAuthSync'
 import { useEffect } from 'react'
 
 export function RootLayout() {
   const { applyTheme } = useThemeStore()
+  useAuthSync() // Sync Clerk user with auth store
 
   useEffect(() => {
     // Initialize theme on mount

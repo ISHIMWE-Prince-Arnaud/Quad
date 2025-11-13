@@ -11,6 +11,9 @@ export const api = axios.create({
   },
 })
 
+// Note: Clerk tokens will be added per-request using useAuthenticatedRequest hook
+// This is because Clerk tokens are dynamic and managed by the Clerk SDK
+
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {

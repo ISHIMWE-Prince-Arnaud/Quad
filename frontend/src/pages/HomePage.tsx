@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom'
+import { useAuth } from '@clerk/clerk-react'
 import { useThemeStore } from '../stores/themeStore'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
+import { UserMenu } from '@/components/auth/UserMenu'
 
 export default function HomePage() {
+  const { isSignedIn } = useAuth()
   const { isDarkMode, toggleDarkMode } = useThemeStore()
 
   return (
@@ -18,14 +21,26 @@ export default function HomePage() {
           The next-generation social media platform with real-time chat, stories, polls, and more.
         </p>
 
-        <div className="flex gap-4 justify-center mb-12">
-          <Link to="/login">
-            <Button size="lg">Sign In</Button>
-          </Link>
-          <Link to="/signup">
-            <Button variant="outline" size="lg">Get Started</Button>
-          </Link>
-        </div>
+        {/* Show auth buttons or user menu based on auth status */}
+        {!isSignedIn ? (
+          <div className="flex gap-4 justify-center mb-12">
+            <Link to="/login">
+              <Button size="lg">Sign In</Button>
+            </Link>
+            <Link to="/signup">
+              <Button variant="outline" size="lg">Get Started</Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="mb-12">
+            <div className="mb-6">
+              <Link to="/app/feed">
+                <Button size="lg">Go to Feed</Button>
+              </Link>
+            </div>
+            <UserMenu />
+          </div>
+        )}
 
         {/* Theme Toggle */}
         <Card className="max-w-md mx-auto">

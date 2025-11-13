@@ -1,18 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { SignIn } from '@clerk/clerk-react'
+import { useThemeStore } from '@/stores/themeStore'
+import { getClerkAppearance } from '@/lib/clerkTheme'
 
 export default function LoginPage() {
+  const { isDarkMode } = useThemeStore()
+
   return (
-    <div className="max-w-md mx-auto">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl text-center">Sign In</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-center text-muted-foreground">
-            Authentication will be implemented with Clerk in the next phase.
-          </p>
-        </CardContent>
-      </Card>
+    <div className="flex items-center justify-center min-h-[90vh] px-4">
+      <div className="w-full max-w-md">
+        <SignIn 
+          routing="path"
+          path="/login"
+          signUpUrl="/signup"
+          appearance={getClerkAppearance(isDarkMode)}
+        />
+      </div>
     </div>
   )
 }
