@@ -1,5 +1,5 @@
-import { Link, useLocation } from 'react-router-dom'
-import { 
+import { Link, useLocation } from "react-router-dom";
+import {
   Home,
   Search,
   Bell,
@@ -9,45 +9,44 @@ import {
   User,
   Settings,
   Plus,
-  TrendingUp
-} from 'lucide-react'
-import { LogoWithText } from '@/components/ui/Logo'
-import { UserAvatar } from '@/components/auth/UserMenu'
-import { AdvancedThemeSelector } from '@/components/theme/ThemeSelector'
-import { useAuthStore } from '@/stores/authStore'
-import { cn } from '@/lib/utils'
-
+  TrendingUp,
+} from "lucide-react";
+import { LogoWithText } from "@/components/ui/Logo";
+import { UserAvatar } from "@/components/auth/UserMenu";
+import { AdvancedThemeSelector } from "@/components/theme/ThemeSelector";
+import { useAuthStore } from "@/stores/authStore";
+import { cn } from "@/lib/utils";
 
 export function Sidebar() {
-  const location = useLocation()
-  const { user } = useAuthStore()
+  const location = useLocation();
+  const { user } = useAuthStore();
 
   // Generate navigation items with dynamic profile link
   const getNavigationItems = () => {
     const items = [
-      { name: 'Home', href: '/app/feed', icon: Home },
-      { name: 'Search', href: '/app/search', icon: Search },
-      { name: 'Notifications', href: '/app/notifications', icon: Bell },
-      { name: 'Messages', href: '/app/chat', icon: MessageCircle },
-      { name: 'Stories', href: '/app/stories', icon: Calendar },
-      { name: 'Polls', href: '/app/polls', icon: BarChart3 },
-      { name: 'Trending', href: '/app/trending', icon: TrendingUp },
-      { name: 'Settings', href: '/app/settings', icon: Settings },
-    ]
+      { name: "Home", href: "/app/feed", icon: Home },
+      { name: "Search", href: "/app/search", icon: Search },
+      { name: "Notifications", href: "/app/notifications", icon: Bell },
+      { name: "Messages", href: "/app/chat", icon: MessageCircle },
+      { name: "Stories", href: "/app/stories", icon: Calendar },
+      { name: "Polls", href: "/app/polls", icon: BarChart3 },
+      { name: "Trending", href: "/app/trending", icon: TrendingUp },
+      { name: "Settings", href: "/app/settings", icon: Settings },
+    ];
 
     // Add profile link if user exists
     if (user?.username) {
-      items.splice(7, 0, { 
-        name: 'Profile', 
-        href: `/app/profile/${user.username}`, 
-        icon: User 
-      })
+      items.splice(7, 0, {
+        name: "Profile",
+        href: `/app/profile/${user.username}`,
+        icon: User,
+      });
     }
 
-    return items
-  }
+    return items;
+  };
 
-  const navigationItems = getNavigationItems()
+  const navigationItems = getNavigationItems();
 
   return (
     <div className="flex flex-col h-full bg-background border-r border-border">
@@ -62,25 +61,24 @@ export function Sidebar() {
       <nav className="flex-1 px-3">
         <ul className="space-y-1">
           {navigationItems.map((item) => {
-            const isActive = location.pathname === item.href
-            const Icon = item.icon
-            
+            const isActive = location.pathname === item.href;
+            const Icon = item.icon;
+
             return (
               <li key={item.name}>
                 <Link
                   to={item.href}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors duration-200',
+                    "flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors duration-200",
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                  )}
-                >
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                  )}>
                   <Icon className="h-5 w-5" />
                   <span>{item.name}</span>
                 </Link>
               </li>
-            )
+            );
           })}
         </ul>
       </nav>
@@ -89,8 +87,7 @@ export function Sidebar() {
       <div className="px-3 py-4">
         <Link
           to="/app/create"
-          className="inline-flex items-center justify-center gap-3 w-full h-12 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200"
-        >
+          className="inline-flex items-center justify-center gap-3 w-full h-12 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200">
           <Plus className="h-5 w-5" />
           Create Post
         </Link>
@@ -112,14 +109,14 @@ export function Sidebar() {
           <UserAvatar />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">
-              {user?.firstName || user?.username || 'User'}
+              {user?.firstName || user?.username || "User"}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              @{user?.username || 'username'}
+              @{user?.username || "username"}
             </p>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

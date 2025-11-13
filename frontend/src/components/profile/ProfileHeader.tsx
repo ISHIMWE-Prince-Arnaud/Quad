@@ -1,31 +1,31 @@
-import { useState } from 'react'
-import { Camera, Calendar, MoreHorizontal } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { useState } from "react";
+import { Camera, Calendar, MoreHorizontal } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 interface ProfileHeaderProps {
   user: {
-    _id: string
-    clerkId: string
-    username: string
-    email: string
-    firstName?: string
-    lastName?: string
-    profileImage?: string
-    coverImage?: string
-    bio?: string
-    joinedAt: string
-    isVerified?: boolean
-    followers?: number
-    following?: number
-    postsCount?: number
-  }
-  isOwnProfile?: boolean
-  isFollowing?: boolean
-  onFollow?: () => void
-  onUnfollow?: () => void
-  onEditProfile?: () => void
+    _id: string;
+    clerkId: string;
+    username: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    profileImage?: string;
+    coverImage?: string;
+    bio?: string;
+    joinedAt: string;
+    isVerified?: boolean;
+    followers?: number;
+    following?: number;
+    postsCount?: number;
+  };
+  isOwnProfile?: boolean;
+  isFollowing?: boolean;
+  onFollow?: () => void;
+  onUnfollow?: () => void;
+  onEditProfile?: () => void;
 }
 
 export function ProfileHeader({
@@ -34,26 +34,27 @@ export function ProfileHeader({
   isFollowing = false,
   onFollow,
   onUnfollow,
-  onEditProfile
+  onEditProfile,
 }: ProfileHeaderProps) {
-  const [isImageLoading, setIsImageLoading] = useState(true)
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
-  const displayName = user.firstName && user.lastName 
-    ? `${user.firstName} ${user.lastName}`
-    : user.firstName || user.username
+  const displayName =
+    user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user.firstName || user.username;
 
   const handleFollowClick = () => {
     if (isFollowing) {
-      onUnfollow?.()
+      onUnfollow?.();
     } else {
-      onFollow?.()
+      onFollow?.();
     }
-  }
+  };
 
-  const joinedDate = new Date(user.joinedAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long'
-  })
+  const joinedDate = new Date(user.joinedAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+  });
 
   return (
     <Card className="relative overflow-hidden border-0 shadow-lg">
@@ -76,15 +77,14 @@ export function ProfileHeader({
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           </div>
         )}
-        
+
         {/* Cover Image Actions (for own profile) */}
         {isOwnProfile && (
           <div className="absolute top-4 right-4">
             <Button
               size="sm"
               variant="secondary"
-              className="bg-black/20 hover:bg-black/30 text-white border-white/20 backdrop-blur-sm"
-            >
+              className="bg-black/20 hover:bg-black/30 text-white border-white/20 backdrop-blur-sm">
               <Camera className="h-4 w-4 mr-2" />
               Edit Cover
             </Button>
@@ -99,8 +99,8 @@ export function ProfileHeader({
           <div className="flex flex-col sm:flex-row sm:items-end gap-4">
             <div className="relative">
               <Avatar className="h-24 w-24 sm:h-32 sm:w-32 border-4 border-background shadow-xl">
-                <AvatarImage 
-                  src={user.profileImage} 
+                <AvatarImage
+                  src={user.profileImage}
                   alt={displayName}
                   className="object-cover"
                 />
@@ -108,14 +108,13 @@ export function ProfileHeader({
                   {displayName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              
+
               {/* Profile Picture Edit Button (for own profile) */}
               {isOwnProfile && (
                 <Button
                   size="sm"
                   variant="secondary"
-                  className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full p-0 shadow-lg"
-                >
+                  className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full p-0 shadow-lg">
                   <Camera className="h-4 w-4" />
                 </Button>
               )}
@@ -129,7 +128,10 @@ export function ProfileHeader({
                 </h1>
                 {user.isVerified && (
                   <div className="flex-shrink-0 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <svg
+                      className="w-4 h-4 text-white"
+                      fill="currentColor"
+                      viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -148,11 +150,10 @@ export function ProfileHeader({
           {/* Action Buttons */}
           <div className="flex gap-2 mt-4 sm:mt-0">
             {isOwnProfile ? (
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={onEditProfile}
-                className="flex-1 sm:flex-none"
-              >
+                className="flex-1 sm:flex-none">
                 Edit Profile
               </Button>
             ) : (
@@ -160,9 +161,8 @@ export function ProfileHeader({
                 <Button
                   variant={isFollowing ? "outline" : "default"}
                   onClick={handleFollowClick}
-                  className="flex-1 sm:flex-none"
-                >
-                  {isFollowing ? 'Following' : 'Follow'}
+                  className="flex-1 sm:flex-none">
+                  {isFollowing ? "Following" : "Follow"}
                 </Button>
                 <Button variant="outline" size="icon">
                   <MoreHorizontal className="h-4 w-4" />
@@ -213,5 +213,5 @@ export function ProfileHeader({
         </div>
       </div>
     </Card>
-  )
+  );
 }
