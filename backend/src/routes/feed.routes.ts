@@ -14,6 +14,14 @@ const router = Router();
 // FEED ROUTES
 // ===========================
 
+// Get general feed (defaults to for you feed)
+router.get(
+  "/",
+  requireAuth(),
+  validateSchema(feedQuerySchema, "query"),
+  getForYouFeed
+);
+
 // Get following feed
 router.get(
   "/following",

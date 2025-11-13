@@ -16,6 +16,7 @@ export const CLOUDINARY_FOLDERS = {
   POLLS: "quad/polls",
   PROFILES: "quad/profiles",
   CHAT: "quad/chat",
+  COVERS: "quad/covers",
 } as const;
 
 // Aspect ratio types
@@ -94,6 +95,15 @@ export const UPLOAD_PRESETS = {
     transformation: [
       { quality: "auto", fetch_format: "auto" },
       { width: 1080, height: 1080, crop: "fill" }, // Square profile images
+    ],
+  },
+  // Cover: Images only (no videos) for profile cover images
+  COVER: {
+    folder: CLOUDINARY_FOLDERS.COVERS,
+    resource_type: "image" as const,
+    transformation: [
+      { quality: "auto", fetch_format: "auto" },
+      { width: 1200, height: 400, crop: "fill" }, // 3:1 aspect ratio for covers
     ],
   },
   // Chat: Images and videos with any of the 3 aspect ratios

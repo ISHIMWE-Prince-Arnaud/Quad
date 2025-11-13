@@ -5,6 +5,7 @@ import {
   uploadPollMedia,
   uploadChatMedia,
   uploadProfileImage,
+  uploadCoverImage,
   deleteFile,
 } from "../controllers/upload.controller.js";
 import { uploadSingle } from "../middlewares/multer.middleware.js";
@@ -105,6 +106,25 @@ router.post(
   requireAuth(),
   uploadSingle,
   uploadProfileImage
+);
+
+/**
+ * -------------------------
+ * UPLOAD COVER IMAGE (Image Only)
+ * POST /api/upload/cover
+ * Protected: User must be signed in
+ * Body (multipart/form-data):
+ *   - file: image file only (no videos)
+ * Max: 10MB
+ * Formats: JPEG, PNG, WebP, GIF, HEIC
+ * Output: 3:1 aspect ratio (1200x400px)
+ * -------------------------
+ */
+router.post(
+  "/cover",
+  requireAuth(),
+  uploadSingle,
+  uploadCoverImage
 );
 
 /**

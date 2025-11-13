@@ -14,6 +14,42 @@ import {
 } from "../utils/profile.util.js";
 
 // =========================
+// GET USER PROFILE BY ID (Convenience endpoint)
+// =========================
+export const getProfileById = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+
+    // Find user by clerkId
+    const user = await User.findOne({ clerkId: userId });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Calculate profile statistics
+    const stats = await calculateProfileStats(user.clerkId);
+
+    // Format and return profile response
+    const profileData = formatProfileResponse(user, stats);
+
+    return res.status(200).json({
+      success: true,
+      data: profileData,
+    });
+  } catch (error: any) {
+    console.error("Error getting profile by ID:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get profile",
+      error: error.message,
+    });
+  }
+};
+
+// =========================
 // GET USER PROFILE BY USERNAME
 // =========================
 export const getProfile = async (req: Request, res: Response) => {

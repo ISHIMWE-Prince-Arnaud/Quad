@@ -325,6 +325,58 @@ export const uploadChatMedia = async (req: Request, res: Response) => {
 };
 
 // =========================
+// UPLOAD COVER IMAGE (Image Only)
+// =========================
+export const uploadCoverImage = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
+      });
+    }
+
+    const { buffer, mimetype, size } = req.file;
+    const rules = getValidationRules("COVER");
+
+    // Validate file type (images only)
+    if (!validateFileType(mimetype, rules.allowedTypes)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid file type. Only images are allowed for cover images",
+      });
+    }
+
+    // Validate file size
+    if (!validateFileSize(size, rules.maxSize)) {
+      return res.status(400).json({
+        success: false,
+        message: `File too large. Maximum size is ${rules.maxSize}MB`,
+      });
+    }
+
+    // Upload to Cloudinary
+    const result = await uploadToCloudinary(buffer, "COVER");
+
+    return res.status(200).json({
+      success: true,
+      message: "Cover image uploaded successfully",
+      data: {
+        ...result,
+        aspectRatio: "3:1", // Cover images are 3:1 aspect ratio
+      },
+    });
+  } catch (error: any) {
+    logger.error("Cover image upload error", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to upload cover image",
+      error: error.message,
+    });
+  }
+};
+
+// =========================
 // DELETE FILE
 // =========================
 export const deleteFile = async (req: Request, res: Response) => {

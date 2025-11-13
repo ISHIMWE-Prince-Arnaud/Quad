@@ -8,6 +8,7 @@ import {
 } from "../schemas/profile.schema.js";
 import {
   getProfile,
+  getProfileById,
   getOwnProfile,
   updateProfile,
   getUserPosts,
@@ -30,6 +31,13 @@ router.put(
   requireAuth(),
   validateSchema(updateProfileSchema, "body"),
   updateProfile
+);
+
+// Get user profile by ID (convenience endpoint)
+router.get(
+  "/id/:userId",
+  requireAuth(),
+  getProfileById
 );
 
 // Get user profile by username
