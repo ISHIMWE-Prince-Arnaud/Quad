@@ -14,6 +14,8 @@ interface FollowersModalProps {
 
 // Mock API functions - replace with actual API calls
 const getFollowers = async (userId: string): Promise<UserCardData[]> => {
+  // TODO: Replace with actual API call using userId
+  console.log('Loading followers for user:', userId);
   await new Promise(resolve => setTimeout(resolve, 500));
   
   return [
@@ -67,6 +69,8 @@ const getFollowers = async (userId: string): Promise<UserCardData[]> => {
 };
 
 const getFollowing = async (userId: string): Promise<UserCardData[]> => {
+  // TODO: Replace with actual API call using userId
+  console.log('Loading following for user:', userId);
   await new Promise(resolve => setTimeout(resolve, 500));
   
   return [
@@ -271,8 +275,10 @@ export function FollowersModal({
         {!isLoading && filteredUsers.length > 0 && (
           <div className="p-4 border-t bg-muted/30">
             <p className="text-sm text-muted-foreground text-center">
-              {filteredUsers.length} {type}
-              {searchQuery && ` matching "${searchQuery}"`}
+              {searchQuery 
+                ? `${filteredUsers.length} ${type} matching "${searchQuery}"`
+                : `${filteredUsers.length} of ${initialCount || filteredUsers.length} ${type}`
+              }
             </p>
           </div>
         )}
