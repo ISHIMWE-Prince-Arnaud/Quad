@@ -17,21 +17,37 @@ import { AdvancedThemeSelector } from '@/components/theme/ThemeSelector'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/lib/utils'
 
-const navigationItems = [
-  { name: 'Home', href: '/app/feed', icon: Home },
-  { name: 'Search', href: '/app/search', icon: Search },
-  { name: 'Notifications', href: '/app/notifications', icon: Bell },
-  { name: 'Messages', href: '/app/chat', icon: MessageCircle },
-  { name: 'Stories', href: '/app/stories', icon: Calendar },
-  { name: 'Polls', href: '/app/polls', icon: BarChart3 },
-  { name: 'Trending', href: '/app/trending', icon: TrendingUp },
-  { name: 'Profile', href: '/app/profile', icon: User },
-  { name: 'Settings', href: '/app/settings', icon: Settings },
-]
 
 export function Sidebar() {
   const location = useLocation()
   const { user } = useAuthStore()
+
+  // Generate navigation items with dynamic profile link
+  const getNavigationItems = () => {
+    const items = [
+      { name: 'Home', href: '/app/feed', icon: Home },
+      { name: 'Search', href: '/app/search', icon: Search },
+      { name: 'Notifications', href: '/app/notifications', icon: Bell },
+      { name: 'Messages', href: '/app/chat', icon: MessageCircle },
+      { name: 'Stories', href: '/app/stories', icon: Calendar },
+      { name: 'Polls', href: '/app/polls', icon: BarChart3 },
+      { name: 'Trending', href: '/app/trending', icon: TrendingUp },
+      { name: 'Settings', href: '/app/settings', icon: Settings },
+    ]
+
+    // Add profile link if user exists
+    if (user?.username) {
+      items.splice(7, 0, { 
+        name: 'Profile', 
+        href: `/app/profile/${user.username}`, 
+        icon: User 
+      })
+    }
+
+    return items
+  }
+
+  const navigationItems = getNavigationItems()
 
   return (
     <div className="flex flex-col h-full bg-background border-r border-border">
