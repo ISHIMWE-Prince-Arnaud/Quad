@@ -49,7 +49,7 @@ In Railway dashboard, add these environment variables:
 ```bash
 NODE_ENV=production
 PORT=3001
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/quad
+MONGODB_URI=mongodb://localhost:27017/quad-dev
 CLERK_PUBLISHABLE_KEY=pk_live_...
 CLERK_SECRET_KEY=sk_live_...
 CLERK_WEBHOOK_SECRET=whsec_...
@@ -95,7 +95,7 @@ heroku buildpacks:set heroku/nodejs
 ```bash
 # Set all required environment variables
 heroku config:set NODE_ENV=production
-heroku config:set MONGODB_URI="mongodb+srv://username:password@cluster.mongodb.net/quad"
+heroku config:set MONGODB_URI="mongodb://localhost:27017/quad-dev"
 heroku config:set CLERK_SECRET_KEY="sk_live_..."
 heroku config:set CLERK_WEBHOOK_SECRET="whsec_..."
 heroku config:set CLOUDINARY_CLOUD_NAME="your-cloud-name"
@@ -359,8 +359,8 @@ sudo apt install certbot python3-certbot-nginx -y
 ### **Step 2: Deploy Application**
 ```bash
 # Clone repository
-git clone https://github.com/your-username/quad-backend.git
-cd quad-backend
+git clone https://github.com/ISHIMWE-Prince-Arnaud/Quad.git
+cd Quad/backend
 
 # Install dependencies
 npm ci --production
@@ -479,7 +479,7 @@ PORT=3001
 # ================================
 # DATABASE
 # ================================
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/quad-production?retryWrites=true&w=majority
+MONGODB_URI=mongodb://localhost:27017/quad-dev
 SKIP_INDEX_CREATION=false
 
 # ================================

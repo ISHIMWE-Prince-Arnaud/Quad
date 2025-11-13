@@ -23,8 +23,9 @@ git --version
 ### **Rapid Setup**
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/quad-backend.git
-cd quad-backend
+git clone https://github.com/ISHIMWE-Prince-Arnaud/Quad.git
+cd Quad
+cd backend
 
 # Install dependencies
 npm install
@@ -85,13 +86,13 @@ nvm alias default 18
 #### **Clone Repository**
 ```bash
 # Using HTTPS
-git clone https://github.com/your-username/quad-backend.git
+git clone https://github.com/ISHIMWE-Prince-Arnaud/Quad.git
 
 # Using SSH (if configured)
-git clone git@github.com:your-username/quad-backend.git
+git clone git@github.com:ISHIMWE-Prince-Arnaud/Quad.git
 
 # Navigate to project directory
-cd quad-backend
+cd Quad/backend
 ```
 
 #### **Install Dependencies**
@@ -133,7 +134,6 @@ PORT=3001
 MONGODB_URI=mongodb://localhost:27017/quad-dev
 
 # Option 2: MongoDB Atlas (recommended)
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/quad-dev?retryWrites=true&w=majority
 
 SKIP_INDEX_CREATION=false
 
@@ -154,7 +154,7 @@ CLOUDINARY_API_SECRET=your-dev-api-secret
 # ================================
 # FRONTEND
 # ================================
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:5173
 ```
 
 ### **Development Services Setup**
