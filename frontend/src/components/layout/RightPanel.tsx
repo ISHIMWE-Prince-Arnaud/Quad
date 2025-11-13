@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom'
-import { TrendingUp, Users, Calendar, Hash } from 'lucide-react'
+import { TrendingUp, Calendar, Hash } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { WhoToFollow } from '@/components/discovery/WhoToFollow'
 
 // Mock data - replace with real data
 const trendingTopics = [
@@ -13,11 +12,6 @@ const trendingTopics = [
   { tag: 'JavaScript', posts: 987, isGrowing: false },
 ]
 
-const suggestedUsers = [
-  { id: 1, name: 'Sarah Chen', username: 'sarahc', avatar: '', isVerified: true },
-  { id: 2, name: 'Alex Johnson', username: 'alexj', avatar: '', isVerified: false },
-  { id: 3, name: 'Maria Garcia', username: 'mariag', avatar: '', isVerified: true },
-]
 
 const upcomingEvents = [
   { id: 1, title: 'Tech Meetup', date: 'Nov 15', participants: 45 },
@@ -73,54 +67,8 @@ export function RightPanel() {
           </CardContent>
         </Card>
 
-        {/* Suggested Users */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              Who to Follow
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3">
-              {suggestedUsers.map((user) => (
-                <div key={user.id} className="flex items-center justify-between">
-                  <Link
-                    to={`/app/user/${user.username}`}
-                    className="flex items-center gap-3 flex-1"
-                  >
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={user.avatar} />
-                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                        {user.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1">
-                        <p className="font-medium text-sm truncate">{user.name}</p>
-                        {user.isVerified && (
-                          <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                            <span className="text-primary-foreground text-xs">✓</span>
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground">@{user.username}</p>
-                    </div>
-                  </Link>
-                  <Button size="sm" variant="outline">
-                    Follow
-                  </Button>
-                </div>
-              ))}
-            </div>
-            <Link 
-              to="/app/discover"
-              className="inline-flex items-center justify-center w-full mt-3 h-8 px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors duration-200"
-            >
-              Discover more
-            </Link>
-          </CardContent>
-        </Card>
+        {/* Who to Follow */}
+        <WhoToFollow limit={3} />
 
         {/* Upcoming Events */}
         <Card>

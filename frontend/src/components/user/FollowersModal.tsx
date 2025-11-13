@@ -1,0 +1,282 @@
+import { useState, useEffect } from 'react';
+import { X, Users, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { UserCard, type UserCardData } from '@/components/user/UserCard';
+
+interface FollowersModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  userId: string;
+  type: 'followers' | 'following';
+  initialCount?: number;
+}
+
+// Mock API functions - replace with actual API calls
+const getFollowers = async (userId: string): Promise<UserCardData[]> => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return [
+    {
+      _id: 'f1',
+      clerkId: 'follower_1',
+      username: 'techiedev',
+      email: 'techie@example.com',
+      firstName: 'Sarah',
+      lastName: 'Williams',
+      profileImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=150&h=150&fit=crop&crop=face',
+      bio: 'Frontend developer passionate about React and TypeScript',
+      followers: 234,
+      following: 189,
+      postsCount: 45,
+      joinedAt: '2023-05-15',
+      isFollowing: true,
+    },
+    {
+      _id: 'f2',
+      clerkId: 'follower_2', 
+      username: 'designmaster',
+      email: 'design@example.com',
+      firstName: 'James',
+      lastName: 'Anderson',
+      profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      bio: 'UI/UX Designer creating digital experiences',
+      isVerified: true,
+      followers: 892,
+      following: 445,
+      postsCount: 123,
+      joinedAt: '2023-08-22',
+      isFollowing: false,
+    },
+    {
+      _id: 'f3',
+      clerkId: 'follower_3',
+      username: 'codeartist',
+      email: 'code@example.com',
+      firstName: 'Emily',
+      lastName: 'Davis',
+      profileImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+      bio: 'Full-stack developer and open source contributor',
+      followers: 567,
+      following: 234,
+      postsCount: 89,
+      joinedAt: '2023-11-03',
+      isFollowing: true,
+    },
+  ];
+};
+
+const getFollowing = async (userId: string): Promise<UserCardData[]> => {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return [
+    {
+      _id: 'fw1',
+      clerkId: 'following_1',
+      username: 'startupfounder',
+      email: 'startup@example.com',
+      firstName: 'Michael',
+      lastName: 'Chen',
+      profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      bio: 'Serial entrepreneur building the next big thing',
+      isVerified: true,
+      followers: 3456,
+      following: 234,
+      postsCount: 156,
+      joinedAt: '2023-04-10',
+      isFollowing: true,
+    },
+    {
+      _id: 'fw2',
+      clerkId: 'following_2',
+      username: 'mlexpert',
+      email: 'ml@example.com',
+      firstName: 'Dr. Lisa',
+      lastName: 'Rodriguez',
+      profileImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
+      bio: 'Machine Learning researcher and AI enthusiast',
+      isVerified: true,
+      followers: 5678,
+      following: 345,
+      postsCount: 78,
+      joinedAt: '2023-02-18',
+      isFollowing: true,
+    },
+  ];
+};
+
+export function FollowersModal({
+  isOpen,
+  onClose,
+  userId,
+  type,
+  initialCount = 0,
+}: FollowersModalProps) {
+  const [users, setUsers] = useState<UserCardData[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserCardData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Load users when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      loadUsers();
+    }
+  }, [isOpen, userId, type]);
+
+  // Filter users based on search query
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredUsers(users);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const filtered = users.filter(user => 
+        user.username.toLowerCase().includes(query) ||
+        user.firstName?.toLowerCase().includes(query) ||
+        user.lastName?.toLowerCase().includes(query) ||
+        user.bio?.toLowerCase().includes(query)
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [users, searchQuery]);
+
+  const loadUsers = async () => {
+    setIsLoading(true);
+    try {
+      const data = type === 'followers' 
+        ? await getFollowers(userId)
+        : await getFollowing(userId);
+      setUsers(data);
+    } catch (error) {
+      console.error(`Failed to load ${type}:`, error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle follow/unfollow
+  const handleFollow = async (targetUserId: string) => {
+    console.log('Following user:', targetUserId);
+    
+    setUsers(prev => prev.map(user => 
+      user._id === targetUserId ? { ...user, isFollowing: true } : user
+    ));
+  };
+
+  const handleUnfollow = async (targetUserId: string) => {
+    console.log('Unfollowing user:', targetUserId);
+    
+    setUsers(prev => prev.map(user => 
+      user._id === targetUserId ? { ...user, isFollowing: false } : user
+    ));
+  };
+
+  if (!isOpen) return null;
+
+  const title = type === 'followers' ? 'Followers' : 'Following';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative w-full max-w-md mx-4 bg-background rounded-lg shadow-lg max-h-[80vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-semibold">{title}</h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="h-8 w-8 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Search */}
+        <div className="p-4 border-b">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Search ${type}...`}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          {isLoading ? (
+            <div className="p-4">
+              <div className="space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-2">
+                    <div className="h-10 w-10 bg-muted rounded-full animate-pulse" />
+                    <div className="flex-1 space-y-1">
+                      <div className="h-4 bg-muted rounded animate-pulse" />
+                      <div className="h-3 bg-muted rounded w-2/3 animate-pulse" />
+                    </div>
+                    <div className="h-8 w-16 bg-muted rounded animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : filteredUsers.length > 0 ? (
+            <div className="divide-y">
+              {filteredUsers.map((user) => (
+                <UserCard
+                  key={user._id}
+                  user={user}
+                  onFollow={handleFollow}
+                  onUnfollow={handleUnfollow}
+                  compact={true}
+                  showBio={true}
+                  showStats={false}
+                  className="border-0 rounded-none hover:bg-accent/50"
+                />
+              ))}
+            </div>
+          ) : searchQuery ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-8 text-muted-foreground">
+              <Search className="h-8 w-8" />
+              <div className="text-center">
+                <p className="font-medium">No results found</p>
+                <p className="text-sm">Try searching with different keywords</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 py-8 text-muted-foreground">
+              <Users className="h-8 w-8" />
+              <div className="text-center">
+                <p className="font-medium">No {type} yet</p>
+                <p className="text-sm">
+                  {type === 'followers' 
+                    ? 'When people follow this user, they will appear here'
+                    : 'When this user follows people, they will appear here'
+                  }
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer with count */}
+        {!isLoading && filteredUsers.length > 0 && (
+          <div className="p-4 border-t bg-muted/30">
+            <p className="text-sm text-muted-foreground text-center">
+              {filteredUsers.length} {type}
+              {searchQuery && ` matching "${searchQuery}"`}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

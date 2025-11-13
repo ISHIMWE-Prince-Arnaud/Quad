@@ -1,15 +1,23 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Menu, X, Search, Plus } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Menu, X, Plus } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 import { UserAvatar } from '@/components/auth/UserMenu'
 import { ThemeSelector } from '@/components/theme/ThemeSelector'
+import { UserSearch } from '@/components/search/UserSearch'
+import { type UserCardData } from '@/components/user/UserCard'
 import { cn } from '@/lib/utils'
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const navigate = useNavigate()
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen)
+
+  const handleUserSelect = (user: UserCardData) => {
+    navigate(`/app/profile/${user.username}`)
+    setIsMobileMenuOpen(false)
+  }
 
   return (
     <>
@@ -23,13 +31,12 @@ export function Navbar() {
 
           {/* Center: Search (hidden on small screens) */}
           <div className="hidden sm:block flex-1 max-w-sm mx-4">
-            <Link
-              to="/app/search"
-              className="flex items-center gap-2 w-full px-3 py-2 text-sm bg-accent rounded-lg text-muted-foreground hover:bg-accent/80 transition-colors duration-200"
-            >
-              <Search className="h-4 w-4" />
-              <span>Search Quad...</span>
-            </Link>
+            <UserSearch
+              onUserSelect={handleUserSelect}
+              placeholder="Search users..."
+              compact={true}
+              className="w-full"
+            />
           </div>
 
           {/* Right: Actions */}
@@ -78,14 +85,14 @@ export function Navbar() {
       >
         <nav className="p-4">
           {/* Search Bar */}
-          <Link
-            to="/app/search"
-            className="flex items-center gap-3 w-full p-3 rounded-lg bg-accent text-muted-foreground hover:bg-accent/80 transition-colors duration-200 mb-4"
-            onClick={toggleMobileMenu}
-          >
-            <Search className="h-5 w-5" />
-            <span>Search Quad...</span>
-          </Link>
+          <div className="mb-4">
+            <UserSearch
+              onUserSelect={handleUserSelect}
+              placeholder="Search users..."
+              compact={true}
+              className="w-full"
+            />
+          </div>
 
           {/* Quick Actions */}
           <div className="grid grid-cols-2 gap-2 mb-4">

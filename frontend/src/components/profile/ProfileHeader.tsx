@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EditProfileModal } from "./EditProfileModal";
+import { FollowersModal } from "@/components/user/FollowersModal";
 
 interface ProfileHeaderProps {
   user: {
@@ -41,6 +42,8 @@ export function ProfileHeader({
 }: ProfileHeaderProps) {
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [followersModalOpen, setFollowersModalOpen] = useState(false);
+  const [followingModalOpen, setFollowingModalOpen] = useState(false);
 
   const displayName =
     user.firstName && user.lastName
@@ -233,18 +236,24 @@ export function ProfileHeader({
 
           {/* Stats */}
           <div className="flex gap-6 text-sm">
-            <div className="flex gap-1">
+            <button
+              onClick={() => setFollowingModalOpen(true)}
+              className="flex gap-1 hover:underline transition-colors"
+            >
               <span className="font-semibold text-foreground">
                 {user.following?.toLocaleString() || 0}
               </span>
               <span className="text-muted-foreground">Following</span>
-            </div>
-            <div className="flex gap-1">
+            </button>
+            <button
+              onClick={() => setFollowersModalOpen(true)}
+              className="flex gap-1 hover:underline transition-colors"
+            >
               <span className="font-semibold text-foreground">
                 {user.followers?.toLocaleString() || 0}
               </span>
               <span className="text-muted-foreground">Followers</span>
-            </div>
+            </button>
             <div className="flex gap-1">
               <span className="font-semibold text-foreground">
                 {user.postsCount?.toLocaleString() || 0}
@@ -262,6 +271,24 @@ export function ProfileHeader({
       onClose={() => setIsEditModalOpen(false)}
       user={user}
       onSave={handleProfileSave}
+    />
+
+    {/* Followers Modal */}
+    <FollowersModal
+      isOpen={followersModalOpen}
+      onClose={() => setFollowersModalOpen(false)}
+      userId={user._id}
+      type="followers"
+      initialCount={user.followers}
+    />
+
+    {/* Following Modal */}
+    <FollowersModal
+      isOpen={followingModalOpen}
+      onClose={() => setFollowingModalOpen(false)}
+      userId={user._id}
+      type="following"
+      initialCount={user.following}
     />
     </>
   );
