@@ -5,7 +5,7 @@ import { RightPanel } from '../components/layout/RightPanel'
 
 export function MainLayout() {
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="min-h-screen bg-background">
       {/* Mobile Header */}
       <div className="lg:hidden">
         <Navbar />
