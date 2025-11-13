@@ -170,3 +170,54 @@ export interface ContentItem {
   totalVotes?: number;
   isLiked?: boolean;
 }
+
+// Specific content types for search results
+export interface ApiPost {
+  _id: string;
+  content: string;
+  images?: string[];
+  author: ApiUser;
+  createdAt: string;
+  updatedAt: string;
+  likes: number;
+  comments: number;
+  shares: number;
+  isLiked: boolean;
+}
+
+export interface ApiStory {
+  _id: string;
+  content?: string;
+  media: string;
+  author: ApiUser;
+  createdAt: string;
+  expiresAt: string;
+  views: number;
+  isViewed: boolean;
+}
+
+export interface ApiPoll {
+  _id: string;
+  question: string;
+  content?: string;
+  options: Array<{
+    option: string;
+    votes: number;
+    percentage: number;
+  }>;
+  totalVotes: number;
+  author: ApiUser;
+  createdAt: string;
+  updatedAt: string;
+  expiresAt?: string;
+  userVote?: string;
+}
+
+// Global search result type
+export interface GlobalSearchResult {
+  users: ApiProfile[];
+  posts: ApiPost[];
+  stories: ApiStory[];
+  polls: ApiPoll[];
+  total: number;
+}

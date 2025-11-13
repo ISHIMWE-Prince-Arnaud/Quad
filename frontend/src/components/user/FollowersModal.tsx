@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, Users, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -65,12 +65,26 @@ export function FollowersModal({
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const loadUsers = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = type === 'followers'
+        ? await getFollowers(userId)
+        : await getFollowing(userId);
+      setUsers(data);
+    } catch (error) {
+      console.error(`Failed to load ${type}:`, error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId, type]);
+
   // Load users when modal opens
   useEffect(() => {
     if (isOpen) {
       loadUsers();
     }
-  }, [isOpen, userId, type]);
+  }, [isOpen, loadUsers]);
 
   // Filter users based on search query
   useEffect(() => {
@@ -87,20 +101,6 @@ export function FollowersModal({
       setFilteredUsers(filtered);
     }
   }, [users, searchQuery]);
-
-  const loadUsers = async () => {
-    setIsLoading(true);
-    try {
-      const data = type === 'followers' 
-        ? await getFollowers(userId)
-        : await getFollowing(userId);
-      setUsers(data);
-    } catch (error) {
-      console.error(`Failed to load ${type}:`, error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Handle follow/unfollow
   const handleFollow = async (targetUserId: string) => {

@@ -1,8 +1,9 @@
 import { endpoints } from '@/lib/api';
 import type { 
   ApiProfile, 
-  UserSearchParams, 
-  ApiSearchResult 
+  ApiSearchResult,
+  UserSearchParams,
+  GlobalSearchResult
 } from '@/types/api';
 
 export class SearchService {
@@ -74,13 +75,7 @@ export class SearchService {
   }
 
   // Global search (all content types)
-  static async globalSearch(query: string, limit = 20): Promise<{
-    users: ApiProfile[];
-    posts: any[];
-    stories: any[];
-    polls: any[];
-    total: number;
-  }> {
+  static async globalSearch(query: string, limit = 20): Promise<GlobalSearchResult> {
     const response = await endpoints.search.global({
       q: query,
       limit

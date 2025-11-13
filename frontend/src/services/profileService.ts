@@ -1,10 +1,12 @@
 import { endpoints } from '@/lib/api';
 import type { 
   ApiProfile, 
-  ApiResponse, 
   ProfileUpdateData, 
   ContentItem, 
-  PaginationParams 
+  PaginationParams,
+  ApiPost,
+  ApiStory,
+  ApiPoll
 } from '@/types/api';
 
 export class ProfileService {
@@ -44,7 +46,7 @@ export class ProfileService {
     });
     
     // Transform posts to ContentItem format
-    const posts: ContentItem[] = response.data.data.posts.map((post: any) => ({
+    const posts: ContentItem[] = response.data.data.posts.map((post: ApiPost) => ({
       _id: post._id,
       type: 'post' as const,
       content: post.content,
@@ -75,7 +77,7 @@ export class ProfileService {
     });
     
     // Transform stories to ContentItem format
-    const stories: ContentItem[] = response.data.data.stories.map((story: any) => ({
+    const stories: ContentItem[] = response.data.data.stories.map((story: ApiStory) => ({
       _id: story._id,
       type: 'story' as const,
       content: story.content || '',
@@ -104,7 +106,7 @@ export class ProfileService {
     });
     
     // Transform polls to ContentItem format
-    const polls: ContentItem[] = response.data.data.polls.map((poll: any) => ({
+    const polls: ContentItem[] = response.data.data.polls.map((poll: ApiPoll) => ({
       _id: poll._id,
       type: 'poll' as const,
       content: poll.question,
