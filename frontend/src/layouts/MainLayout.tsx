@@ -19,16 +19,16 @@ export function MainLayout() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 lg:pl-64">
+        <div className="flex-1 lg:pl-64 xl:pr-80">
           <div className="max-w-4xl mx-auto">
-            <main className="px-4 py-6 lg:px-8">
+            <main className="px-4 py-6 sm:px-6 lg:px-8">
               <Outlet />
             </main>
           </div>
         </div>
 
         {/* Right Panel */}
-        <div className="hidden xl:flex xl:w-80 xl:flex-col xl:fixed xl:right-0 xl:inset-y-0">
+        <div className="hidden xl:flex xl:w-80 xl:flex-col xl:fixed xl:right-0 xl:inset-y-0 xl:z-10">
           <RightPanel />
         </div>
       </div>

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { LogoWithText } from '@/components/ui/Logo'
 import { UserAvatar } from '@/components/auth/UserMenu'
+import { AdvancedThemeSelector } from '@/components/theme/ThemeSelector'
 import { useAuthStore } from '@/stores/authStore'
 import { cn } from '@/lib/utils'
 
@@ -79,9 +80,19 @@ export function Sidebar() {
         </Link>
       </div>
 
+      {/* Theme Selector */}
+      <div className="px-3 py-2">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Theme
+          </span>
+        </div>
+        <AdvancedThemeSelector />
+      </div>
+
       {/* User Profile */}
       <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors duration-200">
+        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors duration-200 cursor-pointer">
           <UserAvatar />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">

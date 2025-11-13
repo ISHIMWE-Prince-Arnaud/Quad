@@ -47,8 +47,8 @@ export function ContactForm({ onSubmit, isLoading = false }: ContactFormProps) {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
+    <Card className="w-full max-w-md mx-auto shadow-sm">
+      <CardHeader className="pb-4">
         <CardTitle>Contact Us</CardTitle>
       </CardHeader>
       

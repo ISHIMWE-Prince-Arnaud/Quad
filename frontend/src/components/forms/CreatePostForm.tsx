@@ -56,11 +56,12 @@ export function CreatePostForm({ onSubmit, isLoading = false }: CreatePostFormPr
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
+    <Card className="w-full max-w-2xl mx-auto shadow-sm">
+      <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-3">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.profileImage} />.            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+            <AvatarImage src={user?.profileImage} />
+            <AvatarFallback className="bg-primary/10 text-primary font-medium">
               {user?.firstName?.charAt(0) || user?.username?.charAt(0) || 'U'}
             </AvatarFallback>
           </Avatar>
@@ -98,7 +99,7 @@ export function CreatePostForm({ onSubmit, isLoading = false }: CreatePostFormPr
             />
 
             {/* Post Options */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               
               {/* Visibility */}
               <FormField
@@ -152,7 +153,7 @@ export function CreatePostForm({ onSubmit, isLoading = false }: CreatePostFormPr
             </div>
 
             {/* Additional Options */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               
               {/* Location */}
               <FormField
