@@ -125,6 +125,7 @@ export function ProfileHeader({
             <Button
               size="sm"
               variant="secondary"
+              onClick={handleEditProfileClick}
               className="bg-black/20 hover:bg-black/30 text-white border-white/20 backdrop-blur-sm">
               <Camera className="h-4 w-4 mr-2" />
               Edit Cover
