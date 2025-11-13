@@ -3,6 +3,7 @@ import { Camera, Calendar, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { EditProfileModal } from "./EditProfileModal";
 
 interface ProfileHeaderProps {
   user: {
@@ -26,6 +27,7 @@ interface ProfileHeaderProps {
   onFollow?: () => void;
   onUnfollow?: () => void;
   onEditProfile?: () => void;
+  onUserUpdate?: (updatedUser: Partial<ProfileHeaderProps['user']>) => void;
 }
 
 export function ProfileHeader({
@@ -35,8 +37,10 @@ export function ProfileHeader({
   onFollow,
   onUnfollow,
   onEditProfile,
+  onUserUpdate,
 }: ProfileHeaderProps) {
   const [isImageLoading, setIsImageLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const displayName =
     user.firstName && user.lastName
@@ -56,7 +60,44 @@ export function ProfileHeader({
     month: "long",
   });
 
+  // Handle edit profile modal
+  const handleEditProfileClick = () => {
+    setIsEditModalOpen(true);
+    onEditProfile?.(); // Still call the original callback if provided
+  };
+
+  // Handle profile save
+  const handleProfileSave = async (data: {
+    firstName: string;
+    lastName: string;
+    username: string;
+    bio?: string;
+    profileImage?: File;
+    coverImage?: File;
+  }) => {
+    // TODO: Replace with actual API call
+    console.log('Saving profile data:', data);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Update user data locally (in real app, this would come from API response)
+    const updatedUser = {
+      ...user,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      username: data.username,
+      bio: data.bio || '',
+      // In real app, these would be URLs returned from file upload API
+      profileImage: data.profileImage ? URL.createObjectURL(data.profileImage) : user.profileImage,
+      coverImage: data.coverImage ? URL.createObjectURL(data.coverImage) : user.coverImage,
+    };
+    
+    onUserUpdate?.(updatedUser);
+  };
+
   return (
+    <>
     <Card className="relative overflow-hidden border-0 shadow-lg">
       {/* Cover Image with Gradient Background */}
       <div className="relative h-48 sm:h-56 lg:h-64">
@@ -152,7 +193,7 @@ export function ProfileHeader({
             {isOwnProfile ? (
               <Button
                 variant="outline"
-                onClick={onEditProfile}
+                onClick={handleEditProfileClick}
                 className="flex-1 sm:flex-none">
                 Edit Profile
               </Button>
@@ -213,5 +254,14 @@ export function ProfileHeader({
         </div>
       </div>
     </Card>
+
+    {/* Edit Profile Modal */}
+    <EditProfileModal
+      isOpen={isEditModalOpen}
+      onClose={() => setIsEditModalOpen(false)}
+      user={user}
+      onSave={handleProfileSave}
+    />
+    </>
   );
 }

@@ -239,6 +239,9 @@ export default function ProfilePage() {
               onFollow={handleFollow}
               onUnfollow={handleUnfollow}
               onEditProfile={handleEditProfile}
+              onUserUpdate={(updatedUser) => {
+                setUser(prev => ({ ...prev, ...updatedUser }));
+              }}
             />
           </div>
 
