@@ -1,6 +1,20 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+// Clerk user object interface - based on actual Clerk user structure
+interface ClerkUserObject {
+  id: string
+  username?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  imageUrl?: string
+  emailAddresses?: Array<{
+    emailAddress: string
+  }>
+  createdAt?: Date
+  updatedAt?: Date
+}
+
 interface User {
   _id: string
   clerkId: string
@@ -25,7 +39,7 @@ interface AuthState {
   setUser: (user: User | null) => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
-  syncWithClerk: (clerkUser: unknown) => void
+  syncWithClerk: (clerkUser: ClerkUserObject | null) => void
   logout: () => void
   clearError: () => void
 }
@@ -43,7 +57,7 @@ export const useAuthStore = create<AuthState>()(
       
       syncWithClerk: (clerkUser) => {
         if (clerkUser && typeof clerkUser === 'object') {
-          const user = clerkUser as any // Type assertion for Clerk user object
+          const user = clerkUser as ClerkUserObject
           const userData: User = {
             _id: '', // Will be set after backend sync
             clerkId: user.id || '',
@@ -53,7 +67,7 @@ export const useAuthStore = create<AuthState>()(
             lastName: user.lastName || '',
             profileImage: user.imageUrl || '',
             bio: '',
-            isVerified: user.emailAddresses?.[0]?.verification?.status === 'verified',
+            isVerified: false, // Will be set from backend user data
             createdAt: user.createdAt?.toISOString() || new Date().toISOString(),
             updatedAt: user.updatedAt?.toISOString() || new Date().toISOString(),
           }
