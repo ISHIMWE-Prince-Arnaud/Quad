@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import {
@@ -14,104 +14,34 @@ import { LoadingSpinner } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
 import { useAuthStore } from "@/stores/authStore";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
+import { ProfileService } from "@/services/profileService";
+import { FollowService } from "@/services/followService";
+import type { ApiProfile } from "@/types/api";
 
-// Mock user data - will be replaced with API calls
-const mockUser = {
-  _id: "user123",
-  clerkId: "clerk_user123",
-  username: "john_smith",
-  email: "john@example.com",
-  firstName: "John",
-  lastName: "Smith",
-  profileImage:
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
-  coverImage:
-    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=400&fit=crop",
-  bio: "Product Designer & Developer. Building beautiful experiences for the web.",
-  joinedAt: "2023-01-15T00:00:00.000Z",
-  isVerified: true,
-  followers: 1247,
-  following: 342,
-  postsCount: 89,
-};
-
-// Mock content data - will be replaced with API calls
-const mockContent: ContentItem[] = [
-  {
-    _id: "post1",
-    type: "post",
-    content:
-      "Just launched my new portfolio website! Built with React, TypeScript, and Tailwind CSS. Check it out and let me know what you think! 🚀",
-    images: [
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop",
-    ],
-    author: mockUser,
-    createdAt: "2024-11-13T10:30:00.000Z",
-    updatedAt: "2024-11-13T10:30:00.000Z",
-    likes: 42,
-    comments: 8,
-    shares: 3,
-    isLiked: false,
-  },
-  {
-    _id: "story1",
-    type: "story",
-    title: "My Journey into Web Development",
-    content:
-      "From accounting to coding - how I made the career transition that changed my life. A story about taking risks, learning new skills, and finding your passion...",
-    coverImage:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop",
-    readTime: 5,
-    author: mockUser,
-    createdAt: "2024-11-12T14:20:00.000Z",
-    updatedAt: "2024-11-12T14:20:00.000Z",
-    likes: 67,
-    comments: 12,
-  },
-  {
-    _id: "poll1",
-    type: "poll",
-    question: "What's your favorite JavaScript framework for 2024?",
-    options: [
-      { id: "react", text: "React", votes: 145 },
-      { id: "vue", text: "Vue.js", votes: 87 },
-      { id: "angular", text: "Angular", votes: 43 },
-      { id: "svelte", text: "Svelte", votes: 76 },
-    ],
-    totalVotes: 351,
-    endsAt: "2024-11-20T23:59:59.000Z",
-    hasVoted: true,
-    author: mockUser,
-    createdAt: "2024-11-10T09:15:00.000Z",
-    updatedAt: "2024-11-13T09:15:00.000Z",
-    likes: 23,
-    comments: 15,
-  },
-  {
-    _id: "post2",
-    type: "post",
-    content:
-      "Beautiful sunset from my morning hike today. Nature never fails to inspire me 🌅",
-    images: [
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=800&fit=crop",
-    ],
-    author: mockUser,
-    createdAt: "2024-11-11T07:45:00.000Z",
-    updatedAt: "2024-11-11T07:45:00.000Z",
-    likes: 156,
-    comments: 24,
-    shares: 12,
-    isLiked: true,
-  },
-];
+// Convert ApiProfile to the format expected by ProfileHeader
+const convertApiProfileToUser = (profile: ApiProfile) => ({
+  _id: profile._id,
+  clerkId: profile.clerkId,
+  username: profile.username,
+  email: profile.email,
+  firstName: profile.firstName,
+  lastName: profile.lastName,
+  profileImage: profile.profileImage,
+  coverImage: profile.coverImage,
+  bio: profile.bio,
+  joinedAt: profile.joinedAt,
+  isVerified: profile.isVerified,
+  followers: profile.followers,
+  following: profile.following,
+  postsCount: profile.postsCount,
+});
 
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
   const { user: currentUser } = useAuthStore();
 
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
-  const [user, setUser] = useState(mockUser);
+  const [user, setUser] = useState<ApiProfile | null>(null);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -140,28 +70,72 @@ export default function ProfilePage() {
     }
   });
 
+  // Load user's content based on active tab
+  const loadUserContent = useCallback(async () => {
+    if (!username) return;
+
+    try {
+      let result;
+      switch (activeTab) {
+        case "posts":
+          result = await ProfileService.getUserContent(username, "posts");
+          break;
+        case "stories":
+          result = await ProfileService.getUserContent(username, "stories");
+          break;
+        case "polls":
+          result = await ProfileService.getUserContent(username, "polls");
+          break;
+        case "saved":
+        case "liked":
+          // TODO: Implement saved and liked content
+          setContent([]);
+          return;
+        default:
+          setContent([]);
+          return;
+      }
+      // Convert API content to expected format
+      const convertedItems = result.items.map(item => ({
+        ...item,
+        updatedAt: item.createdAt, // Use createdAt as updatedAt if missing
+      })) as ContentItem[];
+      setContent(convertedItems);
+    } catch (err) {
+      console.error(`Failed to load ${activeTab}:`, err);
+      setContent([]);
+    }
+  }, [username, activeTab]);
+
   // Get content counts
   const postCount = content.filter((item) => item.type === "post").length;
   const storyCount = content.filter((item) => item.type === "story").length;
   const pollCount = content.filter((item) => item.type === "poll").length;
 
-  // Simulate API calls
+  // Real API calls to fetch profile data
   useEffect(() => {
     const fetchProfileData = async () => {
+      if (!username) return;
+
       setLoading(true);
       setError(null);
 
       try {
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Check if viewing own profile
+        if (isOwnProfile) {
+          const profileData = await ProfileService.getOwnProfile();
+          setUser(profileData);
+        } else {
+          const profileData = await ProfileService.getProfileByUsername(username);
+          setUser(profileData);
+          
+          // Check if following this user
+          const followStatus = await FollowService.checkFollowing(profileData._id);
+          setIsFollowing(followStatus.isFollowing);
+        }
 
-        // TODO: Replace with actual API calls
-        // const userResponse = await fetch(`/api/profile/${username}`)
-        // const contentResponse = await fetch(`/api/profile/${username}/${activeTab}`)
-
-        setUser(mockUser);
-        setContent(mockContent);
-        setIsFollowing(false); // TODO: Get from API
+        // Load user's content based on active tab
+        await loadUserContent();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load profile");
       } finally {
@@ -172,29 +146,34 @@ export default function ProfilePage() {
     if (username) {
       fetchProfileData();
     }
-  }, [username]);
+  }, [username, isOwnProfile, loadUserContent]);
 
   // Handle follow/unfollow
   const handleFollow = async () => {
+    if (!user) return;
+    
     try {
-      // TODO: Replace with actual API call
-      // await fetch(`/api/follow/${user._id}`, { method: 'POST' })
+      await FollowService.followUser(user._id);
       setIsFollowing(true);
-      setUser((prev) => ({ ...prev, followers: (prev.followers || 0) + 1 }));
+      setUser(prev => prev ? ({ 
+        ...prev, 
+        followers: (prev.followers || 0) + 1 
+      }) : prev);
     } catch (err) {
       console.error("Failed to follow user:", err);
     }
   };
 
   const handleUnfollow = async () => {
+    if (!user) return;
+    
     try {
-      // TODO: Replace with actual API call
-      // await fetch(`/api/follow/${user._id}`, { method: 'DELETE' })
+      await FollowService.unfollowUser(user._id);
       setIsFollowing(false);
-      setUser((prev) => ({
+      setUser(prev => prev ? ({
         ...prev,
         followers: Math.max((prev.followers || 0) - 1, 0),
-      }));
+      }) : prev);
     } catch (err) {
       console.error("Failed to unfollow user:", err);
     }
@@ -226,6 +205,16 @@ export default function ProfilePage() {
     );
   }
 
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-4">
+          <p className="text-muted-foreground">Profile not found</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ComponentErrorBoundary componentName="ProfilePage">
       <div className="min-h-screen bg-background">
@@ -233,14 +222,14 @@ export default function ProfilePage() {
           {/* Profile Header */}
           <div className="px-4 py-6">
             <ProfileHeader
-              user={user}
+              user={convertApiProfileToUser(user)}
               isOwnProfile={isOwnProfile}
               isFollowing={isFollowing}
               onFollow={handleFollow}
               onUnfollow={handleUnfollow}
               onEditProfile={handleEditProfile}
               onUserUpdate={(updatedUser) => {
-                setUser(prev => ({ ...prev, ...updatedUser }));
+                setUser(prev => prev ? ({ ...prev, ...updatedUser }) : prev);
               }}
             />
           </div>

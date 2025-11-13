@@ -9,12 +9,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-  validateImageFile,
   processProfileImage,
   processCoverImage,
   revokePreviewUrl,
   formatFileSize
 } from '@/lib/imageUtils';
+import { UploadService } from '@/services/uploadService';
 
 // Validation schema
 const editProfileSchema = z.object({
@@ -125,12 +125,12 @@ export function EditProfileModal({
 
     try {
       // Validate file
-      const validation = validateImageFile(file);
+      const validation = UploadService.validateFile(file, 'image');
       if (!validation.valid) {
         throw new Error(validation.error);
       }
 
-      // Process image
+      // Process image locally first for preview
       const processed = await processProfileImage(file);
       
       // Clean up previous preview
@@ -138,13 +138,16 @@ export function EditProfileModal({
         revokePreviewUrl(profileImage.preview);
       }
 
+      // Upload to backend
+      const uploadResult = await UploadService.uploadProfileImage(processed.file);
+
       setProfileImage({
         file: processed.file,
-        preview: processed.url,
+        preview: uploadResult.url, // Use uploaded URL for preview
         processing: false
       });
 
-      showToast(`Profile image updated - ${formatFileSize(processed.size)}`);
+      showToast(`Profile image uploaded successfully - ${formatFileSize(uploadResult.bytes || processed.size)}`);
 
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : 'Failed to process image');
@@ -167,12 +170,12 @@ export function EditProfileModal({
 
     try {
       // Validate file
-      const validation = validateImageFile(file);
+      const validation = UploadService.validateFile(file, 'image');
       if (!validation.valid) {
         throw new Error(validation.error);
       }
 
-      // Process image
+      // Process image locally first for preview
       const processed = await processCoverImage(file);
       
       // Clean up previous preview
@@ -180,13 +183,16 @@ export function EditProfileModal({
         revokePreviewUrl(coverImage.preview);
       }
 
+      // Upload to backend
+      const uploadResult = await UploadService.uploadCoverImage(processed.file);
+
       setCoverImage({
         file: processed.file,
-        preview: processed.url,
+        preview: uploadResult.url, // Use uploaded URL for preview
         processing: false
       });
 
-      showToast(`Cover image updated - ${formatFileSize(processed.size)}`);
+      showToast(`Cover image uploaded successfully - ${formatFileSize(uploadResult.bytes || processed.size)}`);
 
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : 'Failed to process image');

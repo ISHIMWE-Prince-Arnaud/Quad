@@ -3,6 +3,8 @@ import { X, Users, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserCard, type UserCardData } from '@/components/user/UserCard';
+import { FollowService } from '@/services/followService';
+import type { ApiFollowUser } from '@/types/api';
 
 interface FollowersModalProps {
   isOpen: boolean;
@@ -12,101 +14,43 @@ interface FollowersModalProps {
   initialCount?: number;
 }
 
-// Mock API functions - replace with actual API calls
+// Convert API follow user to UserCardData
+const convertApiFollowUserToUserCard = (followUser: ApiFollowUser): UserCardData => ({
+  _id: followUser._id,
+  clerkId: followUser.clerkId,
+  username: followUser.username,
+  email: '', // Not provided in follow lists
+  firstName: followUser.firstName,
+  lastName: followUser.lastName,
+  profileImage: followUser.profileImage,
+  bio: followUser.bio,
+  isVerified: followUser.isVerified,
+  followers: 0, // Not provided in follow lists
+  following: 0, // Not provided in follow lists
+  postsCount: 0, // Not provided in follow lists
+  joinedAt: followUser.followedAt || new Date().toISOString(),
+  isFollowing: followUser.isFollowing,
+});
+
+// Real API functions using backend endpoints
 const getFollowers = async (userId: string): Promise<UserCardData[]> => {
-  // TODO: Replace with actual API call using userId
-  console.log('Loading followers for user:', userId);
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  return [
-    {
-      _id: 'f1',
-      clerkId: 'follower_1',
-      username: 'techiedev',
-      email: 'techie@example.com',
-      firstName: 'Sarah',
-      lastName: 'Williams',
-      profileImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=150&h=150&fit=crop&crop=face',
-      bio: 'Frontend developer passionate about React and TypeScript',
-      followers: 234,
-      following: 189,
-      postsCount: 45,
-      joinedAt: '2023-05-15',
-      isFollowing: true,
-    },
-    {
-      _id: 'f2',
-      clerkId: 'follower_2', 
-      username: 'designmaster',
-      email: 'design@example.com',
-      firstName: 'James',
-      lastName: 'Anderson',
-      profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      bio: 'UI/UX Designer creating digital experiences',
-      isVerified: true,
-      followers: 892,
-      following: 445,
-      postsCount: 123,
-      joinedAt: '2023-08-22',
-      isFollowing: false,
-    },
-    {
-      _id: 'f3',
-      clerkId: 'follower_3',
-      username: 'codeartist',
-      email: 'code@example.com',
-      firstName: 'Emily',
-      lastName: 'Davis',
-      profileImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-      bio: 'Full-stack developer and open source contributor',
-      followers: 567,
-      following: 234,
-      postsCount: 89,
-      joinedAt: '2023-11-03',
-      isFollowing: true,
-    },
-  ];
+  try {
+    const result = await FollowService.getFollowers(userId, { limit: 50 });
+    return result.followers.map(convertApiFollowUserToUserCard);
+  } catch (error) {
+    console.error('Failed to load followers:', error);
+    return [];
+  }
 };
 
 const getFollowing = async (userId: string): Promise<UserCardData[]> => {
-  // TODO: Replace with actual API call using userId
-  console.log('Loading following for user:', userId);
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  return [
-    {
-      _id: 'fw1',
-      clerkId: 'following_1',
-      username: 'startupfounder',
-      email: 'startup@example.com',
-      firstName: 'Michael',
-      lastName: 'Chen',
-      profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      bio: 'Serial entrepreneur building the next big thing',
-      isVerified: true,
-      followers: 3456,
-      following: 234,
-      postsCount: 156,
-      joinedAt: '2023-04-10',
-      isFollowing: true,
-    },
-    {
-      _id: 'fw2',
-      clerkId: 'following_2',
-      username: 'mlexpert',
-      email: 'ml@example.com',
-      firstName: 'Dr. Lisa',
-      lastName: 'Rodriguez',
-      profileImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
-      bio: 'Machine Learning researcher and AI enthusiast',
-      isVerified: true,
-      followers: 5678,
-      following: 345,
-      postsCount: 78,
-      joinedAt: '2023-02-18',
-      isFollowing: true,
-    },
-  ];
+  try {
+    const result = await FollowService.getFollowing(userId, { limit: 50 });
+    return result.following.map(convertApiFollowUserToUserCard);
+  } catch (error) {
+    console.error('Failed to load following:', error);
+    return [];
+  }
 };
 
 export function FollowersModal({
@@ -160,19 +104,27 @@ export function FollowersModal({
 
   // Handle follow/unfollow
   const handleFollow = async (targetUserId: string) => {
-    console.log('Following user:', targetUserId);
-    
-    setUsers(prev => prev.map(user => 
-      user._id === targetUserId ? { ...user, isFollowing: true } : user
-    ));
+    try {
+      await FollowService.followUser(targetUserId);
+      
+      setUsers(prev => prev.map(user => 
+        user._id === targetUserId ? { ...user, isFollowing: true } : user
+      ));
+    } catch (error) {
+      console.error('Failed to follow user:', error);
+    }
   };
 
   const handleUnfollow = async (targetUserId: string) => {
-    console.log('Unfollowing user:', targetUserId);
-    
-    setUsers(prev => prev.map(user => 
-      user._id === targetUserId ? { ...user, isFollowing: false } : user
-    ));
+    try {
+      await FollowService.unfollowUser(targetUserId);
+      
+      setUsers(prev => prev.map(user => 
+        user._id === targetUserId ? { ...user, isFollowing: false } : user
+      ));
+    } catch (error) {
+      console.error('Failed to unfollow user:', error);
+    }
   };
 
   if (!isOpen) return null;
