@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Camera, MapPin, Calendar, Link as LinkIcon, MoreHorizontal } from 'lucide-react'
+import { Camera, Calendar, MoreHorizontal } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -17,8 +17,6 @@ interface ProfileHeaderProps {
     profileImage?: string
     coverImage?: string
     bio?: string
-    location?: string
-    website?: string
     joinedAt: string
     isVerified?: boolean
     followers?: number
@@ -188,25 +186,6 @@ export function ProfileHeader({
 
           {/* Meta Information */}
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-            {user.location && (
-              <div className="flex items-center gap-1">
-                <MapPin className="h-4 w-4" />
-                <span>{user.location}</span>
-              </div>
-            )}
-            {user.website && (
-              <div className="flex items-center gap-1">
-                <LinkIcon className="h-4 w-4" />
-                <a 
-                  href={user.website} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  {user.website.replace(/^https?:\/\//, '')}
-                </a>
-              </div>
-            )}
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               <span>Joined {joinedDate}</span>
