@@ -3,8 +3,6 @@ import { Camera, Calendar, MoreHorizontal } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { useAuthStore } from '@/stores/authStore'
-import { cn } from '@/lib/utils'
 
 interface ProfileHeaderProps {
   user: {
@@ -38,7 +36,6 @@ export function ProfileHeader({
   onUnfollow,
   onEditProfile
 }: ProfileHeaderProps) {
-  const { user: currentUser } = useAuthStore()
   const [isImageLoading, setIsImageLoading] = useState(true)
 
   const displayName = user.firstName && user.lastName 
