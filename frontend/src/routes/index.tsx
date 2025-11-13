@@ -8,7 +8,7 @@ import { MainLayout } from '../layouts/MainLayout'
 import HomePage from '../pages/HomePage'
 import LoginPage from '../pages/auth/LoginPage'
 import SignUpPage from '../pages/auth/SignUpPage'
-import FeedPage from '../pages/FeedPage'
+import FeedPage from '../pages/app/FeedPage'
 import ProfilePage from '../pages/ProfilePage'
 import EditProfilePage from '../pages/EditProfilePage'
 import PostPage from '../pages/PostPage'
@@ -20,7 +20,8 @@ import PollsPage from '../pages/PollsPage'
 import PollPage from '../pages/PollPage'
 import CreatePollPage from '../pages/CreatePollPage'
 import ChatPage from '../pages/ChatPage'
-import SearchPage from '../pages/SearchPage'
+import SearchPage from '../pages/app/SearchPage'
+import CreatePage from '../pages/app/CreatePage'
 import NotificationsPage from '../pages/NotificationsPage'
 import SettingsPage from '../pages/SettingsPage'
 import NotFoundPage from '../pages/NotFoundPage'
@@ -77,6 +78,10 @@ export const router = createBrowserRouter([
           {
             path: 'posts/:id',
             element: <PostPage />,
+          },
+          {
+            path: 'create',
+            element: <CreatePage />,
           },
           {
             path: 'create/post',

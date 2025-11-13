@@ -1,0 +1,142 @@
+import { cn } from '@/lib/utils'
+import { Loader2 } from 'lucide-react'
+
+interface LoadingSpinnerProps {
+  className?: string
+  size?: 'sm' | 'md' | 'lg'
+}
+
+const sizeClasses = {
+  sm: 'h-4 w-4',
+  md: 'h-6 w-6',
+  lg: 'h-8 w-8'
+}
+
+export function LoadingSpinner({ className, size = 'md' }: LoadingSpinnerProps) {
+  return (
+    <Loader2 
+      className={cn(
+        'animate-spin text-muted-foreground',
+        sizeClasses[size],
+        className
+      )} 
+    />
+  )
+}
+
+export function LoadingPage() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center gap-4">
+        <LoadingSpinner size="lg" />
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  )
+}
+
+export function LoadingCard() {
+  return (
+    <div className="p-6 border border-border rounded-lg bg-card">
+      <div className="flex items-center justify-center h-32">
+        <LoadingSpinner size="md" />
+      </div>
+    </div>
+  )
+}
+
+export function LoadingButton() {
+  return (
+    <div className="flex items-center gap-2">
+      <LoadingSpinner size="sm" />
+      <span>Loading...</span>
+    </div>
+  )
+}
+
+// Skeleton loader for content
+export function SkeletonLine({ className }: { className?: string }) {
+  return (
+    <div 
+      className={cn(
+        'animate-pulse bg-muted rounded h-4',
+        className
+      )} 
+    />
+  )
+}
+
+export function SkeletonAvatar({ className }: { className?: string }) {
+  return (
+    <div 
+      className={cn(
+        'animate-pulse bg-muted rounded-full h-10 w-10',
+        className
+      )} 
+    />
+  )
+}
+
+export function SkeletonPost() {
+  return (
+    <div className="p-6 border border-border rounded-lg bg-card space-y-4">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <SkeletonAvatar />
+        <div className="flex-1 space-y-2">
+          <SkeletonLine className="w-24" />
+          <SkeletonLine className="w-16 h-3" />
+        </div>
+      </div>
+      
+      {/* Content */}
+      <div className="space-y-2">
+        <SkeletonLine />
+        <SkeletonLine />
+        <SkeletonLine className="w-3/4" />
+      </div>
+      
+      {/* Actions */}
+      <div className="flex items-center gap-6 pt-3">
+        <SkeletonLine className="w-12 h-6" />
+        <SkeletonLine className="w-12 h-6" />
+        <SkeletonLine className="w-12 h-6" />
+      </div>
+    </div>
+  )
+}
+
+// Page loading states
+export function FeedSkeleton() {
+  return (
+    <div className="space-y-6">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <SkeletonPost key={i} />
+      ))}
+    </div>
+  )
+}
+
+export function ProfileSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Profile header */}
+      <div className="p-6 border border-border rounded-lg bg-card">
+        <div className="flex items-start gap-4">
+          <SkeletonAvatar className="h-20 w-20" />
+          <div className="flex-1 space-y-3">
+            <SkeletonLine className="w-32 h-6" />
+            <SkeletonLine className="w-20 h-4" />
+            <div className="space-y-2">
+              <SkeletonLine />
+              <SkeletonLine className="w-3/4" />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Posts */}
+      <FeedSkeleton />
+    </div>
+  )
+}

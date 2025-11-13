@@ -5,19 +5,20 @@ import { useAuthSync } from '../hooks/useAuthSync'
 import { useEffect } from 'react'
 
 export function RootLayout() {
-  const { applyTheme } = useThemeStore()
-  useAuthSync() // Sync Clerk user with auth store
+  // Sync auth state with Clerk
+  useAuthSync()
 
+  // Initialize theme system
+  const { initializeTheme, applyTheme } = useThemeStore()
+  
   useEffect(() => {
-    // Initialize theme on mount
+    initializeTheme()
     applyTheme()
-  }, [applyTheme])
+  }, [initializeTheme, applyTheme])
 
   return (
-    <>
-      <div className="min-h-screen bg-background">
-        <Outlet />
-      </div>
+    <div className="min-h-screen bg-background text-foreground">
+      <Outlet />
       
       {/* Global Toast Notifications */}
       <Toaster
@@ -27,6 +28,6 @@ export function RootLayout() {
           duration: 4000,
         }}
       />
-    </>
+    </div>
   )
 }
