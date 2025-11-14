@@ -3,10 +3,10 @@ import type { Request, Response } from "express";
 import { Story, type IStoryDocument } from "../models/Story.model.js";
 import { logger } from "../utils/logger.util.js";
 import { User } from "../models/User.model.js";
-import type { 
-  CreateStorySchemaType, 
+import type {
+  CreateStorySchemaType,
   UpdateStorySchemaType,
-  GetStoriesQuerySchemaType 
+  GetStoriesQuerySchemaType,
 } from "../schemas/story.schema.js";
 import { getSocketIO } from "../config/socket.config.js";
 import {
@@ -21,23 +21,25 @@ import {
 // =========================
 export const createStory = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const storyData = req.body as CreateStorySchemaType;
 
     // Get user info
     const user = await User.findOne({ clerkId: userId });
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Sanitize HTML content (XSS prevention)
     const sanitizedContent = sanitizeHtmlContent(storyData.content);
-    
+
     // Validate HTML content is not empty after sanitization
     if (!validateHtmlContent(sanitizedContent)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid or empty HTML content" 
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or empty HTML content",
       });
     }
 
@@ -57,7 +59,7 @@ export const createStory = async (req: Request, res: Response) => {
         bio: user.bio,
       },
       title: storyData.title,
-      content: sanitizedContent,  // ← Use sanitized content
+      content: sanitizedContent, // ← Use sanitized content
       excerpt,
       coverImage: storyData.coverImage,
       status: storyData.status || "draft",
@@ -73,14 +75,16 @@ export const createStory = async (req: Request, res: Response) => {
       getSocketIO().emit("newStory", newStory);
     }
 
-    return res.status(201).json({ 
-      success: true, 
+    return res.status(201).json({
+      success: true,
       message: newStory.status === "draft" ? "Draft saved" : "Story published",
-      data: newStory 
+      data: newStory,
     });
   } catch (error: any) {
     logger.error("Error creating story", error);
-    return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
 
@@ -89,7 +93,7 @@ export const createStory = async (req: Request, res: Response) => {
 // =========================
 export const getAllStories = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth?.userId;  // Optional for logged-in users
+    const userId = req.auth()?.userId; // Optional for logged-in users
     const query = req.query as unknown as GetStoriesQuerySchemaType;
 
     // Build filter
@@ -99,7 +103,7 @@ export const getAllStories = async (req: Request, res: Response) => {
     if (query.status) {
       filter.status = query.status;
     } else {
-      filter.status = "published";  // Default: only show published
+      filter.status = "published"; // Default: only show published
     }
 
     // Tag filter
@@ -167,24 +171,30 @@ export const getAllStories = async (req: Request, res: Response) => {
 export const getStory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth?.userId;
+    const userId = req.auth()?.userId;
 
     const story = await Story.findById(id);
 
     if (!story) {
-      return res.status(404).json({ success: false, message: "Story not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Story not found" });
     }
 
     // Check permissions for drafts
     if (story.status === "draft" && story.author.clerkId !== userId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: "You don't have permission to view this draft" 
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to view this draft",
       });
     }
 
     // Track view count (only for published stories and not the author)
-    if (story.status === "published" && userId && userId !== story.author.clerkId) {
+    if (
+      story.status === "published" &&
+      userId &&
+      userId !== story.author.clerkId
+    ) {
       try {
         // Simply increment view count
         story.viewsCount = (story.viewsCount || 0) + 1;
@@ -214,20 +224,22 @@ export const getStory = async (req: Request, res: Response) => {
 export const updateStory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const inputUpdates = req.body as UpdateStorySchemaType;
 
     const story = await Story.findById(id);
 
     if (!story) {
-      return res.status(404).json({ success: false, message: "Story not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Story not found" });
     }
 
     // Only author can update
     if (story.author.clerkId !== userId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Only the author can update this story" 
+      return res.status(403).json({
+        success: false,
+        message: "Only the author can update this story",
       });
     }
 
@@ -235,26 +247,28 @@ export const updateStory = async (req: Request, res: Response) => {
     let sanitizedContent: string | undefined;
     if (inputUpdates.content) {
       sanitizedContent = sanitizeHtmlContent(inputUpdates.content);
-      
+
       if (!validateHtmlContent(sanitizedContent)) {
-        return res.status(400).json({ 
-          success: false, 
-          message: "Invalid or empty HTML content" 
+        return res.status(400).json({
+          success: false,
+          message: "Invalid or empty HTML content",
         });
       }
     }
 
     // Create updates object with auto-generated fields
     // Type assertion needed due to exactOptionalPropertyTypes strictness
-    const updates: Partial<IStoryDocument> = { ...inputUpdates } as Partial<IStoryDocument>;
+    const updates: Partial<IStoryDocument> = {
+      ...inputUpdates,
+    } as Partial<IStoryDocument>;
 
     // Use sanitized content if available
     if (sanitizedContent) {
       updates.content = sanitizedContent;
-      
+
       // Update reading time with sanitized content
       updates.readTime = calculateReadingTime(sanitizedContent);
-      
+
       // Auto-generate excerpt if not provided
       if (!inputUpdates.excerpt) {
         updates.excerpt = generateExcerpt(sanitizedContent, 200);
@@ -280,14 +294,16 @@ export const updateStory = async (req: Request, res: Response) => {
       }
     }
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       message: "Story updated successfully",
-      data: story 
+      data: story,
     });
   } catch (error: any) {
     logger.error("Error updating story", error);
-    return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
 
@@ -297,19 +313,21 @@ export const updateStory = async (req: Request, res: Response) => {
 export const deleteStory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
 
     const story = await Story.findById(id);
 
     if (!story) {
-      return res.status(404).json({ success: false, message: "Story not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Story not found" });
     }
 
     // Only author can delete
     if (story.author.clerkId !== userId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Only the author can delete this story" 
+      return res.status(403).json({
+        success: false,
+        message: "Only the author can delete this story",
       });
     }
 
@@ -321,9 +339,9 @@ export const deleteStory = async (req: Request, res: Response) => {
       getSocketIO().emit("storyDeleted", id);
     }
 
-    return res.status(200).json({ 
-      success: true, 
-      message: "Story deleted successfully" 
+    return res.status(200).json({
+      success: true,
+      message: "Story deleted successfully",
     });
   } catch (error: any) {
     logger.error("Error deleting story", error);
@@ -336,7 +354,7 @@ export const deleteStory = async (req: Request, res: Response) => {
 // =========================
 export const getMyStories = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const { limit = "20", skip = "0", status } = req.query;
 
     const filter: any = { "author.clerkId": userId };
@@ -369,4 +387,3 @@ export const getMyStories = async (req: Request, res: Response) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
-

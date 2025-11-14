@@ -4,8 +4,14 @@ import { User } from "../models/User.model.js";
 import type { CreateReactionSchemaType } from "../schemas/reaction.schema.js";
 import type { ReactableContentType } from "../types/reaction.types.js";
 import { getSocketIO } from "../config/socket.config.js";
-import { verifyReactableContent, updateContentReactionsCount } from "../utils/content.util.js";
-import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
+import {
+  verifyReactableContent,
+  updateContentReactionsCount,
+} from "../utils/content.util.js";
+import {
+  createNotification,
+  generateNotificationMessage,
+} from "../utils/notification.util.js";
 import { DatabaseService } from "../services/database.service.js";
 import { logger } from "../utils/logger.util.js";
 
@@ -14,37 +20,52 @@ import { logger } from "../utils/logger.util.js";
 // =========================
 export const toggleReaction = async (req: Request, res: Response) => {
   try {
-    const { contentType, contentId, type } = req.body as CreateReactionSchemaType;
-    const userId = req.auth.userId;
+    const { contentType, contentId, type } =
+      req.body as CreateReactionSchemaType;
+    const userId = req.auth().userId;
 
     // Verify content exists
-    const { exists, content } = await verifyReactableContent(contentType, contentId);
+    const { exists, content } = await verifyReactableContent(
+      contentType,
+      contentId
+    );
     if (!exists || !content) {
-      return res.status(404).json({ success: false, message: `${contentType} not found` });
+      return res
+        .status(404)
+        .json({ success: false, message: `${contentType} not found` });
     }
 
     // Get user data
     const user = await User.findOne({ clerkId: userId });
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Get content owner ID
     const contentOwnerId = content.userId || content.clerkId;
 
     // Check if user already reacted to this content
-    const existingReaction = await Reaction.findOne({ contentType, contentId, userId });
+    const existingReaction = await Reaction.findOne({
+      contentType,
+      contentId,
+      userId,
+    });
 
     if (existingReaction) {
       // If same reaction type, remove it (toggle off)
       if (existingReaction.type === type) {
         await Reaction.deleteOne({ _id: existingReaction._id });
-        
+
         // Update content's cached reaction count
         await updateContentReactionsCount(contentType, contentId, -1);
-        
+
         // Get updated reaction count
-        const reactionCount = await Reaction.countDocuments({ contentType, contentId });
+        const reactionCount = await Reaction.countDocuments({
+          contentType,
+          contentId,
+        });
 
         // Emit real-time event
         getSocketIO().emit("reactionRemoved", {
@@ -54,8 +75,8 @@ export const toggleReaction = async (req: Request, res: Response) => {
           reactionCount,
         });
 
-        return res.status(200).json({ 
-          success: true, 
+        return res.status(200).json({
+          success: true,
           message: "Reaction removed",
           data: null,
           reactionCount,
@@ -74,8 +95,8 @@ export const toggleReaction = async (req: Request, res: Response) => {
           reaction: existingReaction,
         });
 
-        return res.status(200).json({ 
-          success: true, 
+        return res.status(200).json({
+          success: true,
           message: "Reaction updated",
           data: existingReaction,
         });
@@ -96,25 +117,38 @@ export const toggleReaction = async (req: Request, res: Response) => {
     await updateContentReactionsCount(contentType, contentId, 1);
 
     // Get updated reaction count
-    const reactionCount = await Reaction.countDocuments({ contentType, contentId });
+    const reactionCount = await Reaction.countDocuments({
+      contentType,
+      contentId,
+    });
 
     // Create notification for content owner (if not reacting to own content)
     if (contentOwnerId && contentOwnerId !== userId) {
-      const notificationType = contentType === "post" 
-        ? "reaction_post" 
-        : contentType === "story" 
-        ? "reaction_story" 
-        : contentType === "poll"
-        ? "reaction_poll"
-        : "reaction_post";
+      const notificationType =
+        contentType === "post"
+          ? "reaction_post"
+          : contentType === "story"
+          ? "reaction_story"
+          : contentType === "poll"
+          ? "reaction_poll"
+          : "reaction_post";
 
       await createNotification({
         userId: contentOwnerId,
         type: notificationType as any,
         actorId: userId,
         contentId,
-        contentType: contentType === "post" ? "Post" : contentType === "story" ? "Story" : "Poll",
-        message: generateNotificationMessage(notificationType, user.username, contentType),
+        contentType:
+          contentType === "post"
+            ? "Post"
+            : contentType === "story"
+            ? "Story"
+            : "Poll",
+        message: generateNotificationMessage(
+          notificationType,
+          user.username,
+          contentType
+        ),
       });
     }
 
@@ -128,15 +162,17 @@ export const toggleReaction = async (req: Request, res: Response) => {
       reactionCount,
     });
 
-    return res.status(201).json({ 
-      success: true, 
+    return res.status(201).json({
+      success: true,
       message: "Reaction added",
       data: newReaction,
       reactionCount,
     });
   } catch (error: any) {
     logger.error("Error toggling reaction", error);
-    return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
 
@@ -145,13 +181,16 @@ export const toggleReaction = async (req: Request, res: Response) => {
 // =========================
 export const getReactionsByContent = async (req: Request, res: Response) => {
   try {
-    const { contentType, contentId } = req.params as { contentType: ReactableContentType; contentId: string };
+    const { contentType, contentId } = req.params as {
+      contentType: ReactableContentType;
+      contentId: string;
+    };
 
     // Get all reactions with populated user data (prevents N+1 queries)
     const reactions = await Reaction.find({ contentType, contentId })
-      .populate('user', 'username displayName profileImage')
+      .populate("user", "username displayName profileImage")
       .sort({ createdAt: -1 });
-    
+
     // Aggregate reactions by type for counts
     const reactionCounts = await Reaction.aggregate([
       { $match: { contentType, contentId } },
@@ -160,19 +199,19 @@ export const getReactionsByContent = async (req: Request, res: Response) => {
     ]);
 
     // Check if current user has reacted
-    const userId = req.auth?.userId;
-    const userReaction = userId 
+    const userId = req.auth()?.userId;
+    const userReaction = userId
       ? await Reaction.findOne({ contentType, contentId, userId })
       : null;
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       data: {
         reactions,
         reactionCounts,
         userReaction,
         totalCount: reactions.length,
-      }
+      },
     });
   } catch (error: any) {
     logger.error("Error fetching reactions", error);
@@ -185,7 +224,7 @@ export const getReactionsByContent = async (req: Request, res: Response) => {
 // =========================
 export const getUserReactions = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const { limit = "20", skip = "0" } = req.query;
 
     const reactions = await Reaction.find({ userId })
@@ -195,15 +234,15 @@ export const getUserReactions = async (req: Request, res: Response) => {
 
     const total = await Reaction.countDocuments({ userId });
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       data: reactions,
       pagination: {
         total,
         limit: Number(limit),
         skip: Number(skip),
         hasMore: Number(skip) + reactions.length < total,
-      }
+      },
     });
   } catch (error: any) {
     logger.error("Error fetching user reactions", error);
@@ -216,20 +255,32 @@ export const getUserReactions = async (req: Request, res: Response) => {
 // =========================
 export const deleteReaction = async (req: Request, res: Response) => {
   try {
-    const { contentType, contentId } = req.params as { contentType: ReactableContentType; contentId: string };
-    const userId = req.auth.userId;
+    const { contentType, contentId } = req.params as {
+      contentType: ReactableContentType;
+      contentId: string;
+    };
+    const userId = req.auth().userId;
 
-    const reaction = await Reaction.findOneAndDelete({ contentType, contentId, userId });
+    const reaction = await Reaction.findOneAndDelete({
+      contentType,
+      contentId,
+      userId,
+    });
 
     if (!reaction) {
-      return res.status(404).json({ success: false, message: "Reaction not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Reaction not found" });
     }
 
     // Update content's cached reaction count
     await updateContentReactionsCount(contentType, contentId, -1);
 
     // Update reaction count
-    const reactionCount = await Reaction.countDocuments({ contentType, contentId });
+    const reactionCount = await Reaction.countDocuments({
+      contentType,
+      contentId,
+    });
 
     // Emit real-time event
     getSocketIO().emit("reactionRemoved", {
@@ -239,8 +290,8 @@ export const deleteReaction = async (req: Request, res: Response) => {
       reactionCount,
     });
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       message: "Reaction removed",
       reactionCount,
     });

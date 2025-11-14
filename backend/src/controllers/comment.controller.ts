@@ -2,10 +2,19 @@ import type { Request, Response } from "express";
 import { Comment } from "../models/Comment.model.js";
 import { CommentLike } from "../models/CommentLike.model.js";
 import { User } from "../models/User.model.js";
-import type { CreateCommentSchemaType, UpdateCommentSchemaType } from "../schemas/comment.schema.js";
+import type {
+  CreateCommentSchemaType,
+  UpdateCommentSchemaType,
+} from "../schemas/comment.schema.js";
 import { getSocketIO } from "../config/socket.config.js";
-import { verifyCommentableContent, updateContentCommentsCount } from "../utils/content.util.js";
-import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
+import {
+  verifyCommentableContent,
+  updateContentCommentsCount,
+} from "../utils/content.util.js";
+import {
+  createNotification,
+  generateNotificationMessage,
+} from "../utils/notification.util.js";
 import { DatabaseService } from "../services/database.service.js";
 import { logger } from "../utils/logger.util.js";
 
@@ -14,19 +23,27 @@ import { logger } from "../utils/logger.util.js";
 // =========================
 export const createComment = async (req: Request, res: Response) => {
   try {
-    const { contentType, contentId, text, parentId } = req.body as CreateCommentSchemaType;
-    const userId = req.auth.userId;
+    const { contentType, contentId, text, parentId } =
+      req.body as CreateCommentSchemaType;
+    const userId = req.auth().userId;
 
     // Verify content exists
-    const { exists, content } = await verifyCommentableContent(contentType, contentId);
+    const { exists, content } = await verifyCommentableContent(
+      contentType,
+      contentId
+    );
     if (!exists || !content) {
-      return res.status(404).json({ success: false, message: `${contentType} not found` });
+      return res
+        .status(404)
+        .json({ success: false, message: `${contentType} not found` });
     }
 
     // Get user data
     const user = await User.findOne({ clerkId: userId });
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Get content owner ID
@@ -37,9 +54,11 @@ export const createComment = async (req: Request, res: Response) => {
     if (parentId) {
       parentComment = await Comment.findById(parentId);
       if (!parentComment) {
-        return res.status(404).json({ success: false, message: "Parent comment not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Parent comment not found" });
       }
-      
+
       // Increment parent's replies count
       await Comment.findByIdAndUpdate(parentId, { $inc: { repliesCount: 1 } });
     }
@@ -81,19 +100,29 @@ export const createComment = async (req: Request, res: Response) => {
     } else {
       // This is a top-level comment - notify content owner
       if (contentOwnerId && contentOwnerId !== userId) {
-        const notificationType = contentType === "post" 
-          ? "comment_post" 
-          : contentType === "story" 
-          ? "comment_story" 
-          : "comment_poll";
+        const notificationType =
+          contentType === "post"
+            ? "comment_post"
+            : contentType === "story"
+            ? "comment_story"
+            : "comment_poll";
 
         await createNotification({
           userId: contentOwnerId,
           type: notificationType as any,
           actorId: userId,
           contentId,
-          contentType: contentType === "post" ? "Post" : contentType === "story" ? "Story" : "Poll",
-          message: generateNotificationMessage(notificationType, user.username, contentType),
+          contentType:
+            contentType === "post"
+              ? "Post"
+              : contentType === "story"
+              ? "Story"
+              : "Poll",
+          message: generateNotificationMessage(
+            notificationType,
+            user.username,
+            contentType
+          ),
         });
       }
     }
@@ -106,14 +135,16 @@ export const createComment = async (req: Request, res: Response) => {
       comment: newComment,
     });
 
-    return res.status(201).json({ 
-      success: true, 
+    return res.status(201).json({
+      success: true,
       message: "Comment added",
       data: newComment,
     });
   } catch (error: any) {
     logger.error("Error creating comment", error);
-    return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
 
@@ -135,22 +166,22 @@ export const getCommentsByContent = async (req: Request, res: Response) => {
 
     // Use populate to get author data in single query (prevents N+1)
     const comments = await Comment.find(query)
-      .populate('author', 'username displayName profileImage')
+      .populate("author", "username displayName profileImage")
       .sort({ createdAt: -1 })
       .limit(Number(limit))
       .skip(Number(skip));
 
     const total = await Comment.countDocuments(query);
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       data: comments,
       pagination: {
         total,
         limit: Number(limit),
         skip: Number(skip),
         hasMore: Number(skip) + comments.length < total,
-      }
+      },
     });
   } catch (error: any) {
     logger.error("Error fetching comments", error);
@@ -167,7 +198,9 @@ export const getComment = async (req: Request, res: Response) => {
 
     const comment = await Comment.findById(id);
     if (!comment) {
-      return res.status(404).json({ success: false, message: "Comment not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Comment not found" });
     }
 
     return res.status(200).json({ success: true, data: comment });
@@ -192,15 +225,15 @@ export const getReplies = async (req: Request, res: Response) => {
 
     const total = await Comment.countDocuments({ parentId: id });
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       data: replies,
       pagination: {
         total,
         limit: Number(limit),
         skip: Number(skip),
         hasMore: Number(skip) + replies.length < total,
-      }
+      },
     });
   } catch (error: any) {
     console.error("Error fetching replies:", error);
@@ -215,11 +248,13 @@ export const updateComment = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { text } = req.body as UpdateCommentSchemaType;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
 
     const comment = await Comment.findById(id);
     if (!comment) {
-      return res.status(404).json({ success: false, message: "Comment not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Comment not found" });
     }
 
     // Only author can update
@@ -238,8 +273,8 @@ export const updateComment = async (req: Request, res: Response) => {
       comment,
     });
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       message: "Comment updated",
       data: comment,
     });
@@ -255,11 +290,13 @@ export const updateComment = async (req: Request, res: Response) => {
 export const deleteComment = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
 
     const comment = await Comment.findById(id);
     if (!comment) {
-      return res.status(404).json({ success: false, message: "Comment not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Comment not found" });
     }
 
     // Only author can delete
@@ -269,15 +306,21 @@ export const deleteComment = async (req: Request, res: Response) => {
 
     // If this is a top-level comment, decrement content's comment count
     if (!comment.parentId) {
-      await updateContentCommentsCount(comment.contentType, comment.contentId, -1);
+      await updateContentCommentsCount(
+        comment.contentType,
+        comment.contentId,
+        -1
+      );
     } else {
       // If this is a reply, decrement parent's replies count
-      await Comment.findByIdAndUpdate(comment.parentId, { $inc: { repliesCount: -1 } });
+      await Comment.findByIdAndUpdate(comment.parentId, {
+        $inc: { repliesCount: -1 },
+      });
     }
 
     // Delete all replies to this comment (cascade)
     const deletedReplies = await Comment.deleteMany({ parentId: id });
-    
+
     // Update content comment count for deleted replies
     if (deletedReplies.deletedCount > 0) {
       await updateContentCommentsCount(
@@ -301,8 +344,8 @@ export const deleteComment = async (req: Request, res: Response) => {
       parentId: comment.parentId,
     });
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       message: "Comment deleted successfully",
     });
   } catch (error: any) {
@@ -317,18 +360,22 @@ export const deleteComment = async (req: Request, res: Response) => {
 export const toggleCommentLike = async (req: Request, res: Response) => {
   try {
     const { commentId } = req.body;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
 
     // Verify comment exists
     const comment = await Comment.findById(commentId);
     if (!comment) {
-      return res.status(404).json({ success: false, message: "Comment not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Comment not found" });
     }
 
     // Get user data
     const user = await User.findOne({ clerkId: userId });
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Check if user already liked this comment
@@ -346,8 +393,8 @@ export const toggleCommentLike = async (req: Request, res: Response) => {
         likesCount: comment.likesCount - 1,
       });
 
-      return res.status(200).json({ 
-        success: true, 
+      return res.status(200).json({
+        success: true,
         message: "Like removed",
         liked: false,
         likesCount: comment.likesCount - 1,
@@ -370,8 +417,8 @@ export const toggleCommentLike = async (req: Request, res: Response) => {
       likesCount: comment.likesCount + 1,
     });
 
-    return res.status(201).json({ 
-      success: true, 
+    return res.status(201).json({
+      success: true,
       message: "Like added",
       liked: true,
       likesCount: comment.likesCount + 1,
@@ -379,7 +426,9 @@ export const toggleCommentLike = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error("Error toggling comment like:", error);
-    return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
 
@@ -390,11 +439,12 @@ export const getCommentLikes = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const likes = await CommentLike.find({ commentId: id })
-      .sort({ createdAt: -1 });
+    const likes = await CommentLike.find({ commentId: id }).sort({
+      createdAt: -1,
+    });
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       data: likes,
       count: likes.length,
     });

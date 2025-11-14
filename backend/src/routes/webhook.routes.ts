@@ -12,15 +12,21 @@ router.post(
   "/clerk",
   express.raw({ type: "application/json" }),
   async (req: Request, res: Response) => {
+    console.log("🔔 Webhook endpoint hit!");
+    console.log("📋 Headers:", req.headers);
+    console.log("📦 Body length:", req.body?.length);
+
     try {
       const payload = req.body;
       const headers = req.headers as Record<string, string>;
+
+      console.log("🔐 Webhook secret:", webhookSecret ? "Present" : "Missing");
 
       const wh = new Webhook(webhookSecret);
       const evt = wh.verify(payload, headers) as WebhookEvent;
       const eventType = evt.type;
 
-      console.log(`📦 Clerk Webhook Received: ${eventType}`);
+      console.log(`✅ Clerk Webhook Received: ${eventType}`);
 
       switch (eventType) {
         case "user.created": {
@@ -28,7 +34,9 @@ router.post(
           const username = evt.data.username || email?.split("@")[0] || "user";
           const profileImage =
             evt.data.image_url ||
-            `https://avatar.iran.liara.run/public/${Math.floor(Math.random() * 100) + 1}`;
+            `https://avatar.iran.liara.run/public/${
+              Math.floor(Math.random() * 100) + 1
+            }`;
 
           await User.create({
             clerkId: evt.data.id,
@@ -67,9 +75,16 @@ router.post(
       }
 
       return res.status(200).json({ success: true });
-    } catch (err) {
+    } catch (err: any) {
       console.error("❌ Webhook verification failed:", err);
-      return res.status(400).json({ error: "Invalid webhook signature" });
+      console.error("❌ Error details:", {
+        message: err.message,
+        stack: err.stack,
+        name: err.name,
+      });
+      return res
+        .status(400)
+        .json({ error: "Invalid webhook signature", details: err.message });
     }
   }
 );

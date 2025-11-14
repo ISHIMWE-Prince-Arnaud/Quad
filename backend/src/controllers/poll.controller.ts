@@ -17,24 +17,29 @@ import {
   validateVoteIndices,
   formatPollResponse,
 } from "../utils/poll.util.js";
-import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
+import {
+  createNotification,
+  generateNotificationMessage,
+} from "../utils/notification.util.js";
 
 // =========================
 // CREATE POLL
 // =========================
 export const createPoll = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const pollData = req.body as CreatePollSchemaType;
 
     // Get user info
     const user = await User.findOne({ clerkId: userId });
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Initialize options with vote counts
-    const options = pollData.options.map(opt => ({
+    const options = pollData.options.map((opt) => ({
       text: opt.text,
       media: opt.media,
       votesCount: 0,
@@ -82,7 +87,7 @@ export const createPoll = async (req: Request, res: Response) => {
 // =========================
 export const getAllPolls = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth?.userId;
+    const userId = req.auth()?.userId;
     const query = req.query as unknown as GetPollsQuerySchemaType;
     const { page, limit, status, author, voted, search, sort } = query;
 
@@ -107,7 +112,7 @@ export const getAllPolls = async (req: Request, res: Response) => {
     // Voting status filter (requires userId)
     if (voted !== undefined && userId) {
       const userVotes = await PollVote.find({ userId }).select("pollId");
-      const votedPollIds = userVotes.map(v => v.pollId);
+      const votedPollIds = userVotes.map((v) => v.pollId);
 
       if (voted === true) {
         // Polls user voted on
@@ -151,13 +156,15 @@ export const getAllPolls = async (req: Request, res: Response) => {
     if (userId) {
       const votes = await PollVote.find({
         userId,
-        pollId: { $in: polls.map(p => p._id) },
+        pollId: { $in: polls.map((p) => p._id) },
       });
-      userVotes = Object.fromEntries(votes.map(v => [v.pollId.toString(), v]));
+      userVotes = Object.fromEntries(
+        votes.map((v) => [v.pollId.toString(), v])
+      );
     }
 
     // Format polls with appropriate data
-    const formattedPolls = polls.map(poll => {
+    const formattedPolls = polls.map((poll) => {
       const pollId = poll._id ? poll._id.toString() : "";
       const userVote = userVotes[pollId];
       const hasVoted = !!userVote;
@@ -188,7 +195,7 @@ export const getAllPolls = async (req: Request, res: Response) => {
 // =========================
 export const getMyPolls = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const { page = 1, limit = 10 } = req.query;
 
     const pageNum = parseInt(page as string);
@@ -205,7 +212,9 @@ export const getMyPolls = async (req: Request, res: Response) => {
     ]);
 
     // Author can always see results
-    const formattedPolls = polls.map(poll => formatPollResponse(poll, undefined, true));
+    const formattedPolls = polls.map((poll) =>
+      formatPollResponse(poll, undefined, true)
+    );
 
     return res.json({
       success: true,
@@ -230,12 +239,14 @@ export const getMyPolls = async (req: Request, res: Response) => {
 export const getPoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth?.userId;
+    const userId = req.auth()?.userId;
 
     // Find poll
     const poll = await Poll.findById(id);
     if (!poll) {
-      return res.status(404).json({ success: false, message: "Poll not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Poll not found" });
     }
 
     // Check if user voted
@@ -272,13 +283,15 @@ export const getPoll = async (req: Request, res: Response) => {
 export const updatePoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const updates = req.body as UpdatePollSchemaType;
 
     // Find poll
     const poll = await Poll.findById(id);
     if (!poll) {
-      return res.status(404).json({ success: false, message: "Poll not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Poll not found" });
     }
 
     // Only author can update
@@ -327,12 +340,14 @@ export const updatePoll = async (req: Request, res: Response) => {
 export const deletePoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
 
     // Find poll
     const poll = await Poll.findById(id);
     if (!poll) {
-      return res.status(404).json({ success: false, message: "Poll not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Poll not found" });
     }
 
     // Only author can delete
@@ -368,13 +383,15 @@ export const deletePoll = async (req: Request, res: Response) => {
 export const voteOnPoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const { optionIndices } = req.body as VoteOnPollSchemaType;
 
     // Find poll
     const poll = await Poll.findById(id);
     if (!poll) {
-      return res.status(404).json({ success: false, message: "Poll not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Poll not found" });
     }
 
     // Check if poll accepts votes
@@ -413,7 +430,7 @@ export const voteOnPoll = async (req: Request, res: Response) => {
 
     // Update poll vote counts
     const previousTotalVotes = poll.totalVotes;
-    optionIndices.forEach(index => {
+    optionIndices.forEach((index) => {
       if (poll.options[index]) {
         poll.options[index].votesCount += 1;
       }
@@ -425,7 +442,8 @@ export const voteOnPoll = async (req: Request, res: Response) => {
     // Check for milestone and notify poll owner
     const milestones = [10, 50, 100, 250, 500, 1000, 5000, 10000];
     const reachedMilestone = milestones.find(
-      milestone => previousTotalVotes < milestone && newTotalVotes >= milestone
+      (milestone) =>
+        previousTotalVotes < milestone && newTotalVotes >= milestone
     );
 
     if (reachedMilestone) {
@@ -445,7 +463,7 @@ export const voteOnPoll = async (req: Request, res: Response) => {
     // Emit real-time event (no user info for privacy)
     getSocketIO().emit("pollVoted", {
       pollId: id,
-      updatedVoteCounts: poll.options.map(opt => opt.votesCount),
+      updatedVoteCounts: poll.options.map((opt) => opt.votesCount),
       totalVotes: poll.totalVotes,
     });
 
@@ -469,12 +487,14 @@ export const voteOnPoll = async (req: Request, res: Response) => {
 export const removeVote = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
 
     // Find poll
     const poll = await Poll.findById(id);
     if (!poll) {
-      return res.status(404).json({ success: false, message: "Poll not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Poll not found" });
     }
 
     // Only author can remove votes
@@ -495,7 +515,7 @@ export const removeVote = async (req: Request, res: Response) => {
     }
 
     // Update poll vote counts
-    vote.optionIndices.forEach(index => {
+    vote.optionIndices.forEach((index) => {
       if (poll.options[index]) {
         poll.options[index].votesCount -= 1;
       }
@@ -503,10 +523,7 @@ export const removeVote = async (req: Request, res: Response) => {
     poll.totalVotes -= 1;
 
     // Delete vote and save poll
-    await Promise.all([
-      PollVote.findByIdAndDelete(vote._id),
-      poll.save(),
-    ]);
+    await Promise.all([PollVote.findByIdAndDelete(vote._id), poll.save()]);
 
     return res.json({
       success: true,
@@ -524,12 +541,14 @@ export const removeVote = async (req: Request, res: Response) => {
 export const closePoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
 
     // Find poll
     const poll = await Poll.findById(id);
     if (!poll) {
-      return res.status(404).json({ success: false, message: "Poll not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Poll not found" });
     }
 
     // Only author can close

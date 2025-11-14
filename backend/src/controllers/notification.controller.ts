@@ -14,7 +14,7 @@ import {
 // =========================
 export const getNotifications = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth.userId;
+    const currentUserId = req.auth().userId;
     const query = req.query as unknown as GetNotificationsQuerySchemaType;
     const { page, limit, unreadOnly } = query;
 
@@ -29,19 +29,14 @@ export const getNotifications = async (req: Request, res: Response) => {
 
     // Get notifications
     const [notifications, total] = await Promise.all([
-      Notification.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit),
+      Notification.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
       Notification.countDocuments(filter),
     ]);
 
     // Get unique actor IDs
     const actorIds = [
       ...new Set(
-        notifications
-          .filter((n) => n.actorId)
-          .map((n) => n.actorId as string)
+        notifications.filter((n) => n.actorId).map((n) => n.actorId as string)
       ),
     ];
 
@@ -51,9 +46,7 @@ export const getNotifications = async (req: Request, res: Response) => {
     );
 
     // Map actors by clerkId for quick lookup
-    const actorMap = new Map(
-      actors.map((actor) => [actor.clerkId, actor])
-    );
+    const actorMap = new Map(actors.map((actor) => [actor.clerkId, actor]));
 
     // Format notifications with actor details
     const formattedNotifications = notifications.map((notification) => ({
@@ -93,7 +86,7 @@ export const getNotifications = async (req: Request, res: Response) => {
 // =========================
 export const getUnreadCountController = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth.userId;
+    const currentUserId = req.auth().userId;
 
     const count = await getUnreadCount(currentUserId);
 
@@ -112,7 +105,7 @@ export const getUnreadCountController = async (req: Request, res: Response) => {
 // =========================
 export const markAsRead = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth.userId;
+    const currentUserId = req.auth().userId;
     const { id: notificationId } = req.params as { id: string };
 
     // Find and update notification
@@ -144,7 +137,7 @@ export const markAsRead = async (req: Request, res: Response) => {
 // =========================
 export const markAllAsRead = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth.userId;
+    const currentUserId = req.auth().userId;
 
     const count = await markNotificationsAsRead(currentUserId);
 
@@ -164,7 +157,7 @@ export const markAllAsRead = async (req: Request, res: Response) => {
 // =========================
 export const deleteNotification = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth.userId;
+    const currentUserId = req.auth().userId;
     const { id: notificationId } = req.params as { id: string };
 
     // Find and delete notification
@@ -195,7 +188,7 @@ export const deleteNotification = async (req: Request, res: Response) => {
 // =========================
 export const deleteAllRead = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth.userId;
+    const currentUserId = req.auth().userId;
 
     const count = await deleteReadNotifications(currentUserId);
 

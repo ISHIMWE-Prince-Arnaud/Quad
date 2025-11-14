@@ -1,6 +1,9 @@
 /// <reference path="../types/global.d.ts" />
 import type { Request, Response } from "express";
-import type { FeedQuerySchemaType, NewCountQuerySchemaType } from "../schemas/feed.schema.js";
+import type {
+  FeedQuerySchemaType,
+  NewCountQuerySchemaType,
+} from "../schemas/feed.schema.js";
 import type { IFeedResponse, IRawContentItem } from "../types/feed.types.js";
 import {
   fetchContentByTab,
@@ -21,7 +24,7 @@ import { Story } from "../models/Story.model.js";
 // =========================
 export const getFollowingFeed = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const query = req.query as unknown as FeedQuerySchemaType;
     const { tab, cursor, limit, sort } = query;
 
@@ -208,7 +211,10 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
     const resultItems = scoredItems.slice(0, limit);
 
     // Determine next cursor and hasMore
-    const nextCursor = resultItems.length > 0 ? resultItems[resultItems.length - 1]?._id : undefined;
+    const nextCursor =
+      resultItems.length > 0
+        ? resultItems[resultItems.length - 1]?._id
+        : undefined;
     const hasMore = scoredItems.length > limit;
 
     const response: IFeedResponse = {
@@ -240,7 +246,7 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
 // =========================
 export const getForYouFeed = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const query = req.query as unknown as FeedQuerySchemaType;
     const { tab, cursor, limit, sort } = query;
 
@@ -261,7 +267,9 @@ export const getForYouFeed = async (req: Request, res: Response) => {
           const [followingPosts, discoverPosts] = await Promise.all([
             Post.find({
               ...(cursor ? { _id: { $lt: cursor } } : {}),
-              ...(followingIds.length > 0 ? { userId: { $in: followingIds } } : {}),
+              ...(followingIds.length > 0
+                ? { userId: { $in: followingIds } }
+                : {}),
             })
               .sort({ createdAt: -1 })
               .limit(followingLimit)
@@ -269,7 +277,9 @@ export const getForYouFeed = async (req: Request, res: Response) => {
 
             Post.find({
               ...(cursor ? { _id: { $lt: cursor } } : {}),
-              ...(followingIds.length > 0 ? { userId: { $nin: followingIds } } : {}),
+              ...(followingIds.length > 0
+                ? { userId: { $nin: followingIds } }
+                : {}),
             })
               .sort({ createdAt: -1 })
               .limit(discoverLimit)
@@ -293,7 +303,9 @@ export const getForYouFeed = async (req: Request, res: Response) => {
           const [followingPolls, discoverPolls] = await Promise.all([
             Poll.find({
               ...(cursor ? { _id: { $lt: cursor } } : {}),
-              ...(followingIds.length > 0 ? { "author.clerkId": { $in: followingIds } } : {}),
+              ...(followingIds.length > 0
+                ? { "author.clerkId": { $in: followingIds } }
+                : {}),
               status: { $ne: "closed" },
             })
               .sort({ createdAt: -1 })
@@ -302,7 +314,9 @@ export const getForYouFeed = async (req: Request, res: Response) => {
 
             Poll.find({
               ...(cursor ? { _id: { $lt: cursor } } : {}),
-              ...(followingIds.length > 0 ? { "author.clerkId": { $nin: followingIds } } : {}),
+              ...(followingIds.length > 0
+                ? { "author.clerkId": { $nin: followingIds } }
+                : {}),
               status: { $ne: "closed" },
             })
               .sort({ createdAt: -1 })
@@ -329,7 +343,9 @@ export const getForYouFeed = async (req: Request, res: Response) => {
           const [followingStories, discoverStories] = await Promise.all([
             Story.find({
               ...(cursor ? { _id: { $lt: cursor } } : {}),
-              ...(followingIds.length > 0 ? { userId: { $in: followingIds } } : {}),
+              ...(followingIds.length > 0
+                ? { userId: { $in: followingIds } }
+                : {}),
               status: "published",
               expiresAt: { $gt: now },
             })
@@ -339,7 +355,9 @@ export const getForYouFeed = async (req: Request, res: Response) => {
 
             Story.find({
               ...(cursor ? { _id: { $lt: cursor } } : {}),
-              ...(followingIds.length > 0 ? { userId: { $nin: followingIds } } : {}),
+              ...(followingIds.length > 0
+                ? { userId: { $nin: followingIds } }
+                : {}),
               status: "published",
               expiresAt: { $gt: now },
             })
@@ -392,7 +410,10 @@ export const getForYouFeed = async (req: Request, res: Response) => {
     const resultItems = scoredItems.slice(0, limit);
 
     // Determine next cursor and hasMore
-    const nextCursor = resultItems.length > 0 ? resultItems[resultItems.length - 1]?._id : undefined;
+    const nextCursor =
+      resultItems.length > 0
+        ? resultItems[resultItems.length - 1]?._id
+        : undefined;
     const hasMore = scoredItems.length > limit;
 
     const response: IFeedResponse = {
@@ -424,7 +445,7 @@ export const getForYouFeed = async (req: Request, res: Response) => {
 // =========================
 export const getNewContentCount = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const query = req.query as unknown as NewCountQuerySchemaType;
     const { feedType, tab, since } = query;
 

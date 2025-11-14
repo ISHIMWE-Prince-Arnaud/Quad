@@ -11,14 +11,17 @@ import {
   updateFollowCounts,
 } from "../utils/follow.util.js";
 import { getSocketIO } from "../config/socket.config.js";
-import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
+import {
+  createNotification,
+  generateNotificationMessage,
+} from "../utils/notification.util.js";
 
 // =========================
 // FOLLOW USER
 // =========================
 export const followUser = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth.userId;
+    const currentUserId = req.auth().userId;
     const { userId: targetUserId } = req.params as { userId: string };
 
     // Check if trying to follow self
@@ -88,7 +91,7 @@ export const followUser = async (req: Request, res: Response) => {
 // =========================
 export const unfollowUser = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth.userId;
+    const currentUserId = req.auth().userId;
     const { userId: targetUserId } = req.params as { userId: string };
 
     // Check if trying to unfollow self
@@ -238,7 +241,7 @@ export const getFollowing = async (req: Request, res: Response) => {
 // =========================
 export const checkFollowing = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth.userId;
+    const currentUserId = req.auth().userId;
     const { userId: targetUserId } = req.params as { userId: string };
 
     // Check if checking own profile
@@ -278,7 +281,7 @@ export const checkFollowing = async (req: Request, res: Response) => {
 // =========================
 export const getMutualFollows = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth.userId;
+    const currentUserId = req.auth().userId;
     const { userId: targetUserId } = req.params as { userId: string };
 
     // Check if checking own profile
@@ -311,7 +314,7 @@ export const getMutualFollows = async (req: Request, res: Response) => {
 // =========================
 export const getFollowStatsController = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth.userId;
+    const currentUserId = req.auth().userId;
     const { userId: targetUserId } = req.params as { userId: string };
 
     // Get follow statistics

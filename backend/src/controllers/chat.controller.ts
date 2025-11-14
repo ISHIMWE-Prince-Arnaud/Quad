@@ -15,20 +15,25 @@ import {
   formatMessageResponse,
   sanitizeMessageText,
 } from "../utils/chat.util.js";
-import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
+import {
+  createNotification,
+  generateNotificationMessage,
+} from "../utils/notification.util.js";
 
 // =========================
 // SEND MESSAGE
 // =========================
 export const sendMessage = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const messageData = req.body as CreateMessageSchemaType;
 
     // Get user info
     const user = await User.findOne({ clerkId: userId });
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Sanitize text
@@ -60,7 +65,9 @@ export const sendMessage = async (req: Request, res: Response) => {
     if (mentions && mentions.length > 0) {
       for (const mentionedUsername of mentions) {
         // Find mentioned user
-        const mentionedUser = await User.findOne({ username: mentionedUsername });
+        const mentionedUser = await User.findOne({
+          username: mentionedUsername,
+        });
         if (mentionedUser && mentionedUser.clerkId !== userId) {
           await createNotification({
             userId: mentionedUser.clerkId,
@@ -93,7 +100,7 @@ export const sendMessage = async (req: Request, res: Response) => {
 // =========================
 export const getMessages = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth?.userId;
+    const userId = req.auth()?.userId;
     const query = req.query as unknown as GetMessagesQuerySchemaType;
     const { page, limit, before } = query;
 
@@ -159,7 +166,7 @@ export const getMessages = async (req: Request, res: Response) => {
 export const editMessage = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const updates = req.body as UpdateMessageSchemaType;
 
     // Find message
@@ -195,7 +202,9 @@ export const editMessage = async (req: Request, res: Response) => {
         // Remove media
         message.media = undefined as any;
         hasChanges = true;
-      } else if (JSON.stringify(updates.media) !== JSON.stringify(message.media)) {
+      } else if (
+        JSON.stringify(updates.media) !== JSON.stringify(message.media)
+      ) {
         // Update media
         message.media = updates.media as any;
         hasChanges = true;
@@ -245,7 +254,7 @@ export const editMessage = async (req: Request, res: Response) => {
 export const deleteMessage = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
 
     // Find message
     const message = await ChatMessage.findById(id);
@@ -288,7 +297,7 @@ export const deleteMessage = async (req: Request, res: Response) => {
 export const addReaction = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const { emoji } = req.body as AddReactionSchemaType;
 
     // Find message
@@ -357,7 +366,7 @@ export const addReaction = async (req: Request, res: Response) => {
 export const removeReaction = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
 
     // Find message
     const message = await ChatMessage.findById(id);
@@ -411,7 +420,7 @@ export const removeReaction = async (req: Request, res: Response) => {
 // =========================
 export const markAsRead = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const { lastReadMessageId } = req.body;
 
     // Verify message exists

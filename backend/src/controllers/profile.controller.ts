@@ -86,7 +86,7 @@ export const getProfile = async (req: Request, res: Response) => {
 // =========================
 export const getOwnProfile = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
 
     // Find current user
     const user = await User.findOne({ clerkId: userId });
@@ -118,7 +118,7 @@ export const getOwnProfile = async (req: Request, res: Response) => {
 // =========================
 export const updateProfile = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const userId = req.auth().userId;
     const updates = req.body as UpdateProfileSchemaType;
 
     // Find and update user

@@ -9,11 +9,13 @@ Quad uses Clerk for authentication, providing secure user management with social
 ## 🏗️ **Authentication Architecture**
 
 ### **Authentication Flow**
+
 ```
 Frontend → Clerk Widget → Clerk API → Backend Middleware → Protected Routes
 ```
 
 ### **Components**
+
 - **Clerk Dashboard**: User management and configuration
 - **Clerk Frontend SDK**: Login/signup widgets
 - **Clerk Backend SDK**: Token verification and user data
@@ -24,6 +26,7 @@ Frontend → Clerk Widget → Clerk API → Backend Middleware → Protected Rou
 ## ⚙️ **Configuration**
 
 ### **Environment Variables**
+
 ```bash
 # Clerk Configuration
 CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxxxx
@@ -35,14 +38,15 @@ CLERK_FRONTEND_API=your-clerk-frontend-api
 ```
 
 ### **Clerk Setup** (`config/clerk.config.ts`)
+
 ```typescript
-import { ClerkSDKError } from '@clerk/express';
+import { ClerkSDKError } from "@clerk/express";
 
 export const clerkConfig = {
   publishableKey: process.env.CLERK_PUBLISHABLE_KEY!,
   secretKey: process.env.CLERK_SECRET_KEY!,
   webhookSecret: process.env.CLERK_WEBHOOK_SECRET!,
-  apiVersion: 'v1',
+  apiVersion: "v1",
   // Additional configuration options
 };
 ```
@@ -52,8 +56,9 @@ export const clerkConfig = {
 ## 🛡️ **Middleware Implementation**
 
 ### **Auth Middleware** (`middlewares/auth.middleware.ts`)
+
 ```typescript
-import { clerkMiddleware, requireAuth } from '@clerk/express';
+import { clerkMiddleware, requireAuth } from "@clerk/express";
 
 // Apply Clerk middleware to all routes
 app.use(clerkMiddleware());
@@ -62,21 +67,22 @@ app.use(clerkMiddleware());
 export const requireAuthentication = requireAuth({
   onError: (error) => {
     return Response.json(
-      { success: false, message: 'Authentication required' },
+      { success: false, message: "Authentication required" },
       { status: 401 }
     );
-  }
+  },
 });
 ```
 
 ### **User Context Extraction**
+
 ```typescript
 export const extractUser = (req: Request) => {
-  const { userId, sessionId } = req.auth;
+  const { userId, sessionId } = req.auth();
   return {
     userId,
     sessionId,
-    isAuthenticated: !!userId
+    isAuthenticated: !!userId,
   };
 };
 ```
@@ -86,21 +92,22 @@ export const extractUser = (req: Request) => {
 ## 👤 **User Management**
 
 ### **User Creation Webhook**
+
 When a user signs up through Clerk, a webhook creates the user in our database:
 
 ```typescript
 // routes/webhook.routes.ts
-app.post('/api/webhooks/clerk', (req, res) => {
+app.post("/api/webhooks/clerk", (req, res) => {
   const { type, data } = req.body;
-  
+
   switch (type) {
-    case 'user.created':
+    case "user.created":
       await createUserFromClerk(data);
       break;
-    case 'user.updated':
+    case "user.updated":
       await updateUserFromClerk(data);
       break;
-    case 'user.deleted':
+    case "user.deleted":
       await deleteUserFromClerk(data);
       break;
   }
@@ -108,14 +115,15 @@ app.post('/api/webhooks/clerk', (req, res) => {
 ```
 
 ### **User Synchronization**
+
 ```typescript
 // controllers/user.controller.ts
 export const createUser = async (req: Request, res: Response) => {
-  const { userId } = req.auth;
-  
+  const { userId } = req.auth();
+
   // Get user data from Clerk
   const clerkUser = await clerkClient.users.getUser(userId);
-  
+
   // Create user in our database
   const newUser = await User.create({
     clerkId: userId,
@@ -123,7 +131,7 @@ export const createUser = async (req: Request, res: Response) => {
     email: clerkUser.emailAddresses[0]?.emailAddress,
     profileImage: clerkUser.profileImageUrl,
   });
-  
+
   return res.json({ success: true, data: newUser });
 };
 ```
@@ -133,32 +141,38 @@ export const createUser = async (req: Request, res: Response) => {
 ## 🔒 **Route Protection**
 
 ### **Protected Route Examples**
+
 ```typescript
 // Require authentication for all routes
-app.use('/api/posts', requireAuth());
+app.use("/api/posts", requireAuth());
 
 // Optional authentication (user context available if logged in)
-app.use('/api/public', clerkMiddleware());
+app.use("/api/public", clerkMiddleware());
 
 // Custom auth check
-app.get('/api/admin', requireAuth(), isAdmin, handler);
+app.get("/api/admin", requireAuth(), isAdmin, handler);
 ```
 
 ### **Permission Levels**
+
 ```typescript
-export const requireOwnership = async (req: Request, res: Response, next: NextFunction) => {
-  const { userId } = req.auth;
+export const requireOwnership = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { userId } = req.auth();
   const { id } = req.params;
-  
+
   const resource = await findResourceById(id);
-  
+
   if (resource.userId !== userId) {
     return res.status(403).json({
       success: false,
-      message: 'Access denied: Resource ownership required'
+      message: "Access denied: Resource ownership required",
     });
   }
-  
+
   next();
 };
 ```
@@ -168,12 +182,18 @@ export const requireOwnership = async (req: Request, res: Response, next: NextFu
 ## 📱 **Frontend Integration**
 
 ### **React Integration Example**
+
 ```jsx
-import { ClerkProvider, SignInButton, SignOutButton, useUser } from '@clerk/clerk-react';
+import {
+  ClerkProvider,
+  SignInButton,
+  SignOutButton,
+  useUser,
+} from "@clerk/clerk-react";
 
 function App() {
   const { isSignedIn, user } = useUser();
-  
+
   return (
     <ClerkProvider publishableKey={process.env.REACT_APP_CLERK_PUBLISHABLE_KEY}>
       {isSignedIn ? (
@@ -190,14 +210,15 @@ function App() {
 ```
 
 ### **API Request with Auth**
+
 ```javascript
 // Frontend API call with authentication
-const response = await fetch('/api/posts', {
-  method: 'GET',
+const response = await fetch("/api/posts", {
+  method: "GET",
   headers: {
-    'Authorization': `Bearer ${await getToken()}`,
-    'Content-Type': 'application/json'
-  }
+    Authorization: `Bearer ${await getToken()}`,
+    "Content-Type": "application/json",
+  },
 });
 ```
 
@@ -206,17 +227,18 @@ const response = await fetch('/api/posts', {
 ## 🔧 **User Profile Management**
 
 ### **Profile Data Structure**
+
 ```typescript
 interface UserProfile {
-  clerkId: string;       // Primary identifier from Clerk
-  username: string;      // Unique username
-  email: string;         // Email address
-  displayName?: string;  // Display name
-  bio?: string;          // User biography
+  clerkId: string; // Primary identifier from Clerk
+  username: string; // Unique username
+  email: string; // Email address
+  displayName?: string; // Display name
+  bio?: string; // User biography
   profileImage?: string; // Profile image URL
-  isVerified: boolean;   // Verification status
+  isVerified: boolean; // Verification status
   settings: {
-    privacy: 'public' | 'private';
+    privacy: "public" | "private";
     notifications: boolean;
     emailUpdates: boolean;
   };
@@ -224,24 +246,23 @@ interface UserProfile {
 ```
 
 ### **Profile Updates**
+
 ```typescript
 export const updateProfile = async (req: Request, res: Response) => {
-  const { userId } = req.auth;
+  const { userId } = req.auth();
   const updates = req.body;
-  
+
   // Update in our database
-  const user = await User.findOneAndUpdate(
-    { clerkId: userId },
-    updates,
-    { new: true }
-  );
-  
+  const user = await User.findOneAndUpdate({ clerkId: userId }, updates, {
+    new: true,
+  });
+
   // Optionally sync with Clerk
   await clerkClient.users.updateUser(userId, {
     firstName: updates.firstName,
     lastName: updates.lastName,
   });
-  
+
   return res.json({ success: true, data: user });
 };
 ```
@@ -251,32 +272,38 @@ export const updateProfile = async (req: Request, res: Response) => {
 ## 🔐 **Session Management**
 
 ### **Session Validation**
+
 ```typescript
-export const validateSession = async (req: Request, res: Response, next: NextFunction) => {
+export const validateSession = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const { sessionId } = req.auth;
-    
+    const { sessionId } = req.auth();
+
     // Verify session is still active
     const session = await clerkClient.sessions.getSession(sessionId);
-    
-    if (session.status !== 'active') {
+
+    if (session.status !== "active") {
       return res.status(401).json({
         success: false,
-        message: 'Session expired'
+        message: "Session expired",
       });
     }
-    
+
     next();
   } catch (error) {
     return res.status(401).json({
       success: false,
-      message: 'Invalid session'
+      message: "Invalid session",
     });
   }
 };
 ```
 
 ### **Session Refresh**
+
 ```typescript
 // Frontend session refresh
 const refreshSession = async () => {
@@ -284,7 +311,7 @@ const refreshSession = async () => {
     await clerk.session?.reload();
   } catch (error) {
     // Redirect to login
-    window.location.href = '/login';
+    window.location.href = "/login";
   }
 };
 ```
@@ -294,48 +321,54 @@ const refreshSession = async () => {
 ## 🔔 **Webhooks**
 
 ### **Webhook Security**
-```typescript
-import { Webhook } from 'svix';
 
-export const verifyWebhook = (req: Request, res: Response, next: NextFunction) => {
+```typescript
+import { Webhook } from "svix";
+
+export const verifyWebhook = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const webhook = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
-  
+
   try {
     const payload = webhook.verify(
       JSON.stringify(req.body),
       req.headers as Record<string, string>
     );
-    
+
     req.body = payload;
     next();
   } catch (error) {
     return res.status(400).json({
       success: false,
-      message: 'Invalid webhook signature'
+      message: "Invalid webhook signature",
     });
   }
 };
 ```
 
 ### **Webhook Events**
+
 ```typescript
 // Supported Clerk webhook events
 const WEBHOOK_EVENTS = {
-  'user.created': handleUserCreated,
-  'user.updated': handleUserUpdated,
-  'user.deleted': handleUserDeleted,
-  'session.created': handleSessionCreated,
-  'session.ended': handleSessionEnded,
+  "user.created": handleUserCreated,
+  "user.updated": handleUserUpdated,
+  "user.deleted": handleUserDeleted,
+  "session.created": handleSessionCreated,
+  "session.ended": handleSessionEnded,
 };
 
 export const handleWebhook = async (req: Request, res: Response) => {
   const { type, data } = req.body;
-  
+
   const handler = WEBHOOK_EVENTS[type];
   if (handler) {
     await handler(data);
   }
-  
+
   return res.status(200).json({ success: true });
 };
 ```
@@ -345,34 +378,36 @@ export const handleWebhook = async (req: Request, res: Response) => {
 ## 🛡️ **Security Features**
 
 ### **Multi-Factor Authentication (MFA)**
+
 ```typescript
 // Enable MFA for user
 export const enableMFA = async (req: Request, res: Response) => {
-  const { userId } = req.auth;
-  
+  const { userId } = req.auth();
+
   try {
     await clerkClient.users.updateUser(userId, {
-      publicMetadata: { mfaEnabled: true }
+      publicMetadata: { mfaEnabled: true },
     });
-    
+
     return res.json({
       success: true,
-      message: 'MFA enabled successfully'
+      message: "MFA enabled successfully",
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Failed to enable MFA'
+      message: "Failed to enable MFA",
     });
   }
 };
 ```
 
 ### **Rate Limiting by User**
+
 ```typescript
 // User-specific rate limiting
 export const userRateLimit = rateLimit({
-  keyGenerator: (req) => req.auth.userId,
+  keyGenerator: (req) => req.auth().userId,
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each user to 100 requests per windowMs
 });
@@ -383,23 +418,24 @@ export const userRateLimit = rateLimit({
 ## 🔍 **User Search & Discovery**
 
 ### **User Search**
+
 ```typescript
 export const searchUsers = async (req: Request, res: Response) => {
   const { query } = req.query;
-  const { userId } = req.auth; // Current user for personalization
-  
+  const { userId } = req.auth(); // Current user for personalization
+
   const users = await User.find({
     $and: [
       { clerkId: { $ne: userId } }, // Exclude self
       {
         $or: [
-          { username: new RegExp(query, 'i') },
-          { displayName: new RegExp(query, 'i') }
-        ]
-      }
-    ]
+          { username: new RegExp(query, "i") },
+          { displayName: new RegExp(query, "i") },
+        ],
+      },
+    ],
   }).limit(20);
-  
+
   return res.json({ success: true, data: users });
 };
 ```
@@ -409,6 +445,7 @@ export const searchUsers = async (req: Request, res: Response) => {
 ## 📊 **Authentication Analytics**
 
 ### **User Activity Tracking**
+
 ```typescript
 export const trackUserActivity = async (userId: string, action: string) => {
   await UserActivity.create({
@@ -416,26 +453,27 @@ export const trackUserActivity = async (userId: string, action: string) => {
     action,
     timestamp: new Date(),
     ip: req.ip,
-    userAgent: req.get('User-Agent')
+    userAgent: req.get("User-Agent"),
   });
 };
 ```
 
 ### **Login Analytics**
+
 ```typescript
 // Track login events
 export const handleLogin = async (req: Request, res: Response) => {
-  const { userId } = req.auth;
-  
+  const { userId } = req.auth();
+
   await User.findOneAndUpdate(
     { clerkId: userId },
-    { 
+    {
       lastLoginAt: new Date(),
-      $inc: { loginCount: 1 }
+      $inc: { loginCount: 1 },
     }
   );
-  
-  await trackUserActivity(userId, 'login');
+
+  await trackUserActivity(userId, "login");
 };
 ```
 
@@ -444,27 +482,29 @@ export const handleLogin = async (req: Request, res: Response) => {
 ## 🔧 **Development & Testing**
 
 ### **Mock Authentication (Testing)**
+
 ```typescript
 // Test helper for mocking auth
 export const mockAuth = (userId: string) => ({
-  auth: { userId, sessionId: 'test-session' }
+  auth: { userId, sessionId: "test-session" },
 });
 
 // Usage in tests
-const req = { ...mockAuth('user_123'), body: testData };
+const req = { ...mockAuth("user_123"), body: testData };
 ```
 
 ### **Auth State Debugging**
+
 ```typescript
 export const debugAuth = (req: Request, res: Response) => {
-  const { userId, sessionId } = req.auth;
-  
+  const { userId, sessionId } = req.auth();
+
   return res.json({
     isAuthenticated: !!userId,
     userId,
     sessionId,
     headers: req.headers.authorization,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 ```
@@ -474,35 +514,36 @@ export const debugAuth = (req: Request, res: Response) => {
 ## 🚨 **Error Handling**
 
 ### **Common Auth Errors**
+
 ```typescript
 export const authErrorHandler = (error: any, req: Request, res: Response) => {
   switch (error.code) {
-    case 'unauthenticated':
+    case "unauthenticated":
       return res.status(401).json({
         success: false,
-        message: 'Authentication required',
-        code: 'AUTH_REQUIRED'
+        message: "Authentication required",
+        code: "AUTH_REQUIRED",
       });
-    
-    case 'session_expired':
+
+    case "session_expired":
       return res.status(401).json({
         success: false,
-        message: 'Session expired',
-        code: 'SESSION_EXPIRED'
+        message: "Session expired",
+        code: "SESSION_EXPIRED",
       });
-    
-    case 'insufficient_permissions':
+
+    case "insufficient_permissions":
       return res.status(403).json({
         success: false,
-        message: 'Insufficient permissions',
-        code: 'FORBIDDEN'
+        message: "Insufficient permissions",
+        code: "FORBIDDEN",
       });
-    
+
     default:
       return res.status(500).json({
         success: false,
-        message: 'Authentication error',
-        code: 'AUTH_ERROR'
+        message: "Authentication error",
+        code: "AUTH_ERROR",
       });
   }
 };
@@ -513,6 +554,7 @@ export const authErrorHandler = (error: any, req: Request, res: Response) => {
 ## 📝 **Best Practices**
 
 ### **Security Guidelines**
+
 1. **Always validate tokens** on the backend
 2. **Use HTTPS** in production
 3. **Implement proper CORS** policies
@@ -520,12 +562,14 @@ export const authErrorHandler = (error: any, req: Request, res: Response) => {
 5. **Regular security audits** of auth implementation
 
 ### **Performance Tips**
+
 1. **Cache user data** to reduce Clerk API calls
 2. **Use database indexes** on clerkId fields
 3. **Implement token refresh** logic
 4. **Monitor auth endpoint** performance
 
 ### **User Experience**
+
 1. **Smooth login/logout** flows
 2. **Clear error messages** for auth failures
 3. **Progressive enhancement** for JS-disabled users

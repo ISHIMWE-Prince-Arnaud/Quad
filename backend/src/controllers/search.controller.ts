@@ -12,7 +12,7 @@ import {
   deleteSearchHistory,
   clearSearchHistory,
   getPopularSearches,
-  getTrendingSearches
+  getTrendingSearches,
 } from "../utils/search.util.js";
 
 // =========================
@@ -25,21 +25,21 @@ import {
  */
 export const searchUsersController = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth?.userId;
-    const { 
-      q: query, 
-      limit, 
-      offset, 
-      sortBy, 
-      fuzzy, 
-      dateFrom, 
-      dateTo 
+    const userId = req.auth()?.userId;
+    const {
+      q: query,
+      limit,
+      offset,
+      sortBy,
+      fuzzy,
+      dateFrom,
+      dateTo,
     } = req.query;
-    
+
     if (!query || typeof query !== "string") {
       return res.status(400).json({
         success: false,
-        message: "Query parameter 'q' is required"
+        message: "Query parameter 'q' is required",
       });
     }
 
@@ -47,21 +47,21 @@ export const searchUsersController = async (req: Request, res: Response) => {
       query,
       limit: Number(limit) || 20,
       offset: Number(offset) || 0,
-      sortBy: sortBy as any || 'relevance',
-      fuzzy: fuzzy === 'true',
+      sortBy: (sortBy as any) || "relevance",
+      fuzzy: fuzzy === "true",
       dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
-      dateTo: dateTo ? new Date(dateTo as string) : undefined
+      dateTo: dateTo ? new Date(dateTo as string) : undefined,
     };
 
     const result = await searchUsers(searchOptions);
 
     // Save to search history
     if (userId) {
-      await saveSearchHistory(userId, query, 'users', result.total, {
+      await saveSearchHistory(userId, query, "users", result.total, {
         sortBy: searchOptions.sortBy,
         fuzzy: searchOptions.fuzzy,
         dateFrom: searchOptions.dateFrom,
-        dateTo: searchOptions.dateTo
+        dateTo: searchOptions.dateTo,
       });
     }
 
@@ -75,16 +75,16 @@ export const searchUsersController = async (req: Request, res: Response) => {
           totalPages: result.totalPages,
           hasMore: result.hasMore,
           total: result.total,
-          count: result.results.length
+          count: result.results.length,
         },
-        highlights: result.highlights
-      }
+        highlights: result.highlights,
+      },
     });
   } catch (error) {
     logger.error("Error in searchUsersController", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -95,22 +95,22 @@ export const searchUsersController = async (req: Request, res: Response) => {
  */
 export const searchPostsController = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth?.userId;
-    const { 
-      q: query, 
-      limit, 
-      offset, 
-      sortBy, 
-      fuzzy, 
+    const userId = req.auth()?.userId;
+    const {
+      q: query,
+      limit,
+      offset,
+      sortBy,
+      fuzzy,
       author,
-      dateFrom, 
-      dateTo 
+      dateFrom,
+      dateTo,
     } = req.query;
-    
+
     if (!query || typeof query !== "string") {
       return res.status(400).json({
         success: false,
-        message: "Query parameter 'q' is required"
+        message: "Query parameter 'q' is required",
       });
     }
 
@@ -118,23 +118,23 @@ export const searchPostsController = async (req: Request, res: Response) => {
       query,
       limit: Number(limit) || 20,
       offset: Number(offset) || 0,
-      sortBy: sortBy as any || 'relevance',
-      fuzzy: fuzzy === 'true',
+      sortBy: (sortBy as any) || "relevance",
+      fuzzy: fuzzy === "true",
       author: author as string,
       dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
-      dateTo: dateTo ? new Date(dateTo as string) : undefined
+      dateTo: dateTo ? new Date(dateTo as string) : undefined,
     };
 
     const result = await searchPosts(searchOptions);
 
     // Save to search history
     if (userId) {
-      await saveSearchHistory(userId, query, 'posts', result.total, {
+      await saveSearchHistory(userId, query, "posts", result.total, {
         sortBy: searchOptions.sortBy,
         fuzzy: searchOptions.fuzzy,
         author: searchOptions.author,
         dateFrom: searchOptions.dateFrom,
-        dateTo: searchOptions.dateTo
+        dateTo: searchOptions.dateTo,
       });
     }
 
@@ -148,16 +148,16 @@ export const searchPostsController = async (req: Request, res: Response) => {
           totalPages: result.totalPages,
           hasMore: result.hasMore,
           total: result.total,
-          count: result.results.length
+          count: result.results.length,
         },
-        highlights: result.highlights
-      }
+        highlights: result.highlights,
+      },
     });
   } catch (error) {
     logger.error("Error in searchPostsController", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -168,22 +168,22 @@ export const searchPostsController = async (req: Request, res: Response) => {
  */
 export const searchPollsController = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth?.userId;
-    const { 
-      q: query, 
-      limit, 
-      offset, 
-      sortBy, 
-      fuzzy, 
+    const userId = req.auth()?.userId;
+    const {
+      q: query,
+      limit,
+      offset,
+      sortBy,
+      fuzzy,
       author,
-      dateFrom, 
-      dateTo 
+      dateFrom,
+      dateTo,
     } = req.query;
-    
+
     if (!query || typeof query !== "string") {
       return res.status(400).json({
         success: false,
-        message: "Query parameter 'q' is required"
+        message: "Query parameter 'q' is required",
       });
     }
 
@@ -191,23 +191,23 @@ export const searchPollsController = async (req: Request, res: Response) => {
       query,
       limit: Number(limit) || 20,
       offset: Number(offset) || 0,
-      sortBy: sortBy as any || 'relevance',
-      fuzzy: fuzzy === 'true',
+      sortBy: (sortBy as any) || "relevance",
+      fuzzy: fuzzy === "true",
       author: author as string,
       dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
-      dateTo: dateTo ? new Date(dateTo as string) : undefined
+      dateTo: dateTo ? new Date(dateTo as string) : undefined,
     };
 
     const result = await searchPolls(searchOptions);
 
     // Save to search history
     if (userId) {
-      await saveSearchHistory(userId, query, 'polls', result.total, {
+      await saveSearchHistory(userId, query, "polls", result.total, {
         sortBy: searchOptions.sortBy,
         fuzzy: searchOptions.fuzzy,
         author: searchOptions.author,
         dateFrom: searchOptions.dateFrom,
-        dateTo: searchOptions.dateTo
+        dateTo: searchOptions.dateTo,
       });
     }
 
@@ -221,16 +221,16 @@ export const searchPollsController = async (req: Request, res: Response) => {
           totalPages: result.totalPages,
           hasMore: result.hasMore,
           total: result.total,
-          count: result.results.length
+          count: result.results.length,
         },
-        highlights: result.highlights
-      }
+        highlights: result.highlights,
+      },
     });
   } catch (error) {
     logger.error("Error in searchPollsController", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -241,22 +241,22 @@ export const searchPollsController = async (req: Request, res: Response) => {
  */
 export const searchStoriesController = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth?.userId;
-    const { 
-      q: query, 
-      limit, 
-      offset, 
-      sortBy, 
-      fuzzy, 
+    const userId = req.auth()?.userId;
+    const {
+      q: query,
+      limit,
+      offset,
+      sortBy,
+      fuzzy,
       author,
-      dateFrom, 
-      dateTo 
+      dateFrom,
+      dateTo,
     } = req.query;
-    
+
     if (!query || typeof query !== "string") {
       return res.status(400).json({
         success: false,
-        message: "Query parameter 'q' is required"
+        message: "Query parameter 'q' is required",
       });
     }
 
@@ -264,23 +264,23 @@ export const searchStoriesController = async (req: Request, res: Response) => {
       query,
       limit: Number(limit) || 20,
       offset: Number(offset) || 0,
-      sortBy: sortBy as any || 'relevance',
-      fuzzy: fuzzy === 'true',
+      sortBy: (sortBy as any) || "relevance",
+      fuzzy: fuzzy === "true",
       author: author as string,
       dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
-      dateTo: dateTo ? new Date(dateTo as string) : undefined
+      dateTo: dateTo ? new Date(dateTo as string) : undefined,
     };
 
     const result = await searchStories(searchOptions);
 
     // Save to search history
     if (userId) {
-      await saveSearchHistory(userId, query, 'stories', result.total, {
+      await saveSearchHistory(userId, query, "stories", result.total, {
         sortBy: searchOptions.sortBy,
         fuzzy: searchOptions.fuzzy,
         author: searchOptions.author,
         dateFrom: searchOptions.dateFrom,
-        dateTo: searchOptions.dateTo
+        dateTo: searchOptions.dateTo,
       });
     }
 
@@ -294,16 +294,16 @@ export const searchStoriesController = async (req: Request, res: Response) => {
           totalPages: result.totalPages,
           hasMore: result.hasMore,
           total: result.total,
-          count: result.results.length
+          count: result.results.length,
         },
-        highlights: result.highlights
-      }
+        highlights: result.highlights,
+      },
     });
   } catch (error) {
     logger.error("Error in searchStoriesController", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -314,35 +314,30 @@ export const searchStoriesController = async (req: Request, res: Response) => {
  */
 export const globalSearchController = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth?.userId;
-    const { 
-      q: query, 
-      limit, 
-      sortBy, 
-      fuzzy 
-    } = req.query;
-    
+    const userId = req.auth()?.userId;
+    const { q: query, limit, sortBy, fuzzy } = req.query;
+
     if (!query || typeof query !== "string") {
       return res.status(400).json({
         success: false,
-        message: "Query parameter 'q' is required"
+        message: "Query parameter 'q' is required",
       });
     }
 
     const searchOptions = {
       query,
       limit: Number(limit) || 5,
-      sortBy: sortBy as any || 'relevance',
-      fuzzy: fuzzy === 'true'
+      sortBy: (sortBy as any) || "relevance",
+      fuzzy: fuzzy === "true",
     };
 
     const results = await globalSearch(searchOptions);
 
     // Save to search history
     if (userId) {
-      await saveSearchHistory(userId, query, 'global', results.total, {
+      await saveSearchHistory(userId, query, "global", results.total, {
         sortBy: searchOptions.sortBy,
-        fuzzy: searchOptions.fuzzy
+        fuzzy: searchOptions.fuzzy,
       });
     }
 
@@ -356,15 +351,15 @@ export const globalSearchController = async (req: Request, res: Response) => {
           posts: results.posts.length,
           polls: results.polls.length,
           stories: results.stories.length,
-          total: results.total
-        }
-      }
+          total: results.total,
+        },
+      },
     });
   } catch (error) {
     logger.error("Error in globalSearchController", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -373,14 +368,17 @@ export const globalSearchController = async (req: Request, res: Response) => {
  * Get search suggestions (autocomplete)
  * GET /api/search/suggestions?q=query&limit=10
  */
-export const getSearchSuggestionsController = async (req: Request, res: Response) => {
+export const getSearchSuggestionsController = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { q: query, limit } = req.query;
-    
+
     if (!query || typeof query !== "string") {
       return res.status(400).json({
         success: false,
-        message: "Query parameter 'q' is required"
+        message: "Query parameter 'q' is required",
       });
     }
 
@@ -391,14 +389,14 @@ export const getSearchSuggestionsController = async (req: Request, res: Response
       data: {
         query,
         suggestions,
-        count: suggestions.length
-      }
+        count: suggestions.length,
+      },
     });
   } catch (error) {
     logger.error("Error in getSearchSuggestionsController", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -411,15 +409,18 @@ export const getSearchSuggestionsController = async (req: Request, res: Response
  * Get user's search history
  * GET /api/search/history?limit=20
  */
-export const getSearchHistoryController = async (req: Request, res: Response) => {
+export const getSearchHistoryController = async (
+  req: Request,
+  res: Response
+) => {
   try {
-    const userId = req.auth?.userId;
+    const userId = req.auth()?.userId;
     const { limit } = req.query;
 
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Authentication required"
+        message: "Authentication required",
       });
     }
 
@@ -429,14 +430,14 @@ export const getSearchHistoryController = async (req: Request, res: Response) =>
       success: true,
       data: {
         history,
-        count: history.length
-      }
+        count: history.length,
+      },
     });
   } catch (error) {
     logger.error("Error in getSearchHistoryController", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -445,22 +446,25 @@ export const getSearchHistoryController = async (req: Request, res: Response) =>
  * Delete search from history
  * DELETE /api/search/history/:id
  */
-export const deleteSearchHistoryController = async (req: Request, res: Response) => {
+export const deleteSearchHistoryController = async (
+  req: Request,
+  res: Response
+) => {
   try {
-    const userId = req.auth?.userId;
+    const userId = req.auth()?.userId;
     const { id } = req.params;
 
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Authentication required"
+        message: "Authentication required",
       });
     }
 
     if (!id) {
       return res.status(400).json({
         success: false,
-        message: "History ID is required"
+        message: "History ID is required",
       });
     }
 
@@ -469,19 +473,19 @@ export const deleteSearchHistoryController = async (req: Request, res: Response)
     if (!deleted) {
       return res.status(404).json({
         success: false,
-        message: "Search history not found"
+        message: "Search history not found",
       });
     }
 
     return res.json({
       success: true,
-      message: "Search history deleted"
+      message: "Search history deleted",
     });
   } catch (error) {
     logger.error("Error in deleteSearchHistoryController", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -490,14 +494,17 @@ export const deleteSearchHistoryController = async (req: Request, res: Response)
  * Clear all search history
  * DELETE /api/search/history
  */
-export const clearSearchHistoryController = async (req: Request, res: Response) => {
+export const clearSearchHistoryController = async (
+  req: Request,
+  res: Response
+) => {
   try {
-    const userId = req.auth?.userId;
+    const userId = req.auth()?.userId;
 
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Authentication required"
+        message: "Authentication required",
       });
     }
 
@@ -505,13 +512,13 @@ export const clearSearchHistoryController = async (req: Request, res: Response) 
 
     return res.json({
       success: true,
-      message: `Cleared ${deletedCount} search history items`
+      message: `Cleared ${deletedCount} search history items`,
     });
   } catch (error) {
     logger.error("Error in clearSearchHistoryController", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -524,7 +531,10 @@ export const clearSearchHistoryController = async (req: Request, res: Response) 
  * Get popular searches
  * GET /api/search/analytics/popular?searchType=users&limit=10
  */
-export const getPopularSearchesController = async (req: Request, res: Response) => {
+export const getPopularSearchesController = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { searchType, limit } = req.query;
 
@@ -537,14 +547,14 @@ export const getPopularSearchesController = async (req: Request, res: Response) 
       success: true,
       data: {
         popularSearches,
-        count: popularSearches.length
-      }
+        count: popularSearches.length,
+      },
     });
   } catch (error) {
     logger.error("Error in getPopularSearchesController", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -553,7 +563,10 @@ export const getPopularSearchesController = async (req: Request, res: Response) 
  * Get trending searches
  * GET /api/search/analytics/trending?searchType=users&limit=10
  */
-export const getTrendingSearchesController = async (req: Request, res: Response) => {
+export const getTrendingSearchesController = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { searchType, limit } = req.query;
 
@@ -566,14 +579,14 @@ export const getTrendingSearchesController = async (req: Request, res: Response)
       success: true,
       data: {
         trendingSearches,
-        count: trendingSearches.length
-      }
+        count: trendingSearches.length,
+      },
     });
   } catch (error) {
     logger.error("Error in getTrendingSearchesController", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
