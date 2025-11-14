@@ -9,7 +9,6 @@ import {
 import {
   getProfile,
   getProfileById,
-  getOwnProfile,
   updateProfile,
   getUserPosts,
   getUserStories,
@@ -22,23 +21,8 @@ const router = Router();
 // PROFILE ROUTES
 // ===========================
 
-// Get own profile
-router.get("/me", requireAuth(), getOwnProfile);
-
-// Update own profile
-router.put(
-  "/me",
-  requireAuth(),
-  validateSchema(updateProfileSchema, "body"),
-  updateProfile
-);
-
 // Get user profile by ID (convenience endpoint)
-router.get(
-  "/id/:userId",
-  requireAuth(),
-  getProfileById
-);
+router.get("/id/:userId", requireAuth(), getProfileById);
 
 // Get user profile by username
 router.get(
@@ -46,6 +30,15 @@ router.get(
   requireAuth(),
   validateSchema(usernameParamSchema, "params"),
   getProfile
+);
+
+// Update user profile (only own profile allowed)
+router.put(
+  "/:username",
+  requireAuth(),
+  validateSchema(usernameParamSchema, "params"),
+  validateSchema(updateProfileSchema, "body"),
+  updateProfile
 );
 
 // ===========================

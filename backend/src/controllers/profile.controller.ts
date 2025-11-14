@@ -55,6 +55,7 @@ export const getProfileById = async (req: Request, res: Response) => {
 export const getProfile = async (req: Request, res: Response) => {
   try {
     const { username } = req.params;
+    const currentUserId = req.auth.userId;
 
     // Find user by username
     const user = await User.findOne({ username });
@@ -65,15 +66,19 @@ export const getProfile = async (req: Request, res: Response) => {
       });
     }
 
+    // Check if user is viewing their own profile
+    const isOwnProfile = user.clerkId === currentUserId;
+
     // Calculate profile statistics
     const stats = await calculateProfileStats(user.clerkId);
 
-    // Format response
-    const profile = formatProfileResponse(user, stats);
+    // Format response (can include additional data for own profile)
+    const profile = formatProfileResponse(user, stats, isOwnProfile);
 
     return res.json({
       success: true,
       data: profile,
+      isOwnProfile, // Include this flag in response
     });
   } catch (error: any) {
     console.error("Error fetching profile:", error);
@@ -128,12 +133,30 @@ export const getOwnProfile = async (req: Request, res: Response) => {
 // =========================
 export const updateProfile = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth.userId;
+    const { username } = req.params;
+    const currentUserId = req.auth.userId;
     const updates = req.body as UpdateProfileSchemaType;
 
-    // Find and update user
+    // Find the user to be updated
+    const userToUpdate = await User.findOne({ username });
+    if (!userToUpdate) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Verify that user can only update their own profile
+    if (userToUpdate.clerkId !== currentUserId) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: You can only update your own profile",
+      });
+    }
+
+    // Update the user profile
     const user = await User.findOneAndUpdate(
-      { clerkId: userId },
+      { clerkId: currentUserId },
       { $set: updates },
       { new: true, runValidators: true }
     );
@@ -171,7 +194,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
     const query = req.query as unknown as PaginationQuerySchemaType;
     const { page, limit } = query;
 
-    // Find user
+    // Find user by username
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({
