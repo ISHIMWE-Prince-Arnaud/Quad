@@ -1,0 +1,8 @@
+version: "2"
+authtoken: YOUR_NGROK_AUTH_TOKEN # Get this from ngrok.com/your-authtoken
+tunnels:
+  backend:
+    addr: 4000
+    proto: http
+    host_header: localhost:4000
+    schemes: [https, http]

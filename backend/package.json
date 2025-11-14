@@ -4,6 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx src/server.ts",
+    "dev:tunnel": "node start-dev-with-tunnel.js",
+    "dev:simple": "concurrently \"npm run dev\" \"ngrok http 4000\"",
+    "tunnel": "ngrok http 4000",
     "build": "tsc",
     "start": "node dist/server.js"
   },
@@ -31,6 +34,7 @@
     "@types/node-cron": "^3.0.11",
     "@types/sanitize-html": "^2.16.0",
     "@types/socket.io": "^3.0.1",
+    "concurrently": "^9.2.1",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
