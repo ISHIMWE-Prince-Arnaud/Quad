@@ -22,7 +22,7 @@ export const toggleReaction = async (req: Request, res: Response) => {
   try {
     const { contentType, contentId, type } =
       req.body as CreateReactionSchemaType;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     // Verify content exists
     const { exists, content } = await verifyReactableContent(
@@ -199,7 +199,7 @@ export const getReactionsByContent = async (req: Request, res: Response) => {
     ]);
 
     // Check if current user has reacted
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
     const userReaction = userId
       ? await Reaction.findOne({ contentType, contentId, userId })
       : null;
@@ -224,7 +224,7 @@ export const getReactionsByContent = async (req: Request, res: Response) => {
 // =========================
 export const getUserReactions = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const { limit = "20", skip = "0" } = req.query;
 
     const reactions = await Reaction.find({ userId })
@@ -259,7 +259,7 @@ export const deleteReaction = async (req: Request, res: Response) => {
       contentType: ReactableContentType;
       contentId: string;
     };
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     const reaction = await Reaction.findOneAndDelete({
       contentType,

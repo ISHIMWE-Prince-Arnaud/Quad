@@ -14,7 +14,7 @@ import {
 // =========================
 export const getNotifications = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth().userId;
+    const currentUserId = req.auth.userId;
     const query = req.query as unknown as GetNotificationsQuerySchemaType;
     const { page, limit, unreadOnly } = query;
 
@@ -86,7 +86,7 @@ export const getNotifications = async (req: Request, res: Response) => {
 // =========================
 export const getUnreadCountController = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth().userId;
+    const currentUserId = req.auth.userId;
 
     const count = await getUnreadCount(currentUserId);
 
@@ -105,7 +105,7 @@ export const getUnreadCountController = async (req: Request, res: Response) => {
 // =========================
 export const markAsRead = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth().userId;
+    const currentUserId = req.auth.userId;
     const { id: notificationId } = req.params as { id: string };
 
     // Find and update notification
@@ -137,7 +137,7 @@ export const markAsRead = async (req: Request, res: Response) => {
 // =========================
 export const markAllAsRead = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth().userId;
+    const currentUserId = req.auth.userId;
 
     const count = await markNotificationsAsRead(currentUserId);
 
@@ -157,7 +157,7 @@ export const markAllAsRead = async (req: Request, res: Response) => {
 // =========================
 export const deleteNotification = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth().userId;
+    const currentUserId = req.auth.userId;
     const { id: notificationId } = req.params as { id: string };
 
     // Find and delete notification
@@ -188,7 +188,7 @@ export const deleteNotification = async (req: Request, res: Response) => {
 // =========================
 export const deleteAllRead = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.auth().userId;
+    const currentUserId = req.auth.userId;
 
     const count = await deleteReadNotifications(currentUserId);
 

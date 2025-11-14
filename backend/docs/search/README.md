@@ -974,7 +974,7 @@ export const searchController = async (req: Request, res: Response) => {
     };
 
     let results;
-    const { userId } = req.auth();
+    const { userId } = req.auth;
 
     // Save search history
     if (userId) {

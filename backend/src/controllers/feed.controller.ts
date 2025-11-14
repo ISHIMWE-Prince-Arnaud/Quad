@@ -24,7 +24,7 @@ import { Story } from "../models/Story.model.js";
 // =========================
 export const getFollowingFeed = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const query = req.query as unknown as FeedQuerySchemaType;
     const { tab, cursor, limit, sort } = query;
 
@@ -246,7 +246,7 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
 // =========================
 export const getForYouFeed = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const query = req.query as unknown as FeedQuerySchemaType;
     const { tab, cursor, limit, sort } = query;
 
@@ -445,7 +445,7 @@ export const getForYouFeed = async (req: Request, res: Response) => {
 // =========================
 export const getNewContentCount = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const query = req.query as unknown as NewCountQuerySchemaType;
     const { feedType, tab, since } = query;
 

@@ -27,7 +27,7 @@ import {
 // =========================
 export const createPoll = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const pollData = req.body as CreatePollSchemaType;
 
     // Get user info
@@ -87,7 +87,7 @@ export const createPoll = async (req: Request, res: Response) => {
 // =========================
 export const getAllPolls = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
     const query = req.query as unknown as GetPollsQuerySchemaType;
     const { page, limit, status, author, voted, search, sort } = query;
 
@@ -195,7 +195,7 @@ export const getAllPolls = async (req: Request, res: Response) => {
 // =========================
 export const getMyPolls = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const { page = 1, limit = 10 } = req.query;
 
     const pageNum = parseInt(page as string);
@@ -239,7 +239,7 @@ export const getMyPolls = async (req: Request, res: Response) => {
 export const getPoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
 
     // Find poll
     const poll = await Poll.findById(id);
@@ -283,7 +283,7 @@ export const getPoll = async (req: Request, res: Response) => {
 export const updatePoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const updates = req.body as UpdatePollSchemaType;
 
     // Find poll
@@ -340,7 +340,7 @@ export const updatePoll = async (req: Request, res: Response) => {
 export const deletePoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     // Find poll
     const poll = await Poll.findById(id);
@@ -383,7 +383,7 @@ export const deletePoll = async (req: Request, res: Response) => {
 export const voteOnPoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const { optionIndices } = req.body as VoteOnPollSchemaType;
 
     // Find poll
@@ -487,7 +487,7 @@ export const voteOnPoll = async (req: Request, res: Response) => {
 export const removeVote = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     // Find poll
     const poll = await Poll.findById(id);
@@ -541,7 +541,7 @@ export const removeVote = async (req: Request, res: Response) => {
 export const closePoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     // Find poll
     const poll = await Poll.findById(id);

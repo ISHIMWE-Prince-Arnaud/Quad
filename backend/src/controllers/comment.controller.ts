@@ -25,7 +25,7 @@ export const createComment = async (req: Request, res: Response) => {
   try {
     const { contentType, contentId, text, parentId } =
       req.body as CreateCommentSchemaType;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     // Verify content exists
     const { exists, content } = await verifyCommentableContent(
@@ -248,7 +248,7 @@ export const updateComment = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { text } = req.body as UpdateCommentSchemaType;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     const comment = await Comment.findById(id);
     if (!comment) {
@@ -290,7 +290,7 @@ export const updateComment = async (req: Request, res: Response) => {
 export const deleteComment = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     const comment = await Comment.findById(id);
     if (!comment) {
@@ -360,7 +360,7 @@ export const deleteComment = async (req: Request, res: Response) => {
 export const toggleCommentLike = async (req: Request, res: Response) => {
   try {
     const { commentId } = req.body;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     // Verify comment exists
     const comment = await Comment.findById(commentId);

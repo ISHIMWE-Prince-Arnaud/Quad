@@ -368,7 +368,7 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
     const result = await uploadToCloudinary(file, UPLOAD_PRESETS.profile);
 
     // Update user profile in database
-    const { userId } = req.auth();
+    const { userId } = req.auth;
     await User.findOneAndUpdate(
       { clerkId: userId },
       { profileImage: result.url }
@@ -414,7 +414,7 @@ export const uploadChatMedia = async (req: Request, res: Response) => {
     const result = await uploadToCloudinary(file, uploadOptions);
 
     // Create chat message with media
-    const { userId } = req.auth();
+    const { userId } = req.auth;
     const message = await ChatMessage.create({
       senderId: userId,
       receiverId,
@@ -456,7 +456,7 @@ export const uploadChatMedia = async (req: Request, res: Response) => {
 export const deleteFile = async (req: Request, res: Response) => {
   try {
     const { publicId } = req.params;
-    const { userId } = req.auth();
+    const { userId } = req.auth;
 
     // Verify user owns the file (implement your ownership logic)
     const canDelete = await verifyFileOwnership(userId, publicId);

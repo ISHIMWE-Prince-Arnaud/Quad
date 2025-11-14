@@ -25,7 +25,7 @@ import {
 // =========================
 export const sendMessage = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const messageData = req.body as CreateMessageSchemaType;
 
     // Get user info
@@ -100,7 +100,7 @@ export const sendMessage = async (req: Request, res: Response) => {
 // =========================
 export const getMessages = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
     const query = req.query as unknown as GetMessagesQuerySchemaType;
     const { page, limit, before } = query;
 
@@ -166,7 +166,7 @@ export const getMessages = async (req: Request, res: Response) => {
 export const editMessage = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const updates = req.body as UpdateMessageSchemaType;
 
     // Find message
@@ -254,7 +254,7 @@ export const editMessage = async (req: Request, res: Response) => {
 export const deleteMessage = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     // Find message
     const message = await ChatMessage.findById(id);
@@ -297,7 +297,7 @@ export const deleteMessage = async (req: Request, res: Response) => {
 export const addReaction = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const { emoji } = req.body as AddReactionSchemaType;
 
     // Find message
@@ -366,7 +366,7 @@ export const addReaction = async (req: Request, res: Response) => {
 export const removeReaction = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     // Find message
     const message = await ChatMessage.findById(id);
@@ -420,7 +420,7 @@ export const removeReaction = async (req: Request, res: Response) => {
 // =========================
 export const markAsRead = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const { lastReadMessageId } = req.body;
 
     // Verify message exists

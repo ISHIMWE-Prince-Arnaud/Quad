@@ -21,7 +21,7 @@ import {
 // =========================
 export const createStory = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const storyData = req.body as CreateStorySchemaType;
 
     // Get user info
@@ -93,7 +93,7 @@ export const createStory = async (req: Request, res: Response) => {
 // =========================
 export const getAllStories = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth()?.userId; // Optional for logged-in users
+    const userId = req.auth?.userId; // Optional for logged-in users
     const query = req.query as unknown as GetStoriesQuerySchemaType;
 
     // Build filter
@@ -171,7 +171,7 @@ export const getAllStories = async (req: Request, res: Response) => {
 export const getStory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
 
     const story = await Story.findById(id);
 
@@ -224,7 +224,7 @@ export const getStory = async (req: Request, res: Response) => {
 export const updateStory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const inputUpdates = req.body as UpdateStorySchemaType;
 
     const story = await Story.findById(id);
@@ -313,7 +313,7 @@ export const updateStory = async (req: Request, res: Response) => {
 export const deleteStory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     const story = await Story.findById(id);
 
@@ -354,7 +354,7 @@ export const deleteStory = async (req: Request, res: Response) => {
 // =========================
 export const getMyStories = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const { limit = "20", skip = "0", status } = req.query;
 
     const filter: any = { "author.clerkId": userId };

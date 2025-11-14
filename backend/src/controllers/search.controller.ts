@@ -25,7 +25,7 @@ import {
  */
 export const searchUsersController = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
     const {
       q: query,
       limit,
@@ -95,7 +95,7 @@ export const searchUsersController = async (req: Request, res: Response) => {
  */
 export const searchPostsController = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
     const {
       q: query,
       limit,
@@ -168,7 +168,7 @@ export const searchPostsController = async (req: Request, res: Response) => {
  */
 export const searchPollsController = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
     const {
       q: query,
       limit,
@@ -241,7 +241,7 @@ export const searchPollsController = async (req: Request, res: Response) => {
  */
 export const searchStoriesController = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
     const {
       q: query,
       limit,
@@ -314,7 +314,7 @@ export const searchStoriesController = async (req: Request, res: Response) => {
  */
 export const globalSearchController = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
     const { q: query, limit, sortBy, fuzzy } = req.query;
 
     if (!query || typeof query !== "string") {
@@ -414,7 +414,7 @@ export const getSearchHistoryController = async (
   res: Response
 ) => {
   try {
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
     const { limit } = req.query;
 
     if (!userId) {
@@ -451,7 +451,7 @@ export const deleteSearchHistoryController = async (
   res: Response
 ) => {
   try {
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
     const { id } = req.params;
 
     if (!userId) {
@@ -499,7 +499,7 @@ export const clearSearchHistoryController = async (
   res: Response
 ) => {
   try {
-    const userId = req.auth()?.userId;
+    const userId = req.auth?.userId;
 
     if (!userId) {
       return res.status(401).json({

@@ -13,7 +13,7 @@ import { getSocketIO } from "../config/socket.config.js";
 export const createPost = async (req: Request, res: Response) => {
   try {
     const data = req.body as CreatePostSchemaType;
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
 
     // Fetch author data from database
     const author = await User.findOne({ clerkId: userId });
@@ -112,7 +112,7 @@ export const updatePost = async (req: Request, res: Response) => {
     }
 
     // Only author can update
-    if (post.author.clerkId !== req.auth().userId) {
+    if (post.author.clerkId !== req.auth.userId) {
       return res.status(403).json({ success: false, message: "Unauthorized" });
     }
 
@@ -145,7 +145,7 @@ export const deletePost = async (req: Request, res: Response) => {
     }
 
     // Only author can delete
-    if (post.author.clerkId !== req.auth().userId) {
+    if (post.author.clerkId !== req.auth.userId) {
       return res.status(403).json({ success: false, message: "Unauthorized" });
     }
 

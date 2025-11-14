@@ -78,7 +78,7 @@ export const requireAuthentication = requireAuth({
 
 ```typescript
 export const extractUser = (req: Request) => {
-  const { userId, sessionId } = req.auth();
+  const { userId, sessionId } = req.auth;
   return {
     userId,
     sessionId,
@@ -119,7 +119,7 @@ app.post("/api/webhooks/clerk", (req, res) => {
 ```typescript
 // controllers/user.controller.ts
 export const createUser = async (req: Request, res: Response) => {
-  const { userId } = req.auth();
+  const { userId } = req.auth;
 
   // Get user data from Clerk
   const clerkUser = await clerkClient.users.getUser(userId);
@@ -161,7 +161,7 @@ export const requireOwnership = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { userId } = req.auth();
+  const { userId } = req.auth;
   const { id } = req.params;
 
   const resource = await findResourceById(id);
@@ -249,7 +249,7 @@ interface UserProfile {
 
 ```typescript
 export const updateProfile = async (req: Request, res: Response) => {
-  const { userId } = req.auth();
+  const { userId } = req.auth;
   const updates = req.body;
 
   // Update in our database
@@ -280,7 +280,7 @@ export const validateSession = async (
   next: NextFunction
 ) => {
   try {
-    const { sessionId } = req.auth();
+    const { sessionId } = req.auth;
 
     // Verify session is still active
     const session = await clerkClient.sessions.getSession(sessionId);
@@ -382,7 +382,7 @@ export const handleWebhook = async (req: Request, res: Response) => {
 ```typescript
 // Enable MFA for user
 export const enableMFA = async (req: Request, res: Response) => {
-  const { userId } = req.auth();
+  const { userId } = req.auth;
 
   try {
     await clerkClient.users.updateUser(userId, {
@@ -407,7 +407,7 @@ export const enableMFA = async (req: Request, res: Response) => {
 ```typescript
 // User-specific rate limiting
 export const userRateLimit = rateLimit({
-  keyGenerator: (req) => req.auth().userId,
+  keyGenerator: (req) => req.auth.userId,
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each user to 100 requests per windowMs
 });
@@ -422,7 +422,7 @@ export const userRateLimit = rateLimit({
 ```typescript
 export const searchUsers = async (req: Request, res: Response) => {
   const { query } = req.query;
-  const { userId } = req.auth(); // Current user for personalization
+  const { userId } = req.auth; // Current user for personalization
 
   const users = await User.find({
     $and: [
@@ -463,7 +463,7 @@ export const trackUserActivity = async (userId: string, action: string) => {
 ```typescript
 // Track login events
 export const handleLogin = async (req: Request, res: Response) => {
-  const { userId } = req.auth();
+  const { userId } = req.auth;
 
   await User.findOneAndUpdate(
     { clerkId: userId },
@@ -497,7 +497,7 @@ const req = { ...mockAuth("user_123"), body: testData };
 
 ```typescript
 export const debugAuth = (req: Request, res: Response) => {
-  const { userId, sessionId } = req.auth();
+  const { userId, sessionId } = req.auth;
 
   return res.json({
     isAuthenticated: !!userId,

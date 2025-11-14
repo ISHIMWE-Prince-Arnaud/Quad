@@ -86,11 +86,21 @@ export const getProfile = async (req: Request, res: Response) => {
 // =========================
 export const getOwnProfile = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
+    console.log("🔍 getOwnProfile - Looking for user with clerkId:", userId);
 
     // Find current user
     const user = await User.findOne({ clerkId: userId });
+    console.log("🔍 getOwnProfile - Found user:", user ? "YES" : "NO");
+    if (user) {
+      console.log("✅ User details:", {
+        username: user.username,
+        email: user.email,
+      });
+    }
+
     if (!user) {
+      console.log("❌ User not found in MongoDB for clerkId:", userId);
       return res.status(404).json({
         success: false,
         message: "User not found",
@@ -118,7 +128,7 @@ export const getOwnProfile = async (req: Request, res: Response) => {
 // =========================
 export const updateProfile = async (req: Request, res: Response) => {
   try {
-    const userId = req.auth().userId;
+    const userId = req.auth.userId;
     const updates = req.body as UpdateProfileSchemaType;
 
     // Find and update user
