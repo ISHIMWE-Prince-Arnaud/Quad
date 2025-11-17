@@ -11,6 +11,8 @@ import {
   getValidationRules,
   type UploadResult,
 } from "../utils/upload.util.js";
+import { User } from "../models/User.model.js";
+import { clerkClient } from "@clerk/express";
 
 // =========================
 // UPLOAD POST MEDIA (Image or Video)
@@ -241,6 +243,25 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
     // Upload to Cloudinary
     const result = await uploadToCloudinary(buffer, "PROFILE");
 
+    // Persist new profile image URL to MongoDB for the current user
+    const clerkId = req.auth?.userId;
+    if (clerkId) {
+      try {
+        await User.findOneAndUpdate(
+          { clerkId },
+          { $set: { profileImage: result.url } },
+          { new: true }
+        );
+
+        // Optionally sync to Clerk as well so avatars stay consistent
+        await clerkClient.users.updateUser(clerkId, {
+          imageUrl: result.url,
+        } as any);
+      } catch (persistError) {
+        logger.error("Failed to persist profile image URL", persistError);
+      }
+    }
+
     return res.status(200).json({
       success: true,
       message: "Profile image uploaded successfully",
@@ -357,6 +378,20 @@ export const uploadCoverImage = async (req: Request, res: Response) => {
 
     // Upload to Cloudinary
     const result = await uploadToCloudinary(buffer, "COVER");
+
+    // Persist new cover image URL to MongoDB for the current user
+    const clerkId = req.auth?.userId;
+    if (clerkId) {
+      try {
+        await User.findOneAndUpdate(
+          { clerkId },
+          { $set: { coverImage: result.url } },
+          { new: true }
+        );
+      } catch (persistError) {
+        logger.error("Failed to persist cover image URL", persistError);
+      }
+    }
 
     return res.status(200).json({
       success: true,
