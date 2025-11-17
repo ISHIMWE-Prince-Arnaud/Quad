@@ -1,13 +1,13 @@
-import { endpoints } from '@/lib/api';
-import type { 
-  ApiProfile, 
-  ProfileUpdateData, 
-  ContentItem, 
+import { endpoints } from "@/lib/api";
+import type {
+  ApiProfile,
+  ProfileUpdateData,
+  ContentItem,
   PaginationParams,
   ApiPost,
   ApiStory,
-  ApiPoll
-} from '@/types/api';
+  ApiPoll,
+} from "@/types/api";
 
 export class ProfileService {
   // Get own profile
@@ -36,110 +36,146 @@ export class ProfileService {
 
   // Get user's posts
   static async getUserPosts(
-    username: string, 
+    username: string,
     params: PaginationParams = {}
   ): Promise<{ posts: ContentItem[]; hasMore: boolean; total: number }> {
     const response = await endpoints.profiles.getUserPosts(username, {
       page: params.page || 1,
       limit: params.limit || 20,
-      ...params
+      ...params,
     });
-    
+
+    const rawData = response.data?.data;
+    const rawPosts: ApiPost[] = Array.isArray(rawData)
+      ? rawData
+      : Array.isArray(rawData?.posts)
+      ? (rawData.posts as ApiPost[])
+      : [];
+    const pagination = response.data.pagination || {};
+
     // Transform posts to ContentItem format
-    const posts: ContentItem[] = response.data.data.posts.map((post: ApiPost) => ({
+    const posts: ContentItem[] = rawPosts.map((post: ApiPost) => ({
       _id: post._id,
-      type: 'post' as const,
+      type: "post" as const,
       content: post.content,
       images: post.images,
       author: post.author,
       createdAt: post.createdAt,
       likes: post.likes,
       comments: post.comments,
-      isLiked: post.isLiked
+      isLiked: post.isLiked,
     }));
 
     return {
       posts,
-      hasMore: response.data.data.hasMore || false,
-      total: response.data.data.total || 0
+      hasMore: pagination.hasMore || false,
+      total: pagination.total || rawPosts.length,
     };
   }
 
   // Get user's stories
   static async getUserStories(
-    username: string, 
+    username: string,
     params: PaginationParams = {}
   ): Promise<{ stories: ContentItem[]; hasMore: boolean; total: number }> {
     const response = await endpoints.profiles.getUserStories(username, {
       page: params.page || 1,
       limit: params.limit || 20,
-      ...params
+      ...params,
     });
-    
+
+    const rawData = response.data?.data;
+    const rawStories: ApiStory[] = Array.isArray(rawData)
+      ? rawData
+      : Array.isArray(rawData?.stories)
+      ? (rawData.stories as ApiStory[])
+      : [];
+    const pagination = response.data.pagination || {};
+
     // Transform stories to ContentItem format
-    const stories: ContentItem[] = response.data.data.stories.map((story: ApiStory) => ({
+    const stories: ContentItem[] = rawStories.map((story: ApiStory) => ({
       _id: story._id,
-      type: 'story' as const,
-      content: story.content || '',
+      type: "story" as const,
+      content: story.content || "",
       media: story.media,
       author: story.author,
       createdAt: story.createdAt,
-      views: story.views
+      views: story.views,
     }));
 
     return {
       stories,
-      hasMore: response.data.data.hasMore || false,
-      total: response.data.data.total || 0
+      hasMore: pagination.hasMore || false,
+      total: pagination.total || rawStories.length,
     };
   }
 
   // Get user's polls
   static async getUserPolls(
-    username: string, 
+    username: string,
     params: PaginationParams = {}
   ): Promise<{ polls: ContentItem[]; hasMore: boolean; total: number }> {
     const response = await endpoints.profiles.getUserPolls(username, {
       page: params.page || 1,
       limit: params.limit || 20,
-      ...params
+      ...params,
     });
-    
+
+    const rawData = response.data?.data;
+    const rawPolls: ApiPoll[] = Array.isArray(rawData)
+      ? rawData
+      : Array.isArray(rawData?.polls)
+      ? (rawData.polls as ApiPoll[])
+      : [];
+    const pagination = response.data.pagination || {};
+
     // Transform polls to ContentItem format
-    const polls: ContentItem[] = response.data.data.polls.map((poll: ApiPoll) => ({
+    const polls: ContentItem[] = rawPolls.map((poll: ApiPoll) => ({
       _id: poll._id,
-      type: 'poll' as const,
+      type: "poll" as const,
       content: poll.question,
       author: poll.author,
       createdAt: poll.createdAt,
-      totalVotes: poll.totalVotes
+      totalVotes: poll.totalVotes,
     }));
 
     return {
       polls,
-      hasMore: response.data.data.hasMore || false,
-      total: response.data.data.total || 0
+      hasMore: pagination.hasMore || false,
+      total: pagination.total || rawPolls.length,
     };
   }
 
   // Get user content by type
   static async getUserContent(
     username: string,
-    type: 'posts' | 'stories' | 'polls',
+    type: "posts" | "stories" | "polls",
     params: PaginationParams = {}
   ): Promise<{ items: ContentItem[]; hasMore: boolean; total: number }> {
     switch (type) {
-      case 'posts': {
+      case "posts": {
         const result = await this.getUserPosts(username, params);
-        return { items: result.posts, hasMore: result.hasMore, total: result.total };
+        return {
+          items: result.posts,
+          hasMore: result.hasMore,
+          total: result.total,
+        };
       }
-      case 'stories': {
+      case "stories": {
         const result = await this.getUserStories(username, params);
-        return { items: result.stories, hasMore: result.hasMore, total: result.total };
+        return {
+          items: result.stories,
+          hasMore: result.hasMore,
+          total: result.total,
+        };
       }
-      case 'polls': {
+      case "polls": {
         const result = await this.getUserPolls(username, params);
-        return { items: result.polls, hasMore: result.hasMore, total: result.total };
+        return {
+          items: result.polls,
+          hasMore: result.hasMore,
+          total: result.total,
+        };
       }
       default:
         throw new Error(`Unsupported content type: ${type}`);

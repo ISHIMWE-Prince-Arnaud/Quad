@@ -39,7 +39,7 @@ interface AuthState {
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  syncWithClerk: (clerkUser: ClerkUserObject | null) => void;
+  syncWithClerk: (clerkUser: unknown | null) => void;
   logout: () => void;
   clearError: () => void;
 }
