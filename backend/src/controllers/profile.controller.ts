@@ -12,6 +12,53 @@ import {
   calculateProfileStats,
   formatProfileResponse,
 } from "../utils/profile.util.js";
+import { clerkClient } from "@clerk/express";
+
+// Helper to find or auto-create the current user's profile by username
+const findOrCreateUserByUsername = async (
+  username: string,
+  currentUserId: string | null
+) => {
+  // Try existing user first
+  const existing = await User.findOne({ username });
+  if (existing) return existing;
+
+  if (!currentUserId) return null;
+
+  try {
+    const clerkUser = await clerkClient.users.getUser(currentUserId);
+    const possibleUsernames: string[] = [];
+
+    if (clerkUser.username) {
+      possibleUsernames.push(clerkUser.username);
+    }
+
+    const emailHandle =
+      clerkUser.emailAddresses?.[0]?.emailAddress?.split("@")[0];
+    if (emailHandle) {
+      possibleUsernames.push(emailHandle);
+    }
+
+    // Only auto-create when the requested username matches the current Clerk user
+    if (!possibleUsernames.includes(username)) {
+      return null;
+    }
+
+    const user = await User.create({
+      clerkId: currentUserId,
+      username,
+      email: clerkUser.emailAddresses?.[0]?.emailAddress || "",
+      firstName: clerkUser.firstName || undefined,
+      lastName: clerkUser.lastName || undefined,
+      profileImage: clerkUser.imageUrl || undefined,
+    });
+
+    return user;
+  } catch (error) {
+    console.error("Failed to auto-create user by username", error);
+    return null;
+  }
+};
 
 // =========================
 // GET USER PROFILE BY ID (Convenience endpoint)
@@ -54,11 +101,20 @@ export const getProfileById = async (req: Request, res: Response) => {
 // =========================
 export const getProfile = async (req: Request, res: Response) => {
   try {
-    const { username } = req.params;
-    const currentUserId = req.auth.userId;
+    const username = req.params.username;
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: "Username is required",
+      });
+    }
+    const currentUserId = req.auth?.userId ?? null;
 
-    // Find user by username
-    const user = await User.findOne({ username });
+    // Find user by username (auto-create for current user if necessary)
+    let user = await User.findOne({ username });
+    if (!user && currentUserId) {
+      user = await findOrCreateUserByUsername(username, currentUserId);
+    }
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -72,13 +128,15 @@ export const getProfile = async (req: Request, res: Response) => {
     // Calculate profile statistics
     const stats = await calculateProfileStats(user.clerkId);
 
-    // Format response (can include additional data for own profile)
-    const profile = formatProfileResponse(user, stats, isOwnProfile);
+    // Format response and include ownership flag separately
+    const profile = formatProfileResponse(user, stats);
 
     return res.json({
       success: true,
-      data: profile,
-      isOwnProfile, // Include this flag in response
+      data: {
+        ...profile,
+        isOwnProfile,
+      },
     });
   } catch (error: any) {
     console.error("Error fetching profile:", error);
@@ -95,7 +153,7 @@ export const getOwnProfile = async (req: Request, res: Response) => {
     console.log("🔍 getOwnProfile - Looking for user with clerkId:", userId);
 
     // Find current user
-    const user = await User.findOne({ clerkId: userId });
+    let user = await User.findOne({ clerkId: userId });
     console.log("🔍 getOwnProfile - Found user:", user ? "YES" : "NO");
     if (user) {
       console.log("✅ User details:", {
@@ -105,11 +163,40 @@ export const getOwnProfile = async (req: Request, res: Response) => {
     }
 
     if (!user) {
-      console.log("❌ User not found in MongoDB for clerkId:", userId);
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+      console.log(
+        "❌ User not found in MongoDB for clerkId:",
+        userId,
+        "- attempting auto-create from Clerk"
+      );
+      try {
+        const clerkUser = await clerkClient.users.getUser(userId);
+
+        user = await User.create({
+          clerkId: userId,
+          username:
+            clerkUser.username ||
+            clerkUser.emailAddresses?.[0]?.emailAddress?.split("@")[0] ||
+            "Anonymous",
+          email: clerkUser.emailAddresses?.[0]?.emailAddress || "",
+          firstName: clerkUser.firstName || undefined,
+          lastName: clerkUser.lastName || undefined,
+          profileImage: clerkUser.imageUrl || undefined,
+        });
+
+        console.log("✅ Auto-created user from Clerk in getOwnProfile", {
+          username: user.username,
+          email: user.email,
+        });
+      } catch (autoCreateError: any) {
+        console.error(
+          "❌ Failed to auto-create user from Clerk in getOwnProfile:",
+          autoCreateError
+        );
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
     }
 
     // Calculate profile statistics
@@ -133,7 +220,13 @@ export const getOwnProfile = async (req: Request, res: Response) => {
 // =========================
 export const updateProfile = async (req: Request, res: Response) => {
   try {
-    const { username } = req.params;
+    const username = req.params.username;
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: "Username is required",
+      });
+    }
     const currentUserId = req.auth.userId;
     const updates = req.body as UpdateProfileSchemaType;
 
@@ -154,7 +247,7 @@ export const updateProfile = async (req: Request, res: Response) => {
       });
     }
 
-    // Update the user profile
+    // Update the user profile in MongoDB
     const user = await User.findOneAndUpdate(
       { clerkId: currentUserId },
       { $set: updates },
@@ -166,6 +259,19 @@ export const updateProfile = async (req: Request, res: Response) => {
         success: false,
         message: "User not found",
       });
+    }
+
+    // Sync relevant fields back to Clerk so names/usernames stay consistent
+    try {
+      await clerkClient.users.updateUser(currentUserId, {
+        firstName: updates.firstName ?? undefined,
+        lastName: updates.lastName ?? undefined,
+        username: updates.username ?? undefined,
+        imageUrl: updates.profileImage ?? undefined,
+      } as any);
+    } catch (clerkError) {
+      console.error("Failed to sync profile updates to Clerk", clerkError);
+      // Do not fail the request just because Clerk sync failed
     }
 
     // Calculate profile statistics
@@ -190,12 +296,22 @@ export const updateProfile = async (req: Request, res: Response) => {
 // =========================
 export const getUserPosts = async (req: Request, res: Response) => {
   try {
-    const { username } = req.params;
+    const username = req.params.username;
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: "Username is required",
+      });
+    }
     const query = req.query as unknown as PaginationQuerySchemaType;
     const { page, limit } = query;
+    const currentUserId = req.auth?.userId ?? null;
 
-    // Find user by username
-    const user = await User.findOne({ username });
+    // Find user by username (auto-create for current user if necessary)
+    let user = await User.findOne({ username });
+    if (!user && currentUserId) {
+      user = await findOrCreateUserByUsername(username, currentUserId);
+    }
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -237,12 +353,22 @@ export const getUserPosts = async (req: Request, res: Response) => {
 // =========================
 export const getUserStories = async (req: Request, res: Response) => {
   try {
-    const { username } = req.params;
+    const username = req.params.username;
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: "Username is required",
+      });
+    }
     const query = req.query as unknown as PaginationQuerySchemaType;
     const { page, limit } = query;
+    const currentUserId = req.auth?.userId ?? null;
 
-    // Find user
-    const user = await User.findOne({ username });
+    // Find user (auto-create for current user if necessary)
+    let user = await User.findOne({ username });
+    if (!user && currentUserId) {
+      user = await findOrCreateUserByUsername(username, currentUserId);
+    }
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -284,12 +410,22 @@ export const getUserStories = async (req: Request, res: Response) => {
 // =========================
 export const getUserPolls = async (req: Request, res: Response) => {
   try {
-    const { username } = req.params;
+    const username = req.params.username;
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: "Username is required",
+      });
+    }
     const query = req.query as unknown as PaginationQuerySchemaType;
     const { page, limit } = query;
+    const currentUserId = req.auth?.userId ?? null;
 
-    // Find user
-    const user = await User.findOne({ username });
+    // Find user (auto-create for current user if necessary)
+    let user = await User.findOne({ username });
+    if (!user && currentUserId) {
+      user = await findOrCreateUserByUsername(username, currentUserId);
+    }
     if (!user) {
       return res.status(404).json({
         success: false,

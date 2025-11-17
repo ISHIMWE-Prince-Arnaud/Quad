@@ -1,7 +1,9 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 import type { IUser } from "../types/user.types.js";
 
-export interface IUserDocument extends IUser, Document {}
+export interface IUserDocument extends IUser, Document {
+  _id: Types.ObjectId;
+}
 
 const UserSchema = new Schema<IUserDocument>(
   {
@@ -9,14 +11,18 @@ const UserSchema = new Schema<IUserDocument>(
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true }, // AUTO INDEXED (unique)
     displayName: { type: String },
-    profileImage: { 
+    firstName: { type: String },
+    lastName: { type: String },
+    profileImage: {
       type: String,
       default: () => {
         const randomNumber = Math.floor(Math.random() * 100) + 1; // 1-100
         return `https://avatar.iran.liara.run/public/${randomNumber}`;
-      }
+      },
     },
+    coverImage: { type: String },
     bio: { type: String },
+    isVerified: { type: Boolean, default: false },
     followersCount: { type: Number, default: 0, min: 0 },
     followingCount: { type: Number, default: 0, min: 0 },
   },
@@ -36,10 +42,10 @@ UserSchema.index({ username: 1 });
 UserSchema.index({ createdAt: -1 });
 
 // Text search index for user search
-UserSchema.index({ 
-  username: "text", 
-  displayName: "text", 
-  bio: "text" 
+UserSchema.index({
+  username: "text",
+  displayName: "text",
+  bio: "text",
 });
 
 export const User = mongoose.model<IUserDocument>("User", UserSchema);

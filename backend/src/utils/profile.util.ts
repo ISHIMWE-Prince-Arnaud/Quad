@@ -74,17 +74,31 @@ export const formatProfileResponse = (
   stats.followersCount = user.followersCount || 0;
   stats.followingCount = user.followingCount || 0;
 
+  const userId = typeof user._id === "string" ? user._id : user._id.toString();
+
   return {
+    _id: userId,
     clerkId: user.clerkId,
     username: user.username,
     email: user.email,
-    displayName: user.displayName as any,
-    profileImage: user.profileImage as any,
-    bio: user.bio as any,
-    followersCount: user.followersCount as any,
-    followingCount: user.followingCount as any,
-    createdAt: user.createdAt as any,
-    updatedAt: user.updatedAt as any,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    // Keep displayName for backwards compatibility
+    displayName: user.displayName,
+    profileImage: user.profileImage,
+    coverImage: user.coverImage,
+    bio: user.bio,
+    isVerified: user.isVerified,
+    followers: stats.followersCount,
+    following: stats.followingCount,
+    postsCount: stats.postsCount,
+    storiesCount: stats.storiesCount,
+    pollsCount: stats.pollsCount,
+    followersCount: user.followersCount,
+    followingCount: user.followingCount,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    joinedAt: user.createdAt,
     stats,
-  };
+  } as any;
 };

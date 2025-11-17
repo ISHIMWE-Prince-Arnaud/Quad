@@ -53,8 +53,8 @@ interface EditProfileModalProps {
   onClose: () => void;
   user: User;
   onSave: (data: EditProfileFormData & { 
-    profileImage?: File; 
-    coverImage?: File;
+    profileImageUrl?: string; 
+    coverImageUrl?: string;
   }) => Promise<void>;
 }
 
@@ -96,7 +96,7 @@ export function EditProfileModal({
     processing: boolean;
   }>({
     file: null,
-    preview: null,
+    preview: user.profileImage || null,
     processing: false
   });
 
@@ -106,7 +106,7 @@ export function EditProfileModal({
     processing: boolean;
   }>({
     file: null,
-    preview: null,
+    preview: user.coverImage || null,
     processing: false
   });
 
@@ -140,6 +140,9 @@ export function EditProfileModal({
 
       // Upload to backend
       const uploadResult = await UploadService.uploadProfileImage(processed.file);
+      if (!uploadResult || !uploadResult.url) {
+        throw new Error('Upload failed: Missing URL in response');
+      }
 
       setProfileImage({
         file: processed.file,
@@ -185,6 +188,9 @@ export function EditProfileModal({
 
       // Upload to backend
       const uploadResult = await UploadService.uploadCoverImage(processed.file);
+      if (!uploadResult || !uploadResult.url) {
+        throw new Error('Upload failed: Missing URL in response');
+      }
 
       setCoverImage({
         file: processed.file,
@@ -210,8 +216,8 @@ export function EditProfileModal({
     try {
       await onSave({
         ...data,
-        profileImage: profileImage.file || undefined,
-        coverImage: coverImage.file || undefined,
+        profileImageUrl: profileImage.preview || user.profileImage,
+        coverImageUrl: coverImage.preview || user.coverImage,
       });
 
       showToast('Profile updated successfully');
@@ -233,8 +239,8 @@ export function EditProfileModal({
     }
 
     // Reset state
-    setProfileImage({ file: null, preview: null, processing: false });
-    setCoverImage({ file: null, preview: null, processing: false });
+    setProfileImage({ file: null, preview: user.profileImage || null, processing: false });
+    setCoverImage({ file: null, preview: user.coverImage || null, processing: false });
     setUploadError(null);
     reset();
     onClose();

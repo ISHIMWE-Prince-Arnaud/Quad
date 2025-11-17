@@ -61,7 +61,8 @@ export const endpoints = {
   // Profiles
   profiles: {
     getOwn: () => api.get('/profile/me'),
-    updateOwn: (data: unknown) => api.put('/profile/me', data),
+    // Backend only exposes PUT /profile/:username for updates
+    updateOwn: (username: string, data: unknown) => api.put(`/profile/${username}`, data),
     getByUsername: (username: string) => api.get(`/profile/${username}`),
     getById: (userId: string) => api.get(`/profile/id/${userId}`),
     getUserPosts: (username: string, params?: unknown) => 

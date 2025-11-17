@@ -29,8 +29,11 @@ export class ProfileService {
   }
 
   // Update own profile
-  static async updateProfile(data: ProfileUpdateData): Promise<ApiProfile> {
-    const response = await endpoints.profiles.updateOwn(data);
+  static async updateProfile(
+    username: string,
+    data: ProfileUpdateData
+  ): Promise<ApiProfile> {
+    const response = await endpoints.profiles.updateOwn(username, data);
     return response.data.data;
   }
 

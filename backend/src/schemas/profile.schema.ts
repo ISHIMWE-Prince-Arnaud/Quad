@@ -4,10 +4,22 @@ import { z } from "zod";
 // UPDATE PROFILE SCHEMA
 // ===========================
 export const updateProfileSchema = z.object({
-  displayName: z
+  firstName: z
     .string()
-    .min(1, "Display name must be at least 1 character")
-    .max(50, "Display name must not exceed 50 characters")
+    .min(1, "First name must be at least 1 character")
+    .max(50, "First name must not exceed 50 characters")
+    .optional(),
+
+  lastName: z
+    .string()
+    .min(1, "Last name must be at least 1 character")
+    .max(50, "Last name must not exceed 50 characters")
+    .optional(),
+
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username must not exceed 30 characters")
     .optional(),
 
   bio: z
@@ -18,6 +30,18 @@ export const updateProfileSchema = z.object({
   profileImage: z
     .string()
     .url("Invalid profile image URL")
+    .optional(),
+
+  coverImage: z
+    .string()
+    .url("Invalid cover image URL")
+    .optional(),
+
+  // Legacy field kept for backwards compatibility
+  displayName: z
+    .string()
+    .min(1, "Display name must be at least 1 character")
+    .max(50, "Display name must not exceed 50 characters")
     .optional(),
 });
 
