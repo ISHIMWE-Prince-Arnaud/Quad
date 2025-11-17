@@ -19,22 +19,30 @@ import { FollowService } from "@/services/followService";
 import type { ApiProfile } from "@/types/api";
 
 // Convert ApiProfile to the format expected by ProfileHeader
-const convertApiProfileToUser = (profile: ApiProfile) => ({
-  _id: profile._id,
-  clerkId: profile.clerkId,
-  username: profile.username,
-  email: profile.email,
-  firstName: profile.firstName,
-  lastName: profile.lastName,
-  profileImage: profile.profileImage,
-  coverImage: profile.coverImage,
-  bio: profile.bio,
-  joinedAt: profile.joinedAt,
-  isVerified: profile.isVerified,
-  followers: profile.followers,
-  following: profile.following,
-  postsCount: profile.postsCount,
-});
+const convertApiProfileToUser = (profile: ApiProfile) => {
+  const joinedAt =
+    profile.joinedAt ??
+    profile.createdAt ??
+    profile.updatedAt ??
+    new Date().toISOString();
+
+  return {
+    _id: profile._id,
+    clerkId: profile.clerkId,
+    username: profile.username,
+    email: profile.email,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    profileImage: profile.profileImage,
+    coverImage: profile.coverImage,
+    bio: profile.bio,
+    joinedAt,
+    isVerified: profile.isVerified,
+    followers: profile.followers,
+    following: profile.following,
+    postsCount: profile.postsCount,
+  };
+};
 
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
@@ -96,7 +104,7 @@ export default function ProfilePage() {
           return;
       }
       // Convert API content to expected format
-      const convertedItems = result.items.map(item => ({
+      const convertedItems = result.items.map((item) => ({
         ...item,
         updatedAt: item.createdAt, // Use createdAt as updatedAt if missing
       })) as ContentItem[];
@@ -126,11 +134,15 @@ export default function ProfilePage() {
           const profileData = await ProfileService.getOwnProfile();
           setUser(profileData);
         } else {
-          const profileData = await ProfileService.getProfileByUsername(username);
+          const profileData = await ProfileService.getProfileByUsername(
+            username
+          );
           setUser(profileData);
-          
+
           // Check if following this user
-          const followStatus = await FollowService.checkFollowing(profileData._id);
+          const followStatus = await FollowService.checkFollowing(
+            profileData._id
+          );
           setIsFollowing(followStatus.isFollowing);
         }
 
@@ -151,14 +163,18 @@ export default function ProfilePage() {
   // Handle follow/unfollow
   const handleFollow = async () => {
     if (!user) return;
-    
+
     try {
       await FollowService.followUser(user._id);
       setIsFollowing(true);
-      setUser(prev => prev ? ({ 
-        ...prev, 
-        followers: (prev.followers || 0) + 1 
-      }) : prev);
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              followers: (prev.followers || 0) + 1,
+            }
+          : prev
+      );
     } catch (err) {
       console.error("Failed to follow user:", err);
     }
@@ -166,14 +182,18 @@ export default function ProfilePage() {
 
   const handleUnfollow = async () => {
     if (!user) return;
-    
+
     try {
       await FollowService.unfollowUser(user._id);
       setIsFollowing(false);
-      setUser(prev => prev ? ({
-        ...prev,
-        followers: Math.max((prev.followers || 0) - 1, 0),
-      }) : prev);
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              followers: Math.max((prev.followers || 0) - 1, 0),
+            }
+          : prev
+      );
     } catch (err) {
       console.error("Failed to unfollow user:", err);
     }
@@ -229,7 +249,7 @@ export default function ProfilePage() {
               onUnfollow={handleUnfollow}
               onEditProfile={handleEditProfile}
               onUserUpdate={(updatedUser) => {
-                setUser(prev => prev ? ({ ...prev, ...updatedUser }) : prev);
+                setUser((prev) => (prev ? { ...prev, ...updatedUser } : prev));
               }}
             />
           </div>
