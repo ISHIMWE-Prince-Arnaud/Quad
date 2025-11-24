@@ -155,12 +155,23 @@ export default function ProfilePage() {
               ?.status;
           }
 
-          // Fallback: when viewing own profile and username lookup 404s,
+          // Fallback: when viewing any profile and username lookup 404s,
           // retry by Clerk ID (getProfileById) before showing "Profile not found".
-          if (status === 404 && isOwnProfile && currentUser?.clerkId) {
+          if (status === 404 && currentUser?.clerkId) {
+            // Retry by Clerk ID before giving up. This covers cases where the
+            // username in the URL is stale (e.g., just changed) but the
+            // logged-in user is still the same.
             profileData = await ProfileService.getProfileById(
               currentUser.clerkId
             );
+
+            // If we successfully loaded a profile and its canonical username
+            // differs from the URL, fix the URL to avoid future 404s.
+            if (profileData?.username && profileData.username !== username) {
+              navigate(`/app/profile/${profileData.username}`, {
+                replace: true,
+              });
+            }
           } else {
             throw err;
           }
@@ -211,10 +222,25 @@ export default function ProfilePage() {
       }
     };
 
+    console.log("ProfilePage load", {
+      urlUsername: username,
+      storeUsername: currentUser?.username,
+      clerkId: currentUser?.clerkId,
+      isOwnProfile,
+    });
+
     if (username && !authLoading) {
       fetchProfileData();
     }
-  }, [username, isOwnProfile, loadUserContent, authLoading, currentUser?.clerkId]);
+  }, [
+    username,
+    loadUserContent,
+    authLoading,
+    currentUser?.clerkId,
+    currentUser?.username,
+    isOwnProfile,
+    navigate,
+  ]);
 
   // Handle follow/unfollow
   const handleFollow = async () => {
@@ -305,38 +331,33 @@ export default function ProfilePage() {
               onUnfollow={handleUnfollow}
               onEditProfile={handleEditProfile}
               onUserUpdate={(updatedUser) => {
-                setUser((prev) => {
-                  if (!prev) return prev;
+                setUser((prev) =>
+                  prev ? ({ ...prev, ...updatedUser } as ApiProfile) : prev
+                );
 
-                  const merged = { ...prev, ...updatedUser };
-
-                  // If this is the current user's profile and the username changed,
-                  // update auth store user and navigate to the new profile URL.
-                  if (
-                    isOwnProfile &&
-                    updatedUser.username &&
-                    updatedUser.username !== username
-                  ) {
-                    if (currentUser) {
-                      setAuthUser({
-                        ...currentUser,
-                        username: updatedUser.username,
-                        firstName:
-                          updatedUser.firstName ?? currentUser.firstName,
-                        lastName: updatedUser.lastName ?? currentUser.lastName,
-                        profileImage:
-                          updatedUser.profileImage ?? currentUser.profileImage,
-                        bio: updatedUser.bio ?? currentUser.bio,
-                      });
-                    }
-
-                    navigate(`/app/profile/${updatedUser.username}`, {
-                      replace: true,
+                // If this is the current user's profile and the username changed,
+                // update auth store user and navigate to the new profile URL.
+                if (
+                  isOwnProfile &&
+                  updatedUser.username &&
+                  updatedUser.username !== username
+                ) {
+                  if (currentUser) {
+                    setAuthUser({
+                      ...currentUser,
+                      username: updatedUser.username,
+                      firstName: updatedUser.firstName ?? currentUser.firstName,
+                      lastName: updatedUser.lastName ?? currentUser.lastName,
+                      profileImage:
+                        updatedUser.profileImage ?? currentUser.profileImage,
+                      bio: updatedUser.bio ?? currentUser.bio,
                     });
                   }
 
-                  return merged;
-                });
+                  navigate(`/app/profile/${updatedUser.username}`, {
+                    replace: true,
+                  });
+                }
               }}
             />
           </div>
