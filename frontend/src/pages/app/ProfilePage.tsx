@@ -129,17 +129,11 @@ export default function ProfilePage() {
       setError(null);
 
       try {
-        // Check if viewing own profile
-        if (isOwnProfile) {
-          const profileData = await ProfileService.getOwnProfile();
-          setUser(profileData);
-        } else {
-          const profileData = await ProfileService.getProfileByUsername(
-            username
-          );
-          setUser(profileData);
+        const profileData = await ProfileService.getProfileByUsername(username);
+        setUser(profileData);
 
-          // Check if following this user
+        // Only check follow status when viewing another user's profile
+        if (!isOwnProfile) {
           const followStatus = await FollowService.checkFollowing(
             profileData._id
           );

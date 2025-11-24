@@ -10,12 +10,6 @@ import type {
 } from "@/types/api";
 
 export class ProfileService {
-  // Get own profile
-  static async getOwnProfile(): Promise<ApiProfile> {
-    const response = await endpoints.profiles.getOwn();
-    return response.data.data;
-  }
-
   // Get user profile by username
   static async getProfileByUsername(username: string): Promise<ApiProfile> {
     const response = await endpoints.profiles.getByUsername(username);

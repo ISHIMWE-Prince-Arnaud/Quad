@@ -9,7 +9,6 @@ import {
 import {
   getProfile,
   getProfileById,
-  getOwnProfile,
   updateProfile,
   getUserPosts,
   getUserStories,
@@ -21,9 +20,6 @@ const router = Router();
 // ===========================
 // PROFILE ROUTES
 // ===========================
-
-// Get own profile
-router.get("/me", requireAuth(), getOwnProfile);
 
 // Get user profile by ID (convenience endpoint)
 router.get("/id/:userId", requireAuth(), getProfileById);
