@@ -43,9 +43,9 @@ export const calculateProfileStats = async (
         // Count reactions on all user's content
         const totalReactions = await Reaction.countDocuments({
           $or: [
-            { contentType: "Post", contentId: { $in: postIds } },
-            { contentType: "Story", contentId: { $in: storyIds } },
-            { contentType: "Poll", contentId: { $in: pollIds } },
+            { contentType: "post", contentId: { $in: postIds } },
+            { contentType: "story", contentId: { $in: storyIds } },
+            { contentType: "poll", contentId: { $in: pollIds } },
           ],
         });
 
