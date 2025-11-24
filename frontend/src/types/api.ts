@@ -28,16 +28,25 @@ export interface ApiProfile extends ApiUser {
 
 export interface ApiPost {
   _id: string;
-  clerkId: string;
-  content: string;
+  userId?: string;
+  clerkId?: string;
+  text?: string;
+  media?: {
+    url: string;
+    type: "image" | "video";
+    aspectRatio?: "1:1" | "16:9" | "9:16";
+  }[];
+  reactionsCount?: number;
+  commentsCount?: number;
+  content?: string;
   images?: string[];
   videos?: string[];
   author: ApiUser;
-  likes: number;
-  comments: number;
-  shares: number;
-  isLiked: boolean;
-  isShared: boolean;
+  likes?: number;
+  comments?: number;
+  shares?: number;
+  isLiked?: boolean;
+  isShared?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -47,7 +56,7 @@ export interface ApiStory {
   clerkId: string;
   content?: string;
   media: string;
-  mediaType: 'image' | 'video';
+  mediaType: "image" | "video";
   author: ApiUser;
   views: number;
   isViewed: boolean;
@@ -134,7 +143,7 @@ export interface PaginationParams {
 // Search params
 export interface UserSearchParams extends PaginationParams {
   q: string;
-  sortBy?: 'relevance' | 'date' | 'followers';
+  sortBy?: "relevance" | "date" | "followers";
   fuzzy?: boolean;
   dateFrom?: string;
   dateTo?: string;
@@ -155,62 +164,35 @@ export interface ProfileUpdateData {
   coverImage?: string;
 }
 
-// Content item for profile grid
+// Content item for profile grid and services
 export interface ContentItem {
   _id: string;
-  type: 'post' | 'story' | 'poll';
-  content: string;
-  images?: string[];
-  media?: string;
+  type: "post" | "story" | "poll";
   author: ApiUser;
   createdAt: string;
+  updatedAt?: string;
+  // Human-readable content used by the UI (required)
+  content: string;
+  // Backend-aligned optional fields
+  text?: string;
+  media?: {
+    url: string;
+    type: "image" | "video";
+    aspectRatio?: "1:1" | "16:9" | "9:16";
+  }[];
+  images?: string[];
+  reactionsCount?: number;
+  commentsCount?: number;
+  viewsCount?: number;
+  totalVotes?: number;
   likes?: number;
   comments?: number;
   views?: number;
-  totalVotes?: number;
   isLiked?: boolean;
-}
-
-// Specific content types for search results
-export interface ApiPost {
-  _id: string;
-  content: string;
-  images?: string[];
-  author: ApiUser;
-  createdAt: string;
-  updatedAt: string;
-  likes: number;
-  comments: number;
-  shares: number;
-  isLiked: boolean;
-}
-
-export interface ApiStory {
-  _id: string;
-  content?: string;
-  media: string;
-  author: ApiUser;
-  createdAt: string;
-  expiresAt: string;
-  views: number;
-  isViewed: boolean;
-}
-
-export interface ApiPoll {
-  _id: string;
-  question: string;
-  content?: string;
-  options: Array<{
-    option: string;
-    votes: number;
-    percentage: number;
-  }>;
-  totalVotes: number;
-  author: ApiUser;
-  createdAt: string;
-  updatedAt: string;
-  expiresAt?: string;
-  userVote?: string;
+  title?: string;
+  coverImage?: string;
+  readTime?: number;
+  question?: string;
 }
 
 // Global search result type

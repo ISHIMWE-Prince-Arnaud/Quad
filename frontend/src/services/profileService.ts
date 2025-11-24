@@ -50,9 +50,7 @@ export class ProfileService {
 
     const rawData = response.data?.data;
     const rawPosts: ApiPost[] = Array.isArray(rawData)
-      ? rawData
-      : Array.isArray(rawData?.posts)
-      ? (rawData.posts as ApiPost[])
+      ? (rawData as ApiPost[])
       : [];
     const pagination = response.data.pagination || {};
 
@@ -60,13 +58,15 @@ export class ProfileService {
     const posts: ContentItem[] = rawPosts.map((post: ApiPost) => ({
       _id: post._id,
       type: "post" as const,
-      content: post.content,
-      images: post.images,
       author: post.author,
       createdAt: post.createdAt,
-      likes: post.likes,
-      comments: post.comments,
-      isLiked: post.isLiked,
+      updatedAt: post.updatedAt,
+      // Prefer backend text, fall back to legacy content
+      text: post.text ?? post.content ?? "",
+      content: post.text ?? post.content ?? "",
+      media: post.media,
+      reactionsCount: post.reactionsCount,
+      commentsCount: post.commentsCount,
     }));
 
     return {
@@ -89,9 +89,7 @@ export class ProfileService {
 
     const rawData = response.data?.data;
     const rawStories: ApiStory[] = Array.isArray(rawData)
-      ? rawData
-      : Array.isArray(rawData?.stories)
-      ? (rawData.stories as ApiStory[])
+      ? (rawData as ApiStory[])
       : [];
     const pagination = response.data.pagination || {};
 
@@ -100,10 +98,10 @@ export class ProfileService {
       _id: story._id,
       type: "story" as const,
       content: story.content || "",
-      media: story.media,
       author: story.author,
       createdAt: story.createdAt,
       views: story.views,
+      images: story.media ? [story.media] : undefined,
     }));
 
     return {
@@ -126,9 +124,7 @@ export class ProfileService {
 
     const rawData = response.data?.data;
     const rawPolls: ApiPoll[] = Array.isArray(rawData)
-      ? rawData
-      : Array.isArray(rawData?.polls)
-      ? (rawData.polls as ApiPoll[])
+      ? (rawData as ApiPoll[])
       : [];
     const pagination = response.data.pagination || {};
 
@@ -137,6 +133,7 @@ export class ProfileService {
       _id: poll._id,
       type: "poll" as const,
       content: poll.question,
+      question: poll.question,
       author: poll.author,
       createdAt: poll.createdAt,
       totalVotes: poll.totalVotes,
