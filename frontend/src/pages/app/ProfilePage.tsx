@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import {
   ProfileTabs,
@@ -46,7 +46,12 @@ const convertApiProfileToUser = (profile: ApiProfile) => {
 
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
-  const { user: currentUser, isLoading: authLoading } = useAuthStore();
+  const navigate = useNavigate();
+  const {
+    user: currentUser,
+    isLoading: authLoading,
+    setUser: setAuthUser,
+  } = useAuthStore();
 
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [user, setUser] = useState<ApiProfile | null>(null);
@@ -131,7 +136,42 @@ export default function ProfilePage() {
       setIsNotFound(false);
 
       try {
-        const profileData = await ProfileService.getProfileByUsername(username);
+        let profileData: ApiProfile | null = null;
+
+        try {
+          // Primary fetch by username (canonical route)
+          profileData = await ProfileService.getProfileByUsername(username);
+        } catch (err: unknown) {
+          let status: number | undefined;
+
+          if (
+            typeof err === "object" &&
+            err !== null &&
+            "response" in err &&
+            typeof (err as { response?: { status?: number } }).response
+              ?.status === "number"
+          ) {
+            status = (err as { response?: { status?: number } }).response
+              ?.status;
+          }
+
+          // Fallback: when viewing own profile and username lookup 404s,
+          // retry by Clerk ID (getProfileById) before showing "Profile not found".
+          if (status === 404 && isOwnProfile && currentUser?.clerkId) {
+            profileData = await ProfileService.getProfileById(
+              currentUser.clerkId
+            );
+          } else {
+            throw err;
+          }
+        }
+
+        if (!profileData) {
+          setIsNotFound(true);
+          setError("This profile does not exist or is no longer available.");
+          return;
+        }
+
         setUser(profileData);
 
         // Only check follow status when viewing another user's profile
@@ -174,7 +214,7 @@ export default function ProfilePage() {
     if (username && !authLoading) {
       fetchProfileData();
     }
-  }, [username, isOwnProfile, loadUserContent, authLoading]);
+  }, [username, isOwnProfile, loadUserContent, authLoading, currentUser?.clerkId]);
 
   // Handle follow/unfollow
   const handleFollow = async () => {
@@ -265,7 +305,38 @@ export default function ProfilePage() {
               onUnfollow={handleUnfollow}
               onEditProfile={handleEditProfile}
               onUserUpdate={(updatedUser) => {
-                setUser((prev) => (prev ? { ...prev, ...updatedUser } : prev));
+                setUser((prev) => {
+                  if (!prev) return prev;
+
+                  const merged = { ...prev, ...updatedUser };
+
+                  // If this is the current user's profile and the username changed,
+                  // update auth store user and navigate to the new profile URL.
+                  if (
+                    isOwnProfile &&
+                    updatedUser.username &&
+                    updatedUser.username !== username
+                  ) {
+                    if (currentUser) {
+                      setAuthUser({
+                        ...currentUser,
+                        username: updatedUser.username,
+                        firstName:
+                          updatedUser.firstName ?? currentUser.firstName,
+                        lastName: updatedUser.lastName ?? currentUser.lastName,
+                        profileImage:
+                          updatedUser.profileImage ?? currentUser.profileImage,
+                        bio: updatedUser.bio ?? currentUser.bio,
+                      });
+                    }
+
+                    navigate(`/app/profile/${updatedUser.username}`, {
+                      replace: true,
+                    });
+                  }
+
+                  return merged;
+                });
               }}
             />
           </div>
