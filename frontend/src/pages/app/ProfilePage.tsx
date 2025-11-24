@@ -46,7 +46,7 @@ const convertApiProfileToUser = (profile: ApiProfile) => {
 
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
-  const { user: currentUser } = useAuthStore();
+  const { user: currentUser, isLoading: authLoading } = useAuthStore();
 
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [user, setUser] = useState<ApiProfile | null>(null);
@@ -123,7 +123,7 @@ export default function ProfilePage() {
   // Real API calls to fetch profile data
   useEffect(() => {
     const fetchProfileData = async () => {
-      if (!username) return;
+      if (!username || authLoading) return;
 
       setLoading(true);
       setError(null);
@@ -149,10 +149,10 @@ export default function ProfilePage() {
       }
     };
 
-    if (username) {
+    if (username && !authLoading) {
       fetchProfileData();
     }
-  }, [username, isOwnProfile, loadUserContent]);
+  }, [username, isOwnProfile, loadUserContent, authLoading]);
 
   // Handle follow/unfollow
   const handleFollow = async () => {

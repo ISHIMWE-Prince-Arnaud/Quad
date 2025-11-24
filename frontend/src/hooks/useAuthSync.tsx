@@ -10,24 +10,26 @@ export function useAuthSync() {
   const { getAuthToken } = useTokenManager();
 
   useEffect(() => {
-    if (isLoaded) {
-      setLoading(false);
-      syncWithClerk(clerkUser);
-      (async () => {
-        try {
-          const token = await getAuthToken();
-          if (token) {
-            localStorage.setItem("clerk-db-jwt", token);
-          } else {
-            localStorage.removeItem("clerk-db-jwt");
-          }
-        } catch {
+    if (!isLoaded) {
+      setLoading(true);
+      return;
+    }
+
+    (async () => {
+      try {
+        const token = await getAuthToken();
+        if (token) {
+          localStorage.setItem("clerk-db-jwt", token);
+        } else {
           localStorage.removeItem("clerk-db-jwt");
         }
-      })();
-    } else {
-      setLoading(true);
-    }
+      } catch {
+        localStorage.removeItem("clerk-db-jwt");
+      }
+
+      syncWithClerk(clerkUser);
+      setLoading(false);
+    })();
   }, [clerkUser, getAuthToken, isLoaded, setLoading, syncWithClerk]);
 
   return { isLoaded };
