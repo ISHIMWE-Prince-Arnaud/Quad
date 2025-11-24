@@ -14,40 +14,23 @@ import {
 } from "../utils/profile.util.js";
 import { clerkClient } from "@clerk/express";
 
-// Helper to find or auto-create the current user's profile by username
-const findOrCreateUserByUsername = async (
-  username: string,
-  currentUserId: string | null
-) => {
-  // Try existing user first
-  const existing = await User.findOne({ username });
-  if (existing) return existing;
+// Helper to ensure a user exists in MongoDB based on Clerk user ID
+const ensureUserByClerkId = async (clerkId: string | null) => {
+  if (!clerkId) return null;
 
-  if (!currentUserId) return null;
+  // Try existing user first
+  let user = await User.findOne({ clerkId });
+  if (user) return user;
 
   try {
-    const clerkUser = await clerkClient.users.getUser(currentUserId);
-    const possibleUsernames: string[] = [];
+    const clerkUser = await clerkClient.users.getUser(clerkId);
+    const email = clerkUser.emailAddresses?.[0]?.emailAddress || "";
+    const fallbackUsername = email ? email.split("@")[0] : "Anonymous";
 
-    if (clerkUser.username) {
-      possibleUsernames.push(clerkUser.username);
-    }
-
-    const emailHandle =
-      clerkUser.emailAddresses?.[0]?.emailAddress?.split("@")[0];
-    if (emailHandle) {
-      possibleUsernames.push(emailHandle);
-    }
-
-    // Only auto-create when the requested username matches the current Clerk user
-    if (!possibleUsernames.includes(username)) {
-      return null;
-    }
-
-    const user = await User.create({
-      clerkId: currentUserId,
-      username,
-      email: clerkUser.emailAddresses?.[0]?.emailAddress || "",
+    user = await User.create({
+      clerkId,
+      username: clerkUser.username || fallbackUsername,
+      email,
       firstName: clerkUser.firstName || undefined,
       lastName: clerkUser.lastName || undefined,
       profileImage: clerkUser.imageUrl || undefined,
@@ -55,7 +38,7 @@ const findOrCreateUserByUsername = async (
 
     return user;
   } catch (error) {
-    console.error("Failed to auto-create user by username", error);
+    console.error("Failed to ensure user by Clerk ID", error);
     return null;
   }
 };
@@ -67,8 +50,11 @@ export const getProfileById = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
-    // Find user by clerkId
-    const user = await User.findOne({ clerkId: userId });
+    // Find or auto-create user by clerkId
+    let user = await User.findOne({ clerkId: userId });
+    if (!user) {
+      user = await ensureUserByClerkId(userId ?? null);
+    }
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -110,11 +96,13 @@ export const getProfile = async (req: Request, res: Response) => {
     }
     const currentUserId = req.auth?.userId ?? null;
 
-    // Find user by username (auto-create for current user if necessary)
-    let user = await User.findOne({ username });
-    if (!user && currentUserId) {
-      user = await findOrCreateUserByUsername(username, currentUserId);
+    // Ensure current user exists in MongoDB based on Clerk ID
+    if (currentUserId) {
+      await ensureUserByClerkId(currentUserId);
     }
+
+    // Find user by username (no auto-create by username)
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -140,77 +128,6 @@ export const getProfile = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error("Error fetching profile:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
-  }
-};
-
-// =========================
-// GET OWN PROFILE
-// =========================
-export const getOwnProfile = async (req: Request, res: Response) => {
-  try {
-    const userId = req.auth.userId;
-    console.log("🔍 getOwnProfile - Looking for user with clerkId:", userId);
-
-    // Find current user
-    let user = await User.findOne({ clerkId: userId });
-    console.log("🔍 getOwnProfile - Found user:", user ? "YES" : "NO");
-    if (user) {
-      console.log("✅ User details:", {
-        username: user.username,
-        email: user.email,
-      });
-    }
-
-    if (!user) {
-      console.log(
-        "❌ User not found in MongoDB for clerkId:",
-        userId,
-        "- attempting auto-create from Clerk"
-      );
-      try {
-        const clerkUser = await clerkClient.users.getUser(userId);
-
-        user = await User.create({
-          clerkId: userId,
-          username:
-            clerkUser.username ||
-            clerkUser.emailAddresses?.[0]?.emailAddress?.split("@")[0] ||
-            "Anonymous",
-          email: clerkUser.emailAddresses?.[0]?.emailAddress || "",
-          firstName: clerkUser.firstName || undefined,
-          lastName: clerkUser.lastName || undefined,
-          profileImage: clerkUser.imageUrl || undefined,
-        });
-
-        console.log("✅ Auto-created user from Clerk in getOwnProfile", {
-          username: user.username,
-          email: user.email,
-        });
-      } catch (autoCreateError: any) {
-        console.error(
-          "❌ Failed to auto-create user from Clerk in getOwnProfile:",
-          autoCreateError
-        );
-        return res.status(404).json({
-          success: false,
-          message: "User not found",
-        });
-      }
-    }
-
-    // Calculate profile statistics
-    const stats = await calculateProfileStats(user.clerkId);
-
-    // Format response
-    const profile = formatProfileResponse(user, stats);
-
-    return res.json({
-      success: true,
-      data: profile,
-    });
-  } catch (error: any) {
-    console.error("Error fetching own profile:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -307,11 +224,13 @@ export const getUserPosts = async (req: Request, res: Response) => {
     const { page, limit } = query;
     const currentUserId = req.auth?.userId ?? null;
 
-    // Find user by username (auto-create for current user if necessary)
-    let user = await User.findOne({ username });
-    if (!user && currentUserId) {
-      user = await findOrCreateUserByUsername(username, currentUserId);
+    // Ensure current user exists in MongoDB based on Clerk ID
+    if (currentUserId) {
+      await ensureUserByClerkId(currentUserId);
     }
+
+    // Find user by username
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -364,11 +283,13 @@ export const getUserStories = async (req: Request, res: Response) => {
     const { page, limit } = query;
     const currentUserId = req.auth?.userId ?? null;
 
-    // Find user (auto-create for current user if necessary)
-    let user = await User.findOne({ username });
-    if (!user && currentUserId) {
-      user = await findOrCreateUserByUsername(username, currentUserId);
+    // Ensure current user exists in MongoDB based on Clerk ID
+    if (currentUserId) {
+      await ensureUserByClerkId(currentUserId);
     }
+
+    // Find user by username
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -421,11 +342,13 @@ export const getUserPolls = async (req: Request, res: Response) => {
     const { page, limit } = query;
     const currentUserId = req.auth?.userId ?? null;
 
-    // Find user (auto-create for current user if necessary)
-    let user = await User.findOne({ username });
-    if (!user && currentUserId) {
-      user = await findOrCreateUserByUsername(username, currentUserId);
+    // Ensure current user exists in MongoDB based on Clerk ID
+    if (currentUserId) {
+      await ensureUserByClerkId(currentUserId);
     }
+
+    // Find user by username
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(404).json({
         success: false,

@@ -53,6 +53,7 @@ export default function ProfilePage() {
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isNotFound, setIsNotFound] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
 
   // Check if this is the current user's profile
@@ -127,6 +128,7 @@ export default function ProfilePage() {
 
       setLoading(true);
       setError(null);
+      setIsNotFound(false);
 
       try {
         const profileData = await ProfileService.getProfileByUsername(username);
@@ -142,8 +144,28 @@ export default function ProfilePage() {
 
         // Load user's content based on active tab
         await loadUserContent();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load profile");
+      } catch (err: unknown) {
+        let status: number | undefined;
+
+        if (
+          typeof err === "object" &&
+          err !== null &&
+          "response" in err &&
+          typeof (err as { response?: { status?: number } }).response
+            ?.status === "number"
+        ) {
+          status = (err as { response?: { status?: number } }).response?.status;
+        }
+
+        if (status === 404) {
+          setIsNotFound(true);
+          setError("This profile does not exist or is no longer available.");
+        } else {
+          setIsNotFound(false);
+          setError(
+            "Something went wrong while loading this profile. Please try again."
+          );
+        }
       } finally {
         setLoading(false);
       }
@@ -212,7 +234,7 @@ export default function ProfilePage() {
   if (error) {
     return (
       <ErrorFallback
-        title="Profile Not Found"
+        title={isNotFound ? "Profile Not Found" : "Something Went Wrong"}
         description={error}
         resetErrorBoundary={() => window.location.reload()}
       />
