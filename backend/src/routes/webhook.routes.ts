@@ -52,15 +52,14 @@ router.post(
         case "user.updated": {
           const email = evt.data.email_addresses?.[0]?.email_address;
           const username = evt.data.username || email?.split("@")[0] || "user";
-          const profileImage = evt.data.image_url;
 
           await User.findOneAndUpdate(
             { clerkId: evt.data.id },
-            { username, email, profileImage },
+            { username, email },
             { new: true }
           );
 
-          console.log("✅ User updated in MongoDB");
+          console.log("✅ User updated in MongoDB (identity fields only)");
           break;
         }
 
