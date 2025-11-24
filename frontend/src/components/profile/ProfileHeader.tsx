@@ -23,6 +23,7 @@ interface ProfileHeaderProps {
     followers?: number;
     following?: number;
     postsCount?: number;
+    mutualFollows?: number;
   };
   isOwnProfile?: boolean;
   isFollowing?: boolean;
@@ -45,6 +46,7 @@ export function ProfileHeader({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [followersModalOpen, setFollowersModalOpen] = useState(false);
   const [followingModalOpen, setFollowingModalOpen] = useState(false);
+  const [mutualModalOpen, setMutualModalOpen] = useState(false);
 
   const displayName =
     user.firstName && user.lastName
@@ -274,6 +276,17 @@ export function ProfileHeader({
                 </span>
                 <span className="text-muted-foreground">Posts</span>
               </div>
+              {!isOwnProfile && typeof user.mutualFollows === "number" && (
+                <button
+                  type="button"
+                  onClick={() => setMutualModalOpen(true)}
+                  className="flex gap-1 hover:underline transition-colors">
+                  <span className="font-semibold text-foreground">
+                    {user.mutualFollows.toLocaleString()}
+                  </span>
+                  <span className="text-muted-foreground">Mutual</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -304,6 +317,17 @@ export function ProfileHeader({
         type="following"
         initialCount={user.following}
       />
+
+      {/* Mutual Connections Modal */}
+      {!isOwnProfile && typeof user.mutualFollows === "number" && (
+        <FollowersModal
+          isOpen={mutualModalOpen}
+          onClose={() => setMutualModalOpen(false)}
+          userId={user.clerkId}
+          type="mutual"
+          initialCount={user.mutualFollows}
+        />
+      )}
     </>
   );
 }

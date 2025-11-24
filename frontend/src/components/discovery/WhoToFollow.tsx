@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import { RefreshCw, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserCard, type UserCardData } from '@/components/user/UserCard';
+import { useState, useEffect, useCallback } from "react";
+import { RefreshCw, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UserCard, type UserCardData } from "@/components/user/UserCard";
+import { FollowService } from "@/services/followService";
 
 interface WhoToFollowProps {
   limit?: number;
@@ -12,107 +13,117 @@ interface WhoToFollowProps {
 }
 
 // Mock function to get user suggestions - replace with actual API call
-const getUserSuggestions = async (limit: number = 3): Promise<UserCardData[]> => {
+const getUserSuggestions = async (
+  limit: number = 3
+): Promise<UserCardData[]> => {
   // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
   const allUsers: UserCardData[] = [
     {
-      _id: '1',
-      clerkId: 'user_1',
-      username: 'techguru2024',
-      email: 'tech@example.com',
-      firstName: 'David',
-      lastName: 'Chen',
-      profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      bio: 'Senior Software Engineer at TechCorp. Passionate about AI and machine learning.',
+      _id: "1",
+      clerkId: "user_1",
+      username: "techguru2024",
+      email: "tech@example.com",
+      firstName: "David",
+      lastName: "Chen",
+      profileImage:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+      bio: "Senior Software Engineer at TechCorp. Passionate about AI and machine learning.",
       isVerified: true,
       followers: 3456,
       following: 234,
       postsCount: 127,
-      joinedAt: '2023-08-15',
+      joinedAt: "2023-08-15",
       isFollowing: false,
     },
     {
-      _id: '2',
-      clerkId: 'user_2',
-      username: 'designpro',
-      email: 'design@example.com',
-      firstName: 'Emma',
-      lastName: 'Rodriguez',
-      profileImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=150&h=150&fit=crop&crop=face',
-      coverImage: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&h=400&fit=crop',
-      bio: 'UI/UX Designer creating beautiful and functional digital experiences',
+      _id: "2",
+      clerkId: "user_2",
+      username: "designpro",
+      email: "design@example.com",
+      firstName: "Emma",
+      lastName: "Rodriguez",
+      profileImage:
+        "https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=150&h=150&fit=crop&crop=face",
+      coverImage:
+        "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&h=400&fit=crop",
+      bio: "UI/UX Designer creating beautiful and functional digital experiences",
       isVerified: false,
       followers: 1892,
       following: 445,
       postsCount: 89,
-      joinedAt: '2023-12-03',
+      joinedAt: "2023-12-03",
       isFollowing: false,
     },
     {
-      _id: '3',
-      clerkId: 'user_3',
-      username: 'startup_founder',
-      email: 'founder@example.com',
-      firstName: 'Michael',
-      lastName: 'Johnson',
-      profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      bio: 'Entrepreneur | Building the future of fintech | Angel investor',
+      _id: "3",
+      clerkId: "user_3",
+      username: "startup_founder",
+      email: "founder@example.com",
+      firstName: "Michael",
+      lastName: "Johnson",
+      profileImage:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+      bio: "Entrepreneur | Building the future of fintech | Angel investor",
       isVerified: true,
       followers: 8923,
       following: 567,
       postsCount: 203,
-      joinedAt: '2023-06-20',
+      joinedAt: "2023-06-20",
       isFollowing: false,
     },
     {
-      _id: '4',
-      clerkId: 'user_4',
-      username: 'creativecoder',
-      email: 'creative@example.com',
-      firstName: 'Sophia',
-      lastName: 'Wilson',
-      profileImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-      bio: 'Full-stack developer with a passion for creative coding and interactive art',
+      _id: "4",
+      clerkId: "user_4",
+      username: "creativecoder",
+      email: "creative@example.com",
+      firstName: "Sophia",
+      lastName: "Wilson",
+      profileImage:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+      bio: "Full-stack developer with a passion for creative coding and interactive art",
       isVerified: false,
       followers: 2134,
       following: 123,
       postsCount: 156,
-      joinedAt: '2024-01-10',
+      joinedAt: "2024-01-10",
       isFollowing: false,
     },
     {
-      _id: '5',
-      clerkId: 'user_5',
-      username: 'datascientist',
-      email: 'data@example.com',
-      firstName: 'Alex',
-      lastName: 'Kumar',
-      profileImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-      bio: 'Data Scientist | ML Engineer | Making sense of complex data patterns',
+      _id: "5",
+      clerkId: "user_5",
+      username: "datascientist",
+      email: "data@example.com",
+      firstName: "Alex",
+      lastName: "Kumar",
+      profileImage:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+      bio: "Data Scientist | ML Engineer | Making sense of complex data patterns",
       isVerified: false,
       followers: 1567,
       following: 289,
       postsCount: 94,
-      joinedAt: '2023-09-14',
+      joinedAt: "2023-09-14",
       isFollowing: false,
     },
     {
-      _id: '6',
-      clerkId: 'user_6',
-      username: 'productmanager',
-      email: 'product@example.com',
-      firstName: 'Rachel',
-      lastName: 'Thompson',
-      profileImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
-      coverImage: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=400&fit=crop',
-      bio: 'Senior Product Manager | Building products that users love',
+      _id: "6",
+      clerkId: "user_6",
+      username: "productmanager",
+      email: "product@example.com",
+      firstName: "Rachel",
+      lastName: "Thompson",
+      profileImage:
+        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
+      coverImage:
+        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=400&fit=crop",
+      bio: "Senior Product Manager | Building products that users love",
       isVerified: true,
       followers: 4321,
       following: 678,
       postsCount: 178,
-      joinedAt: '2023-07-08',
+      joinedAt: "2023-07-08",
       isFollowing: false,
     },
   ];
@@ -126,7 +137,7 @@ export function WhoToFollow({
   limit = 3,
   showRefresh = true,
   compact = false,
-  className = '',
+  className = "",
 }: WhoToFollowProps) {
   const [suggestions, setSuggestions] = useState<UserCardData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -138,7 +149,7 @@ export function WhoToFollow({
       const users = await getUserSuggestions(limit);
       setSuggestions(users);
     } catch (error) {
-      console.error('Failed to load user suggestions:', error);
+      console.error("Failed to load user suggestions:", error);
     } finally {
       setIsLoading(false);
     }
@@ -155,7 +166,7 @@ export function WhoToFollow({
       const users = await getUserSuggestions(limit);
       setSuggestions(users);
     } catch (error) {
-      console.error('Failed to refresh suggestions:', error);
+      console.error("Failed to refresh suggestions:", error);
     } finally {
       setIsRefreshing(false);
     }
@@ -163,23 +174,45 @@ export function WhoToFollow({
 
   // Handle follow/unfollow
   const handleFollow = async (userId: string) => {
-    // TODO: Implement actual follow API call
-    console.log('Following user:', userId);
-    
-    // Update local state
-    setSuggestions(prev => prev.map(user => 
-      user._id === userId ? { ...user, isFollowing: true, followers: (user.followers || 0) + 1 } : user
-    ));
+    try {
+      await FollowService.followUser(userId);
+
+      // Update local state
+      setSuggestions((prev) =>
+        prev.map((user) =>
+          user._id === userId
+            ? {
+                ...user,
+                isFollowing: true,
+                followers: (user.followers || 0) + 1,
+              }
+            : user
+        )
+      );
+    } catch (error) {
+      console.error("Failed to follow user:", error);
+    }
   };
 
   const handleUnfollow = async (userId: string) => {
-    // TODO: Implement actual unfollow API call  
-    console.log('Unfollowing user:', userId);
-    
-    // Update local state
-    setSuggestions(prev => prev.map(user => 
-      user._id === userId ? { ...user, isFollowing: false, followers: Math.max((user.followers || 1) - 1, 0) } : user
-    ));
+    try {
+      await FollowService.unfollowUser(userId);
+
+      // Update local state
+      setSuggestions((prev) =>
+        prev.map((user) =>
+          user._id === userId
+            ? {
+                ...user,
+                isFollowing: false,
+                followers: Math.max((user.followers || 1) - 1, 0),
+              }
+            : user
+        )
+      );
+    } catch (error) {
+      console.error("Failed to unfollow user:", error);
+    }
   };
 
   if (compact) {
@@ -193,13 +226,14 @@ export function WhoToFollow({
               size="sm"
               onClick={refreshSuggestions}
               disabled={isRefreshing}
-              className="h-6 w-6 p-0"
-            >
-              <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+              className="h-6 w-6 p-0">
+              <RefreshCw
+                className={`h-3 w-3 ${isRefreshing ? "animate-spin" : ""}`}
+              />
             </Button>
           )}
         </div>
-        
+
         {isLoading ? (
           <div className="space-y-2">
             {Array.from({ length: limit }).map((_, i) => (
@@ -249,14 +283,15 @@ export function WhoToFollow({
               size="sm"
               onClick={refreshSuggestions}
               disabled={isRefreshing}
-              className="h-8 w-8 p-0"
-            >
-              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              className="h-8 w-8 p-0">
+              <RefreshCw
+                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+              />
             </Button>
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent className="pt-0">
         {isLoading ? (
           <div className="space-y-4">
@@ -295,7 +330,9 @@ export function WhoToFollow({
             <Users className="h-8 w-8" />
             <div className="text-center">
               <p className="font-medium">No suggestions available</p>
-              <p className="text-sm">Check back later for new recommendations</p>
+              <p className="text-sm">
+                Check back later for new recommendations
+              </p>
             </div>
           </div>
         )}

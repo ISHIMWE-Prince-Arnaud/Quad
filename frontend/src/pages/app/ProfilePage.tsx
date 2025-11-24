@@ -41,6 +41,7 @@ const convertApiProfileToUser = (profile: ApiProfile) => {
     followers: profile.followers,
     following: profile.following,
     postsCount: profile.postsCount,
+    mutualFollows: profile.mutualFollows,
   };
 };
 
@@ -181,6 +182,22 @@ export default function ProfilePage() {
           setIsNotFound(true);
           setError("This profile does not exist or is no longer available.");
           return;
+        }
+
+        // Enrich profile with follow statistics (followers, following, mutual follows)
+        try {
+          const followStats = await FollowService.getFollowStats(
+            profileData.clerkId
+          );
+
+          profileData = {
+            ...profileData,
+            followers: followStats.followers,
+            following: followStats.following,
+            mutualFollows: followStats.mutualFollows,
+          };
+        } catch (statsError) {
+          console.error("Failed to load follow stats:", statsError);
         }
 
         setUser(profileData);

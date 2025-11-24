@@ -10,7 +10,7 @@ interface FollowersModalProps {
   isOpen: boolean;
   onClose: () => void;
   userId: string;
-  type: "followers" | "following";
+  type: "followers" | "following" | "mutual";
   initialCount?: number;
 }
 
@@ -35,23 +35,54 @@ const convertApiFollowUserToUserCard = (
 });
 
 // Real API functions using backend endpoints
-const getFollowers = async (userId: string): Promise<UserCardData[]> => {
+const getFollowers = async (
+  userId: string,
+  page: number,
+  limit: number
+): Promise<{ users: UserCardData[]; hasMore: boolean; total: number }> => {
   try {
-    const result = await FollowService.getFollowers(userId, { limit: 50 });
-    return result.followers.map(convertApiFollowUserToUserCard);
+    const result = await FollowService.getFollowers(userId, { page, limit });
+    return {
+      users: result.followers.map(convertApiFollowUserToUserCard),
+      hasMore: result.hasMore,
+      total: result.total,
+    };
   } catch (error) {
     console.error("Failed to load followers:", error);
-    return [];
+    return { users: [], hasMore: false, total: 0 };
   }
 };
 
-const getFollowing = async (userId: string): Promise<UserCardData[]> => {
+const getFollowing = async (
+  userId: string,
+  page: number,
+  limit: number
+): Promise<{ users: UserCardData[]; hasMore: boolean; total: number }> => {
   try {
-    const result = await FollowService.getFollowing(userId, { limit: 50 });
-    return result.following.map(convertApiFollowUserToUserCard);
+    const result = await FollowService.getFollowing(userId, { page, limit });
+    return {
+      users: result.following.map(convertApiFollowUserToUserCard),
+      hasMore: result.hasMore,
+      total: result.total,
+    };
   } catch (error) {
     console.error("Failed to load following:", error);
-    return [];
+    return { users: [], hasMore: false, total: 0 };
+  }
+};
+
+const getMutualFollowsForUser = async (
+  userId: string
+): Promise<{ users: UserCardData[]; total: number }> => {
+  try {
+    const result = await FollowService.getMutualFollows(userId);
+    return {
+      users: result.mutualFollows.map(convertApiFollowUserToUserCard),
+      total: result.count,
+    };
+  } catch (error) {
+    console.error("Failed to load mutual follows:", error);
+    return { users: [], total: 0 };
   }
 };
 
@@ -66,26 +97,63 @@ export function FollowersModal({
   const [filteredUsers, setFilteredUsers] = useState<UserCardData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(initialCount || 0);
 
-  const loadUsers = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data =
-        type === "followers"
-          ? await getFollowers(userId)
-          : await getFollowing(userId);
-      setUsers(data);
-    } catch (error) {
-      console.error(`Failed to load ${type}:`, error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, type]);
+  const loadUsers = useCallback(
+    async (pageToLoad: number = 1) => {
+      if (pageToLoad === 1) {
+        setIsLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
+
+      try {
+        if (type === "followers") {
+          const result = await getFollowers(userId, pageToLoad, 20);
+          setUsers((prev) =>
+            pageToLoad === 1 ? result.users : [...prev, ...result.users]
+          );
+          setHasMore(result.hasMore);
+          setTotalCount(result.total || initialCount || result.users.length);
+        } else if (type === "following") {
+          const result = await getFollowing(userId, pageToLoad, 20);
+          setUsers((prev) =>
+            pageToLoad === 1 ? result.users : [...prev, ...result.users]
+          );
+          setHasMore(result.hasMore);
+          setTotalCount(result.total || initialCount || result.users.length);
+        } else {
+          const result = await getMutualFollowsForUser(userId);
+          setUsers(result.users);
+          setHasMore(false);
+          setTotalCount(result.total || initialCount || result.users.length);
+        }
+
+        setPage(pageToLoad);
+      } catch (error) {
+        console.error(`Failed to load ${type}:`, error);
+      } finally {
+        if (pageToLoad === 1) {
+          setIsLoading(false);
+        } else {
+          setIsLoadingMore(false);
+        }
+      }
+    },
+    [userId, type, initialCount]
+  );
 
   // Load users when modal opens
   useEffect(() => {
     if (isOpen) {
-      loadUsers();
+      setUsers([]);
+      setFilteredUsers([]);
+      setSearchQuery("");
+      setPage(1);
+      loadUsers(1);
     }
   }, [isOpen, loadUsers]);
 
@@ -121,6 +189,11 @@ export function FollowersModal({
     }
   };
 
+  const handleLoadMore = () => {
+    if (!hasMore || isLoadingMore || type === "mutual") return;
+    loadUsers(page + 1);
+  };
+
   const handleUnfollow = async (targetUserId: string) => {
     try {
       await FollowService.unfollowUser(targetUserId);
@@ -137,7 +210,12 @@ export function FollowersModal({
 
   if (!isOpen) return null;
 
-  const title = type === "followers" ? "Followers" : "Following";
+  const title =
+    type === "followers"
+      ? "Followers"
+      : type === "following"
+      ? "Following"
+      : "Mutual Connections";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -218,27 +296,45 @@ export function FollowersModal({
             <div className="flex flex-col items-center justify-center gap-3 py-8 text-muted-foreground">
               <Users className="h-8 w-8" />
               <div className="text-center">
-                <p className="font-medium">No {type} yet</p>
+                <p className="font-medium">
+                  {type === "followers"
+                    ? "No followers yet"
+                    : type === "following"
+                    ? "No following yet"
+                    : "No mutual connections yet"}
+                </p>
                 <p className="text-sm">
                   {type === "followers"
                     ? "When people follow this user, they will appear here"
-                    : "When this user follows people, they will appear here"}
+                    : type === "following"
+                    ? "When this user follows people, they will appear here"
+                    : "When you share connections with this user, they will appear here"}
                 </p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Footer with count */}
+        {/* Footer with count and pagination */}
         {!isLoading && filteredUsers.length > 0 && (
-          <div className="p-4 border-t bg-muted/30">
+          <div className="p-4 border-t bg-muted/30 flex flex-col items-center gap-3">
             <p className="text-sm text-muted-foreground text-center">
               {searchQuery
                 ? `${filteredUsers.length} ${type} matching "${searchQuery}"`
                 : `${filteredUsers.length} of ${
-                    initialCount || filteredUsers.length
+                    totalCount || filteredUsers.length
                   } ${type}`}
             </p>
+
+            {hasMore && type !== "mutual" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}>
+                {isLoadingMore ? "Loading..." : "Load more"}
+              </Button>
+            )}
           </div>
         )}
       </div>
