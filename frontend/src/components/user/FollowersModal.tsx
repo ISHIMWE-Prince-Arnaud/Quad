@@ -1,25 +1,27 @@
-import { useState, useEffect, useCallback } from 'react';
-import { X, Users, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { UserCard, type UserCardData } from '@/components/user/UserCard';
-import { FollowService } from '@/services/followService';
-import type { ApiFollowUser } from '@/types/api';
+import { useState, useEffect, useCallback } from "react";
+import { X, Users, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { UserCard, type UserCardData } from "@/components/user/UserCard";
+import { FollowService } from "@/services/followService";
+import type { ApiFollowUser } from "@/types/api";
 
 interface FollowersModalProps {
   isOpen: boolean;
   onClose: () => void;
   userId: string;
-  type: 'followers' | 'following';
+  type: "followers" | "following";
   initialCount?: number;
 }
 
 // Convert API follow user to UserCardData
-const convertApiFollowUserToUserCard = (followUser: ApiFollowUser): UserCardData => ({
+const convertApiFollowUserToUserCard = (
+  followUser: ApiFollowUser
+): UserCardData => ({
   _id: followUser._id,
   clerkId: followUser.clerkId,
   username: followUser.username,
-  email: '', // Not provided in follow lists
+  email: "", // Not provided in follow lists
   firstName: followUser.firstName,
   lastName: followUser.lastName,
   profileImage: followUser.profileImage,
@@ -38,7 +40,7 @@ const getFollowers = async (userId: string): Promise<UserCardData[]> => {
     const result = await FollowService.getFollowers(userId, { limit: 50 });
     return result.followers.map(convertApiFollowUserToUserCard);
   } catch (error) {
-    console.error('Failed to load followers:', error);
+    console.error("Failed to load followers:", error);
     return [];
   }
 };
@@ -48,7 +50,7 @@ const getFollowing = async (userId: string): Promise<UserCardData[]> => {
     const result = await FollowService.getFollowing(userId, { limit: 50 });
     return result.following.map(convertApiFollowUserToUserCard);
   } catch (error) {
-    console.error('Failed to load following:', error);
+    console.error("Failed to load following:", error);
     return [];
   }
 };
@@ -63,14 +65,15 @@ export function FollowersModal({
   const [users, setUsers] = useState<UserCardData[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<UserCardData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const loadUsers = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = type === 'followers'
-        ? await getFollowers(userId)
-        : await getFollowing(userId);
+      const data =
+        type === "followers"
+          ? await getFollowers(userId)
+          : await getFollowing(userId);
       setUsers(data);
     } catch (error) {
       console.error(`Failed to load ${type}:`, error);
@@ -92,11 +95,12 @@ export function FollowersModal({
       setFilteredUsers(users);
     } else {
       const query = searchQuery.toLowerCase();
-      const filtered = users.filter(user => 
-        user.username.toLowerCase().includes(query) ||
-        user.firstName?.toLowerCase().includes(query) ||
-        user.lastName?.toLowerCase().includes(query) ||
-        user.bio?.toLowerCase().includes(query)
+      const filtered = users.filter(
+        (user) =>
+          user.username.toLowerCase().includes(query) ||
+          user.firstName?.toLowerCase().includes(query) ||
+          user.lastName?.toLowerCase().includes(query) ||
+          user.bio?.toLowerCase().includes(query)
       );
       setFilteredUsers(filtered);
     }
@@ -106,39 +110,43 @@ export function FollowersModal({
   const handleFollow = async (targetUserId: string) => {
     try {
       await FollowService.followUser(targetUserId);
-      
-      setUsers(prev => prev.map(user => 
-        user._id === targetUserId ? { ...user, isFollowing: true } : user
-      ));
+
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.clerkId === targetUserId ? { ...user, isFollowing: true } : user
+        )
+      );
     } catch (error) {
-      console.error('Failed to follow user:', error);
+      console.error("Failed to follow user:", error);
     }
   };
 
   const handleUnfollow = async (targetUserId: string) => {
     try {
       await FollowService.unfollowUser(targetUserId);
-      
-      setUsers(prev => prev.map(user => 
-        user._id === targetUserId ? { ...user, isFollowing: false } : user
-      ));
+
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.clerkId === targetUserId ? { ...user, isFollowing: false } : user
+        )
+      );
     } catch (error) {
-      console.error('Failed to unfollow user:', error);
+      console.error("Failed to unfollow user:", error);
     }
   };
 
   if (!isOpen) return null;
 
-  const title = type === 'followers' ? 'Followers' : 'Following';
+  const title = type === "followers" ? "Followers" : "Following";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="relative w-full max-w-md mx-4 bg-background rounded-lg shadow-lg max-h-[80vh] flex flex-col">
         {/* Header */}
@@ -148,8 +156,7 @@ export function FollowersModal({
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="h-8 w-8 p-0"
-          >
+            className="h-8 w-8 p-0">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -213,10 +220,9 @@ export function FollowersModal({
               <div className="text-center">
                 <p className="font-medium">No {type} yet</p>
                 <p className="text-sm">
-                  {type === 'followers' 
-                    ? 'When people follow this user, they will appear here'
-                    : 'When this user follows people, they will appear here'
-                  }
+                  {type === "followers"
+                    ? "When people follow this user, they will appear here"
+                    : "When this user follows people, they will appear here"}
                 </p>
               </div>
             </div>
@@ -227,10 +233,11 @@ export function FollowersModal({
         {!isLoading && filteredUsers.length > 0 && (
           <div className="p-4 border-t bg-muted/30">
             <p className="text-sm text-muted-foreground text-center">
-              {searchQuery 
+              {searchQuery
                 ? `${filteredUsers.length} ${type} matching "${searchQuery}"`
-                : `${filteredUsers.length} of ${initialCount || filteredUsers.length} ${type}`
-              }
+                : `${filteredUsers.length} of ${
+                    initialCount || filteredUsers.length
+                  } ${type}`}
             </p>
           </div>
         )}

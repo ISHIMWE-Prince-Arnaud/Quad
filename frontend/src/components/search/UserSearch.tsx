@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
-import { Search, X, Users, Loader2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { UserCard, type UserCardData } from '@/components/user/UserCard';
-import { debounce } from '@/lib/utils';
-import { SearchService } from '@/services/searchService';
-import { FollowService } from '@/services/followService';
-import type { ApiProfile } from '@/types/api';
+import { useState, useEffect, useRef } from "react";
+import { Search, X, Users, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { UserCard, type UserCardData } from "@/components/user/UserCard";
+import { debounce } from "@/lib/utils";
+import { SearchService } from "@/services/searchService";
+import { FollowService } from "@/services/followService";
+import type { ApiProfile } from "@/types/api";
 
 interface UserSearchProps {
   onUserSelect?: (user: UserCardData) => void;
@@ -44,7 +44,7 @@ const searchUsers = async (query: string): Promise<UserCardData[]> => {
     const result = await SearchService.quickUserSearch(query);
     return result.map(convertApiProfileToUserCard);
   } catch (error) {
-    console.error('Search error:', error);
+    console.error("Search error:", error);
     return [];
   }
 };
@@ -54,14 +54,14 @@ export function UserSearch({
   placeholder = "Search users...",
   showRecentSearches = true,
   compact = false,
-  className = '',
+  className = "",
 }: UserSearchProps) {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<UserCardData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [recentSearches, setRecentSearches] = useState<UserCardData[]>([]);
-  
+
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -79,7 +79,7 @@ export function UserSearch({
         const searchResults = await searchUsers(searchQuery);
         setResults(searchResults);
       } catch (error) {
-        console.error('Search error:', error);
+        console.error("Search error:", error);
         setResults([]);
       } finally {
         setIsLoading(false);
@@ -96,16 +96,16 @@ export function UserSearch({
   // Handle user selection
   const handleUserSelect = (user: UserCardData) => {
     // Add to recent searches
-    setRecentSearches(prev => {
-      const filtered = prev.filter(u => u._id !== user._id);
+    setRecentSearches((prev) => {
+      const filtered = prev.filter((u) => u._id !== user._id);
       return [user, ...filtered].slice(0, 5); // Keep last 5 searches
     });
 
     onUserSelect?.(user);
-    
+
     // Clear search if in compact mode
     if (compact) {
-      setQuery('');
+      setQuery("");
       setResults([]);
       inputRef.current?.blur();
     }
@@ -115,38 +115,46 @@ export function UserSearch({
   const handleFollow = async (userId: string) => {
     try {
       await FollowService.followUser(userId);
-      
+
       // Update local state
-      setResults(prev => prev.map(user => 
-        user._id === userId ? { ...user, isFollowing: true } : user
-      ));
-      setRecentSearches(prev => prev.map(user => 
-        user._id === userId ? { ...user, isFollowing: true } : user
-      ));
+      setResults((prev) =>
+        prev.map((user) =>
+          user.clerkId === userId ? { ...user, isFollowing: true } : user
+        )
+      );
+      setRecentSearches((prev) =>
+        prev.map((user) =>
+          user.clerkId === userId ? { ...user, isFollowing: true } : user
+        )
+      );
     } catch (error) {
-      console.error('Failed to follow user:', error);
+      console.error("Failed to follow user:", error);
     }
   };
 
   const handleUnfollow = async (userId: string) => {
     try {
       await FollowService.unfollowUser(userId);
-      
+
       // Update local state
-      setResults(prev => prev.map(user => 
-        user._id === userId ? { ...user, isFollowing: false } : user
-      ));
-      setRecentSearches(prev => prev.map(user => 
-        user._id === userId ? { ...user, isFollowing: false } : user
-      ));
+      setResults((prev) =>
+        prev.map((user) =>
+          user.clerkId === userId ? { ...user, isFollowing: false } : user
+        )
+      );
+      setRecentSearches((prev) =>
+        prev.map((user) =>
+          user.clerkId === userId ? { ...user, isFollowing: false } : user
+        )
+      );
     } catch (error) {
-      console.error('Failed to unfollow user:', error);
+      console.error("Failed to unfollow user:", error);
     }
   };
 
   // Clear search
   const clearSearch = () => {
-    setQuery('');
+    setQuery("");
     setResults([]);
     inputRef.current?.focus();
   };
@@ -154,18 +162,22 @@ export function UserSearch({
   // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsFocused(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const showDropdown = isFocused && (query.trim() || showRecentSearches);
   const showResults = query.trim() && results.length > 0;
-  const showRecent = !query.trim() && showRecentSearches && recentSearches.length > 0;
+  const showRecent =
+    !query.trim() && showRecentSearches && recentSearches.length > 0;
   const showEmpty = query.trim() && !isLoading && results.length === 0;
 
   return (
@@ -186,8 +198,7 @@ export function UserSearch({
             variant="ghost"
             size="sm"
             onClick={clearSearch}
-            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
-          >
+            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0">
             <X className="h-3 w-3" />
           </Button>
         )}

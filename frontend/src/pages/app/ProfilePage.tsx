@@ -135,7 +135,7 @@ export default function ProfilePage() {
         // Only check follow status when viewing another user's profile
         if (!isOwnProfile) {
           const followStatus = await FollowService.checkFollowing(
-            profileData._id
+            profileData.clerkId
           );
           setIsFollowing(followStatus.isFollowing);
         }
@@ -159,7 +159,7 @@ export default function ProfilePage() {
     if (!user) return;
 
     try {
-      await FollowService.followUser(user._id);
+      await FollowService.followUser(user.clerkId);
       setIsFollowing(true);
       setUser((prev) =>
         prev
@@ -178,7 +178,7 @@ export default function ProfilePage() {
     if (!user) return;
 
     try {
-      await FollowService.unfollowUser(user._id);
+      await FollowService.unfollowUser(user.clerkId);
       setIsFollowing(false);
       setUser((prev) =>
         prev

@@ -291,7 +291,7 @@ export function ProfileHeader({
       <FollowersModal
         isOpen={followersModalOpen}
         onClose={() => setFollowersModalOpen(false)}
-        userId={user._id}
+        userId={user.clerkId}
         type="followers"
         initialCount={user.followers}
       />
@@ -300,7 +300,7 @@ export function ProfileHeader({
       <FollowersModal
         isOpen={followingModalOpen}
         onClose={() => setFollowingModalOpen(false)}
-        userId={user._id}
+        userId={user.clerkId}
         type="following"
         initialCount={user.following}
       />

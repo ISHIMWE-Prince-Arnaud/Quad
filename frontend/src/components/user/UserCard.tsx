@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { CheckCircle, MoreHorizontal } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { CheckCircle, MoreHorizontal } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export interface UserCardData {
   _id: string;
@@ -42,28 +42,29 @@ export function UserCard({
   showBio = true,
   showStats = true,
   compact = false,
-  className = '',
+  className = "",
 }: UserCardProps) {
   const [isFollowing, setIsFollowing] = useState(user.isFollowing || false);
   const [followLoading, setFollowLoading] = useState(false);
 
-  const displayName = user.firstName && user.lastName 
-    ? `${user.firstName} ${user.lastName}`
-    : user.firstName || user.username;
+  const displayName =
+    user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user.firstName || user.username;
 
   const handleFollowClick = async () => {
     setFollowLoading(true);
-    
+
     try {
       if (isFollowing) {
-        await onUnfollow?.(user._id);
+        await onUnfollow?.(user.clerkId);
         setIsFollowing(false);
       } else {
-        await onFollow?.(user._id);
+        await onFollow?.(user.clerkId);
         setIsFollowing(true);
       }
     } catch (error) {
-      console.error('Follow action failed:', error);
+      console.error("Follow action failed:", error);
     } finally {
       setFollowLoading(false);
     }
@@ -78,15 +79,18 @@ export function UserCard({
 
   if (compact) {
     return (
-      <div className={`flex items-center gap-3 p-3 hover:bg-accent/50 transition-colors ${className}`}>
-        <Link to={`/app/profile/${user.username}`} className="flex items-center gap-3 flex-1 min-w-0">
+      <div
+        className={`flex items-center gap-3 p-3 hover:bg-accent/50 transition-colors ${className}`}>
+        <Link
+          to={`/app/profile/${user.username}`}
+          className="flex items-center gap-3 flex-1 min-w-0">
           <Avatar className="h-10 w-10">
             <AvatarImage src={user.profileImage} alt={displayName} />
             <AvatarFallback className="bg-primary/10">
               {getUserInitials()}
             </AvatarFallback>
           </Avatar>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1">
               <p className="font-semibold text-sm truncate">{displayName}</p>
@@ -94,7 +98,9 @@ export function UserCard({
                 <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
               )}
             </div>
-            <p className="text-muted-foreground text-xs truncate">@{user.username}</p>
+            <p className="text-muted-foreground text-xs truncate">
+              @{user.username}
+            </p>
           </div>
         </Link>
 
@@ -104,8 +110,7 @@ export function UserCard({
             variant={isFollowing ? "outline" : "default"}
             onClick={handleFollowClick}
             disabled={followLoading}
-            className="flex-shrink-0"
-          >
+            className="flex-shrink-0">
             {followLoading ? "..." : isFollowing ? "Following" : "Follow"}
           </Button>
         )}
@@ -114,7 +119,8 @@ export function UserCard({
   }
 
   return (
-    <Card className={`overflow-hidden transition-all duration-200 hover:shadow-md ${className}`}>
+    <Card
+      className={`overflow-hidden transition-all duration-200 hover:shadow-md ${className}`}>
       {/* Cover Image */}
       {user.coverImage && (
         <div className="h-20 overflow-hidden">
@@ -125,17 +131,19 @@ export function UserCard({
           />
         </div>
       )}
-      
+
       <div className="p-4">
         <div className="flex items-start justify-between">
-          <Link to={`/app/profile/${user.username}`} className="flex items-center gap-3 flex-1 min-w-0">
+          <Link
+            to={`/app/profile/${user.username}`}
+            className="flex items-center gap-3 flex-1 min-w-0">
             <Avatar className="h-12 w-12 ring-2 ring-background">
               <AvatarImage src={user.profileImage} alt={displayName} />
               <AvatarFallback className="bg-primary/10">
                 {getUserInitials()}
               </AvatarFallback>
             </Avatar>
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1">
                 <h3 className="font-semibold truncate">{displayName}</h3>
@@ -143,7 +151,9 @@ export function UserCard({
                   <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
                 )}
               </div>
-              <p className="text-muted-foreground text-sm truncate">@{user.username}</p>
+              <p className="text-muted-foreground text-sm truncate">
+                @{user.username}
+              </p>
             </div>
           </Link>
 
@@ -153,12 +163,15 @@ export function UserCard({
                 size="sm"
                 variant={isFollowing ? "outline" : "default"}
                 onClick={handleFollowClick}
-                disabled={followLoading}
-              >
-                {followLoading ? "Loading..." : isFollowing ? "Following" : "Follow"}
+                disabled={followLoading}>
+                {followLoading
+                  ? "Loading..."
+                  : isFollowing
+                  ? "Following"
+                  : "Follow"}
               </Button>
             )}
-            
+
             <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
