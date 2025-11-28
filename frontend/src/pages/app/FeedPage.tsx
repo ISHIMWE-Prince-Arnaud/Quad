@@ -5,11 +5,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/posts/PostCard";
+import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
+import { FeedService } from "@/services/feedService";
 import { PostService } from "@/services/postService";
 import { useAuthStore } from "@/stores/authStore";
-import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
-import toast from "react-hot-toast";
 import type { Post } from "@/types/post";
+import type { FeedItem, FeedTab, FeedType } from "@/types/feed";
+import toast from "react-hot-toast";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -30,36 +32,186 @@ function getErrorMessage(error: unknown): string {
 
 export default function FeedPage() {
   const { user } = useAuthStore();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
+  const [feedType, setFeedType] = useState<FeedType>("foryou");
+  const [tab, setTab] = useState<FeedTab>("home");
+  const [items, setItems] = useState<FeedItem[]>([]);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [newCount, setNewCount] = useState(0);
+  const [lastSeenId, setLastSeenId] = useState<string | null>(null);
+
+  // Load initial feed whenever feedType or tab changes
   useEffect(() => {
-    const fetchPosts = async () => {
+    let isCancelled = false;
+
+    const fetchFeed = async () => {
       try {
         setLoading(true);
-        const response = await PostService.getAllPosts({ limit: 20, skip: 0 });
-        if (response.success) {
-          setPosts(response.data);
-        } else {
-          setError(response.message || "Failed to load posts");
+        setError(null);
+        setItems([]);
+        setCursor(null);
+        setHasMore(true);
+        setNewCount(0);
+
+        const response = await FeedService.getFeed(feedType, {
+          tab,
+          limit: 20,
+          sort: "newest",
+        });
+
+        if (!response.success) {
+          if (!isCancelled) {
+            setError(response.message || "Failed to load feed");
+          }
+          return;
+        }
+
+        const data = response.data;
+        if (!data || !Array.isArray(data.items)) {
+          if (!isCancelled) {
+            setError("Unexpected feed response");
+          }
+          return;
+        }
+
+        if (!isCancelled) {
+          setItems(data.items);
+          setCursor(data.pagination.nextCursor || null);
+          setHasMore(Boolean(data.pagination.hasMore));
+          setLastSeenId(
+            data.items.length > 0 ? String(data.items[0]._id) : null
+          );
         }
       } catch (err: unknown) {
-        console.error("Error fetching posts:", err);
-        setError(getErrorMessage(err));
+        console.error("Error fetching feed:", err);
+        if (!isCancelled) {
+          setError(getErrorMessage(err));
+        }
       } finally {
-        setLoading(false);
+        if (!isCancelled) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchPosts();
-  }, []);
+    fetchFeed();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [feedType, tab]);
+
+  // Periodically check for new content based on last seen ID
+  useEffect(() => {
+    if (!lastSeenId) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const response = await FeedService.getNewContentCount({
+          feedType,
+          tab,
+          since: lastSeenId,
+        });
+
+        if (response.success && typeof response.data?.count === "number") {
+          setNewCount(response.data.count);
+        }
+      } catch (err) {
+        console.error("Error fetching new content count:", err);
+      }
+    }, 30000); // every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [feedType, tab, lastSeenId]);
+
+  const handleLoadMore = async () => {
+    if (!hasMore || !cursor || loadingMore) return;
+
+    try {
+      setLoadingMore(true);
+      const response = await FeedService.getFeed(feedType, {
+        tab,
+        cursor,
+        limit: 20,
+        sort: "newest",
+      });
+
+      if (!response.success) {
+        toast.error(response.message || "Failed to load more content");
+        return;
+      }
+
+      const data = response.data;
+      const newItems = data.items || [];
+
+      setItems((prev) => {
+        const existingIds = new Set(prev.map((item) => String(item._id)));
+        const merged = [
+          ...prev,
+          ...newItems.filter((item) => !existingIds.has(String(item._id))),
+        ];
+        return merged;
+      });
+      setCursor(data.pagination.nextCursor || null);
+      setHasMore(Boolean(data.pagination.hasMore));
+    } catch (err: unknown) {
+      console.error("Error loading more feed items:", err);
+      toast.error(getErrorMessage(err));
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const handleRefreshFeed = async () => {
+    // Re-trigger initial fetch by updating lastSeenId to null then back via effect
+    if (loading) return;
+    setLastSeenId(null);
+    setNewCount(0);
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await FeedService.getFeed(feedType, {
+        tab,
+        limit: 20,
+        sort: "newest",
+      });
+
+      if (!response.success) {
+        setError(response.message || "Failed to refresh feed");
+        return;
+      }
+
+      const data = response.data;
+      setItems(data.items || []);
+      setCursor(data.pagination.nextCursor || null);
+      setHasMore(Boolean(data.pagination.hasMore));
+      setLastSeenId(data.items.length > 0 ? String(data.items[0]._id) : null);
+    } catch (err: unknown) {
+      console.error("Error refreshing feed:", err);
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDelete = async (postId: string) => {
     try {
       const response = await PostService.deletePost(postId);
+
       if (response.success) {
-        setPosts((prev) => prev.filter((p) => p._id !== postId));
+        setItems((prev) =>
+          prev.filter((item) => {
+            if (item.type !== "post") return true;
+            const content = item.content as Post;
+            return content._id !== postId;
+          })
+        );
         toast.success("Post deleted successfully");
       } else {
         toast.error(response.message || "Failed to delete post");
@@ -73,6 +225,49 @@ export default function FeedPage() {
   return (
     <ComponentErrorBoundary>
       <div className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
+        {/* Feed type tabs */}
+        <div className="flex items-center justify-between">
+          <div className="inline-flex rounded-full border p-1 bg-muted/40">
+            <Button
+              type="button"
+              size="sm"
+              variant={feedType === "foryou" ? "default" : "ghost"}
+              className="rounded-full px-4"
+              onClick={() => setFeedType("foryou")}>
+              For You
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={feedType === "following" ? "default" : "ghost"}
+              className="rounded-full px-4"
+              onClick={() => setFeedType("following")}>
+              Following
+            </Button>
+          </div>
+
+          {/* Content tabs */}
+          <div className="flex gap-1 text-sm">
+            {(
+              [
+                ["home", "Home"],
+                ["posts", "Posts"],
+                ["stories", "Stories"],
+                ["polls", "Polls"],
+              ] as [FeedTab, string][]
+            ).map(([value, label]) => (
+              <Button
+                key={value}
+                type="button"
+                size="sm"
+                variant={tab === value ? "secondary" : "ghost"}
+                className="px-3"
+                onClick={() => setTab(value)}>
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
         {/* Create Post Card */}
         <Card className="shadow-sm">
           <CardContent className="pt-6">
@@ -100,6 +295,23 @@ export default function FeedPage() {
           </CardContent>
         </Card>
 
+        {/* New content banner */}
+        {newCount > 0 && !loading && (
+          <Card
+            className="shadow-sm border-primary/20 bg-primary/5 cursor-pointer"
+            onClick={handleRefreshFeed}>
+            <CardContent className="py-3 px-4 flex items-center justify-between">
+              <span className="text-sm font-medium">
+                {newCount} new {newCount === 1 ? "update" : "updates"} in your
+                feed
+              </span>
+              <Button size="sm" variant="outline">
+                Refresh
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Loading state */}
         {loading && (
           <div className="flex items-center justify-center py-12">
@@ -120,7 +332,7 @@ export default function FeedPage() {
         )}
 
         {/* Empty state */}
-        {!loading && !error && posts.length === 0 && (
+        {!loading && !error && items.length === 0 && (
           <Card className="shadow-sm">
             <CardContent className="pt-6 text-center py-12">
               <h3 className="text-lg font-semibold mb-2">No posts yet</h3>
@@ -134,12 +346,44 @@ export default function FeedPage() {
           </Card>
         )}
 
-        {/* Posts list */}
-        {!loading && !error && posts.length > 0 && (
+        {/* Feed list */}
+        {!loading && !error && items.length > 0 && (
           <>
-            {posts.map((post) => (
-              <PostCard key={post._id} post={post} onDelete={handleDelete} />
-            ))}
+            {items.map((item) => {
+              if (item.type === "post") {
+                const post = item.content as Post;
+                return (
+                  <PostCard
+                    key={post._id}
+                    post={post}
+                    onDelete={handleDelete}
+                  />
+                );
+              }
+
+              // Placeholder for polls and stories until dedicated cards are implemented
+              return (
+                <Card key={String(item._id)} className="shadow-sm">
+                  <CardContent className="py-6 text-center text-sm text-muted-foreground">
+                    {item.type === "poll"
+                      ? "Poll item will be shown here in a future phase."
+                      : "Story item will be shown here in a future phase."}
+                  </CardContent>
+                </Card>
+              );
+            })}
+
+            {hasMore && (
+              <div className="flex justify-center pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}>
+                  {loadingMore ? "Loading..." : "Load more"}
+                </Button>
+              </div>
+            )}
           </>
         )}
       </div>
