@@ -1,30 +1,30 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { RootLayout } from "../layouts/RootLayout";
-import { AuthLayout } from "../layouts/AuthLayout";
-import { MainLayout } from "../layouts/MainLayout";
+import { RootLayout } from "@/layouts/RootLayout";
+import { AuthLayout } from "@/layouts/AuthLayout";
+import { MainLayout } from "@/layouts/MainLayout";
 
 // Pages
-import HomePage from "../pages/HomePage";
-import LoginPage from "../pages/auth/LoginPage";
-import SignUpPage from "../pages/auth/SignUpPage";
-import FeedPage from "../pages/app/FeedPage";
-import ProfilePage from "../pages/app/ProfilePage";
-import EditProfilePage from "../pages/EditProfilePage";
-import PostPage from "../pages/PostPage";
-import CreatePostPage from "../pages/CreatePostPage";
-import StoriesPage from "../pages/StoriesPage";
-import StoryPage from "../pages/StoryPage";
-import CreateStoryPage from "../pages/CreateStoryPage";
-import PollsPage from "../pages/PollsPage";
-import PollPage from "../pages/PollPage";
-import CreatePollPage from "../pages/CreatePollPage";
-import ChatPage from "../pages/ChatPage";
-import SearchPage from "../pages/app/SearchPage";
-import CreatePage from "../pages/app/CreatePage";
-import NotificationsPage from "../pages/NotificationsPage";
-import SettingsPage from "../pages/SettingsPage";
-import NotFoundPage from "../pages/NotFoundPage";
+import HomePage from "@/pages/HomePage";
+import LoginPage from "@/pages/auth/LoginPage";
+import SignUpPage from "@/pages/auth/SignUpPage";
+import FeedPage from "@/pages/app/FeedPage";
+import ProfilePage from "@/pages/app/ProfilePage";
+import EditProfilePage from "@/pages/EditProfilePage";
+import PostPage from "@/pages/app/PostPage";
+import CreatePostPage from "@/pages/CreatePostPage";
+import StoriesPage from "@/pages/StoriesPage";
+import StoryPage from "@/pages/StoryPage";
+import CreateStoryPage from "@/pages/CreateStoryPage";
+import PollsPage from "@/pages/PollsPage";
+import PollPage from "@/pages/PollPage";
+import CreatePollPage from "@/pages/CreatePollPage";
+import ChatPage from "@/pages/ChatPage";
+import SearchPage from "@/pages/app/SearchPage";
+import CreatePage from "@/pages/app/CreatePage";
+import NotificationsPage from "@/pages/NotificationsPage";
+import SettingsPage from "@/pages/SettingsPage";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 export const router = createBrowserRouter([
   {

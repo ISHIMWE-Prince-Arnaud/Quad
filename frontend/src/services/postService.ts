@@ -1,5 +1,6 @@
 import { endpoints } from "@/lib/api";
 import type { CreatePostData } from "@/schemas/post.schema";
+import type { Post } from "@/types/post";
 
 /**
  * Post Service
@@ -11,7 +12,9 @@ export class PostService {
    * @param data - Post data with text and/or media
    * @returns Created post response
    */
-  static async createPost(data: CreatePostData) {
+  static async createPost(
+    data: CreatePostData
+  ): Promise<{ success: boolean; data: Post; message?: string }> {
     const response = await endpoints.posts.create(data);
     return response.data;
   }
@@ -21,7 +24,10 @@ export class PostService {
    * @param params - Query parameters (limit, skip)
    * @returns Paginated posts response
    */
-  static async getAllPosts(params?: { limit?: number; skip?: number }) {
+  static async getAllPosts(params?: {
+    limit?: number;
+    skip?: number;
+  }): Promise<{ success: boolean; data: Post[]; message?: string }> {
     const response = await endpoints.posts.getAll(params);
     return response.data;
   }
@@ -31,7 +37,9 @@ export class PostService {
    * @param id - Post ID
    * @returns Post data
    */
-  static async getPostById(id: string) {
+  static async getPostById(
+    id: string
+  ): Promise<{ success: boolean; data: Post; message?: string }> {
     const response = await endpoints.posts.getById(id);
     return response.data;
   }
@@ -42,7 +50,10 @@ export class PostService {
    * @param data - Updated post data
    * @returns Updated post response
    */
-  static async updatePost(id: string, data: Partial<CreatePostData>) {
+  static async updatePost(
+    id: string,
+    data: Partial<CreatePostData>
+  ): Promise<{ success: boolean; data: Post; message?: string }> {
     const response = await endpoints.posts.update(id, data);
     return response.data;
   }
