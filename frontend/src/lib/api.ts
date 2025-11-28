@@ -201,6 +201,7 @@ export const endpoints = {
       formData.append("file", file);
       return api.post("/upload/post", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 60000, // 60 seconds for file uploads
       });
     },
     story: (file: File) => {
@@ -208,6 +209,7 @@ export const endpoints = {
       formData.append("file", file);
       return api.post("/upload/story", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 60000, // 60 seconds for file uploads
       });
     },
     poll: (file: File) => {
@@ -215,6 +217,7 @@ export const endpoints = {
       formData.append("file", file);
       return api.post("/upload/poll", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 60000, // 60 seconds for file uploads
       });
     },
     chat: (file: File) => {
@@ -222,6 +225,7 @@ export const endpoints = {
       formData.append("file", file);
       return api.post("/upload/chat", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 60000, // 60 seconds for file uploads
       });
     },
     profile: (file: File) => {
@@ -229,6 +233,7 @@ export const endpoints = {
       formData.append("file", file);
       return api.post("/upload/profile", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 60000, // 60 seconds for file uploads
       });
     },
     cover: (file: File) => {
@@ -236,6 +241,7 @@ export const endpoints = {
       formData.append("file", file);
       return api.post("/upload/cover", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 60000, // 60 seconds for file uploads
       });
     },
     delete: (url: string) => api.delete("/upload", { data: { url } }),
