@@ -7,15 +7,32 @@ import { PostService } from "@/services/postService";
 import toast from "react-hot-toast";
 import type { Post } from "@/types/post";
 
+function getErrorMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null && "response" in error) {
+    const response = (error as { response?: { data?: { message?: string } } })
+      .response;
+    const apiMessage = response?.data?.message;
+    if (typeof apiMessage === "string" && apiMessage.length > 0) {
+      return apiMessage;
+    }
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return "Failed to load post";
+}
+
 export default function PostPage() {
-  const { postId } = useParams<{ postId: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!postId) {
+    if (!id) {
       setError("Post ID is required");
       setLoading(false);
       return;
@@ -24,22 +41,22 @@ export default function PostPage() {
     const fetchPost = async () => {
       try {
         setLoading(true);
-        const response = await PostService.getPostById(postId);
+        const response = await PostService.getPostById(id);
         if (response.success) {
           setPost(response.data);
         } else {
           setError(response.message || "Failed to load post");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching post:", err);
-        setError(err.response?.data?.message || "Failed to load post");
+        setError(getErrorMessage(err));
       } finally {
         setLoading(false);
       }
     };
 
     fetchPost();
-  }, [postId]);
+  }, [id]);
 
   const handleDelete = async (deletedPostId: string) => {
     try {
@@ -50,9 +67,9 @@ export default function PostPage() {
       } else {
         toast.error(response.message || "Failed to delete post");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error deleting post:", err);
-      toast.error(err.response?.data?.message || "Failed to delete post");
+      toast.error(getErrorMessage(err));
     }
   };
 
