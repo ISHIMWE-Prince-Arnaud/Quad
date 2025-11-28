@@ -116,7 +116,7 @@ export default function PostPage() {
       </Button>
 
       {/* Post card */}
-      <PostCard post={post} onDelete={handleDelete} />
+      <PostCard post={post} onDelete={handleDelete} isSingleView />
 
       {/* Comments section placeholder */}
       <div className="mt-6 p-6 border rounded-lg">

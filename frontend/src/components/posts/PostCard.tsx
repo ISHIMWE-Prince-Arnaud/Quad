@@ -23,16 +23,31 @@ import {
 import { MediaGallery } from "./MediaGallery";
 import { timeAgo } from "@/lib/timeUtils";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/authStore";
 import type { Post } from "@/types/post";
 
 interface PostCardProps {
   post: Post;
   onDelete?: (postId: string) => void;
   className?: string;
+  isSingleView?: boolean;
 }
 
-export function PostCard({ post, onDelete, className }: PostCardProps) {
-  const isOwner = false; // TODO: Check if current user is the post owner
+export function PostCard({
+  post,
+  onDelete,
+  className,
+  isSingleView = false,
+}: PostCardProps) {
+  const { user } = useAuthStore();
+  const isOwner = user?.clerkId === post.author.clerkId;
+
+  const MAX_PREVIEW_LENGTH = 280;
+  const fullText = post.text ?? "";
+  const hasLongText = fullText.length > MAX_PREVIEW_LENGTH;
+  const previewText = hasLongText
+    ? `${fullText.slice(0, MAX_PREVIEW_LENGTH).trimEnd()}...`
+    : fullText;
 
   const handleDelete = () => {
     if (onDelete) {
@@ -100,10 +115,13 @@ export function PostCard({ post, onDelete, className }: PostCardProps) {
       {/* Post content */}
       <CardContent className="pb-3 space-y-3">
         {/* Text content */}
-        {post.text && (
+        {fullText && (
           <Link to={`/app/posts/${post._id}`} className="block">
             <p className="text-sm whitespace-pre-wrap break-words">
-              {post.text}
+              {isSingleView || !hasLongText ? fullText : previewText}
+              {!isSingleView && hasLongText && (
+                <span className="ml-1 text-primary font-medium">See more</span>
+              )}
             </p>
           </Link>
         )}
