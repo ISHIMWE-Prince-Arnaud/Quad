@@ -20,7 +20,7 @@ export const createPostSchema = z
   .object({
     text: z
       .string()
-      .max(500, "Post text cannot exceed 500 characters")
+      .max(1000, "Post text cannot exceed 1000 characters")
       .optional()
       .or(z.literal("")),
     media: z

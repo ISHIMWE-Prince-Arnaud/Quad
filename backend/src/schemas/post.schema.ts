@@ -9,11 +9,16 @@ const mediaSchema = z.object({
 // ---------------------
 // CREATE POST
 // ---------------------
-export const createPostSchema = z.object({
-  text: z.string().max(1000).optional(),
-  media: z.array(mediaSchema).min(1, "At least one media is required"), // REQUIRED
-  // Note: author is set server-side from authenticated user
-});
+export const createPostSchema = z
+  .object({
+    text: z.string().max(1000).optional(),
+    media: z.array(mediaSchema).optional(),
+    // Note: author is set server-side from authenticated user
+  })
+  .refine((data) => data.text || (data.media && data.media.length > 0), {
+    message: "Post must have either text or media",
+    path: ["text"], // Show error on text field
+  });
 
 // ---------------------
 // UPDATE POST

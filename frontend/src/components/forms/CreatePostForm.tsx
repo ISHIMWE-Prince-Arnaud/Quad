@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useState, useCallback } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,6 +36,7 @@ export function CreatePostForm({
 
   const form = useForm<CreatePostData>({
     resolver: zodResolver(createPostSchema),
+    mode: "onChange", // Validate on change to clear errors immediately
     defaultValues: {
       text: "",
       media: [],
@@ -52,16 +53,19 @@ export function CreatePostForm({
     await onSubmit?.(submitData);
   };
 
-  const handleMediaChange = (media: MediaData[]) => {
-    setUploadedMedia(media);
-    form.setValue("media", media);
-    // Revalidate to clear "must have text or media" error
-    form.trigger();
-  };
+  // Memoize callback to prevent unnecessary re-renders in MediaUploader
+  const handleMediaChange = useCallback(
+    (media: MediaData[]) => {
+      setUploadedMedia(media);
+      form.setValue("media", media, { shouldValidate: true });
+    },
+    [form]
+  );
 
-  const textValue = useWatch({ control: form.control, name: "text" }) || "";
+  const textValue = form.watch("text") || "";
   const charCount = textValue.length;
-  const isOverLimit = charCount > 500;
+  const isOverLimit = charCount > 1000;
+  const hasContent = textValue.trim().length > 0 || uploadedMedia.length > 0;
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-sm">
@@ -104,7 +108,7 @@ export function CreatePostForm({
                   </FormControl>
                   <FormDescription
                     className={isOverLimit ? "text-destructive" : ""}>
-                    {charCount}/500 characters
+                    {charCount}/1000 characters
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -123,10 +127,10 @@ export function CreatePostForm({
 
             {/* Submit Button */}
             <div className="flex items-center justify-between pt-4 border-t">
-              <div className="text-sm text-muted-foreground">
-                {form.formState.errors.text && (
+              <div className="text-sm">
+                {!hasContent && form.formState.isSubmitted && (
                   <span className="text-destructive">
-                    {form.formState.errors.text.message}
+                    Post must have text or media
                   </span>
                 )}
               </div>
@@ -143,11 +147,7 @@ export function CreatePostForm({
                 </Button>
                 <Button
                   type="submit"
-                  disabled={
-                    isLoading ||
-                    isOverLimit ||
-                    (!textValue && uploadedMedia.length === 0)
-                  }
+                  disabled={isLoading || isOverLimit || !hasContent}
                   className="min-w-[100px]">
                   {isLoading ? "Posting..." : "Post"}
                 </Button>

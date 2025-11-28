@@ -27,6 +27,7 @@ export const createPost = async (req: Request, res: Response) => {
     // Create post with server-side author data
     const newPost = await Post.create({
       ...data,
+      userId: author.clerkId, // Required field
       author: {
         clerkId: author.clerkId,
         username: author.username,

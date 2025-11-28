@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { X, Upload, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -29,6 +29,11 @@ export function MediaUploader({
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Notify parent of media changes via useEffect to avoid setState-in-render
+  useEffect(() => {
+    onMediaChange(uploadedMedia);
+  }, [uploadedMedia, onMediaChange]);
 
   // Detect aspect ratio from image dimensions
   const detectAspectRatio = (
@@ -111,11 +116,8 @@ export function MediaUploader({
             aspectRatio,
           };
 
-          setUploadedMedia((prev) => {
-            const updated = [...prev, newMedia];
-            onMediaChange(updated);
-            return updated;
-          });
+          // Update uploaded media - parent will be notified via useEffect
+          setUploadedMedia((prev) => [...prev, newMedia]);
 
           // Remove from uploading
           setUploadingFiles((prev) =>
@@ -134,15 +136,12 @@ export function MediaUploader({
         }
       }
     },
-    [uploadedMedia.length, uploadingFiles.length, maxFiles, onMediaChange]
+    [uploadedMedia.length, uploadingFiles.length, maxFiles]
   );
 
   const removeMedia = (index: number) => {
-    setUploadedMedia((prev) => {
-      const updated = prev.filter((_, i) => i !== index);
-      onMediaChange(updated);
-      return updated;
-    });
+    // Update state - parent will be notified via useEffect
+    setUploadedMedia((prev) => prev.filter((_, i) => i !== index));
   };
 
   const removeUploadingFile = (index: number) => {
