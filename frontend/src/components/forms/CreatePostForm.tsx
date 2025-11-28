@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -62,7 +62,8 @@ export function CreatePostForm({
     [form]
   );
 
-  const textValue = form.watch("text") || "";
+  const textValue =
+    useWatch({ control: form.control, name: "text", defaultValue: "" }) || "";
   const charCount = textValue.length;
   const isOverLimit = charCount > 1000;
   const hasContent = textValue.trim().length > 0 || uploadedMedia.length > 0;
