@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   MoreHorizontal,
   Heart,
@@ -25,6 +25,7 @@ import { timeAgo } from "@/lib/timeUtils";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import type { Post } from "@/types/post";
+import toast from "react-hot-toast";
 
 interface PostCardProps {
   post: Post;
@@ -39,6 +40,7 @@ export function PostCard({
   className,
   isSingleView = false,
 }: PostCardProps) {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const isOwner = user?.clerkId === post.author.clerkId;
 
@@ -50,9 +52,32 @@ export function PostCard({
     : fullText;
 
   const handleDelete = () => {
-    if (onDelete) {
-      onDelete(post._id);
+    if (!onDelete) return;
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this post? This action cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    onDelete(post._id);
+  };
+
+  const handleCopyLink = async () => {
+    const path = `/app/posts/${post._id}`;
+    const url = `${window.location.origin}${path}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Post link copied to clipboard");
+    } catch (error) {
+      console.error("Failed to copy link:", error);
+      toast.error("Failed to copy link");
     }
+  };
+
+  const handleEdit = () => {
+    navigate(`/app/posts/${post._id}/edit`);
   };
 
   return (
@@ -88,10 +113,14 @@ export function PostCard({
               <DropdownMenuItem asChild>
                 <Link to={`/app/posts/${post._id}`}>View post</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>Copy link</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleCopyLink}>
+                Copy link
+              </DropdownMenuItem>
               {isOwner && (
                 <>
-                  <DropdownMenuItem>Edit post</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleEdit}>
+                    Edit post
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     className="text-destructive"
                     onClick={handleDelete}>

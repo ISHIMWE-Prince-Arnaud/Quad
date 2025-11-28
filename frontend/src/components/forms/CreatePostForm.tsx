@@ -25,21 +25,25 @@ import {
 interface CreatePostFormProps {
   onSubmit?: (data: CreatePostData) => void | Promise<void>;
   isLoading?: boolean;
+  initialValues?: Partial<CreatePostData>;
 }
 
 export function CreatePostForm({
   onSubmit,
   isLoading = false,
+  initialValues,
 }: CreatePostFormProps) {
   const { user } = useAuthStore();
-  const [uploadedMedia, setUploadedMedia] = useState<MediaData[]>([]);
+  const [uploadedMedia, setUploadedMedia] = useState<MediaData[]>(
+    initialValues?.media ?? []
+  );
 
   const form = useForm<CreatePostData>({
     resolver: zodResolver(createPostSchema),
     mode: "onChange", // Validate on change to clear errors immediately
     defaultValues: {
-      text: "",
-      media: [],
+      text: initialValues?.text ?? "",
+      media: initialValues?.media ?? [],
     },
   });
 
@@ -141,7 +145,7 @@ export function CreatePostForm({
                   variant="outline"
                   onClick={() => {
                     form.reset();
-                    setUploadedMedia([]);
+                    setUploadedMedia(initialValues?.media ?? []);
                   }}
                   disabled={isLoading}>
                   Cancel

@@ -11,6 +11,7 @@ import SignUpPage from "@/pages/auth/SignUpPage";
 import FeedPage from "@/pages/app/FeedPage";
 import ProfilePage from "@/pages/app/ProfilePage";
 import EditProfilePage from "@/pages/EditProfilePage";
+import EditPostPage from "@/pages/EditPostPage";
 import PostPage from "@/pages/app/PostPage";
 import CreatePostPage from "@/pages/CreatePostPage";
 import StoriesPage from "@/pages/StoriesPage";
@@ -78,6 +79,10 @@ export const router = createBrowserRouter([
           {
             path: "posts/:id",
             element: <PostPage />,
+          },
+          {
+            path: "posts/:id/edit",
+            element: <EditPostPage />,
           },
           {
             path: "create",
