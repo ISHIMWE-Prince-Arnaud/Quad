@@ -5,6 +5,8 @@ export interface Post {
     clerkId: string;
     username: string;
     email: string;
+    firstName?: string;
+    lastName?: string;
     profileImage?: string;
   };
   text?: string;

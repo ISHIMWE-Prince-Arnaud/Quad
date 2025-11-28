@@ -11,6 +11,7 @@ interface MediaUploaderProps {
   onMediaChange: (media: MediaData[]) => void;
   maxFiles?: number;
   className?: string;
+  initialMedia?: MediaData[];
 }
 
 interface UploadingFile {
@@ -24,8 +25,11 @@ export function MediaUploader({
   onMediaChange,
   maxFiles = 10,
   className,
+  initialMedia,
 }: MediaUploaderProps) {
-  const [uploadedMedia, setUploadedMedia] = useState<MediaData[]>([]);
+  const [uploadedMedia, setUploadedMedia] = useState<MediaData[]>(
+    initialMedia ?? []
+  );
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);

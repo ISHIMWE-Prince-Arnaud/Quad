@@ -26,12 +26,14 @@ interface CreatePostFormProps {
   onSubmit?: (data: CreatePostData) => void | Promise<void>;
   isLoading?: boolean;
   initialValues?: Partial<CreatePostData>;
+  onCancel?: () => void;
 }
 
 export function CreatePostForm({
   onSubmit,
   isLoading = false,
   initialValues,
+  onCancel,
 }: CreatePostFormProps) {
   const { user } = useAuthStore();
   const [uploadedMedia, setUploadedMedia] = useState<MediaData[]>(
@@ -126,6 +128,7 @@ export function CreatePostForm({
               <MediaUploader
                 onMediaChange={handleMediaChange}
                 maxFiles={10}
+                initialMedia={initialValues?.media}
                 className="mt-2"
               />
             </div>
@@ -144,8 +147,12 @@ export function CreatePostForm({
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    form.reset();
-                    setUploadedMedia(initialValues?.media ?? []);
+                    if (onCancel) {
+                      onCancel();
+                    } else {
+                      form.reset();
+                      setUploadedMedia(initialValues?.media ?? []);
+                    }
                   }}
                   disabled={isLoading}>
                   Cancel
