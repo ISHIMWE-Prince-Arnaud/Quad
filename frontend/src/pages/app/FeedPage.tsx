@@ -11,6 +11,23 @@ import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
 import toast from "react-hot-toast";
 import type { Post } from "@/types/post";
 
+function getErrorMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null && "response" in error) {
+    const response = (error as { response?: { data?: { message?: string } } })
+      .response;
+    const apiMessage = response?.data?.message;
+    if (typeof apiMessage === "string" && apiMessage.length > 0) {
+      return apiMessage;
+    }
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return "Something went wrong";
+}
+
 export default function FeedPage() {
   const { user } = useAuthStore();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -27,9 +44,9 @@ export default function FeedPage() {
         } else {
           setError(response.message || "Failed to load posts");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching posts:", err);
-        setError(err.response?.data?.message || "Failed to load posts");
+        setError(getErrorMessage(err));
       } finally {
         setLoading(false);
       }
@@ -47,9 +64,9 @@ export default function FeedPage() {
       } else {
         toast.error(response.message || "Failed to delete post");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error deleting post:", err);
-      toast.error(err.response?.data?.message || "Failed to delete post");
+      toast.error(getErrorMessage(err));
     }
   };
 
