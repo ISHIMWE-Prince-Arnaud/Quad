@@ -1,23 +1,15 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Menu, X, Plus } from 'lucide-react'
-import { Logo } from '@/components/ui/Logo'
-import { UserAvatar } from '@/components/auth/UserMenu'
-import { ThemeSelector } from '@/components/theme/ThemeSelector'
-import { UserSearch } from '@/components/search/UserSearch'
-import { type UserCardData } from '@/components/user/UserCard'
-import { cn } from '@/lib/utils'
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Menu, X, Plus } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
+import { UserAvatar } from "@/components/auth/UserMenu";
+import { ThemeSelector } from "@/components/theme/ThemeSelector";
+import { GlobalSearchBar } from "@/components/search/GlobalSearchBar";
+import { cn } from "@/lib/utils";
 
 export function Navbar() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const navigate = useNavigate()
-
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen)
-
-  const handleUserSelect = (user: UserCardData) => {
-    navigate(`/app/profile/${user.username}`)
-    setIsMobileMenuOpen(false)
-  }
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   return (
     <>
@@ -29,14 +21,9 @@ export function Navbar() {
             <Logo size="sm" />
           </Link>
 
-          {/* Center: Search (hidden on small screens) */}
+          {/* Center: Global Search (hidden on small screens) */}
           <div className="hidden sm:block flex-1 max-w-sm mx-4">
-            <UserSearch
-              onUserSelect={handleUserSelect}
-              placeholder="Search users..."
-              compact={true}
-              className="w-full"
-            />
+            <GlobalSearchBar />
           </div>
 
           {/* Right: Actions */}
@@ -45,8 +32,7 @@ export function Navbar() {
             <Link
               to="/app/create"
               className="p-2 rounded-lg hover:bg-accent transition-colors duration-200"
-              title="Create Post"
-            >
+              title="Create Post">
               <Plus className="h-5 w-5" />
             </Link>
 
@@ -60,9 +46,12 @@ export function Navbar() {
             <button
               onClick={toggleMobileMenu}
               className="p-2 rounded-lg hover:bg-accent transition-colors duration-200 lg:hidden"
-              aria-label="Toggle mobile menu"
-            >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              aria-label="Toggle mobile menu">
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>
@@ -79,19 +68,13 @@ export function Navbar() {
       {/* Mobile Menu */}
       <div
         className={cn(
-          'fixed top-16 left-0 right-0 z-50 bg-background border-b border-border transform transition-transform duration-300 ease-in-out lg:hidden',
-          isMobileMenuOpen ? 'translate-y-0' : '-translate-y-full'
-        )}
-      >
+          "fixed top-16 left-0 right-0 z-50 bg-background border-b border-border transform transition-transform duration-300 ease-in-out lg:hidden",
+          isMobileMenuOpen ? "translate-y-0" : "-translate-y-full"
+        )}>
         <nav className="p-4">
           {/* Search Bar */}
           <div className="mb-4">
-            <UserSearch
-              onUserSelect={handleUserSelect}
-              placeholder="Search users..."
-              compact={true}
-              className="w-full"
-            />
+            <GlobalSearchBar />
           </div>
 
           {/* Quick Actions */}
@@ -99,21 +82,19 @@ export function Navbar() {
             <Link
               to="/app/create"
               className="flex items-center justify-center gap-2 p-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200"
-              onClick={toggleMobileMenu}
-            >
+              onClick={toggleMobileMenu}>
               <Plus className="h-4 w-4" />
               <span className="text-sm font-medium">Create</span>
             </Link>
             <Link
               to="/app/notifications"
               className="flex items-center justify-center gap-2 p-3 rounded-lg bg-accent text-foreground hover:bg-accent/80 transition-colors duration-200"
-              onClick={toggleMobileMenu}
-            >
+              onClick={toggleMobileMenu}>
               <span className="text-sm font-medium">Notifications</span>
             </Link>
           </div>
         </nav>
       </div>
     </>
-  )
+  );
 }

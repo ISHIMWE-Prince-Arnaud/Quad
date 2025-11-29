@@ -1,45 +1,69 @@
-import { endpoints } from '@/lib/api';
-import type { 
-  ApiProfile, 
+import { endpoints } from "@/lib/api";
+import type {
+  ApiProfile,
   ApiSearchResult,
   UserSearchParams,
-  GlobalSearchResult
-} from '@/types/api';
+  GlobalSearchResult,
+  ApiPost,
+  ApiStory,
+  ApiPoll,
+} from "@/types/api";
+
+export interface SearchHistoryItem {
+  _id: string;
+  query: string;
+  createdAt?: string;
+}
+
+type ContentSearchParams = {
+  q: string;
+  limit?: number;
+  offset?: number;
+  sortBy?: "relevance" | "date" | "popularity";
+  fuzzy?: boolean;
+  dateFrom?: string;
+  dateTo?: string;
+};
 
 export class SearchService {
   // Search users
-  static async searchUsers(params: UserSearchParams): Promise<ApiSearchResult<ApiProfile>> {
+  static async searchUsers(
+    params: UserSearchParams
+  ): Promise<ApiSearchResult<ApiProfile>> {
     const response = await endpoints.search.users({
       q: params.q,
       limit: params.limit || 20,
       offset: params.offset || 0,
-      sortBy: params.sortBy || 'relevance',
+      sortBy: params.sortBy || "relevance",
       fuzzy: params.fuzzy || false,
       dateFrom: params.dateFrom,
-      dateTo: params.dateTo
+      dateTo: params.dateTo,
     });
-    
+
     return {
       results: response.data.data.users || [],
       total: response.data.data.total || 0,
       page: Math.floor((params.offset || 0) / (params.limit || 20)) + 1,
       limit: params.limit || 20,
-      hasMore: response.data.data.hasMore || false
+      hasMore: response.data.data.hasMore || false,
     };
   }
 
   // Get search suggestions (autocomplete)
-  static async getSearchSuggestions(query: string, limit = 10): Promise<string[]> {
+  static async getSearchSuggestions(
+    query: string,
+    limit = 10
+  ): Promise<string[]> {
     const response = await endpoints.search.suggestions({
       q: query,
-      limit
+      limit,
     });
-    
+
     return response.data.data.suggestions || [];
   }
 
   // Get search history
-  static async getSearchHistory(limit = 20): Promise<string[]> {
+  static async getSearchHistory(limit = 20): Promise<SearchHistoryItem[]> {
     const response = await endpoints.search.history({ limit });
     return response.data.data.history || [];
   }
@@ -55,51 +79,133 @@ export class SearchService {
   }
 
   // Get popular searches
-  static async getPopularSearches(searchType = 'users', limit = 10): Promise<string[]> {
+  static async getPopularSearches(
+    searchType = "users",
+    limit = 10
+  ): Promise<string[]> {
     const response = await endpoints.search.getPopular({
       searchType,
-      limit
+      limit,
     });
-    
+
     return response.data.data.searches || [];
   }
 
   // Get trending searches
-  static async getTrendingSearches(searchType = 'users', limit = 10): Promise<string[]> {
+  static async getTrendingSearches(
+    searchType = "users",
+    limit = 10
+  ): Promise<string[]> {
     const response = await endpoints.search.getTrending({
       searchType,
-      limit
+      limit,
     });
-    
+
     return response.data.data.searches || [];
   }
 
   // Global search (all content types)
-  static async globalSearch(query: string, limit = 20): Promise<GlobalSearchResult> {
+  static async globalSearch(
+    params: ContentSearchParams
+  ): Promise<GlobalSearchResult> {
     const response = await endpoints.search.global({
-      q: query,
-      limit
+      q: params.q,
+      limit: params.limit || 20,
+      offset: params.offset || 0,
+      sortBy: params.sortBy || "relevance",
+      fuzzy: params.fuzzy,
+      dateFrom: params.dateFrom,
+      dateTo: params.dateTo,
     });
-    
+
     return {
       users: response.data.data.users || [],
       posts: response.data.data.posts || [],
       stories: response.data.data.stories || [],
       polls: response.data.data.polls || [],
-      total: response.data.data.total || 0
+      total: response.data.data.total || 0,
+    };
+  }
+
+  // Search posts
+  static async searchPosts(
+    params: ContentSearchParams
+  ): Promise<ApiSearchResult<ApiPost>> {
+    const response = await endpoints.search.posts({
+      q: params.q,
+      limit: params.limit || 20,
+      offset: params.offset || 0,
+      sortBy: params.sortBy || "relevance",
+      fuzzy: params.fuzzy,
+      dateFrom: params.dateFrom,
+      dateTo: params.dateTo,
+    });
+
+    return {
+      results: response.data.data.posts || [],
+      total: response.data.data.total || 0,
+      page: Math.floor((params.offset || 0) / (params.limit || 20)) + 1,
+      limit: params.limit || 20,
+      hasMore: response.data.data.hasMore || false,
+    };
+  }
+
+  // Search stories
+  static async searchStories(
+    params: ContentSearchParams
+  ): Promise<ApiSearchResult<ApiStory>> {
+    const response = await endpoints.search.stories({
+      q: params.q,
+      limit: params.limit || 20,
+      offset: params.offset || 0,
+      sortBy: params.sortBy || "relevance",
+      fuzzy: params.fuzzy,
+      dateFrom: params.dateFrom,
+      dateTo: params.dateTo,
+    });
+
+    return {
+      results: response.data.data.stories || [],
+      total: response.data.data.total || 0,
+      page: Math.floor((params.offset || 0) / (params.limit || 20)) + 1,
+      limit: params.limit || 20,
+      hasMore: response.data.data.hasMore || false,
+    };
+  }
+
+  // Search polls
+  static async searchPolls(
+    params: ContentSearchParams
+  ): Promise<ApiSearchResult<ApiPoll>> {
+    const response = await endpoints.search.polls({
+      q: params.q,
+      limit: params.limit || 20,
+      offset: params.offset || 0,
+      sortBy: params.sortBy || "relevance",
+      fuzzy: params.fuzzy,
+      dateFrom: params.dateFrom,
+      dateTo: params.dateTo,
+    });
+
+    return {
+      results: response.data.data.polls || [],
+      total: response.data.data.total || 0,
+      page: Math.floor((params.offset || 0) / (params.limit || 20)) + 1,
+      limit: params.limit || 20,
+      hasMore: response.data.data.hasMore || false,
     };
   }
 
   // Quick user search for components
   static async quickUserSearch(query: string): Promise<ApiProfile[]> {
     if (!query.trim()) return [];
-    
+
     const result = await this.searchUsers({
       q: query,
       limit: 10,
-      sortBy: 'relevance'
+      sortBy: "relevance",
     });
-    
+
     return result.results;
   }
 }
