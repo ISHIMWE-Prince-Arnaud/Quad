@@ -182,9 +182,10 @@ export default function FeedPage() {
     const handleEngagementUpdate = (payload: FeedEngagementUpdatePayload) => {
       setItems((prev) =>
         prev.map((it) => {
-          // Try match by item id first
+          // Match by aggregated item id
           const sameItem = String(it._id) === String(payload.contentId);
-          if (it.type === "post") {
+
+          if (payload.contentType === "post" && it.type === "post") {
             const content = it.content as Post;
             const sameContent =
               String(content._id) === String(payload.contentId);
@@ -197,10 +198,29 @@ export default function FeedPage() {
                     payload.reactionsCount ?? content.reactionsCount,
                   commentsCount: payload.commentsCount ?? content.commentsCount,
                 },
+                engagementMetrics: {
+                  ...it.engagementMetrics,
+                  reactions:
+                    payload.reactionsCount ?? it.engagementMetrics.reactions,
+                  comments:
+                    payload.commentsCount ?? it.engagementMetrics.comments,
+                },
               } as FeedItem;
             }
           }
-          // For non-posts we keep as-is for now (placeholders)
+
+          if (payload.contentType === "poll" && it.type === "poll") {
+            if (sameItem && typeof payload.votes === "number") {
+              return {
+                ...it,
+                engagementMetrics: {
+                  ...it.engagementMetrics,
+                  votes: payload.votes,
+                },
+              } as FeedItem;
+            }
+          }
+
           return it;
         })
       );
