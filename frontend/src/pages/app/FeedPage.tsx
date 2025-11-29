@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -48,6 +48,39 @@ export default function FeedPage() {
   const [error, setError] = useState<string | null>(null);
   const [newCount, setNewCount] = useState(0);
   const [lastSeenId, setLastSeenId] = useState<string | null>(null);
+
+  const handleRefreshFeed = useCallback(async () => {
+    if (loading) return;
+    setLastSeenId(null);
+    setNewCount(0);
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await FeedService.getFeed(feedType, {
+        tab,
+        limit: 20,
+        sort: "newest",
+      });
+
+      if (!response.success) {
+        setError(response.message || "Failed to refresh feed");
+        return;
+      }
+
+      const data = response.data;
+      setItems(data.items || []);
+      setCursor(data.pagination.nextCursor || null);
+      setHasMore(Boolean(data.pagination.hasMore));
+      setLastSeenId(data.items.length > 0 ? String(data.items[0]._id) : null);
+    } catch (err: unknown) {
+      console.error("Error refreshing feed:", err);
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  }, [feedType, tab, loading]);
 
   // Load initial feed whenever feedType or tab changes
   useEffect(() => {
@@ -138,8 +171,12 @@ export default function FeedPage() {
     const socket = getSocket();
 
     const handleNewContent = () => {
-      // Non-blocking banner/toast for new content
-      setNewCount((c) => c + 1);
+      const nearTop = window.scrollY < 120;
+      if (nearTop && !loading) {
+        void handleRefreshFeed();
+      } else {
+        setNewCount((c) => c + 1);
+      }
     };
 
     const handleEngagementUpdate = (payload: FeedEngagementUpdatePayload) => {
@@ -191,7 +228,7 @@ export default function FeedPage() {
       socket.off("feed:engagement-update", handleEngagementUpdate);
       socket.off("feed:content-deleted", handleContentDeleted);
     };
-  }, []);
+  }, [handleRefreshFeed, loading]);
 
   const handleLoadMore = async () => {
     if (!hasMore || !cursor || loadingMore) return;
@@ -231,39 +268,7 @@ export default function FeedPage() {
     }
   };
 
-  const handleRefreshFeed = async () => {
-    // Re-trigger initial fetch by updating lastSeenId to null then back via effect
-    if (loading) return;
-    setLastSeenId(null);
-    setNewCount(0);
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await FeedService.getFeed(feedType, {
-        tab,
-        limit: 20,
-        sort: "newest",
-      });
-
-      if (!response.success) {
-        setError(response.message || "Failed to refresh feed");
-        return;
-      }
-
-      const data = response.data;
-      setItems(data.items || []);
-      setCursor(data.pagination.nextCursor || null);
-      setHasMore(Boolean(data.pagination.hasMore));
-      setLastSeenId(data.items.length > 0 ? String(data.items[0]._id) : null);
-    } catch (err: unknown) {
-      console.error("Error refreshing feed:", err);
-      setError(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Keep handleRefreshFeed for banner click
 
   const handleDelete = async (postId: string) => {
     try {
