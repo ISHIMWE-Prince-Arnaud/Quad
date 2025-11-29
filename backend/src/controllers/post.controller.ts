@@ -32,6 +32,9 @@ export const createPost = async (req: Request, res: Response) => {
         clerkId: author.clerkId,
         username: author.username,
         email: author.email,
+        displayName: author.displayName,
+        firstName: author.firstName,
+        lastName: author.lastName,
         profileImage: author.profileImage,
       },
     });
