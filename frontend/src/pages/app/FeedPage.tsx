@@ -12,6 +12,11 @@ import { useAuthStore } from "@/stores/authStore";
 import type { Post } from "@/types/post";
 import type { FeedItem, FeedTab, FeedType } from "@/types/feed";
 import toast from "react-hot-toast";
+import { getSocket } from "@/lib/socket";
+import type {
+  FeedEngagementUpdatePayload,
+  FeedContentDeletedPayload,
+} from "@/lib/socket";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -127,6 +132,66 @@ export default function FeedPage() {
 
     return () => clearInterval(interval);
   }, [feedType, tab, lastSeenId]);
+
+  // Real-time feed events
+  useEffect(() => {
+    const socket = getSocket();
+
+    const handleNewContent = () => {
+      // Non-blocking banner/toast for new content
+      setNewCount((c) => c + 1);
+    };
+
+    const handleEngagementUpdate = (payload: FeedEngagementUpdatePayload) => {
+      setItems((prev) =>
+        prev.map((it) => {
+          // Try match by item id first
+          const sameItem = String(it._id) === String(payload.contentId);
+          if (it.type === "post") {
+            const content = it.content as Post;
+            const sameContent =
+              String(content._id) === String(payload.contentId);
+            if (sameItem || sameContent) {
+              return {
+                ...it,
+                content: {
+                  ...content,
+                  reactionsCount:
+                    payload.reactionsCount ?? content.reactionsCount,
+                  commentsCount: payload.commentsCount ?? content.commentsCount,
+                },
+              } as FeedItem;
+            }
+          }
+          // For non-posts we keep as-is for now (placeholders)
+          return it;
+        })
+      );
+    };
+
+    const handleContentDeleted = (payload: FeedContentDeletedPayload) => {
+      setItems((prev) =>
+        prev.filter((it) => {
+          if (String(it._id) === String(payload.contentId)) return false;
+          if (it.type === "post") {
+            const content = it.content as Post;
+            if (String(content._id) === String(payload.contentId)) return false;
+          }
+          return true;
+        })
+      );
+    };
+
+    socket.on("feed:new-content", handleNewContent);
+    socket.on("feed:engagement-update", handleEngagementUpdate);
+    socket.on("feed:content-deleted", handleContentDeleted);
+
+    return () => {
+      socket.off("feed:new-content", handleNewContent);
+      socket.off("feed:engagement-update", handleEngagementUpdate);
+      socket.off("feed:content-deleted", handleContentDeleted);
+    };
+  }, []);
 
   const handleLoadMore = async () => {
     if (!hasMore || !cursor || loadingMore) return;
