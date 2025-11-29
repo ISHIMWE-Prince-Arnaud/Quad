@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  MoreHorizontal,
-  Heart,
-  MessageCircle,
-  Share2,
-  Bookmark,
-} from "lucide-react";
+import { MoreHorizontal, MessageCircle, Share2, Bookmark } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -36,7 +30,9 @@ import { useAuthStore } from "@/stores/authStore";
 import type { Post } from "@/types/post";
 import toast from "react-hot-toast";
 import { ReactionService } from "@/services/reactionService";
+import type { ReactionType } from "@/services/reactionService";
 import { BookmarkService } from "@/services/bookmarkService";
+import { ReactionPicker } from "@/components/reactions/ReactionPicker";
 
 interface PostCardProps {
   post: Post;
@@ -55,8 +51,8 @@ export function PostCard({
   const { user } = useAuthStore();
   const isOwner = user?.clerkId === post.author.clerkId;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [liked, setLiked] = useState(false);
-  const [likePending, setLikePending] = useState(false);
+  const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
+  const [reactionPending, setReactionPending] = useState(false);
   const [reactionCount, setReactionCount] = useState<number | undefined>(
     post.reactionsCount
   );
@@ -74,6 +70,15 @@ export function PostCard({
   const previewText = hasLongText
     ? `${fullText.slice(0, MAX_PREVIEW_LENGTH).trimEnd()}...`
     : fullText;
+  const reactionEmojiMap: Record<ReactionType, string> = {
+    like: "👍",
+    love: "❤️",
+    laugh: "😂",
+    wow: "😮",
+    sad: "😢",
+    angry: "😡",
+  };
+  const selectedEmoji = userReaction ? reactionEmojiMap[userReaction] : "👍";
 
   const handleDelete = () => {
     if (!onDelete) return;
@@ -87,13 +92,13 @@ export function PostCard({
     // Initialize bookmark state
     setBookmarked(BookmarkService.isBookmarked(post._id));
 
-    // Fetch user reaction for this post (to highlight like) and reconcile counts
+    // Fetch user reaction for this post (to highlight selection) and reconcile counts
     (async () => {
       try {
         const res = await ReactionService.getByContent("post", post._id);
         if (!cancelled && res.success && res.data) {
-          const userReaction = res.data.userReaction;
-          setLiked(Boolean(userReaction && userReaction.type === "like"));
+          const ur = res.data.userReaction;
+          setUserReaction(ur ? ur.type : null);
           if (typeof res.data.totalCount === "number") {
             setReactionCount(res.data.totalCount);
           }
@@ -138,36 +143,45 @@ export function PostCard({
     navigate(`/app/posts/${post._id}/edit`);
   };
 
-  const handleToggleLike = async () => {
-    if (likePending) return;
-    setLikePending(true);
+  const handleSelectReaction = async (type: ReactionType) => {
+    if (reactionPending) return;
+    setReactionPending(true);
 
-    // Optimistic update
-    const prevLiked = liked;
+    const prevType = userReaction;
     const prevCount = reactionCount ?? 0;
-    setLiked(!prevLiked);
-    setReactionCount(prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
+
+    // Optimistic update of count based on action
+    // - If selecting same type -> remove (count -1)
+    // - If selecting new type and had none -> add (count +1)
+    // - If changing type (had one) -> count unchanged
+    let nextCount = prevCount;
+    if (prevType === type) {
+      nextCount = Math.max(0, prevCount - 1);
+      setUserReaction(null);
+    } else if (prevType === null) {
+      nextCount = prevCount + 1;
+      setUserReaction(type);
+    } else {
+      // switching type
+      setUserReaction(type);
+    }
+    setReactionCount(nextCount);
 
     try {
-      const res = await ReactionService.toggle("post", post._id, "like");
-      if (!res.success) {
-        throw new Error(res.message || "Failed to react");
-      }
+      const res = await ReactionService.toggle("post", post._id, type);
+      if (!res.success) throw new Error(res.message || "Failed to react");
 
-      // Reconcile with server-provided count if present
       if (typeof res.reactionCount === "number") {
         setReactionCount(res.reactionCount);
       }
-
-      // Determine final liked state from response (removed -> not liked)
       if (res.data === null) {
-        setLiked(false);
+        setUserReaction(null);
       } else if (res.data) {
-        setLiked(res.data.type === "like");
+        setUserReaction(res.data.type);
       }
     } catch (err: unknown) {
-      // Revert optimistic update
-      setLiked(prevLiked);
+      // Revert on error
+      setUserReaction(prevType);
       setReactionCount(prevCount);
       let msg = "Failed to update reaction";
       if (
@@ -180,7 +194,7 @@ export function PostCard({
       }
       toast.error(msg);
     } finally {
-      setLikePending(false);
+      setReactionPending(false);
     }
   };
 
@@ -283,19 +297,23 @@ export function PostCard({
         {/* Interaction buttons */}
         <CardFooter className="pt-0 pb-3 flex items-center justify-between border-t">
           <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleToggleLike}
-              disabled={likePending}
-              className={cn(
-                "gap-2 text-muted-foreground",
-                liked ? "text-pink-600" : "hover:text-pink-600"
-              )}>
-              <Heart className="h-4 w-4" />
-              <span className="text-xs">{reactionCount ?? 0}</span>
-            </Button>
+            <ReactionPicker
+              onSelect={handleSelectReaction}
+              trigger={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={reactionPending}
+                  className={cn(
+                    "gap-2 text-muted-foreground",
+                    userReaction ? "text-pink-600" : "hover:text-pink-600"
+                  )}>
+                  <span className="text-sm">{selectedEmoji}</span>
+                  <span className="text-xs">{reactionCount ?? 0}</span>
+                </Button>
+              }
+            />
           </div>
 
           <div className="flex items-center gap-1">

@@ -6,6 +6,10 @@ import { PostCard } from "@/components/posts/PostCard";
 import { PostService } from "@/services/postService";
 import toast from "react-hot-toast";
 import type { Post } from "@/types/post";
+import { CommentService } from "@/services/commentService";
+import type { Comment } from "@/types/comment";
+import { CommentComposer } from "@/components/comments/CommentComposer";
+import { CommentItem } from "@/components/comments/CommentItem";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -30,6 +34,13 @@ export default function PostPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentsCursor, setCommentsCursor] = useState<{
+    skip: number;
+    limit: number;
+    hasMore: boolean;
+  }>({ skip: 0, limit: 20, hasMore: true });
 
   useEffect(() => {
     if (!id) {
@@ -57,6 +68,49 @@ export default function PostPage() {
 
     fetchPost();
   }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    // Reset and load initial comments
+    setComments([]);
+    setCommentsCursor({ skip: 0, limit: 20, hasMore: true });
+    void loadMoreComments(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  const loadMoreComments = async (reset = false) => {
+    if (!id || commentsLoading) return;
+    if (!reset && !commentsCursor.hasMore) return;
+
+    try {
+      setCommentsLoading(true);
+      const nextSkip = reset ? 0 : commentsCursor.skip;
+      const res = await CommentService.getByContent("post", id, {
+        limit: commentsCursor.limit,
+        skip: nextSkip,
+        parentId: null,
+      });
+      if (res.success) {
+        const data = res.data || [];
+        setComments((prev) => (reset ? data : [...prev, ...data]));
+        const pag = res.pagination;
+        setCommentsCursor({
+          skip: nextSkip + data.length,
+          limit: commentsCursor.limit,
+          hasMore: Boolean(pag?.hasMore),
+        });
+      }
+    } catch {
+      // soft fail
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const handleCommentCreated = async () => {
+    // Reload comments from start to show the new one at top
+    await loadMoreComments(true);
+  };
 
   const handleDelete = async (deletedPostId: string) => {
     try {
@@ -118,12 +172,35 @@ export default function PostPage() {
       {/* Post card */}
       <PostCard post={post} onDelete={handleDelete} isSingleView />
 
-      {/* Comments section placeholder */}
-      <div className="mt-6 p-6 border rounded-lg">
-        <h3 className="font-semibold mb-2">Comments</h3>
-        <p className="text-sm text-muted-foreground">
-          Comments feature coming soon...
-        </p>
+      {/* Comments section */}
+      <div className="mt-6 p-6 border rounded-lg space-y-4">
+        <h3 className="font-semibold">Comments</h3>
+        <CommentComposer
+          contentType="post"
+          contentId={post._id}
+          onCreated={handleCommentCreated}
+        />
+        <div className="space-y-3">
+          {comments.map((c) => (
+            <CommentItem key={c._id} comment={c} />
+          ))}
+          {comments.length === 0 && !commentsLoading && (
+            <p className="text-sm text-muted-foreground">
+              Be the first to comment.
+            </p>
+          )}
+          {commentsCursor.hasMore && (
+            <div className="flex justify-center pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => loadMoreComments()}
+                disabled={commentsLoading}>
+                {commentsLoading ? "Loading..." : "Load more"}
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
