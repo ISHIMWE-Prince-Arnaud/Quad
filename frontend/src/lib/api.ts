@@ -32,7 +32,18 @@ api.interceptors.request.use(
 
 // Response interceptor for error handling
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const request = response?.request as XMLHttpRequest | undefined;
+    const finalUrl = request?.responseURL;
+
+    if (typeof finalUrl === "string" && !finalUrl.includes("/api/")) {
+      localStorage.removeItem("clerk-db-jwt");
+      window.location.href = "/login";
+      return Promise.reject(new Error("Session expired"));
+    }
+
+    return response;
+  },
   (error) => {
     // Handle common errors
     if (error.response?.status === 401) {
