@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   MoreHorizontal,
@@ -35,6 +35,8 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import type { Post } from "@/types/post";
 import toast from "react-hot-toast";
+import { ReactionService } from "@/services/reactionService";
+import { BookmarkService } from "@/services/bookmarkService";
 
 interface PostCardProps {
   post: Post;
@@ -53,6 +55,12 @@ export function PostCard({
   const { user } = useAuthStore();
   const isOwner = user?.clerkId === post.author.clerkId;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likePending, setLikePending] = useState(false);
+  const [reactionCount, setReactionCount] = useState<number | undefined>(
+    post.reactionsCount
+  );
+  const [bookmarked, setBookmarked] = useState(false);
 
   const { firstName, lastName, username } = post.author;
 
@@ -73,21 +81,115 @@ export function PostCard({
     setIsDeleteDialogOpen(false);
   };
 
+  useEffect(() => {
+    let cancelled = false;
+
+    // Initialize bookmark state
+    setBookmarked(BookmarkService.isBookmarked(post._id));
+
+    // Fetch user reaction for this post (to highlight like) and reconcile counts
+    (async () => {
+      try {
+        const res = await ReactionService.getByContent("post", post._id);
+        if (!cancelled && res.success && res.data) {
+          const userReaction = res.data.userReaction;
+          setLiked(Boolean(userReaction && userReaction.type === "like"));
+          if (typeof res.data.totalCount === "number") {
+            setReactionCount(res.data.totalCount);
+          }
+        }
+      } catch {
+        // Silent fail; keep initial counts
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [post._id]);
+
   const handleCopyLink = async () => {
     const path = `/app/posts/${post._id}`;
     const url = `${window.location.origin}${path}`;
 
     try {
-      await navigator.clipboard.writeText(url);
-      toast.success("Post link copied to clipboard");
-    } catch (error) {
-      console.error("Failed to copy link:", error);
+      const shareFn = (
+        navigator as unknown as {
+          share?: (data: {
+            url?: string;
+            title?: string;
+            text?: string;
+          }) => Promise<void>;
+        }
+      ).share;
+      if (typeof shareFn === "function") {
+        await shareFn({ url, title: "Quad Post" });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Post link copied to clipboard");
+      }
+    } catch (e) {
+      console.error("Failed to copy link:", e);
       toast.error("Failed to copy link");
     }
   };
 
   const handleEdit = () => {
     navigate(`/app/posts/${post._id}/edit`);
+  };
+
+  const handleToggleLike = async () => {
+    if (likePending) return;
+    setLikePending(true);
+
+    // Optimistic update
+    const prevLiked = liked;
+    const prevCount = reactionCount ?? 0;
+    setLiked(!prevLiked);
+    setReactionCount(prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
+
+    try {
+      const res = await ReactionService.toggle("post", post._id, "like");
+      if (!res.success) {
+        throw new Error(res.message || "Failed to react");
+      }
+
+      // Reconcile with server-provided count if present
+      if (typeof res.reactionCount === "number") {
+        setReactionCount(res.reactionCount);
+      }
+
+      // Determine final liked state from response (removed -> not liked)
+      if (res.data === null) {
+        setLiked(false);
+      } else if (res.data) {
+        setLiked(res.data.type === "like");
+      }
+    } catch (err: unknown) {
+      // Revert optimistic update
+      setLiked(prevLiked);
+      setReactionCount(prevCount);
+      let msg = "Failed to update reaction";
+      if (
+        err &&
+        typeof err === "object" &&
+        "message" in err &&
+        typeof (err as { message?: unknown }).message === "string"
+      ) {
+        msg = (err as { message: string }).message;
+      }
+      toast.error(msg);
+    } finally {
+      setLikePending(false);
+    }
+  };
+
+  const handleToggleBookmark = () => {
+    const next = BookmarkService.toggle(post._id);
+    setBookmarked(next);
+    toast[next ? "success" : "success"](
+      next ? "Saved to bookmarks" : "Removed from bookmarks"
+    );
   };
 
   return (
@@ -182,11 +284,17 @@ export function PostCard({
         <CardFooter className="pt-0 pb-3 flex items-center justify-between border-t">
           <div className="flex items-center gap-1">
             <Button
+              type="button"
               variant="ghost"
               size="sm"
-              className="gap-2 text-muted-foreground hover:text-pink-600">
+              onClick={handleToggleLike}
+              disabled={likePending}
+              className={cn(
+                "gap-2 text-muted-foreground",
+                liked ? "text-pink-600" : "hover:text-pink-600"
+              )}>
               <Heart className="h-4 w-4" />
-              <span className="text-xs">{post.reactionsCount || 0}</span>
+              <span className="text-xs">{reactionCount ?? 0}</span>
             </Button>
           </div>
 
@@ -205,8 +313,10 @@ export function PostCard({
 
           <div className="flex items-center gap-1">
             <Button
+              type="button"
               variant="ghost"
               size="sm"
+              onClick={handleCopyLink}
               className="gap-2 text-muted-foreground hover:text-green-600">
               <Share2 className="h-4 w-4" />
             </Button>
@@ -214,9 +324,14 @@ export function PostCard({
 
           <div className="flex items-center gap-1">
             <Button
+              type="button"
               variant="ghost"
               size="sm"
-              className="gap-2 text-muted-foreground hover:text-amber-600">
+              onClick={handleToggleBookmark}
+              className={cn(
+                "gap-2 text-muted-foreground",
+                bookmarked ? "text-amber-600" : "hover:text-amber-600"
+              )}>
               <Bookmark className="h-4 w-4" />
             </Button>
           </div>
