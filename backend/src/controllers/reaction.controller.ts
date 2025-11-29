@@ -186,10 +186,10 @@ export const getReactionsByContent = async (req: Request, res: Response) => {
       contentId: string;
     };
 
-    // Get all reactions with populated user data (prevents N+1 queries)
-    const reactions = await Reaction.find({ contentType, contentId })
-      .populate("user", "username displayName profileImage")
-      .sort({ createdAt: -1 });
+    // Get all reactions
+    const reactions = await Reaction.find({ contentType, contentId }).sort({
+      createdAt: -1,
+    });
 
     // Aggregate reactions by type for counts
     const reactionCounts = await Reaction.aggregate([
