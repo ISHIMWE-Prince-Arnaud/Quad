@@ -1,9 +1,24 @@
-import { Outlet } from 'react-router-dom'
-import { Navbar } from '../components/layout/Navbar'
-import { Sidebar } from '../components/layout/Sidebar'
-import { RightPanel } from '../components/layout/RightPanel'
+import { Outlet } from "react-router-dom";
+import { Navbar } from "../components/layout/Navbar";
+import { Sidebar } from "../components/layout/Sidebar";
+import { RightPanel } from "../components/layout/RightPanel";
+import { useAuthStore } from "@/stores/authStore";
+import { LoadingSpinner } from "@/components/ui/loading";
 
 export function MainLayout() {
+  const { isLoading } = useAuthStore();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <LoadingSpinner size="lg" />
+          <p className="text-muted-foreground">Loading your experience...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile Header */}
@@ -33,5 +48,5 @@ export function MainLayout() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { requireAuth } from "@clerk/express";
 import { validateSchema } from "../utils/validation.util.js";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 import {
   userIdParamSchema,
   getFollowListQuerySchema,
@@ -24,7 +24,7 @@ const router = Router();
 // Follow a user
 router.post(
   "/:userId",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
   followUser
 );
@@ -32,7 +32,7 @@ router.post(
 // Unfollow a user
 router.delete(
   "/:userId",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
   unfollowUser
 );
@@ -44,7 +44,7 @@ router.delete(
 // Get user's followers
 router.get(
   "/:userId/followers",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
   validateSchema(getFollowListQuerySchema, "query"),
   getFollowers
@@ -53,7 +53,7 @@ router.get(
 // Get users that a user is following
 router.get(
   "/:userId/following",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
   validateSchema(getFollowListQuerySchema, "query"),
   getFollowing
@@ -66,7 +66,7 @@ router.get(
 // Check if following a user
 router.get(
   "/:userId/check",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
   checkFollowing
 );
@@ -74,7 +74,7 @@ router.get(
 // Get mutual follows
 router.get(
   "/:userId/mutual",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
   getMutualFollows
 );
@@ -82,7 +82,7 @@ router.get(
 // Get follow statistics
 router.get(
   "/:userId/stats",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
   getFollowStatsController
 );

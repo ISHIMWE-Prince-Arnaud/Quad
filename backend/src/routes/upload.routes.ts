@@ -9,7 +9,7 @@ import {
   deleteFile,
 } from "../controllers/upload.controller.js";
 import { uploadSingle } from "../middlewares/multer.middleware.js";
-import { requireAuth } from "@clerk/express";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -25,12 +25,7 @@ const router = Router();
  * Formats: JPEG, PNG, WebP, GIF, HEIC (images) | MP4, MOV, AVI, MKV, WebM (videos)
  * -------------------------
  */
-router.post(
-  "/post",
-  requireAuth(),
-  uploadSingle,
-  uploadPostMedia
-);
+router.post("/post", requireApiAuth, uploadSingle, uploadPostMedia);
 
 /**
  * -------------------------
@@ -44,12 +39,7 @@ router.post(
  * Formats: JPEG, PNG, WebP, GIF, HEIC (images) | MP4, MOV, AVI, MKV, WebM (videos)
  * -------------------------
  */
-router.post(
-  "/story",
-  requireAuth(),
-  uploadSingle,
-  uploadStoryMedia
-);
+router.post("/story", requireApiAuth, uploadSingle, uploadStoryMedia);
 
 /**
  * -------------------------
@@ -63,12 +53,7 @@ router.post(
  * Formats: JPEG, PNG, WebP, GIF, HEIC (images) | MP4, MOV, AVI, MKV, WebM (videos)
  * -------------------------
  */
-router.post(
-  "/poll",
-  requireAuth(),
-  uploadSingle,
-  uploadPollMedia
-);
+router.post("/poll", requireApiAuth, uploadSingle, uploadPollMedia);
 
 /**
  * -------------------------
@@ -82,12 +67,7 @@ router.post(
  * Formats: JPEG, PNG, WebP, GIF, HEIC (images) | MP4, MOV, AVI, MKV, WebM (videos)
  * -------------------------
  */
-router.post(
-  "/chat",
-  requireAuth(),
-  uploadSingle,
-  uploadChatMedia
-);
+router.post("/chat", requireApiAuth, uploadSingle, uploadChatMedia);
 
 /**
  * -------------------------
@@ -101,12 +81,7 @@ router.post(
  * Output: Always square (1:1 aspect ratio)
  * -------------------------
  */
-router.post(
-  "/profile",
-  requireAuth(),
-  uploadSingle,
-  uploadProfileImage
-);
+router.post("/profile", requireApiAuth, uploadSingle, uploadProfileImage);
 
 /**
  * -------------------------
@@ -120,12 +95,7 @@ router.post(
  * Output: 3:1 aspect ratio (1200x400px)
  * -------------------------
  */
-router.post(
-  "/cover",
-  requireAuth(),
-  uploadSingle,
-  uploadCoverImage
-);
+router.post("/cover", requireApiAuth, uploadSingle, uploadCoverImage);
 
 /**
  * -------------------------
@@ -135,10 +105,6 @@ router.post(
  * Body: { url: "cloudinary_url" }
  * -------------------------
  */
-router.delete(
-  "/",
-  requireAuth(),
-  deleteFile
-);
+router.delete("/", requireApiAuth, deleteFile);
 
 export default router;

@@ -1,7 +1,10 @@
 import { Router } from "express";
-import { requireAuth } from "@clerk/express";
 import { validateSchema } from "../utils/validation.util.js";
-import { feedQuerySchema, newCountQuerySchema } from "../schemas/feed.schema.js";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
+import {
+  feedQuerySchema,
+  newCountQuerySchema,
+} from "../schemas/feed.schema.js";
 import {
   getFollowingFeed,
   getForYouFeed,
@@ -17,7 +20,7 @@ const router = Router();
 // Get general feed (defaults to for you feed)
 router.get(
   "/",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(feedQuerySchema, "query"),
   getForYouFeed
 );
@@ -25,7 +28,7 @@ router.get(
 // Get following feed
 router.get(
   "/following",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(feedQuerySchema, "query"),
   getFollowingFeed
 );
@@ -33,7 +36,7 @@ router.get(
 // Get for you feed
 router.get(
   "/foryou",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(feedQuerySchema, "query"),
   getForYouFeed
 );
@@ -41,7 +44,7 @@ router.get(
 // Get new content count (for "X new posts" banner)
 router.get(
   "/new-count",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(newCountQuerySchema, "query"),
   getNewContentCount
 );

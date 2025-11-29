@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { requireAuth } from "@clerk/express";
 import { validateSchema } from "../utils/validation.util.js";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 import {
   createMessageSchema,
   updateMessageSchema,
@@ -28,7 +28,7 @@ const router = Router();
 // Send message
 router.post(
   "/messages",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(createMessageSchema, "body"),
   sendMessage
 );
@@ -36,7 +36,7 @@ router.post(
 // Get messages (with pagination)
 router.get(
   "/messages",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(getMessagesQuerySchema, "query"),
   getMessages
 );
@@ -44,7 +44,7 @@ router.get(
 // Edit message
 router.put(
   "/messages/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(messageIdSchema, "params"),
   validateSchema(updateMessageSchema, "body"),
   editMessage
@@ -53,7 +53,7 @@ router.put(
 // Delete message
 router.delete(
   "/messages/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(messageIdSchema, "params"),
   deleteMessage
 );
@@ -65,7 +65,7 @@ router.delete(
 // Add reaction
 router.post(
   "/messages/:id/reactions",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(messageIdSchema, "params"),
   validateSchema(addReactionSchema, "body"),
   addReaction
@@ -74,7 +74,7 @@ router.post(
 // Remove reaction
 router.delete(
   "/messages/:id/reactions",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(messageIdSchema, "params"),
   removeReaction
 );
@@ -86,7 +86,7 @@ router.delete(
 // Mark messages as read
 router.post(
   "/read",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(markAsReadSchema, "body"),
   markAsRead
 );

@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { requireAuth } from "@clerk/express";
 import { validateSchema } from "../utils/validation.util.js";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 import {
   notificationIdParamSchema,
   getNotificationsQuerySchema,
@@ -23,36 +23,24 @@ const router = Router();
 // Get user's notifications
 router.get(
   "/",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(getNotificationsQuerySchema, "query"),
   getNotifications
 );
 
 // Get unread notification count
-router.get(
-  "/unread-count",
-  requireAuth(),
-  getUnreadCountController
-);
+router.get("/unread-count", requireApiAuth, getUnreadCountController);
 
 // Mark all notifications as read
-router.patch(
-  "/read-all",
-  requireAuth(),
-  markAllAsRead
-);
+router.patch("/read-all", requireApiAuth, markAllAsRead);
 
 // Delete all read notifications
-router.delete(
-  "/read",
-  requireAuth(),
-  deleteAllRead
-);
+router.delete("/read", requireApiAuth, deleteAllRead);
 
 // Mark notification as read
 router.patch(
   "/:id/read",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(notificationIdParamSchema, "params"),
   markAsRead
 );
@@ -60,7 +48,7 @@ router.patch(
 // Delete a notification
 router.delete(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(notificationIdParamSchema, "params"),
   deleteNotification
 );

@@ -14,7 +14,7 @@ import {
   getStoriesQuerySchema,
 } from "../schemas/story.schema.js";
 import { validateSchema } from "../utils/validation.util.js";
-import { requireAuth } from "@clerk/express";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -28,7 +28,7 @@ const router = Router();
  */
 router.post(
   "/",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(createStorySchema),
   createStory
 );
@@ -50,7 +50,7 @@ router.post(
  */
 router.get(
   "/",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(getStoriesQuerySchema, "query"),
   getAllStories
 );
@@ -66,11 +66,7 @@ router.get(
  *   - skip: number (default: 0)
  * -------------------------
  */
-router.get(
-  "/me",
-  requireAuth(),
-  getMyStories
-);
+router.get("/me", requireApiAuth, getMyStories);
 
 /**
  * -------------------------
@@ -82,7 +78,7 @@ router.get(
  */
 router.get(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(storyIdSchema, "params"),
   getStory
 );
@@ -97,7 +93,7 @@ router.get(
  */
 router.put(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(storyIdSchema, "params"),
   validateSchema(updateStorySchema),
   updateStory
@@ -113,7 +109,7 @@ router.put(
  */
 router.delete(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(storyIdSchema, "params"),
   deleteStory
 );

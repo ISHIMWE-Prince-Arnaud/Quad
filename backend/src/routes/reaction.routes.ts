@@ -13,7 +13,7 @@ import {
 } from "../schemas/reaction.schema.js";
 
 import { validateSchema } from "../utils/validation.util.js";
-import { requireAuth } from "@clerk/express";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -27,7 +27,7 @@ const router = Router();
  */
 router.post(
   "/",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(createReactionSchema),
   toggleReaction
 );
@@ -41,11 +41,7 @@ router.post(
  * Note: Must be before /:contentType/:contentId to avoid route conflicts
  * -------------------------
  */
-router.get(
-  "/me",
-  requireAuth(),
-  getUserReactions
-);
+router.get("/me", requireApiAuth, getUserReactions);
 
 /**
  * -------------------------
@@ -57,7 +53,7 @@ router.get(
  */
 router.get(
   "/:contentType/:contentId",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(getReactionsByContentSchema, "params"),
   getReactionsByContent
 );
@@ -71,7 +67,7 @@ router.get(
  */
 router.delete(
   "/:contentType/:contentId",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(deleteReactionSchema, "params"),
   deleteReaction
 );

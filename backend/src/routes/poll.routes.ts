@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { requireAuth } from "@clerk/express";
 import { validateSchema } from "../utils/validation.util.js";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 import {
   createPollSchema,
   updatePollSchema,
@@ -29,7 +29,7 @@ const router = Router();
 // Create poll
 router.post(
   "/",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(createPollSchema, "body"),
   createPoll
 );
@@ -37,22 +37,18 @@ router.post(
 // Get all polls (with filters, search, pagination)
 router.get(
   "/",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(getPollsQuerySchema, "query"),
   getAllPolls
 );
 
 // Get my polls (polls created by current user)
-router.get(
-  "/me",
-  requireAuth(),
-  getMyPolls
-);
+router.get("/me", requireApiAuth, getMyPolls);
 
 // Get single poll
 router.get(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(pollIdSchema, "params"),
   getPoll
 );
@@ -60,7 +56,7 @@ router.get(
 // Update poll (author only)
 router.put(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(pollIdSchema, "params"),
   validateSchema(updatePollSchema, "body"),
   updatePoll
@@ -69,7 +65,7 @@ router.put(
 // Delete poll (author only)
 router.delete(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(pollIdSchema, "params"),
   deletePoll
 );
@@ -81,7 +77,7 @@ router.delete(
 // Vote on poll
 router.post(
   "/:id/vote",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(pollIdSchema, "params"),
   validateSchema(voteOnPollSchema, "body"),
   voteOnPoll
@@ -90,7 +86,7 @@ router.post(
 // Remove vote (author only)
 router.delete(
   "/:id/vote",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(pollIdSchema, "params"),
   removeVote
 );
@@ -102,7 +98,7 @@ router.delete(
 // Close poll (author only)
 router.post(
   "/:id/close",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(pollIdSchema, "params"),
   closePoll
 );

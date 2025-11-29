@@ -15,7 +15,7 @@ import {
 } from "../schemas/user.schema.js";
 
 import { validateSchema } from "../utils/validation.util.js";
-import { requireAuth } from "@clerk/express";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -28,9 +28,9 @@ const router = Router();
  */
 router.post(
   "/",
-  requireAuth(),                   // Clerk authentication
+  requireApiAuth, // API authentication using Clerk session
   validateSchema(createUserSchema), // Validate request body
-  createUser                       // Controller handles creation
+  createUser // Controller handles creation
 );
 
 /**
@@ -42,7 +42,7 @@ router.post(
  */
 router.get(
   "/:clerkId",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(getUserSchema, "params"),
   getUser
 );
@@ -56,7 +56,7 @@ router.get(
  */
 router.put(
   "/:clerkId",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(updateUserSchema),
   updateUser
 );
@@ -70,7 +70,7 @@ router.put(
  */
 router.delete(
   "/:clerkId",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(deleteUserSchema, "params"),
   deleteUser
 );

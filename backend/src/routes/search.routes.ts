@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireAuth } from "@clerk/express";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 import {
   searchUsersController,
   searchPostsController,
@@ -11,7 +11,7 @@ import {
   deleteSearchHistoryController,
   clearSearchHistoryController,
   getPopularSearchesController,
-  getTrendingSearchesController
+  getTrendingSearchesController,
 } from "../controllers/search.controller.js";
 
 const router = Router();
@@ -22,27 +22,27 @@ const router = Router();
 
 // Enhanced search users with filters, pagination, fuzzy search
 // GET /api/search/users?q=john&limit=20&offset=0&sortBy=relevance&fuzzy=false&dateFrom=2023-01-01&dateTo=2023-12-31
-router.get("/users", requireAuth(), searchUsersController);
+router.get("/users", requireApiAuth, searchUsersController);
 
 // Enhanced search posts with filters, pagination, fuzzy search
 // GET /api/search/posts?q=javascript&limit=20&offset=0&sortBy=relevance&fuzzy=false&author=user123&dateFrom=2023-01-01&dateTo=2023-12-31
-router.get("/posts", requireAuth(), searchPostsController);
+router.get("/posts", requireApiAuth, searchPostsController);
 
 // Enhanced search polls with filters, pagination, fuzzy search
 // GET /api/search/polls?q=favorite&limit=20&offset=0&sortBy=relevance&fuzzy=false&author=user123&dateFrom=2023-01-01&dateTo=2023-12-31
-router.get("/polls", requireAuth(), searchPollsController);
+router.get("/polls", requireApiAuth, searchPollsController);
 
 // Enhanced search stories with filters, pagination, fuzzy search
 // GET /api/search/stories?q=tutorial&limit=20&offset=0&sortBy=relevance&fuzzy=false&author=user123&dateFrom=2023-01-01&dateTo=2023-12-31
-router.get("/stories", requireAuth(), searchStoriesController);
+router.get("/stories", requireApiAuth, searchStoriesController);
 
 // Enhanced global search (all content types) with filters
 // GET /api/search/global?q=react&limit=5&sortBy=relevance&fuzzy=false
-router.get("/global", requireAuth(), globalSearchController);
+router.get("/global", requireApiAuth, globalSearchController);
 
 // Get search suggestions (autocomplete)
 // GET /api/search/suggestions?q=jo&limit=10
-router.get("/suggestions", requireAuth(), getSearchSuggestionsController);
+router.get("/suggestions", requireApiAuth, getSearchSuggestionsController);
 
 // =========================
 // SEARCH HISTORY ROUTES
@@ -50,15 +50,15 @@ router.get("/suggestions", requireAuth(), getSearchSuggestionsController);
 
 // Get user's search history
 // GET /api/search/history?limit=20
-router.get("/history", requireAuth(), getSearchHistoryController);
+router.get("/history", requireApiAuth, getSearchHistoryController);
 
 // Delete specific search from history
 // DELETE /api/search/history/:id
-router.delete("/history/:id", requireAuth(), deleteSearchHistoryController);
+router.delete("/history/:id", requireApiAuth, deleteSearchHistoryController);
 
 // Clear all search history
 // DELETE /api/search/history
-router.delete("/history", requireAuth(), clearSearchHistoryController);
+router.delete("/history", requireApiAuth, clearSearchHistoryController);
 
 // =========================
 // SEARCH ANALYTICS ROUTES
@@ -66,10 +66,14 @@ router.delete("/history", requireAuth(), clearSearchHistoryController);
 
 // Get popular searches
 // GET /api/search/analytics/popular?searchType=users&limit=10
-router.get("/analytics/popular", requireAuth(), getPopularSearchesController);
+router.get("/analytics/popular", requireApiAuth, getPopularSearchesController);
 
 // Get trending searches (last 7 days)
 // GET /api/search/analytics/trending?searchType=users&limit=10
-router.get("/analytics/trending", requireAuth(), getTrendingSearchesController);
+router.get(
+  "/analytics/trending",
+  requireApiAuth,
+  getTrendingSearchesController
+);
 
 export default router;

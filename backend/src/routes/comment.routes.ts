@@ -18,7 +18,7 @@ import {
 } from "../schemas/comment.schema.js";
 
 import { validateSchema } from "../utils/validation.util.js";
-import { requireAuth } from "@clerk/express";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -32,7 +32,7 @@ const router = Router();
  */
 router.post(
   "/",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(createCommentSchema),
   createComment
 );
@@ -45,11 +45,7 @@ router.post(
  * Query params: limit, skip, parentId (optional)
  * -------------------------
  */
-router.get(
-  "/:contentType/:contentId",
-  requireAuth(),
-  getCommentsByContent
-);
+router.get("/:contentType/:contentId", requireApiAuth, getCommentsByContent);
 
 /**
  * -------------------------
@@ -60,7 +56,7 @@ router.get(
  */
 router.get(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(commentIdSchema, "params"),
   getComment
 );
@@ -75,7 +71,7 @@ router.get(
  */
 router.get(
   "/:id/replies",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(commentIdSchema, "params"),
   getReplies
 );
@@ -90,7 +86,7 @@ router.get(
  */
 router.put(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(commentIdSchema, "params"),
   validateSchema(updateCommentSchema),
   updateComment
@@ -106,7 +102,7 @@ router.put(
  */
 router.delete(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(commentIdSchema, "params"),
   deleteComment
 );
@@ -121,7 +117,7 @@ router.delete(
  */
 router.post(
   "/like",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(toggleCommentLikeSchema),
   toggleCommentLike
 );
@@ -136,7 +132,7 @@ router.post(
  */
 router.get(
   "/:id/likes",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(commentIdSchema, "params"),
   getCommentLikes
 );

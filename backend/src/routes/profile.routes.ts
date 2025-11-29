@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { requireAuth } from "@clerk/express";
 import { validateSchema } from "../utils/validation.util.js";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 import {
   updateProfileSchema,
   usernameParamSchema,
@@ -22,12 +22,12 @@ const router = Router();
 // ===========================
 
 // Get user profile by ID (convenience endpoint)
-router.get("/id/:userId", requireAuth(), getProfileById);
+router.get("/id/:userId", requireApiAuth, getProfileById);
 
 // Get user profile by username
 router.get(
   "/:username",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(usernameParamSchema, "params"),
   getProfile
 );
@@ -35,7 +35,7 @@ router.get(
 // Update user profile (only own profile allowed)
 router.put(
   "/:username",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(usernameParamSchema, "params"),
   validateSchema(updateProfileSchema, "body"),
   updateProfile
@@ -48,7 +48,7 @@ router.put(
 // Get user's posts
 router.get(
   "/:username/posts",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(usernameParamSchema, "params"),
   validateSchema(paginationQuerySchema, "query"),
   getUserPosts
@@ -57,7 +57,7 @@ router.get(
 // Get user's stories
 router.get(
   "/:username/stories",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(usernameParamSchema, "params"),
   validateSchema(paginationQuerySchema, "query"),
   getUserStories
@@ -66,7 +66,7 @@ router.get(
 // Get user's polls
 router.get(
   "/:username/polls",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(usernameParamSchema, "params"),
   validateSchema(paginationQuerySchema, "query"),
   getUserPolls

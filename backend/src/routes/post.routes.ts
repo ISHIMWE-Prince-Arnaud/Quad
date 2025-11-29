@@ -14,7 +14,7 @@ import {
 } from "../schemas/post.schema.js";
 
 import { validateSchema } from "../utils/validation.util.js";
-import { requireAuth } from "@clerk/express";
+import { requireApiAuth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -25,12 +25,7 @@ const router = Router();
  * Protected: User must be signed in
  * -------------------------
  */
-router.post(
-  "/",
-  requireAuth(),
-  validateSchema(createPostSchema),
-  createPost
-);
+router.post("/", requireApiAuth, validateSchema(createPostSchema), createPost);
 
 /**
  * -------------------------
@@ -40,11 +35,7 @@ router.post(
  * Query params: limit (default: 20), skip (default: 0)
  * -------------------------
  */
-router.get(
-  "/",
-  requireAuth(),
-  getAllPosts
-);
+router.get("/", requireApiAuth, getAllPosts);
 
 /**
  * -------------------------
@@ -55,7 +46,7 @@ router.get(
  */
 router.get(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(postIdSchema, "params"),
   getPost
 );
@@ -69,7 +60,7 @@ router.get(
  */
 router.put(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(postIdSchema, "params"),
   validateSchema(updatePostSchema),
   updatePost
@@ -84,7 +75,7 @@ router.put(
  */
 router.delete(
   "/:id",
-  requireAuth(),
+  requireApiAuth,
   validateSchema(postIdSchema, "params"),
   deletePost
 );
