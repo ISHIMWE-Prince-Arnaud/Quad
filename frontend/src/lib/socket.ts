@@ -46,3 +46,54 @@ export type FeedContentDeletedPayload = {
   contentId: string;
   timestamp: string | number;
 };
+
+// Chat payloads
+
+export type ChatMediaAspectRatio = "1:1" | "16:9" | "9:16";
+
+export type ChatMedia = {
+  url: string;
+  type: "image" | "video";
+  aspectRatio?: ChatMediaAspectRatio;
+};
+
+export type ChatMessagePayload = {
+  id: string;
+  author: {
+    clerkId: string;
+    username: string;
+    email: string;
+    profileImage?: string;
+    bio?: string;
+  };
+  text?: string;
+  media?: ChatMedia;
+  mentions: string[];
+  reactionsCount: number;
+  isEdited: boolean;
+  editedAt?: string | null;
+  timestamp: string;
+  createdAt: string;
+  updatedAt: string;
+  userReaction?: string | null;
+};
+
+export type ChatReactionAddedPayload = {
+  messageId: string;
+  emoji: string;
+  reactionsCount: number;
+};
+
+export type ChatReactionRemovedPayload = {
+  messageId: string;
+  reactionsCount: number;
+};
+
+export type ChatTypingStartPayload = {
+  userId: string;
+  username: string;
+};
+
+export type ChatTypingStopPayload = {
+  userId: string;
+};
