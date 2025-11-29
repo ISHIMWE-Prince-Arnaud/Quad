@@ -5,7 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { PollService } from "@/services/pollService";
 import type { Poll } from "@/types/poll";
+import { CommentsSection } from "@/components/comments/CommentsSection";
+import { ReactionPicker } from "@/components/reactions/ReactionPicker";
+import { ReactionService, type ReactionType } from "@/services/reactionService";
 import toast from "react-hot-toast";
+
+const reactionEmojiMap: Record<ReactionType, string> = {
+  like: "👍",
+  love: "❤️",
+  laugh: "😂",
+  wow: "😮",
+  sad: "😢",
+  angry: "😡",
+};
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -29,6 +41,23 @@ export default function PollPage() {
   const [voting, setVoting] = useState(false);
 
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
+
+  const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
+  const [reactionCounts, setReactionCounts] = useState<
+    Record<ReactionType, number>
+  >({
+    like: 0,
+    love: 0,
+    laugh: 0,
+    wow: 0,
+    sad: 0,
+    angry: 0,
+  });
+  const totalReactions = useMemo(
+    () =>
+      (Object.values(reactionCounts) as number[]).reduce((a, b) => a + b, 0),
+    [reactionCounts]
+  );
 
   const canVote = useMemo(() => {
     if (!poll) return false;
@@ -60,6 +89,72 @@ export default function PollPage() {
       cancelled = true;
     };
   }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await ReactionService.getByContent("poll", id);
+        if (!cancelled && res.success && res.data) {
+          const next: Record<ReactionType, number> = {
+            like: 0,
+            love: 0,
+            laugh: 0,
+            wow: 0,
+            sad: 0,
+            angry: 0,
+          };
+          for (const rc of res.data.reactionCounts) {
+            next[rc.type] = rc.count;
+          }
+          setReactionCounts(next);
+          setUserReaction(
+            (res.data.userReaction?.type as ReactionType) || null
+          );
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  const handleSelectReaction = async (type: ReactionType) => {
+    if (!id) return;
+    const prevType = userReaction;
+    const prevCounts = { ...reactionCounts };
+
+    const nextCounts: Record<ReactionType, number> = { ...prevCounts };
+    if (prevType === type) {
+      nextCounts[type] = Math.max(0, (nextCounts[type] ?? 0) - 1);
+      setUserReaction(null);
+    } else {
+      if (prevType) {
+        nextCounts[prevType] = Math.max(0, (nextCounts[prevType] ?? 0) - 1);
+      }
+      nextCounts[type] = (nextCounts[type] ?? 0) + 1;
+      setUserReaction(type);
+    }
+    setReactionCounts(nextCounts);
+
+    try {
+      if (prevType === type) {
+        const res = await ReactionService.remove("poll", id);
+        if (!res.success) throw new Error(res.message || "Failed to remove");
+      } else {
+        const res = await ReactionService.toggle("poll", id, type);
+        if (!res.success) throw new Error(res.message || "Failed to react");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update reaction");
+      setReactionCounts(prevCounts);
+      setUserReaction(prevType);
+    }
+  };
 
   const toggleSelection = (index: number) => {
     if (!poll) return;
@@ -166,7 +261,7 @@ export default function PollPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-3xl space-y-6">
         <Card className="shadow-sm">
           <CardHeader className="space-y-2">
             <CardTitle className="text-lg font-semibold">
@@ -244,8 +339,44 @@ export default function PollPage() {
                 )}
               </Button>
             </div>
+
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <ReactionPicker
+                  onSelect={(type) => void handleSelectReaction(type)}
+                  trigger={
+                    <Button
+                      variant={userReaction ? "secondary" : "outline"}
+                      size="sm">
+                      {userReaction
+                        ? `Reacted ${reactionEmojiMap[userReaction]}`
+                        : "React"}
+                    </Button>
+                  }
+                />
+                <div className="text-sm text-muted-foreground">
+                  {totalReactions} reactions
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
+                {(Object.keys(reactionCounts) as ReactionType[]).map((type) => {
+                  const count = reactionCounts[type] ?? 0;
+                  if (!count) return null;
+                  return (
+                    <span
+                      key={type}
+                      className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
+                      <span>{reactionEmojiMap[type]}</span>
+                      <span>{count}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
           </CardContent>
         </Card>
+
+        <CommentsSection contentType="poll" contentId={poll.id} />
       </div>
     </div>
   );

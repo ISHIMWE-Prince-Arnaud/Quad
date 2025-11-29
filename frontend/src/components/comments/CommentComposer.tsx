@@ -7,12 +7,18 @@ import toast from "react-hot-toast";
 interface CommentComposerProps {
   contentType: "post" | "story" | "poll";
   contentId: string;
+  parentId?: string;
+  placeholder?: string;
+  autoFocus?: boolean;
   onCreated?: () => void;
 }
 
 export function CommentComposer({
   contentType,
   contentId,
+  parentId,
+  placeholder,
+  autoFocus,
   onCreated,
 }: CommentComposerProps) {
   const [text, setText] = useState("");
@@ -28,6 +34,7 @@ export function CommentComposer({
         contentType,
         contentId,
         text: value,
+        parentId,
       });
       if (!res.success)
         throw new Error(res.message || "Failed to post comment");
@@ -46,9 +53,10 @@ export function CommentComposer({
       <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Write a comment..."
+        placeholder={placeholder || "Write a comment..."}
         className="min-h-[80px]"
         maxLength={2000}
+        autoFocus={autoFocus}
       />
       <div className="flex justify-end">
         <Button

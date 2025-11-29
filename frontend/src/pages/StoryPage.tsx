@@ -7,6 +7,7 @@ import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
 import { ReactionPicker } from "@/components/reactions/ReactionPicker";
 import { ReactionService, type ReactionType } from "@/services/reactionService";
+import { CommentsSection } from "@/components/comments/CommentsSection";
 import toast from "react-hot-toast";
 
 const reactionEmojiMap: Record<ReactionType, string> = {
@@ -180,8 +181,8 @@ export default function StoryPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-4 flex items-center justify-between">
+      <div className="mx-auto max-w-3xl space-y-6">
+        <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">{story.title}</h1>
           <Button
             variant="ghost"
@@ -248,6 +249,8 @@ export default function StoryPage() {
             </div>
           </CardContent>
         </Card>
+
+        <CommentsSection contentType="story" contentId={story._id} />
       </div>
     </div>
   );
