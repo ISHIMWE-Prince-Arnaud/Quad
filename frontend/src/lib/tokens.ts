@@ -1,15 +1,32 @@
 import { useAuth } from "@clerk/clerk-react";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { verifyToken, ensureFreshToken, logAuthEvent } from "./authAudit";
 
-// Hook for token management
+// Hook for token management with enhanced security
 export function useTokenManager() {
   const { getToken } = useAuth();
+  const refreshIntervalRef = useRef<number>();
 
   const getAuthToken = useCallback(async (): Promise<string | null> => {
     try {
-      return await getToken();
+      const token = await ensureFreshToken(getToken);
+
+      if (token) {
+        logAuthEvent("Token retrieved successfully");
+        // Store in localStorage for API interceptor
+        localStorage.setItem("clerk-db-jwt", token);
+      } else {
+        logAuthEvent("Token retrieval failed");
+        localStorage.removeItem("clerk-db-jwt");
+      }
+
+      return token;
     } catch (error) {
       console.error("Error getting token:", error);
+      logAuthEvent("Token retrieval error", {
+        error: (error as Error).message,
+      });
+      localStorage.removeItem("clerk-db-jwt");
       return null;
     }
   }, [getToken]);
@@ -17,14 +34,60 @@ export function useTokenManager() {
   const getTokenWithClaims = useCallback(
     async (template?: string): Promise<string | null> => {
       try {
-        return await getToken({ template });
+        const token = await getToken({ template });
+
+        if (token) {
+          logAuthEvent("Token with claims retrieved", { template });
+        }
+
+        return token;
       } catch (error) {
         console.error("Error getting token with claims:", error);
+        logAuthEvent("Token with claims error", {
+          template,
+          error: (error as Error).message,
+        });
         return null;
       }
     },
     [getToken]
   );
+
+  // Verify stored token on mount
+  useEffect(() => {
+    const verifyStoredToken = async () => {
+      const storedToken = localStorage.getItem("clerk-db-jwt");
+
+      if (storedToken) {
+        const isValid = await verifyToken(storedToken);
+
+        if (!isValid) {
+          logAuthEvent("Stored token invalid, clearing");
+          localStorage.removeItem("clerk-db-jwt");
+          // Try to get a fresh token
+          await getAuthToken();
+        } else {
+          logAuthEvent("Stored token valid");
+        }
+      }
+    };
+
+    verifyStoredToken();
+
+    // Set up periodic token refresh (every 4 minutes)
+    refreshIntervalRef.current = window.setInterval(async () => {
+      const storedToken = localStorage.getItem("clerk-db-jwt");
+      if (storedToken) {
+        await getAuthToken();
+      }
+    }, 4 * 60 * 1000);
+
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [getAuthToken]);
 
   return {
     getAuthToken,

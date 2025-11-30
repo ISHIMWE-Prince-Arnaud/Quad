@@ -3,11 +3,12 @@ import { useUser } from "@clerk/clerk-react";
 import { useAuthStore } from "@/stores/authStore";
 import { useTokenManager } from "@/lib/tokens";
 import { ProfileService } from "@/services/profileService";
+import { logAuthEvent, clearAuthData } from "@/lib/authAudit";
 
 // Custom hook to sync Clerk user with our auth store
 export function useAuthSync() {
   const { user: clerkUser, isLoaded } = useUser();
-  const { syncWithClerk, setLoading } = useAuthStore();
+  const { syncWithClerk, setLoading, logout } = useAuthStore();
   const { getAuthToken } = useTokenManager();
 
   useEffect(() => {
@@ -17,65 +18,66 @@ export function useAuthSync() {
     }
 
     let isMounted = true;
-    let refreshIntervalId: number | undefined;
 
     const syncTokenAndProfile = async () => {
       try {
+        // If user is signed out, clear all auth data
+        if (!clerkUser) {
+          logAuthEvent("User signed out, clearing auth data");
+          clearAuthData();
+          logout();
+          setLoading(false);
+          return;
+        }
+
+        // Get fresh token
         const token = await getAuthToken();
-        if (token) {
-          localStorage.setItem("clerk-db-jwt", token);
+
+        if (!token) {
+          logAuthEvent("Failed to get token for signed-in user");
+          // Don't clear auth data yet, might be temporary issue
         } else {
-          localStorage.removeItem("clerk-db-jwt");
+          logAuthEvent("Token synced successfully", { userId: clerkUser.id });
         }
-      } catch {
-        localStorage.removeItem("clerk-db-jwt");
-      }
 
-      // Eagerly sync current user profile in backend via Clerk ID
-      try {
-        if (clerkUser?.id) {
-          await ProfileService.getProfileById(clerkUser.id);
+        // Eagerly sync current user profile in backend via Clerk ID
+        try {
+          if (clerkUser?.id) {
+            await ProfileService.getProfileById(clerkUser.id);
+            logAuthEvent("Profile synced successfully", {
+              userId: clerkUser.id,
+            });
+          }
+        } catch (syncError) {
+          console.error("Failed to sync profile on login", syncError);
+          logAuthEvent("Profile sync failed", {
+            userId: clerkUser.id,
+            error: (syncError as Error).message,
+          });
         }
-      } catch (syncError) {
-        console.error("Failed to sync profile on login", syncError);
-      }
 
-      if (!isMounted) {
-        return;
-      }
-
-      syncWithClerk(clerkUser);
-      setLoading(false);
-    };
-
-    syncTokenAndProfile();
-
-    if (clerkUser) {
-      refreshIntervalId = window.setInterval(async () => {
         if (!isMounted) {
           return;
         }
 
-        try {
-          const token = await getAuthToken();
-          if (token) {
-            localStorage.setItem("clerk-db-jwt", token);
-          } else {
-            localStorage.removeItem("clerk-db-jwt");
-          }
-        } catch {
-          localStorage.removeItem("clerk-db-jwt");
+        syncWithClerk(clerkUser);
+        setLoading(false);
+      } catch (error) {
+        console.error("Auth sync error:", error);
+        logAuthEvent("Auth sync error", { error: (error as Error).message });
+
+        if (isMounted) {
+          setLoading(false);
         }
-      }, 30000);
-    }
+      }
+    };
+
+    syncTokenAndProfile();
 
     return () => {
       isMounted = false;
-      if (refreshIntervalId !== undefined) {
-        window.clearInterval(refreshIntervalId);
-      }
     };
-  }, [clerkUser, getAuthToken, isLoaded, setLoading, syncWithClerk]);
+  }, [clerkUser, getAuthToken, isLoaded, setLoading, syncWithClerk, logout]);
 
   return { isLoaded };
 }

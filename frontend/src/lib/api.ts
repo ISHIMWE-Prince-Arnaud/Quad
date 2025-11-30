@@ -34,7 +34,7 @@ export const api = axios.create({
 // Note: Clerk tokens will be added per-request using useAuthenticatedRequest hook
 // This is because Clerk tokens are dynamic and managed by the Clerk SDK
 
-// Request interceptor to add auth token, handle rate limiting, and implement caching
+// Request interceptor to add auth token, CSRF token, handle rate limiting, and implement caching
 api.interceptors.request.use(
   async (config) => {
     // Check if we're in a rate limit cooldown
@@ -53,6 +53,16 @@ api.interceptors.request.use(
     const token = localStorage.getItem("clerk-db-jwt");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // Add CSRF token for state-changing requests
+    const method = config.method?.toUpperCase() || "GET";
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      const { getCSRFToken } = await import("./csrfProtection");
+      const csrfToken = getCSRFToken();
+      if (csrfToken) {
+        config.headers["X-CSRF-Token"] = csrfToken;
+      }
     }
 
     // Add retry metadata
@@ -186,16 +196,22 @@ api.interceptors.response.use(
     // Handle 429 Rate Limiting
     if (axiosError.response?.status === 429) {
       const retryAfterHeader = axiosError.response.headers["retry-after"];
-      const retryAfter = retryAfterHeader
-        ? parseInt(retryAfterHeader, 10) * 1000
-        : 60000; // Default to 60 seconds
+      const retryAfterSeconds = retryAfterHeader
+        ? parseInt(retryAfterHeader, 10)
+        : 60; // Default to 60 seconds
+      const retryAfter = retryAfterSeconds * 1000;
 
       rateLimitState.retryAfter = Date.now() + retryAfter;
+
+      // Record rate limit for this endpoint
+      const endpoint = originalRequest?.url || "unknown";
+      const { rateLimitManager } = await import("./rateLimitHandler");
+      rateLimitManager.recordRateLimit(endpoint, retryAfterSeconds);
 
       logError(axiosError, {
         component: "API",
         action: "rate-limit-error",
-        metadata: { retryAfter },
+        metadata: { retryAfter, endpoint },
       });
 
       return Promise.reject(axiosError);
