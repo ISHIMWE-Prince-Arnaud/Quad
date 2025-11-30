@@ -186,7 +186,10 @@ export const formatValidationErrors = (
 ): Record<string, string> => {
   const errors: Record<string, string> = {};
 
-  error.errors.forEach((err) => {
+  // Zod v4 uses 'issues' instead of 'errors'
+  const issues = error.issues || (error as any).errors || [];
+
+  issues.forEach((err: any) => {
     const path = err.path.join(".");
     errors[path] = err.message;
   });
