@@ -13,15 +13,22 @@ This directory contains comprehensive documentation for the Quad social media pl
 - **[Deployment](./deployment/README.md)** - Production deployment guide
 - **[Development](./development/README.md)** - Local development setup
 
+### Frontend Documentation
+
+- **[Frontend Technical Documentation](../../docs/FRONTEND_TECHNICAL.md)** - Frontend architecture, components, services, and state management.
+- **[Frontend User Guide](../../docs/FRONTEND_USER_GUIDE.md)** - End-user onboarding, feature usage, FAQs, and accessibility.
+
 ## 🚀 Quick Start
 
 1. **Environment Setup**
+
    ```bash
    cp .env.example .env
    # Fill in your environment variables
    ```
 
 2. **Install Dependencies**
+
    ```bash
    npm install
    ```
