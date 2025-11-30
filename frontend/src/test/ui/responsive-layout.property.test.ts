@@ -177,4 +177,131 @@ describe("Responsive Layout Adaptation Property Tests", () => {
               expect(result).toBe(values.xl);
             } else if (values.lg !== null && values.lg !== undefined) {
               expect(result).toBe(values.lg);
-            } else if (values.md !== null && values.md !
+            } else if (values.md !== null && values.md !== undefined) {
+              expect(result).toBe(values.md);
+            } else if (values.sm !== null && values.sm !== undefined) {
+              expect(result).toBe(values.sm);
+            } else {
+              expect(result).toBe(values.xs);
+            }
+          } else if (breakpoint === "xl") {
+            if (values.xl !== null && values.xl !== undefined) {
+              expect(result).toBe(values.xl);
+            } else if (values.lg !== null && values.lg !== undefined) {
+              expect(result).toBe(values.lg);
+            } else if (values.md !== null && values.md !== undefined) {
+              expect(result).toBe(values.md);
+            } else if (values.sm !== null && values.sm !== undefined) {
+              expect(result).toBe(values.sm);
+            } else {
+              expect(result).toBe(values.xs);
+            }
+          } else if (breakpoint === "lg") {
+            if (values.lg !== null && values.lg !== undefined) {
+              expect(result).toBe(values.lg);
+            } else if (values.md !== null && values.md !== undefined) {
+              expect(result).toBe(values.md);
+            } else if (values.sm !== null && values.sm !== undefined) {
+              expect(result).toBe(values.sm);
+            } else {
+              expect(result).toBe(values.xs);
+            }
+          } else if (breakpoint === "md") {
+            if (values.md !== null && values.md !== undefined) {
+              expect(result).toBe(values.md);
+            } else if (values.sm !== null && values.sm !== undefined) {
+              expect(result).toBe(values.sm);
+            } else {
+              expect(result).toBe(values.xs);
+            }
+          } else if (breakpoint === "sm") {
+            if (values.sm !== null && values.sm !== undefined) {
+              expect(result).toBe(values.sm);
+            } else {
+              expect(result).toBe(values.xs);
+            }
+          } else {
+            // xs
+            expect(result).toBe(values.xs);
+          }
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
+
+  it("Property 14.7: Layout components adapt to viewport width", () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 320, max: 2560 }), (width) => {
+        mockWindowWidth(width);
+
+        // Property: Mobile nav should be used below 1024px, desktop sidebar above 1024px, right panel above 1280px
+        const shouldShowMobileNav = width < BREAKPOINTS.lg;
+        const shouldShowDesktopSidebar = width >= BREAKPOINTS.lg;
+        const shouldShowRightPanel = width >= BREAKPOINTS.xl;
+
+        expect(isMobile()).toBe(shouldShowMobileNav);
+        expect(isDesktop()).toBe(shouldShowDesktopSidebar);
+        expect(isBreakpoint("xl")).toBe(shouldShowRightPanel);
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  it("Property 14.8: Responsive columns adapt to item count and viewport", () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 10 }), (itemCount) => {
+        const columns = getResponsiveColumns(itemCount);
+
+        // Property: Column classes should be valid Tailwind classes
+        expect(columns).toMatch(/grid-cols-\d+/);
+
+        // Property: Should include responsive variants for multiple items
+        if (itemCount > 1) {
+          expect(columns).toMatch(/(sm|md|lg):/);
+        }
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  it("Property 14.9: Responsive padding scales appropriately", () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom("sm" as const, "md" as const, "lg" as const),
+        (size) => {
+          const padding = getResponsivePadding(size);
+
+          // Property: Padding should include base and responsive classes
+          expect(padding).toMatch(/px-\d+/);
+          expect(padding).toMatch(/py-\d+/);
+          expect(padding).toMatch(/(sm|md|lg):/);
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
+
+  it("Property 14.10: Responsive text size scales appropriately", () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom(
+          "xs" as const,
+          "sm" as const,
+          "base" as const,
+          "lg" as const,
+          "xl" as const,
+          "2xl" as const
+        ),
+        (size) => {
+          const textSize = getResponsiveTextSize(size);
+
+          // Property: Text size should include base and responsive classes
+          expect(textSize).toMatch(/text-(xs|sm|base|lg|xl|2xl|3xl|4xl)/);
+          expect(textSize).toMatch(/(sm|md):/);
+        }
+      ),
+      { numRuns: 100 }
+    );
+  });
+});
