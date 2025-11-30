@@ -5,7 +5,9 @@ import * as path from "path";
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
   PORT: z
     .string()
     .optional()
@@ -18,7 +20,11 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().min(1, "Missing CLOUDINARY_CLOUD_NAME"),
   CLOUDINARY_API_KEY: z.string().min(1, "Missing CLOUDINARY_API_KEY"),
   CLOUDINARY_API_SECRET: z.string().min(1, "Missing CLOUDINARY_API_SECRET"),
-  SKIP_INDEX_CREATION: z.string().optional().default('false'),
+  SKIP_INDEX_CREATION: z.string().optional().default("false"),
+  // Production-specific variables
+  FRONTEND_URL: z.string().optional(),
+  SENTRY_DSN: z.string().optional(),
+  SENTRY_ENVIRONMENT: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

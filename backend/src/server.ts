@@ -3,22 +3,28 @@ import cors from "cors";
 import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { env } from "./config/env.config.js";
+import {
+  corsOptions,
+  getSocketCorsOptions,
+  logCorsConfig,
+} from "./config/cors.config.js";
 import { connectDB } from "./config/db.config.js";
 import { setSocketIO } from "./config/socket.config.js";
 import { ensureIndexes } from "./utils/indexes.util.js";
 import { startPollExpiryJob } from "./jobs/poll.cron.js";
 import { logger } from "./utils/logger.util.js";
-import { 
-  generalRateLimiter, 
-  searchRateLimiter, 
-  uploadRateLimiter, 
-  writeRateLimiter 
+import {
+  generalRateLimiter,
+  searchRateLimiter,
+  uploadRateLimiter,
+  writeRateLimiter,
 } from "./middlewares/rateLimiter.middleware.js";
 import { setupChatSocket } from "./sockets/chat.socket.js";
 import { setupNotificationSocket } from "./sockets/notification.socket.js";
 import { setupFeedSocket } from "./sockets/feed.socket.js";
 import userRoutes from "./routes/user.routes.js";
-import webhookRoutes from "./routes/webhook.routes.js"; 
+import webhookRoutes from "./routes/webhook.routes.js";
+import healthRoutes from "./routes/health.routes.js";
 import { clerkMiddleware } from "@clerk/express";
 import postRoutes from "./routes/post.routes.js";
 import storyRoutes from "./routes/story.routes.js";
@@ -35,9 +41,14 @@ import searchRoutes from "./routes/search.routes.js";
 
 // --- Initialize Express ---
 const app = express();
-app.use(cors());
 
-// 
+// Configure CORS (imported from cors.config.ts)
+app.use(cors(corsOptions));
+
+// Health check routes (no auth required, before body parsing)
+app.use("/health", healthRoutes);
+
+//
 // because Clerk webhooks need raw body for signature verification
 app.use("/api/webhooks", webhookRoutes);
 
@@ -71,10 +82,14 @@ app.get("/", (_, res) => {
 
 // --- Initialize HTTP server and Socket.IO ---
 const server = createServer(app);
+
+// Configure Socket.IO with proper CORS (imported from cors.config.ts)
 const io = new SocketIOServer(server, {
-  // TODO: In production, replace "*" with specific frontend URL(s)
-  // e.g., cors: { origin: process.env.FRONTEND_URL || "http://localhost:3000" }
-  cors: { origin: "*" },
+  cors: getSocketCorsOptions(),
+  // Additional Socket.IO options for production
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  transports: ["websocket", "polling"],
 });
 
 // Set the Socket.IO instance globally
@@ -103,6 +118,7 @@ const startServer = async () => {
     await connectDB(); // Connect to MongoDB first
     await ensureIndexes(); // Create database indexes
     startPollExpiryJob(); // Start poll expiry cron job
+    logCorsConfig(); // Log CORS configuration
     server.listen(env.PORT, () => {
       logger.server(`Server running on port ${env.PORT}`);
     });
@@ -112,7 +128,7 @@ const startServer = async () => {
   }
 };
 
-startServer().catch(error => {
+startServer().catch((error) => {
   logger.error("Unhandled error during startup", error);
   process.exit(1);
 });

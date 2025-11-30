@@ -8,7 +8,10 @@
     "dev:simple": "concurrently \"npm run dev\" \"ngrok http 4000\"",
     "tunnel": "ngrok http 4000",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "build:production": "NODE_ENV=production tsc",
+    "start": "node dist/server.js",
+    "start:production": "NODE_ENV=production node dist/server.js",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@clerk/express": "^1.7.46",
