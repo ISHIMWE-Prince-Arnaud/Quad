@@ -19,19 +19,28 @@ export const mediaSchema = z.object({
 export const createPostSchema = z
   .object({
     text: z
-      .string()
-      .max(1000, "Post text cannot exceed 1000 characters")
-      .optional()
-      .or(z.literal("")),
+      .union([
+        z.string().max(1000, "Post text cannot exceed 1000 characters"),
+        z.literal(""),
+      ])
+      .optional(),
     media: z
       .array(mediaSchema)
       .max(10, "Cannot upload more than 10 media items")
       .optional(),
   })
-  .refine((data) => data.text || (data.media && data.media.length > 0), {
-    message: "Post must have text or media",
-    path: ["text"],
-  });
+  .refine(
+    (data) => {
+      // Check that at least one content type is present with meaningful content
+      const hasText = data.text && data.text.trim().length > 0;
+      const hasMedia = data.media && data.media.length > 0;
+      return hasText || hasMedia;
+    },
+    {
+      message: "Post must have text or media",
+      path: ["text"],
+    }
+  );
 
 export type CreatePostData = z.infer<typeof createPostSchema>;
 export type MediaData = z.infer<typeof mediaSchema>;
