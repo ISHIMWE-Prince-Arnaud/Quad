@@ -23,6 +23,7 @@ import CreatePollPage from "@/pages/CreatePollPage";
 import ChatPage from "@/pages/ChatPage";
 import SearchPage from "@/pages/app/SearchPage";
 import CreatePage from "@/pages/app/CreatePage";
+import AnalyticsPage from "@/pages/app/AnalyticsPage";
 import NotificationsPage from "@/pages/NotificationsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
@@ -127,6 +128,10 @@ export const router = createBrowserRouter([
           {
             path: "search",
             element: <SearchPage />,
+          },
+          {
+            path: "analytics",
+            element: <AnalyticsPage />,
           },
           {
             path: "notifications",

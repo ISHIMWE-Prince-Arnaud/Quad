@@ -30,7 +30,7 @@ export function Sidebar() {
       { name: "Messages", href: "/app/chat", icon: MessageCircle },
       { name: "Stories", href: "/app/stories", icon: Calendar },
       { name: "Polls", href: "/app/polls", icon: BarChart3 },
-      { name: "Trending", href: "/app/trending", icon: TrendingUp },
+      { name: "Analytics", href: "/app/analytics", icon: TrendingUp },
       { name: "Settings", href: "/app/settings", icon: Settings },
     ];
 
