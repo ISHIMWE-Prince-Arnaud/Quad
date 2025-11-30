@@ -1,17 +1,21 @@
-import * as React from "react"
-import { 
-  Controller, 
+import * as React from "react";
+import {
+  Controller,
   FormProvider,
   type FieldPath,
   type FieldValues,
-  type ControllerProps
-} from "react-hook-form"
-import { cn } from "@/lib/utils"
-import { Label } from "./label"
-import { useFormField, FormFieldContext, FormItemContext } from "@/hooks/useFormField"
+  type ControllerProps,
+} from "react-hook-form";
+import { cn } from "@/lib/utils";
+import { Label } from "./label";
+import {
+  useFormField,
+  FormFieldContext,
+  FormItemContext,
+} from "@/hooks/useFormField";
 
 // Form Context
-const Form = FormProvider
+const Form = FormProvider;
 
 // Form Field Component
 const FormField = <
@@ -24,30 +28,30 @@ const FormField = <
     <FormFieldContext.Provider value={{ name: props.name }}>
       <Controller {...props} />
     </FormFieldContext.Provider>
-  )
-}
+  );
+};
 
 // Form Item Component
 const FormItem = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  const id = React.useId()
+  const id = React.useId();
 
   return (
     <FormItemContext.Provider value={{ id }}>
       <div ref={ref} className={cn("space-y-2", className)} {...props} />
     </FormItemContext.Provider>
-  )
-})
-FormItem.displayName = "FormItem"
+  );
+});
+FormItem.displayName = "FormItem";
 
 // Form Label Component
 const FormLabel = React.forwardRef<
   HTMLLabelElement,
   React.LabelHTMLAttributes<HTMLLabelElement>
 >(({ className, ...props }, ref) => {
-  const { error, formItemId } = useFormField()
+  const { error, formItemId } = useFormField();
 
   return (
     <Label
@@ -56,16 +60,17 @@ const FormLabel = React.forwardRef<
       htmlFor={formItemId}
       {...props}
     />
-  )
-})
-FormLabel.displayName = "FormLabel"
+  );
+});
+FormLabel.displayName = "FormLabel";
 
 // Form Control Component
 const FormControl = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ ...props }, ref) => {
-  const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+  const { error, formItemId, formDescriptionId, formMessageId } =
+    useFormField();
 
   return (
     <div
@@ -79,16 +84,16 @@ const FormControl = React.forwardRef<
       aria-invalid={!!error}
       {...props}
     />
-  )
-})
-FormControl.displayName = "FormControl"
+  );
+});
+FormControl.displayName = "FormControl";
 
 // Form Description Component
 const FormDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => {
-  const { formDescriptionId } = useFormField()
+  const { formDescriptionId } = useFormField();
 
   return (
     <p
@@ -97,34 +102,63 @@ const FormDescription = React.forwardRef<
       className={cn("text-sm text-muted-foreground", className)}
       {...props}
     />
-  )
-})
-FormDescription.displayName = "FormDescription"
+  );
+});
+FormDescription.displayName = "FormDescription";
 
 // Form Message Component
 const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
-  const { error, formMessageId } = useFormField()
-  const body = error ? String(error?.message) : children
+  const { error, formMessageId } = useFormField();
+  const body = error ? String(error?.message) : children;
 
   if (!body) {
-    return null
+    return null;
   }
 
   return (
     <p
       ref={ref}
       id={formMessageId}
-      className={cn("text-sm font-medium text-destructive", className)}
-      {...props}
-    >
+      className={cn(
+        "text-sm font-medium text-destructive animate-slide-in-from-top",
+        className
+      )}
+      role="alert"
+      aria-live="polite"
+      {...props}>
       {body}
     </p>
-  )
-})
-FormMessage.displayName = "FormMessage"
+  );
+});
+FormMessage.displayName = "FormMessage";
+
+// Form Success Component
+const FormSuccess = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, children, ...props }, ref) => {
+  if (!children) {
+    return null;
+  }
+
+  return (
+    <p
+      ref={ref}
+      className={cn(
+        "text-sm font-medium text-green-600 dark:text-green-400 animate-slide-in-from-top",
+        className
+      )}
+      role="status"
+      aria-live="polite"
+      {...props}>
+      {children}
+    </p>
+  );
+});
+FormSuccess.displayName = "FormSuccess";
 
 export {
   Form,
@@ -133,5 +167,6 @@ export {
   FormControl,
   FormDescription,
   FormMessage,
+  FormSuccess,
   FormField,
-}
+};

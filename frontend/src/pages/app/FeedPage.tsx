@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/posts/PostCard";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
 import { FeedSkeleton } from "@/components/ui/loading";
+import { PageTransition } from "@/components/ui/page-transition";
 import { FeedService } from "@/services/feedService";
 import { PostService } from "@/services/postService";
 import { useAuthStore } from "@/stores/authStore";
@@ -315,165 +316,167 @@ export default function FeedPage() {
 
   return (
     <ComponentErrorBoundary>
-      <div className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
-        {/* Feed type tabs */}
-        <div className="flex items-center justify-between">
-          <div className="inline-flex rounded-full border p-1 bg-muted/40">
-            <Button
-              type="button"
-              size="sm"
-              variant={feedType === "foryou" ? "default" : "ghost"}
-              className="rounded-full px-4"
-              onClick={() => setFeedType("foryou")}>
-              For You
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={feedType === "following" ? "default" : "ghost"}
-              className="rounded-full px-4"
-              onClick={() => setFeedType("following")}>
-              Following
-            </Button>
-          </div>
-
-          {/* Content tabs */}
-          <div className="flex gap-1 text-sm">
-            {(
-              [
-                ["home", "Home"],
-                ["posts", "Posts"],
-                ["stories", "Stories"],
-                ["polls", "Polls"],
-              ] as [FeedTab, string][]
-            ).map(([value, label]) => (
+      <PageTransition>
+        <div className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
+          {/* Feed type tabs */}
+          <div className="flex items-center justify-between">
+            <div className="inline-flex rounded-full border p-1 bg-muted/40">
               <Button
-                key={value}
                 type="button"
                 size="sm"
-                variant={tab === value ? "secondary" : "ghost"}
-                className="px-3"
-                onClick={() => setTab(value)}>
-                {label}
+                variant={feedType === "foryou" ? "default" : "ghost"}
+                className="rounded-full px-4"
+                onClick={() => setFeedType("foryou")}>
+                For You
               </Button>
-            ))}
-          </div>
-        </div>
-        {/* Create Post Card */}
-        <Card className="shadow-sm">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={user?.profileImage} />
-                <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                  {user?.firstName?.charAt(0) ||
-                    user?.username?.charAt(0) ||
-                    "U"}
-                </AvatarFallback>
-              </Avatar>
               <Button
-                variant="outline"
-                className="flex-1 justify-start text-muted-foreground"
-                asChild>
-                <Link to="/app/create">What's on your mind?</Link>
-              </Button>
-              <Button size="icon" className="shrink-0" asChild>
-                <Link to="/app/create">
-                  <Plus className="h-5 w-5" />
-                </Link>
+                type="button"
+                size="sm"
+                variant={feedType === "following" ? "default" : "ghost"}
+                className="rounded-full px-4"
+                onClick={() => setFeedType("following")}>
+                Following
               </Button>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* New content banner */}
-        {newCount > 0 && !loading && (
-          <Card
-            className="shadow-sm border-primary/20 bg-primary/5 cursor-pointer"
-            onClick={handleRefreshFeed}>
-            <CardContent className="py-3 px-4 flex items-center justify-between">
-              <span className="text-sm font-medium">
-                {newCount} new {newCount === 1 ? "update" : "updates"} in your
-                feed
-              </span>
-              <Button size="sm" variant="outline">
-                Refresh
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Loading state */}
-        {loading && items.length === 0 && <FeedSkeleton />}
-
-        {/* Error state */}
-        {error && !loading && (
+            {/* Content tabs */}
+            <div className="flex gap-1 text-sm">
+              {(
+                [
+                  ["home", "Home"],
+                  ["posts", "Posts"],
+                  ["stories", "Stories"],
+                  ["polls", "Polls"],
+                ] as [FeedTab, string][]
+              ).map(([value, label]) => (
+                <Button
+                  key={value}
+                  type="button"
+                  size="sm"
+                  variant={tab === value ? "secondary" : "ghost"}
+                  className="px-3"
+                  onClick={() => setTab(value)}>
+                  {label}
+                </Button>
+              ))}
+            </div>
+          </div>
+          {/* Create Post Card */}
           <Card className="shadow-sm">
-            <CardContent className="pt-6 text-center">
-              <p className="text-muted-foreground mb-4">{error}</p>
-              <Button onClick={() => window.location.reload()}>
-                Try Again
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Empty state */}
-        {!loading && !error && items.length === 0 && (
-          <Card className="shadow-sm">
-            <CardContent className="pt-6 text-center py-12">
-              <h3 className="text-lg font-semibold mb-2">No posts yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Be the first to share something!
-              </p>
-              <Button asChild>
-                <Link to="/app/create">Create Post</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Feed list */}
-        {!loading && !error && items.length > 0 && (
-          <>
-            {items.map((item) => {
-              if (item.type === "post") {
-                const post = item.content as Post;
-                return (
-                  <PostCard
-                    key={post._id}
-                    post={post}
-                    onDelete={handleDelete}
-                  />
-                );
-              }
-
-              // Placeholder for polls and stories until dedicated cards are implemented
-              return (
-                <Card key={String(item._id)} className="shadow-sm">
-                  <CardContent className="py-6 text-center text-sm text-muted-foreground">
-                    {item.type === "poll"
-                      ? "Poll item will be shown here in a future phase."
-                      : "Story item will be shown here in a future phase."}
-                  </CardContent>
-                </Card>
-              );
-            })}
-
-            {hasMore && (
-              <div className="flex justify-center pt-2">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={user?.profileImage} />
+                  <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                    {user?.firstName?.charAt(0) ||
+                      user?.username?.charAt(0) ||
+                      "U"}
+                  </AvatarFallback>
+                </Avatar>
                 <Button
                   variant="outline"
-                  size="sm"
-                  onClick={handleLoadMore}
-                  disabled={loadingMore}>
-                  {loadingMore ? "Loading..." : "Load more"}
+                  className="flex-1 justify-start text-muted-foreground"
+                  asChild>
+                  <Link to="/app/create">What's on your mind?</Link>
+                </Button>
+                <Button size="icon" className="shrink-0" asChild>
+                  <Link to="/app/create">
+                    <Plus className="h-5 w-5" />
+                  </Link>
                 </Button>
               </div>
-            )}
-          </>
-        )}
-      </div>
+            </CardContent>
+          </Card>
+
+          {/* New content banner */}
+          {newCount > 0 && !loading && (
+            <Card
+              className="shadow-sm border-primary/20 bg-primary/5 cursor-pointer"
+              onClick={handleRefreshFeed}>
+              <CardContent className="py-3 px-4 flex items-center justify-between">
+                <span className="text-sm font-medium">
+                  {newCount} new {newCount === 1 ? "update" : "updates"} in your
+                  feed
+                </span>
+                <Button size="sm" variant="outline">
+                  Refresh
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Loading state */}
+          {loading && items.length === 0 && <FeedSkeleton />}
+
+          {/* Error state */}
+          {error && !loading && (
+            <Card className="shadow-sm">
+              <CardContent className="pt-6 text-center">
+                <p className="text-muted-foreground mb-4">{error}</p>
+                <Button onClick={() => window.location.reload()}>
+                  Try Again
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Empty state */}
+          {!loading && !error && items.length === 0 && (
+            <Card className="shadow-sm">
+              <CardContent className="pt-6 text-center py-12">
+                <h3 className="text-lg font-semibold mb-2">No posts yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Be the first to share something!
+                </p>
+                <Button asChild>
+                  <Link to="/app/create">Create Post</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Feed list */}
+          {!loading && !error && items.length > 0 && (
+            <>
+              {items.map((item) => {
+                if (item.type === "post") {
+                  const post = item.content as Post;
+                  return (
+                    <PostCard
+                      key={post._id}
+                      post={post}
+                      onDelete={handleDelete}
+                    />
+                  );
+                }
+
+                // Placeholder for polls and stories until dedicated cards are implemented
+                return (
+                  <Card key={String(item._id)} className="shadow-sm">
+                    <CardContent className="py-6 text-center text-sm text-muted-foreground">
+                      {item.type === "poll"
+                        ? "Poll item will be shown here in a future phase."
+                        : "Story item will be shown here in a future phase."}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+
+              {hasMore && (
+                <div className="flex justify-center pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}>
+                    {loadingMore ? "Loading..." : "Load more"}
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </PageTransition>
     </ComponentErrorBoundary>
   );
 }

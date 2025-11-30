@@ -27,10 +27,20 @@ export function ReactionPicker({ onSelect, trigger }: ReactionPickerProps) {
       <DropdownMenuTrigger asChild>
         <div>{trigger}</div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        {REACTIONS.map((r) => (
-          <DropdownMenuItem key={r.type} onClick={() => onSelect(r.type)}>
-            <span className="mr-2">{r.emoji}</span>
+      <DropdownMenuContent align="start" className="animate-scale-in">
+        {REACTIONS.map((r, index) => (
+          <DropdownMenuItem
+            key={r.type}
+            onClick={() => onSelect(r.type)}
+            className="cursor-pointer transition-all duration-200 hover:scale-105"
+            style={{
+              animationDelay: `${index * 30}ms`,
+              animation: "slide-in-from-left 0.2s ease-out forwards",
+              opacity: 0,
+            }}>
+            <span className="mr-2 text-lg transition-transform duration-200 hover:scale-125">
+              {r.emoji}
+            </span>
             <span>{r.label}</span>
           </DropdownMenuItem>
         ))}

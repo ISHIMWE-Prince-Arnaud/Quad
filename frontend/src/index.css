@@ -66,6 +66,97 @@
   body {
     @apply bg-background text-foreground min-h-screen font-sans antialiased;
   }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Focus visible styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  /* Page transition utilities */
+  .page-transition {
+    @apply animate-fade-in;
+  }
+  
+  /* Hover lift effect */
+  .hover-lift {
+    @apply transition-transform duration-200 ease-out hover:scale-[1.02] hover:shadow-lg;
+  }
+  
+  /* Smooth transitions */
+  .transition-smooth {
+    @apply transition-all duration-250 ease-out;
+  }
+  
+  /* Interactive element transitions */
+  .interactive {
+    @apply transition-all duration-200 ease-out active:scale-95;
+  }
+  
+  /* Standardized spacing utilities */
+  .section-spacing {
+    @apply space-y-6;
+  }
+  
+  .card-spacing {
+    @apply p-6;
+  }
+  
+  .form-spacing {
+    @apply space-y-4;
+  }
+  
+  .content-spacing {
+    @apply space-y-3;
+  }
+  
+  /* Standardized typography */
+  .heading-1 {
+    @apply text-3xl font-bold tracking-tight;
+  }
+  
+  .heading-2 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  
+  .heading-3 {
+    @apply text-xl font-semibold;
+  }
+  
+  .heading-4 {
+    @apply text-lg font-semibold;
+  }
+  
+  .body-text {
+    @apply text-sm text-foreground;
+  }
+  
+  .muted-text {
+    @apply text-sm text-muted-foreground;
+  }
+  
+  .small-text {
+    @apply text-xs text-muted-foreground;
+  }
+  
+  /* Standardized container widths */
+  .container-narrow {
+    @apply max-w-2xl mx-auto;
+  }
+  
+  .container-medium {
+    @apply max-w-4xl mx-auto;
+  }
+  
+  .container-wide {
+    @apply max-w-6xl mx-auto;
+  }
 }
 
 /* TipTap Editor Styles */

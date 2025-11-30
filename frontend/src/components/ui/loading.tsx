@@ -1,27 +1,30 @@
-import { cn } from '@/lib/utils'
-import { Loader2 } from 'lucide-react'
+import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 interface LoadingSpinnerProps {
-  className?: string
-  size?: 'sm' | 'md' | 'lg'
+  className?: string;
+  size?: "sm" | "md" | "lg";
 }
 
 const sizeClasses = {
-  sm: 'h-4 w-4',
-  md: 'h-6 w-6',
-  lg: 'h-8 w-8'
-}
+  sm: "h-4 w-4",
+  md: "h-6 w-6",
+  lg: "h-8 w-8",
+};
 
-export function LoadingSpinner({ className, size = 'md' }: LoadingSpinnerProps) {
+export function LoadingSpinner({
+  className,
+  size = "md",
+}: LoadingSpinnerProps) {
   return (
-    <Loader2 
+    <Loader2
       className={cn(
-        'animate-spin text-muted-foreground',
+        "animate-spin text-muted-foreground",
         sizeClasses[size],
         className
-      )} 
+      )}
     />
-  )
+  );
 }
 
 export function LoadingPage() {
@@ -32,7 +35,7 @@ export function LoadingPage() {
         <p className="text-sm text-muted-foreground">Loading...</p>
       </div>
     </div>
-  )
+  );
 }
 
 export function LoadingCard() {
@@ -42,7 +45,7 @@ export function LoadingCard() {
         <LoadingSpinner size="md" />
       </div>
     </div>
-  )
+  );
 }
 
 export function LoadingButton() {
@@ -51,30 +54,36 @@ export function LoadingButton() {
       <LoadingSpinner size="sm" />
       <span>Loading...</span>
     </div>
-  )
+  );
 }
 
-// Skeleton loader for content
+// Skeleton loader for content with shimmer effect
 export function SkeletonLine({ className }: { className?: string }) {
   return (
-    <div 
+    <div
       className={cn(
-        'animate-pulse bg-muted rounded h-4',
+        "relative overflow-hidden bg-muted rounded h-4",
+        "before:absolute before:inset-0 before:-translate-x-full",
+        "before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
+        "before:animate-shimmer",
         className
-      )} 
+      )}
     />
-  )
+  );
 }
 
 export function SkeletonAvatar({ className }: { className?: string }) {
   return (
-    <div 
+    <div
       className={cn(
-        'animate-pulse bg-muted rounded-full h-10 w-10',
+        "relative overflow-hidden bg-muted rounded-full h-10 w-10",
+        "before:absolute before:inset-0 before:-translate-x-full",
+        "before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
+        "before:animate-shimmer",
         className
-      )} 
+      )}
     />
-  )
+  );
 }
 
 export function SkeletonPost() {
@@ -88,14 +97,14 @@ export function SkeletonPost() {
           <SkeletonLine className="w-16 h-3" />
         </div>
       </div>
-      
+
       {/* Content */}
       <div className="space-y-2">
         <SkeletonLine />
         <SkeletonLine />
         <SkeletonLine className="w-3/4" />
       </div>
-      
+
       {/* Actions */}
       <div className="flex items-center gap-6 pt-3">
         <SkeletonLine className="w-12 h-6" />
@@ -103,7 +112,7 @@ export function SkeletonPost() {
         <SkeletonLine className="w-12 h-6" />
       </div>
     </div>
-  )
+  );
 }
 
 // Page loading states
@@ -114,7 +123,7 @@ export function FeedSkeleton() {
         <SkeletonPost key={i} />
       ))}
     </div>
-  )
+  );
 }
 
 export function ProfileSkeleton() {
@@ -134,9 +143,9 @@ export function ProfileSkeleton() {
           </div>
         </div>
       </div>
-      
+
       {/* Posts */}
       <FeedSkeleton />
     </div>
-  )
+  );
 }
