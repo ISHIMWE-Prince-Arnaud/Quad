@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, Plus } from "lucide-react";
+import { Menu, X, Plus, Bell } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { UserAvatar } from "@/components/auth/UserMenu";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
 import { GlobalSearchBar } from "@/components/search/GlobalSearchBar";
 import { cn } from "@/lib/utils";
+import { useNotificationStore } from "@/stores/notificationStore";
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const { unreadCount } = useNotificationStore();
 
   return (
     <>
@@ -34,6 +36,19 @@ export function Navbar() {
               className="p-2 rounded-lg hover:bg-accent transition-colors duration-200"
               title="Create Post">
               <Plus className="h-5 w-5" />
+            </Link>
+
+            {/* Notifications */}
+            <Link
+              to="/app/notifications"
+              className="relative p-2 rounded-lg hover:bg-accent transition-colors duration-200"
+              title="Notifications">
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 inline-flex min-w-[1rem] h-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
             </Link>
 
             {/* Theme Selector */}

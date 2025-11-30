@@ -51,6 +51,27 @@ export interface ApiPost {
   updatedAt: string;
 }
 
+export interface ApiNotificationActor {
+  clerkId: string;
+  username: string;
+  email?: string;
+  displayName?: string;
+  profileImage?: string;
+}
+
+export interface ApiNotification {
+  id: string;
+  userId: string;
+  type: string;
+  actorId?: string;
+  contentId?: string;
+  contentType?: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  actor?: ApiNotificationActor;
+}
+
 export interface ApiStory {
   _id: string;
   clerkId: string;
