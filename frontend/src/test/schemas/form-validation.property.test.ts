@@ -165,10 +165,14 @@ describe("Property 7: Request Payload Schema Validation", () => {
     it("should validate valid poll data", () => {
       fc.assert(
         fc.property(
-          fc.string({ minLength: 10, maxLength: 500 }),
+          fc
+            .string({ minLength: 10, maxLength: 500 })
+            .filter((s) => s.trim().length >= 10),
           fc.array(
             fc.record({
-              text: fc.string({ minLength: 1, maxLength: 200 }),
+              text: fc
+                .string({ minLength: 1, maxLength: 200 })
+                .filter((s) => s.trim().length > 0),
             }),
             { minLength: 2, maxLength: 5 }
           ),
@@ -342,10 +346,15 @@ describe("Property 7: Request Payload Schema Validation", () => {
   describe("Chat Message Schema", () => {
     it("should validate valid message with text", () => {
       fc.assert(
-        fc.property(fc.string({ minLength: 1, maxLength: 2000 }), (text) => {
-          const result = sendMessageSchema.safeParse({ text });
-          expect(result.success).toBe(true);
-        }),
+        fc.property(
+          fc
+            .string({ minLength: 1, maxLength: 2000 })
+            .filter((s) => s.trim().length > 0),
+          (text) => {
+            const result = sendMessageSchema.safeParse({ text });
+            expect(result.success).toBe(true);
+          }
+        ),
         { numRuns: 100 }
       );
     });

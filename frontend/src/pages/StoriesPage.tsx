@@ -42,12 +42,12 @@ export default function StoriesPage() {
   }, [search]);
 
   const queryParams = useMemo(
-    () => ({ 
-      search: debouncedSearch || undefined, 
-      sortBy, 
-      limit, 
+    () => ({
+      search: debouncedSearch || undefined,
+      sortBy,
+      limit,
       skip,
-      tag: selectedTag 
+      tag: selectedTag,
     }),
     [debouncedSearch, sortBy, limit, skip, selectedTag]
   );
@@ -165,11 +165,11 @@ export default function StoriesPage() {
                 <button
                   key={tag}
                   onClick={() => handleTagSelect(tag)}
-                  className={ounded-full px-3 py-1 text-xs transition-colors UTF8{
+                  className={`rounded-full px-3 py-1 text-xs transition-colors ${
                     selectedTag === tag
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }}>
+                  }`}>
                   {tag}
                 </button>
               ))}
@@ -203,7 +203,7 @@ export default function StoriesPage() {
           <div className="py-12 text-center">
             <p className="text-muted-foreground">
               {selectedTag
-                ? No stories found with tag "UTF8{selectedTag}"
+                ? `No stories found with tag "${selectedTag}"`
                 : search
                 ? "No stories found matching your search"
                 : "No stories available"}

@@ -32,25 +32,8 @@ export default defineConfig(({ mode }) => {
           },
         },
       },
-      // Optimize chunk size
-      chunkSizeWarningLimit: 1000,
       // Enable minification
-      minify: isProduction ? "terser" : false,
-      terserOptions: isProduction
-        ? {
-            compress: {
-              drop_console: true, // Remove console.logs in production
-              drop_debugger: true,
-              pure_funcs: ["console.log", "console.info", "console.debug"], // Remove specific console methods
-            },
-            mangle: {
-              safari10: true, // Fix Safari 10+ issues
-            },
-            format: {
-              comments: false, // Remove comments
-            },
-          }
-        : undefined,
+      minify: isProduction ? "esbuild" : false,
       // Generate source maps for debugging (hidden in production)
       sourcemap: isProduction ? "hidden" : true,
       // Target modern browsers for smaller bundle

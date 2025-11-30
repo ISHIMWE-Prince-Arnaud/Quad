@@ -169,61 +169,35 @@ describe("Responsive Layout Adaptation Property Tests", () => {
           const result = getResponsiveValue(values);
           const breakpoint = getCurrentBreakpoint();
 
-          // Property: Should return the value for current breakpoint or fallback to smaller
-          if (breakpoint === "2xl") {
-            if (values["2xl"] !== null && values["2xl"] !== undefined) {
-              expect(result).toBe(values["2xl"]);
-            } else if (values.xl !== null && values.xl !== undefined) {
-              expect(result).toBe(values.xl);
-            } else if (values.lg !== null && values.lg !== undefined) {
-              expect(result).toBe(values.lg);
-            } else if (values.md !== null && values.md !== undefined) {
-              expect(result).toBe(values.md);
-            } else if (values.sm !== null && values.sm !== undefined) {
-              expect(result).toBe(values.sm);
+          // Helper to find the expected value by cascading down
+          const findExpectedValue = () => {
+            if (breakpoint === "2xl") {
+              return (
+                values["2xl"] ??
+                values.xl ??
+                values.lg ??
+                values.md ??
+                values.sm ??
+                values.xs
+              );
+            } else if (breakpoint === "xl") {
+              return (
+                values.xl ?? values.lg ?? values.md ?? values.sm ?? values.xs
+              );
+            } else if (breakpoint === "lg") {
+              return values.lg ?? values.md ?? values.sm ?? values.xs;
+            } else if (breakpoint === "md") {
+              return values.md ?? values.sm ?? values.xs;
+            } else if (breakpoint === "sm") {
+              return values.sm ?? values.xs;
             } else {
-              expect(result).toBe(values.xs);
+              // xs
+              return values.xs;
             }
-          } else if (breakpoint === "xl") {
-            if (values.xl !== null && values.xl !== undefined) {
-              expect(result).toBe(values.xl);
-            } else if (values.lg !== null && values.lg !== undefined) {
-              expect(result).toBe(values.lg);
-            } else if (values.md !== null && values.md !== undefined) {
-              expect(result).toBe(values.md);
-            } else if (values.sm !== null && values.sm !== undefined) {
-              expect(result).toBe(values.sm);
-            } else {
-              expect(result).toBe(values.xs);
-            }
-          } else if (breakpoint === "lg") {
-            if (values.lg !== null && values.lg !== undefined) {
-              expect(result).toBe(values.lg);
-            } else if (values.md !== null && values.md !== undefined) {
-              expect(result).toBe(values.md);
-            } else if (values.sm !== null && values.sm !== undefined) {
-              expect(result).toBe(values.sm);
-            } else {
-              expect(result).toBe(values.xs);
-            }
-          } else if (breakpoint === "md") {
-            if (values.md !== null && values.md !== undefined) {
-              expect(result).toBe(values.md);
-            } else if (values.sm !== null && values.sm !== undefined) {
-              expect(result).toBe(values.sm);
-            } else {
-              expect(result).toBe(values.xs);
-            }
-          } else if (breakpoint === "sm") {
-            if (values.sm !== null && values.sm !== undefined) {
-              expect(result).toBe(values.sm);
-            } else {
-              expect(result).toBe(values.xs);
-            }
-          } else {
-            // xs
-            expect(result).toBe(values.xs);
-          }
+          };
+
+          const expected = findExpectedValue();
+          expect(result).toBe(expected);
         }
       ),
       { numRuns: 100 }

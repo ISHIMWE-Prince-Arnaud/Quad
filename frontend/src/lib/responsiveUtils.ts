@@ -79,16 +79,34 @@ export function getResponsiveValue<T>(values: {
   const breakpoint = getCurrentBreakpoint();
 
   // Return the value for current breakpoint or fallback to smaller breakpoints
-  if (breakpoint === "2xl" && values["2xl"]) return values["2xl"];
-  if ((breakpoint === "2xl" || breakpoint === "xl") && values.xl)
+  // Use !== undefined && !== null to handle falsy values like 0, false, ""
+  if (
+    breakpoint === "2xl" &&
+    values["2xl"] !== undefined &&
+    values["2xl"] !== null
+  )
+    return values["2xl"];
+  if (
+    (breakpoint === "2xl" || breakpoint === "xl") &&
+    values.xl !== undefined &&
+    values.xl !== null
+  )
     return values.xl;
   if (
     (breakpoint === "2xl" || breakpoint === "xl" || breakpoint === "lg") &&
-    values.lg
+    values.lg !== undefined &&
+    values.lg !== null
   )
     return values.lg;
-  if (breakpoint !== "xs" && breakpoint !== "sm" && values.md) return values.md;
-  if (breakpoint !== "xs" && values.sm) return values.sm;
+  if (
+    breakpoint !== "xs" &&
+    breakpoint !== "sm" &&
+    values.md !== undefined &&
+    values.md !== null
+  )
+    return values.md;
+  if (breakpoint !== "xs" && values.sm !== undefined && values.sm !== null)
+    return values.sm;
   return values.xs;
 }
 
