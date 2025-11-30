@@ -1,5 +1,10 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  InternalAxiosRequestConfig,
+  AxiosResponse,
+} from "axios";
 import { logError } from "./errorHandling";
+import { requestCache, generateCacheKey } from "./requestCache";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
@@ -29,9 +34,9 @@ export const api = axios.create({
 // Note: Clerk tokens will be added per-request using useAuthenticatedRequest hook
 // This is because Clerk tokens are dynamic and managed by the Clerk SDK
 
-// Request interceptor to add auth token and handle rate limiting
+// Request interceptor to add auth token, handle rate limiting, and implement caching
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
     // Check if we're in a rate limit cooldown
     if (rateLimitState.retryAfter && Date.now() < rateLimitState.retryAfter) {
       const waitTime = Math.ceil(
@@ -55,6 +60,30 @@ api.interceptors.request.use(
       config.headers["X-Retry-Count"] = "0";
     }
 
+    // For GET requests, check cache and deduplicate
+    if (config.method?.toLowerCase() === "get") {
+      const cacheKey = generateCacheKey(
+        config.url || "",
+        config.params as Record<string, unknown>
+      );
+
+      // Check if we should skip cache (e.g., for real-time data)
+      const skipCache = config.headers["X-Skip-Cache"] === "true";
+
+      if (!skipCache) {
+        // Check cache first
+        const cached = requestCache.get<AxiosResponse>(cacheKey);
+        if (cached) {
+          // Return cached response
+          return Promise.reject({
+            config,
+            response: cached,
+            isCache: true,
+          });
+        }
+      }
+    }
+
     return config;
   },
   (error) => {
@@ -63,7 +92,7 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor for error handling with retry logic
+// Response interceptor for error handling with retry logic and caching
 api.interceptors.response.use(
   (response) => {
     // Reset rate limit state on successful response
@@ -81,16 +110,62 @@ api.interceptors.response.use(
       return Promise.reject(new Error("Session expired"));
     }
 
+    // Cache GET responses
+    if (response.config.method?.toLowerCase() === "get") {
+      const skipCache = response.config.headers["X-Skip-Cache"] === "true";
+      if (!skipCache) {
+        const cacheKey = generateCacheKey(
+          response.config.url || "",
+          response.config.params as Record<string, unknown>
+        );
+
+        // Determine TTL based on endpoint
+        let ttl = 5 * 60 * 1000; // 5 minutes default
+
+        // Static data can be cached longer
+        if (
+          response.config.url?.includes("/profile/") ||
+          response.config.url?.includes("/users/")
+        ) {
+          ttl = 10 * 60 * 1000; // 10 minutes for user data
+        }
+
+        // Real-time data should have shorter TTL
+        if (
+          response.config.url?.includes("/feed") ||
+          response.config.url?.includes("/notifications")
+        ) {
+          ttl = 30 * 1000; // 30 seconds for feed/notifications
+        }
+
+        requestCache.set(cacheKey, response, ttl);
+      }
+    }
+
     return response;
   },
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
+  async (
+    error:
+      | AxiosError
+      | {
+          config: InternalAxiosRequestConfig;
+          response: AxiosResponse;
+          isCache: true;
+        }
+  ) => {
+    // Handle cached responses
+    if ("isCache" in error && error.isCache) {
+      return Promise.resolve(error.response);
+    }
+
+    const axiosError = error as AxiosError;
+    const originalRequest = axiosError.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
       _retryCount?: number;
     };
 
     // Handle 401 Unauthorized - clear token and redirect to login
-    if (error.response?.status === 401) {
+    if (axiosError.response?.status === 401) {
       localStorage.removeItem("clerk-db-jwt");
 
       // Only redirect if not already on login page
@@ -100,36 +175,36 @@ api.interceptors.response.use(
         window.location.href = "/login";
       }
 
-      logError(error, {
+      logError(axiosError, {
         component: "API",
         action: "authentication-error",
       });
 
-      return Promise.reject(error);
+      return Promise.reject(axiosError);
     }
 
     // Handle 429 Rate Limiting
-    if (error.response?.status === 429) {
-      const retryAfterHeader = error.response.headers["retry-after"];
+    if (axiosError.response?.status === 429) {
+      const retryAfterHeader = axiosError.response.headers["retry-after"];
       const retryAfter = retryAfterHeader
         ? parseInt(retryAfterHeader, 10) * 1000
         : 60000; // Default to 60 seconds
 
       rateLimitState.retryAfter = Date.now() + retryAfter;
 
-      logError(error, {
+      logError(axiosError, {
         component: "API",
         action: "rate-limit-error",
         metadata: { retryAfter },
       });
 
-      return Promise.reject(error);
+      return Promise.reject(axiosError);
     }
 
     // Retry logic for network errors and 5xx errors
     const shouldRetry =
-      !error.response || // Network error
-      (error.response.status >= 500 && error.response.status < 600); // Server error
+      !axiosError.response || // Network error
+      (axiosError.response.status >= 500 && axiosError.response.status < 600); // Server error
 
     if (shouldRetry && originalRequest && !originalRequest._retry) {
       const retryCount = originalRequest._retryCount || 0;
@@ -145,7 +220,7 @@ api.interceptors.response.use(
         // Exponential backoff: 1s, 2s, 4s
         const delay = Math.min(1000 * Math.pow(2, retryCount), 10000);
 
-        logError(error, {
+        logError(axiosError, {
           component: "API",
           action: "retry-attempt",
           metadata: {
@@ -163,20 +238,20 @@ api.interceptors.response.use(
     }
 
     // Log server errors
-    if (error.response?.status && error.response.status >= 500) {
-      logError(error, {
+    if (axiosError.response?.status && axiosError.response.status >= 500) {
+      logError(axiosError, {
         component: "API",
         action: "server-error",
         metadata: {
-          status: error.response.status,
+          status: axiosError.response.status,
           url: originalRequest?.url,
         },
       });
     }
 
     // Log network errors
-    if (!error.response) {
-      logError(error, {
+    if (!axiosError.response) {
+      logError(axiosError, {
         component: "API",
         action: "network-error",
         metadata: {
@@ -185,9 +260,20 @@ api.interceptors.response.use(
       });
     }
 
-    return Promise.reject(error);
+    return Promise.reject(axiosError);
   }
 );
+
+// Export cache invalidation helpers
+export function invalidateCache(pattern?: string | RegExp) {
+  if (!pattern) {
+    requestCache.clear();
+  } else if (typeof pattern === "string") {
+    requestCache.invalidate(pattern);
+  } else {
+    requestCache.invalidatePattern(pattern);
+  }
+}
 
 // API endpoints based on verified backend routes
 export const endpoints = {

@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,19 @@ export default function FeedPage() {
   const [error, setError] = useState<string | null>(null);
   const [newCount, setNewCount] = useState(0);
   const [lastSeenId, setLastSeenId] = useState<string | null>(null);
+
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  // Virtual scrolling setup - only enable for lists with 100+ items
+  const shouldUseVirtualization = items.length >= 100;
+
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 400, // Estimated feed item height
+    overscan: 3, // Render 3 extra items above and below viewport
+    enabled: shouldUseVirtualization,
+  });
 
   const handleRefreshFeed = useCallback(async () => {
     if (loading) return;
@@ -438,29 +452,81 @@ export default function FeedPage() {
           {/* Feed list */}
           {!loading && !error && items.length > 0 && (
             <>
-              {items.map((item) => {
-                if (item.type === "post") {
-                  const post = item.content as Post;
-                  return (
-                    <PostCard
-                      key={post._id}
-                      post={post}
-                      onDelete={handleDelete}
-                    />
-                  );
-                }
+              {shouldUseVirtualization ? (
+                <div
+                  ref={parentRef}
+                  className="space-y-6"
+                  style={{
+                    height: "calc(100vh - 300px)",
+                    overflow: "auto",
+                  }}>
+                  <div
+                    style={{
+                      height: `${virtualizer.getTotalSize()}px`,
+                      width: "100%",
+                      position: "relative",
+                    }}>
+                    {virtualizer.getVirtualItems().map((virtualItem) => {
+                      const item = items[virtualItem.index];
+                      return (
+                        <div
+                          key={virtualItem.key}
+                          data-index={virtualItem.index}
+                          ref={virtualizer.measureElement}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            transform: `translateY(${virtualItem.start}px)`,
+                          }}
+                          className="pb-6">
+                          {item.type === "post" ? (
+                            <PostCard
+                              post={item.content as Post}
+                              onDelete={handleDelete}
+                            />
+                          ) : (
+                            <Card className="shadow-sm">
+                              <CardContent className="py-6 text-center text-sm text-muted-foreground">
+                                {item.type === "poll"
+                                  ? "Poll item will be shown here in a future phase."
+                                  : "Story item will be shown here in a future phase."}
+                              </CardContent>
+                            </Card>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {items.map((item) => {
+                    if (item.type === "post") {
+                      const post = item.content as Post;
+                      return (
+                        <PostCard
+                          key={post._id}
+                          post={post}
+                          onDelete={handleDelete}
+                        />
+                      );
+                    }
 
-                // Placeholder for polls and stories until dedicated cards are implemented
-                return (
-                  <Card key={String(item._id)} className="shadow-sm">
-                    <CardContent className="py-6 text-center text-sm text-muted-foreground">
-                      {item.type === "poll"
-                        ? "Poll item will be shown here in a future phase."
-                        : "Story item will be shown here in a future phase."}
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                    // Placeholder for polls and stories until dedicated cards are implemented
+                    return (
+                      <Card key={String(item._id)} className="shadow-sm">
+                        <CardContent className="py-6 text-center text-sm text-muted-foreground">
+                          {item.type === "poll"
+                            ? "Poll item will be shown here in a future phase."
+                            : "Story item will be shown here in a future phase."}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </>
+              )}
 
               {hasMore && (
                 <div className="flex justify-center pt-2">

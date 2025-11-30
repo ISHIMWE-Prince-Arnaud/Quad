@@ -1,5 +1,6 @@
 import { endpoints } from "@/lib/api";
 import type { ApiUploadResponse } from "@/types/api";
+import { compressImage, getCompressionSettings } from "@/lib/imageCompression";
 
 type RawUploadResponse = {
   url?: string;
@@ -36,43 +37,115 @@ export class UploadService {
   }
 
   // Upload profile image
-  static async uploadProfileImage(file: File): Promise<ApiUploadResponse> {
-    const response = await endpoints.upload.profile(file);
+  static async uploadProfileImage(
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<ApiUploadResponse> {
+    // Compress image before upload
+    const compressedFile = file.type.startsWith("image/")
+      ? await compressImage(file, getCompressionSettings("profile"))
+      : file;
+
+    if (onProgress) onProgress(10); // Compression complete
+
+    const response = await endpoints.upload.profile(compressedFile);
+    if (onProgress) onProgress(100);
+
     const raw = response.data?.data ?? response.data;
     return this.normalizeUploadResponse(raw);
   }
 
   // Upload cover image
-  static async uploadCoverImage(file: File): Promise<ApiUploadResponse> {
-    const response = await endpoints.upload.cover(file);
+  static async uploadCoverImage(
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<ApiUploadResponse> {
+    // Compress image before upload
+    const compressedFile = file.type.startsWith("image/")
+      ? await compressImage(file, getCompressionSettings("cover"))
+      : file;
+
+    if (onProgress) onProgress(10);
+
+    const response = await endpoints.upload.cover(compressedFile);
+    if (onProgress) onProgress(100);
+
     const raw = response.data?.data ?? response.data;
     return this.normalizeUploadResponse(raw);
   }
 
   // Upload post media
-  static async uploadPostMedia(file: File): Promise<ApiUploadResponse> {
-    const response = await endpoints.upload.post(file);
+  static async uploadPostMedia(
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<ApiUploadResponse> {
+    // Compress image before upload
+    const compressedFile = file.type.startsWith("image/")
+      ? await compressImage(file, getCompressionSettings("post"))
+      : file;
+
+    if (onProgress) onProgress(10);
+
+    const response = await endpoints.upload.post(compressedFile);
+    if (onProgress) onProgress(100);
+
     const raw = response.data?.data ?? response.data;
     return this.normalizeUploadResponse(raw);
   }
 
   // Upload story media
-  static async uploadStoryMedia(file: File): Promise<ApiUploadResponse> {
-    const response = await endpoints.upload.story(file);
+  static async uploadStoryMedia(
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<ApiUploadResponse> {
+    // Compress image before upload
+    const compressedFile = file.type.startsWith("image/")
+      ? await compressImage(file, getCompressionSettings("story"))
+      : file;
+
+    if (onProgress) onProgress(10);
+
+    const response = await endpoints.upload.story(compressedFile);
+    if (onProgress) onProgress(100);
+
     const raw = response.data?.data ?? response.data;
     return this.normalizeUploadResponse(raw);
   }
 
   // Upload poll media
-  static async uploadPollMedia(file: File): Promise<ApiUploadResponse> {
-    const response = await endpoints.upload.poll(file);
+  static async uploadPollMedia(
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<ApiUploadResponse> {
+    // Compress image before upload
+    const compressedFile = file.type.startsWith("image/")
+      ? await compressImage(file, getCompressionSettings("post"))
+      : file;
+
+    if (onProgress) onProgress(10);
+
+    const response = await endpoints.upload.poll(compressedFile);
+    if (onProgress) onProgress(100);
+
     const raw = response.data?.data ?? response.data;
     return this.normalizeUploadResponse(raw);
   }
 
   // Upload chat media
-  static async uploadChatMedia(file: File): Promise<ApiUploadResponse> {
-    const response = await endpoints.upload.chat(file);
+  static async uploadChatMedia(
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<ApiUploadResponse> {
+    // Compress image before upload
+    const compressedFile = file.type.startsWith("image/")
+      ? await compressImage(file, getCompressionSettings("chat"))
+      : file;
+
+    if (onProgress) onProgress(10);
+
+    const response = await endpoints.upload.chat(compressedFile);
+    if (onProgress) onProgress(100);
+
     const raw = response.data?.data ?? response.data;
     return this.normalizeUploadResponse(raw);
   }

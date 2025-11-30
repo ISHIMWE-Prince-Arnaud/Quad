@@ -1,32 +1,39 @@
+import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { RootLayout } from "@/layouts/RootLayout";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { MainLayout } from "@/layouts/MainLayout";
+import { Loading } from "@/components/ui/loading";
 
-// Pages
-import HomePage from "@/pages/HomePage";
-import LoginPage from "@/pages/auth/LoginPage";
-import SignUpPage from "@/pages/auth/SignUpPage";
-import FeedPage from "@/pages/app/FeedPage";
-import ProfilePage from "@/pages/app/ProfilePage";
-import EditProfilePage from "@/pages/EditProfilePage";
-import EditPostPage from "@/pages/EditPostPage";
-import PostPage from "@/pages/app/PostPage";
-import CreatePostPage from "@/pages/CreatePostPage";
-import StoriesPage from "@/pages/StoriesPage";
-import StoryPage from "@/pages/StoryPage";
-import CreateStoryPage from "@/pages/CreateStoryPage";
-import PollsPage from "@/pages/PollsPage";
-import PollPage from "@/pages/PollPage";
-import CreatePollPage from "@/pages/CreatePollPage";
-import ChatPage from "@/pages/ChatPage";
-import SearchPage from "@/pages/app/SearchPage";
-import CreatePage from "@/pages/app/CreatePage";
-import AnalyticsPage from "@/pages/app/AnalyticsPage";
-import NotificationsPage from "@/pages/NotificationsPage";
-import SettingsPage from "@/pages/SettingsPage";
-import NotFoundPage from "@/pages/NotFoundPage";
+// Lazy load pages for code splitting
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
+const SignUpPage = lazy(() => import("@/pages/auth/SignUpPage"));
+const FeedPage = lazy(() => import("@/pages/app/FeedPage"));
+const ProfilePage = lazy(() => import("@/pages/app/ProfilePage"));
+const EditProfilePage = lazy(() => import("@/pages/EditProfilePage"));
+const EditPostPage = lazy(() => import("@/pages/EditPostPage"));
+const PostPage = lazy(() => import("@/pages/app/PostPage"));
+const CreatePostPage = lazy(() => import("@/pages/CreatePostPage"));
+const StoriesPage = lazy(() => import("@/pages/StoriesPage"));
+const StoryPage = lazy(() => import("@/pages/StoryPage"));
+const CreateStoryPage = lazy(() => import("@/pages/CreateStoryPage"));
+const PollsPage = lazy(() => import("@/pages/PollsPage"));
+const PollPage = lazy(() => import("@/pages/PollPage"));
+const CreatePollPage = lazy(() => import("@/pages/CreatePollPage"));
+const ChatPage = lazy(() => import("@/pages/ChatPage"));
+const SearchPage = lazy(() => import("@/pages/app/SearchPage"));
+const CreatePage = lazy(() => import("@/pages/app/CreatePage"));
+const AnalyticsPage = lazy(() => import("@/pages/app/AnalyticsPage"));
+const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
+const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
+const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
+
+// Wrapper component for lazy loaded routes
+const LazyRoute = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<Loading />}>{children}</Suspense>
+);
 
 export const router = createBrowserRouter([
   {
@@ -40,15 +47,27 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <HomePage />,
+            element: (
+              <LazyRoute>
+                <HomePage />
+              </LazyRoute>
+            ),
           },
           {
             path: "login/*",
-            element: <LoginPage />,
+            element: (
+              <LazyRoute>
+                <LoginPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "signup/*",
-            element: <SignUpPage />,
+            element: (
+              <LazyRoute>
+                <SignUpPage />
+              </LazyRoute>
+            ),
           },
         ],
       },
@@ -67,79 +86,155 @@ export const router = createBrowserRouter([
           },
           {
             path: "feed",
-            element: <FeedPage />,
+            element: (
+              <LazyRoute>
+                <FeedPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "profile/:username",
-            element: <ProfilePage />,
+            element: (
+              <LazyRoute>
+                <ProfilePage />
+              </LazyRoute>
+            ),
           },
           {
             path: "profile/:username/edit",
-            element: <EditProfilePage />,
+            element: (
+              <LazyRoute>
+                <EditProfilePage />
+              </LazyRoute>
+            ),
           },
           {
             path: "posts/:id",
-            element: <PostPage />,
+            element: (
+              <LazyRoute>
+                <PostPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "posts/:id/edit",
-            element: <EditPostPage />,
+            element: (
+              <LazyRoute>
+                <EditPostPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "create",
-            element: <CreatePage />,
+            element: (
+              <LazyRoute>
+                <CreatePage />
+              </LazyRoute>
+            ),
           },
           {
             path: "create/post",
-            element: <CreatePostPage />,
+            element: (
+              <LazyRoute>
+                <CreatePostPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "stories",
-            element: <StoriesPage />,
+            element: (
+              <LazyRoute>
+                <StoriesPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "stories/:id",
-            element: <StoryPage />,
+            element: (
+              <LazyRoute>
+                <StoryPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "create/story",
-            element: <CreateStoryPage />,
+            element: (
+              <LazyRoute>
+                <CreateStoryPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "polls",
-            element: <PollsPage />,
+            element: (
+              <LazyRoute>
+                <PollsPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "polls/:id",
-            element: <PollPage />,
+            element: (
+              <LazyRoute>
+                <PollPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "create/poll",
-            element: <CreatePollPage />,
+            element: (
+              <LazyRoute>
+                <CreatePollPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "chat",
-            element: <ChatPage />,
+            element: (
+              <LazyRoute>
+                <ChatPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "chat/:conversationId",
-            element: <ChatPage />,
+            element: (
+              <LazyRoute>
+                <ChatPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "search",
-            element: <SearchPage />,
+            element: (
+              <LazyRoute>
+                <SearchPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "analytics",
-            element: <AnalyticsPage />,
+            element: (
+              <LazyRoute>
+                <AnalyticsPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "notifications",
-            element: <NotificationsPage />,
+            element: (
+              <LazyRoute>
+                <NotificationsPage />
+              </LazyRoute>
+            ),
           },
           {
             path: "settings",
-            element: <SettingsPage />,
+            element: (
+              <LazyRoute>
+                <SettingsPage />
+              </LazyRoute>
+            ),
           },
         ],
       },
@@ -147,6 +242,10 @@ export const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: <NotFoundPage />,
+    element: (
+      <LazyRoute>
+        <NotFoundPage />
+      </LazyRoute>
+    ),
   },
 ]);
