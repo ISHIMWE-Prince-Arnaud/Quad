@@ -1,7 +1,21 @@
-import axios from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { logError } from "./errorHandling";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+
+// Rate limiting state
+interface RateLimitState {
+  retryAfter: number | null;
+  requestCount: number;
+  windowStart: number;
+}
+
+const rateLimitState: RateLimitState = {
+  retryAfter: null,
+  requestCount: 0,
+  windowStart: Date.now(),
+};
 
 // Create axios instance
 export const api = axios.create({
@@ -15,24 +29,49 @@ export const api = axios.create({
 // Note: Clerk tokens will be added per-request using useAuthenticatedRequest hook
 // This is because Clerk tokens are dynamic and managed by the Clerk SDK
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token and handle rate limiting
 api.interceptors.request.use(
   (config) => {
+    // Check if we're in a rate limit cooldown
+    if (rateLimitState.retryAfter && Date.now() < rateLimitState.retryAfter) {
+      const waitTime = Math.ceil(
+        (rateLimitState.retryAfter - Date.now()) / 1000
+      );
+      return Promise.reject(
+        new Error(
+          `Rate limited. Please wait ${waitTime} seconds before retrying.`
+        )
+      );
+    }
+
     // Add auth token from Clerk when available
     const token = localStorage.getItem("clerk-db-jwt");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Add retry metadata
+    if (!config.headers["X-Retry-Count"]) {
+      config.headers["X-Retry-Count"] = "0";
+    }
+
     return config;
   },
   (error) => {
+    logError(error, { component: "API", action: "request-interceptor" });
     return Promise.reject(error);
   }
 );
 
-// Response interceptor for error handling
+// Response interceptor for error handling with retry logic
 api.interceptors.response.use(
   (response) => {
+    // Reset rate limit state on successful response
+    if (rateLimitState.retryAfter && Date.now() >= rateLimitState.retryAfter) {
+      rateLimitState.retryAfter = null;
+      rateLimitState.requestCount = 0;
+    }
+
     const request = response?.request as XMLHttpRequest | undefined;
     const finalUrl = request?.responseURL;
 
@@ -44,16 +83,106 @@ api.interceptors.response.use(
 
     return response;
   },
-  (error) => {
-    // Handle common errors
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+      _retryCount?: number;
+    };
+
+    // Handle 401 Unauthorized - clear token and redirect to login
     if (error.response?.status === 401) {
-      // Handle unauthorized - clear token and redirect to login
       localStorage.removeItem("clerk-db-jwt");
-      window.location.href = "/login";
+
+      // Only redirect if not already on login page
+      if (!window.location.pathname.includes("/login")) {
+        // Store intended destination
+        sessionStorage.setItem("redirectAfterLogin", window.location.pathname);
+        window.location.href = "/login";
+      }
+
+      logError(error, {
+        component: "API",
+        action: "authentication-error",
+      });
+
+      return Promise.reject(error);
     }
 
-    if (error.response?.status >= 500) {
-      console.error("Server error:", error.response.data);
+    // Handle 429 Rate Limiting
+    if (error.response?.status === 429) {
+      const retryAfterHeader = error.response.headers["retry-after"];
+      const retryAfter = retryAfterHeader
+        ? parseInt(retryAfterHeader, 10) * 1000
+        : 60000; // Default to 60 seconds
+
+      rateLimitState.retryAfter = Date.now() + retryAfter;
+
+      logError(error, {
+        component: "API",
+        action: "rate-limit-error",
+        metadata: { retryAfter },
+      });
+
+      return Promise.reject(error);
+    }
+
+    // Retry logic for network errors and 5xx errors
+    const shouldRetry =
+      !error.response || // Network error
+      (error.response.status >= 500 && error.response.status < 600); // Server error
+
+    if (shouldRetry && originalRequest && !originalRequest._retry) {
+      const retryCount = originalRequest._retryCount || 0;
+      const maxRetries = 3;
+
+      if (retryCount < maxRetries) {
+        originalRequest._retry = true;
+        originalRequest._retryCount = retryCount + 1;
+
+        // Update retry count header
+        originalRequest.headers["X-Retry-Count"] = String(retryCount + 1);
+
+        // Exponential backoff: 1s, 2s, 4s
+        const delay = Math.min(1000 * Math.pow(2, retryCount), 10000);
+
+        logError(error, {
+          component: "API",
+          action: "retry-attempt",
+          metadata: {
+            retryCount: retryCount + 1,
+            maxRetries,
+            delay,
+          },
+        });
+
+        // Wait before retrying
+        await new Promise((resolve) => setTimeout(resolve, delay));
+
+        return api(originalRequest);
+      }
+    }
+
+    // Log server errors
+    if (error.response?.status && error.response.status >= 500) {
+      logError(error, {
+        component: "API",
+        action: "server-error",
+        metadata: {
+          status: error.response.status,
+          url: originalRequest?.url,
+        },
+      });
+    }
+
+    // Log network errors
+    if (!error.response) {
+      logError(error, {
+        component: "API",
+        action: "network-error",
+        metadata: {
+          url: originalRequest?.url,
+        },
+      });
     }
 
     return Promise.reject(error);
