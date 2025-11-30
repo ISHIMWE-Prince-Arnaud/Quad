@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { UploadService } from "@/services/uploadService";
 import { PollService } from "@/services/pollService";
 import type {
@@ -12,8 +13,10 @@ import type {
   PollMedia,
   ResultsVisibility,
 } from "@/types/poll";
-import { Image as ImageIcon, Loader2 } from "lucide-react";
+import { createPollSchema } from "@/schemas/poll.schema";
+import { Image as ImageIcon, Loader2, X, Plus } from "lucide-react";
 import toast from "react-hot-toast";
+import { ZodError } from "zod";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -32,6 +35,13 @@ interface LocalOption {
   id: string;
   text: string;
   media?: PollMedia;
+}
+
+interface ValidationErrors {
+  question?: string;
+  options?: string;
+  expiresAt?: string;
+  general?: string;
 }
 
 export default function CreatePollPage() {
@@ -56,6 +66,9 @@ export default function CreatePollPage() {
   const [uploadingOptionId, setUploadingOptionId] = useState<string | null>(
     null
   );
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {}
+  );
 
   const [myPolls, setMyPolls] = useState<Poll[]>([]);
   const [loadingMyPolls, setLoadingMyPolls] = useState(false);
@@ -66,7 +79,10 @@ export default function CreatePollPage() {
       .map((o) => o.text.trim())
       .filter((t) => t.length > 0);
     return (
-      q.length >= 10 && filledOptions.length >= 2 && filledOptions.length <= 5
+      q.length >= 10 &&
+      q.length <= 500 &&
+      filledOptions.length >= 2 &&
+      filledOptions.length <= 5
     );
   }, [question, options]);
 
@@ -148,6 +164,10 @@ export default function CreatePollPage() {
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return;
+
+    // Clear previous validation errors
+    setValidationErrors({});
+
     try {
       setSubmitting(true);
       const trimmedQuestion = question.trim();
@@ -167,13 +187,40 @@ export default function CreatePollPage() {
         expiresAt: expiresAt || undefined,
       };
 
+      // Validate with Zod schema
+      try {
+        createPollSchema.parse(payload);
+      } catch (validationError) {
+        if (validationError instanceof ZodError) {
+          const errors: ValidationErrors = {};
+          validationError.errors.forEach((err) => {
+            const path = err.path[0] as string;
+            if (path === "question") {
+              errors.question = err.message;
+            } else if (path === "options") {
+              errors.options = err.message;
+            } else if (path === "expiresAt") {
+              errors.expiresAt = err.message;
+            } else {
+              errors.general = err.message;
+            }
+          });
+          setValidationErrors(errors);
+          toast.error(
+            errors.general || "Please fix validation errors before submitting"
+          );
+          return;
+        }
+        throw validationError;
+      }
+
       const res = await PollService.create(payload);
       if (!res.success || !res.data) {
         toast.error(res.message || "Failed to create poll");
         return;
       }
 
-      toast.success("Poll created");
+      toast.success("Poll created successfully!");
       navigate(`/app/polls/${res.data.id}`);
     } catch (err) {
       console.error(err);
@@ -191,26 +238,58 @@ export default function CreatePollPage() {
             <CardHeader>
               <CardTitle>Create Poll</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              {/* Question Input */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Question</label>
+                <Label htmlFor="poll-question" className="text-sm font-medium">
+                  Question *
+                </Label>
                 <Textarea
+                  id="poll-question"
                   value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
+                  onChange={(e) => {
+                    setQuestion(e.target.value);
+                    if (validationErrors.question) {
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        question: undefined,
+                      }));
+                    }
+                  }}
                   rows={3}
+                  maxLength={500}
                   placeholder="Ask something engaging..."
+                  className={validationErrors.question ? "border-red-500" : ""}
+                  aria-invalid={!!validationErrors.question}
+                  aria-describedby={
+                    validationErrors.question
+                      ? "question-error"
+                      : "question-help"
+                  }
                 />
-                <p className="text-xs text-muted-foreground">
-                  Between 10 and 500 characters.
-                </p>
+                {validationErrors.question ? (
+                  <p
+                    id="question-error"
+                    className="text-xs text-red-500"
+                    role="alert">
+                    {validationErrors.question}
+                  </p>
+                ) : (
+                  <p
+                    id="question-help"
+                    className="text-xs text-muted-foreground">
+                    Between 10 and 500 characters. ({question.length}/500)
+                  </p>
+                )}
               </div>
 
+              {/* Question Media Upload */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">
+                <Label className="text-sm font-medium">
                   Question media (optional)
-                </label>
+                </Label>
                 <div className="flex items-center gap-2">
-                  <label className="inline-flex items-center gap-2">
+                  <label className="inline-flex items-center gap-2 cursor-pointer">
                     <input
                       type="file"
                       accept="image/*,video/*"
@@ -220,38 +299,57 @@ export default function CreatePollPage() {
                           e.target.files?.[0] || null
                         )
                       }
+                      disabled={uploadingQuestionMedia}
                     />
                     <Button
                       type="button"
                       variant="outline"
-                      disabled={uploadingQuestionMedia}>
-                      {uploadingQuestionMedia ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <ImageIcon className="mr-2 h-4 w-4" />
-                      )}
-                      {questionMedia ? "Change media" : "Add media"}
+                      size="sm"
+                      disabled={uploadingQuestionMedia}
+                      asChild>
+                      <span>
+                        {uploadingQuestionMedia ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <ImageIcon className="mr-2 h-4 w-4" />
+                        )}
+                        {questionMedia ? "Change media" : "Add media"}
+                      </span>
                     </Button>
                   </label>
                   {questionMedia && (
-                    <span className="text-xs text-muted-foreground truncate max-w-[160px]">
-                      {questionMedia.type === "video"
-                        ? "Video attached"
-                        : "Image attached"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground truncate max-w-[160px]">
+                        {questionMedia.type === "video"
+                          ? "Video attached"
+                          : "Image attached"}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setQuestionMedia(undefined)}
+                        className="h-6 w-6 p-0"
+                        aria-label="Remove question media">
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>
 
+              {/* Poll Options */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Options</label>
+                  <Label className="text-sm font-medium">Options *</Label>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
                     onClick={handleAddOption}
-                    disabled={options.length >= 5}>
+                    disabled={options.length >= 5}
+                    aria-label="Add poll option">
+                    <Plus className="mr-1 h-4 w-4" />
                     Add option
                   </Button>
                 </div>
@@ -259,17 +357,25 @@ export default function CreatePollPage() {
                   {options.map((opt, index) => (
                     <div
                       key={opt.id}
-                      className="flex flex-col gap-2 rounded-md border p-2 md:flex-row md:items-center">
-                      <div className="flex-1 space-y-1">
+                      className="flex flex-col gap-2 rounded-md border p-3 md:flex-row md:items-start">
+                      <div className="flex-1 space-y-2">
                         <Input
                           value={opt.text}
-                          onChange={(e) =>
-                            handleOptionChange(opt.id, e.target.value)
-                          }
+                          onChange={(e) => {
+                            handleOptionChange(opt.id, e.target.value);
+                            if (validationErrors.options) {
+                              setValidationErrors((prev) => ({
+                                ...prev,
+                                options: undefined,
+                              }));
+                            }
+                          }}
                           placeholder={`Option ${index + 1}`}
+                          maxLength={200}
+                          aria-label={`Poll option ${index + 1}`}
                         />
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <label className="inline-flex items-center gap-1">
+                        <div className="flex items-center gap-2">
+                          <label className="inline-flex items-center gap-1 cursor-pointer">
                             <input
                               type="file"
                               accept="image/*,video/*"
@@ -280,50 +386,83 @@ export default function CreatePollPage() {
                                   e.target.files?.[0] || null
                                 )
                               }
+                              disabled={uploadingOptionId === opt.id}
                             />
                             <Button
                               type="button"
                               variant="ghost"
                               size="sm"
-                              disabled={uploadingOptionId === opt.id}>
-                              {uploadingOptionId === opt.id ? (
-                                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                              ) : (
-                                <ImageIcon className="mr-1 h-3 w-3" />
-                              )}
-                              {opt.media ? "Change media" : "Add media"}
+                              disabled={uploadingOptionId === opt.id}
+                              asChild>
+                              <span className="text-xs">
+                                {uploadingOptionId === opt.id ? (
+                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                                ) : (
+                                  <ImageIcon className="mr-1 h-3 w-3" />
+                                )}
+                                {opt.media ? "Change" : "Add media"}
+                              </span>
                             </Button>
                           </label>
                           {opt.media && (
-                            <span>
-                              {opt.media.type === "video" ? "Video" : "Image"}
-                            </span>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <span>
+                                {opt.media.type === "video" ? "Video" : "Image"}
+                              </span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  setOptions((prev) =>
+                                    prev.map((o) =>
+                                      o.id === opt.id
+                                        ? { ...o, media: undefined }
+                                        : o
+                                    )
+                                  )
+                                }
+                                className="h-5 w-5 p-0"
+                                aria-label={`Remove media from option ${
+                                  index + 1
+                                }`}>
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
                           )}
                         </div>
                       </div>
-                      <div className="flex justify-end md:w-24">
+                      <div className="flex justify-end md:w-20">
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveOption(opt.id)}
-                          disabled={options.length <= 2}>
+                          disabled={options.length <= 2}
+                          aria-label={`Remove option ${index + 1}`}>
                           Remove
                         </Button>
                       </div>
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Provide between 2 and 5 unique options.
-                </p>
+                {validationErrors.options ? (
+                  <p className="text-xs text-red-500" role="alert">
+                    {validationErrors.options}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Provide between 2 and 5 unique options.
+                  </p>
+                )}
               </div>
 
+              {/* Settings and Duration */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Settings</label>
-                  <div className="space-y-2 text-sm">
-                    <label className="flex items-center gap-2">
+                  <Label className="text-sm font-medium">Settings</Label>
+                  <div className="space-y-3 text-sm">
+                    <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
                         className="h-4 w-4 rounded border"
@@ -338,10 +477,13 @@ export default function CreatePollPage() {
                       <span>Allow multiple selections</span>
                     </label>
                     <div className="space-y-1">
-                      <span className="text-xs text-muted-foreground">
+                      <Label
+                        htmlFor="results-visibility"
+                        className="text-xs text-muted-foreground">
                         When should results be visible?
-                      </span>
+                      </Label>
                       <select
+                        id="results-visibility"
                         className="h-9 w-full rounded-md border bg-background px-2 text-sm"
                         value={settings.showResults}
                         onChange={(e) =>
@@ -359,21 +501,51 @@ export default function CreatePollPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">
+                  <Label htmlFor="poll-expiry" className="text-sm font-medium">
                     Expiry (optional)
-                  </label>
+                  </Label>
                   <Input
+                    id="poll-expiry"
                     type="datetime-local"
                     value={expiresAt}
-                    onChange={(e) => setExpiresAt(e.target.value)}
+                    onChange={(e) => {
+                      setExpiresAt(e.target.value);
+                      if (validationErrors.expiresAt) {
+                        setValidationErrors((prev) => ({
+                          ...prev,
+                          expiresAt: undefined,
+                        }));
+                      }
+                    }}
+                    className={
+                      validationErrors.expiresAt ? "border-red-500" : ""
+                    }
+                    aria-invalid={!!validationErrors.expiresAt}
+                    aria-describedby={
+                      validationErrors.expiresAt
+                        ? "expiry-error"
+                        : "expiry-help"
+                    }
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Leave empty for no automatic expiry.
-                  </p>
+                  {validationErrors.expiresAt ? (
+                    <p
+                      id="expiry-error"
+                      className="text-xs text-red-500"
+                      role="alert">
+                      {validationErrors.expiresAt}
+                    </p>
+                  ) : (
+                    <p
+                      id="expiry-help"
+                      className="text-xs text-muted-foreground">
+                      Leave empty for no automatic expiry.
+                    </p>
+                  )}
                 </div>
               </div>
 
-              <div className="flex justify-end">
+              {/* Submit Button */}
+              <div className="flex justify-end pt-2">
                 <Button
                   type="button"
                   disabled={!canSubmit || submitting}
@@ -392,6 +564,7 @@ export default function CreatePollPage() {
           </Card>
         </div>
 
+        {/* Sidebar - My Recent Polls */}
         <div className="md:col-span-1">
           <Card>
             <CardHeader>
