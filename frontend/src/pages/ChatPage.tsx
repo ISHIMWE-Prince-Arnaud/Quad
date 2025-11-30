@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
 import { UploadService } from "@/services/uploadService";
 import { ChatService } from "@/services/chatService";
@@ -34,6 +36,7 @@ import {
 type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
 const REACTION_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "😡"] as const;
+const MAX_MESSAGE_LENGTH = 2000;
 
 function useNearBottom(
   ref: Readonly<{ current: HTMLElement | null }>,
@@ -72,13 +75,23 @@ export default function ChatPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [lastReadId, setLastReadId] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const listRef = useRef<HTMLDivElement | null>(null);
-  const topSentinelRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimerRef = useRef<number | null>(null);
 
   const nearBottom = useNearBottom(listRef);
+
+  // Virtualized scrolling setup
+  const virtualizer = useVirtualizer({
+    count: messages.length,
+    getScrollElement: () => listRef.current,
+    estimateSize: () => 100, // Estimated message height
+    overscan: 5, // Render 5 extra items above and below viewport
+  });
 
   const oldestMessageId = useMemo(
     () => (messages.length > 0 ? messages[0].id : null),
@@ -92,16 +105,17 @@ export default function ChatPage() {
   const scrollToBottom = useCallback(() => {
     const el = listRef.current;
     if (!el) return;
-    el.scrollTop = el.scrollHeight;
-  }, []);
+    // Scroll to the last message
+    if (messages.length > 0) {
+      virtualizer.scrollToIndex(messages.length - 1, { align: "end" });
+    }
+  }, [messages.length, virtualizer]);
 
   const loadOlder = useCallback(async () => {
     if (!oldestMessageId || loadingOlder) return;
     try {
       setLoadingOlder(true);
-      const container = listRef.current;
-      const prevScrollHeight = container?.scrollHeight ?? 0;
-      const prevScrollTop = container?.scrollTop ?? 0;
+      const prevLength = messages.length;
 
       const res = await ChatService.getMessages({
         before: oldestMessageId,
@@ -112,13 +126,9 @@ export default function ChatPage() {
         setMessages((prev) => [...res.data, ...prev]);
         setHasMoreOlder(res.pagination?.hasMore ?? false);
 
-        // Preserve scroll position after prepending
+        // Preserve scroll position after prepending by scrolling to the same message index
         requestAnimationFrame(() => {
-          const newScrollHeight = container?.scrollHeight ?? 0;
-          if (container) {
-            container.scrollTop =
-              newScrollHeight - prevScrollHeight + prevScrollTop;
-          }
+          virtualizer.scrollToIndex(res.data.length, { align: "start" });
         });
       } else {
         setHasMoreOlder(false);
@@ -129,7 +139,7 @@ export default function ChatPage() {
     } finally {
       setLoadingOlder(false);
     }
-  }, [oldestMessageId, loadingOlder]);
+  }, [oldestMessageId, loadingOlder, messages.length, virtualizer]);
 
   // Initial load
   useEffect(() => {
@@ -156,26 +166,21 @@ export default function ChatPage() {
     };
   }, [scrollToBottom]);
 
-  // Load older via intersection observer on top sentinel
+  // Load older messages when scrolling near the top
   useEffect(() => {
-    const el = topSentinelRef.current;
     const container = listRef.current;
-    if (!el || !container || !hasMoreOlder) return;
+    if (!container || !hasMoreOlder || loadingOlder) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            void loadOlder();
-          }
-        }
-      },
-      { root: container, rootMargin: "0px", threshold: 1.0 }
-    );
+    const handleScroll = () => {
+      // Load more when scrolled within 200px of the top
+      if (container.scrollTop < 200) {
+        void loadOlder();
+      }
+    };
 
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [hasMoreOlder, oldestMessageId, loadOlder]);
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [hasMoreOlder, loadingOlder, loadOlder]);
 
   // Socket wiring
   useEffect(() => {
@@ -426,17 +431,29 @@ export default function ChatPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteClick = (id: string) => {
+    setMessageToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!messageToDelete) return;
     try {
-      const res = await ChatService.deleteMessage(id);
+      setDeleting(true);
+      const res = await ChatService.deleteMessage(messageToDelete);
       if (res.success) {
-        setMessages((prev) => prev.filter((m) => m.id !== id));
+        setMessages((prev) => prev.filter((m) => m.id !== messageToDelete));
+        setDeleteConfirmOpen(false);
+        setMessageToDelete(null);
+        toast.success("Message deleted");
       } else {
         toast.error(res.message || "Failed to delete message");
       }
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete message");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -460,11 +477,10 @@ export default function ChatPage() {
 
         <Card>
           <CardContent className="p-0">
-            {/* Messages list */}
+            {/* Messages list with virtualization */}
             <div
               ref={listRef}
-              className="h-[calc(100vh-260px)] overflow-y-auto p-4 space-y-4">
-              <div ref={topSentinelRef} />
+              className="h-[calc(100vh-260px)] overflow-y-auto p-4">
               {loading && (
                 <div className="flex items-center justify-center py-8 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading
@@ -478,178 +494,204 @@ export default function ChatPage() {
                 </div>
               )}
 
-              {messages.map((m) => {
-                const isSelf = m.author.clerkId === user?.clerkId;
-                return (
-                  <div
-                    key={m.id}
-                    className={cn(
-                      "flex items-end gap-2",
-                      isSelf ? "justify-end" : "justify-start"
-                    )}>
-                    {!isSelf && (
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage
-                          src={m.author.profileImage}
-                          alt={m.author.username}
-                        />
-                        <AvatarFallback>
-                          {m.author.username?.[0]?.toUpperCase() || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                    <div
-                      className={cn(
-                        "max-w-[78%] rounded-2xl px-3 py-2",
-                        isSelf
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted"
-                      )}>
-                      <div className="text-xs mb-1 opacity-80">
-                        {!isSelf && m.author.username}
-                      </div>
-
-                      {editingId === m.id ? (
-                        <div className="space-y-2">
-                          <Textarea
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            rows={2}
-                            className={cn(
-                              "text-sm",
-                              isSelf ? "text-primary-foreground" : undefined
-                            )}
-                          />
-                          <div className="flex gap-2 justify-end">
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => {
-                                setEditingId(null);
-                                setEditText("");
-                              }}>
-                              Cancel
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => void handleSaveEdit(m.id)}>
-                              Save
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          {m.text && (
-                            <div className="whitespace-pre-wrap text-sm">
-                              {m.text}
-                            </div>
-                          )}
-                          {m.media && (
-                            <div className="mt-2 overflow-hidden rounded-lg">
-                              {m.media.type === "image" ? (
-                                <img
-                                  src={m.media.url}
-                                  alt="attachment"
-                                  className="max-h-96 rounded-lg"
-                                />
-                              ) : (
-                                <video
-                                  src={m.media.url}
-                                  controls
-                                  className="max-h-96 rounded-lg"
-                                />
-                              )}
-                            </div>
-                          )}
-                          <div className="mt-1 flex items-center justify-between gap-3 text-[11px] opacity-80">
-                            <div className="flex items-center gap-2">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <button
-                                    className={cn(
-                                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5",
-                                      isSelf
-                                        ? "bg-primary-foreground/20"
-                                        : "bg-background/60"
-                                    )}>
-                                    <span>{m.userReaction || "😍"}</span>
-                                    <span>{m.reactionsCount || 0}</span>
-                                  </button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                  align={isSelf ? "end" : "start"}>
-                                  {REACTION_EMOJIS.map((emoji) => (
-                                    <DropdownMenuItem
-                                      key={emoji}
-                                      onClick={() =>
-                                        void toggleReaction(m.id, emoji)
-                                      }>
-                                      {emoji}
-                                    </DropdownMenuItem>
-                                  ))}
-                                  {m.userReaction && (
-                                    <DropdownMenuItem
-                                      onClick={() =>
-                                        void toggleReaction(
-                                          m.id,
-                                          m.userReaction!
-                                        )
-                                      }>
-                                      <span className="text-red-500">
-                                        Remove my reaction
-                                      </span>
-                                    </DropdownMenuItem>
-                                  )}
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span>
-                                {m.timestamp}
-                                {m.isEdited ? " • edited" : ""}
-                              </span>
-                              {isSelf && (
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <button className="h-6 w-6 inline-flex items-center justify-center rounded hover:bg-background/60">
-                                      <MoreVertical className="h-3.5 w-3.5" />
-                                    </button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem
-                                      onClick={() => handleEdit(m)}>
-                                      Edit
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                      onClick={() => void handleDelete(m.id)}>
-                                      Delete
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              )}
-                            </div>
-                          </div>
-                        </>
-                      )}
+              {!loading && messages.length > 0 && (
+                <div
+                  style={{
+                    height: `${virtualizer.getTotalSize()}px`,
+                    width: "100%",
+                    position: "relative",
+                  }}>
+                  {loadingOlder && (
+                    <div className="text-center text-xs text-muted-foreground py-2">
+                      Loading older messages...
                     </div>
-                    {isSelf && (
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage
-                          src={user?.profileImage}
-                          alt={user?.username}
-                        />
-                        <AvatarFallback>
-                          {user?.username?.[0]?.toUpperCase() || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                  </div>
-                );
-              })}
+                  )}
+                  {virtualizer.getVirtualItems().map((virtualItem) => {
+                    const m = messages[virtualItem.index];
+                    const isSelf = m.author.clerkId === user?.clerkId;
+                    return (
+                      <div
+                        key={virtualItem.key}
+                        data-index={virtualItem.index}
+                        ref={virtualizer.measureElement}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          transform: `translateY(${virtualItem.start}px)`,
+                        }}
+                        className="pb-4">
+                        <div
+                          className={cn(
+                            "flex items-end gap-2",
+                            isSelf ? "justify-end" : "justify-start"
+                          )}>
+                          {!isSelf && (
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage
+                                src={m.author.profileImage}
+                                alt={m.author.username}
+                              />
+                              <AvatarFallback>
+                                {m.author.username?.[0]?.toUpperCase() || "U"}
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                          <div
+                            className={cn(
+                              "max-w-[78%] rounded-2xl px-3 py-2",
+                              isSelf
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted"
+                            )}>
+                            <div className="text-xs mb-1 opacity-80">
+                              {!isSelf && m.author.username}
+                            </div>
 
-              {loadingOlder && (
-                <div className="text-center text-xs text-muted-foreground">
-                  Loading older messages...
+                            {editingId === m.id ? (
+                              <div className="space-y-2">
+                                <Textarea
+                                  value={editText}
+                                  onChange={(e) => setEditText(e.target.value)}
+                                  rows={2}
+                                  className={cn(
+                                    "text-sm",
+                                    isSelf
+                                      ? "text-primary-foreground"
+                                      : undefined
+                                  )}
+                                />
+                                <div className="flex gap-2 justify-end">
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={() => {
+                                      setEditingId(null);
+                                      setEditText("");
+                                    }}>
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => void handleSaveEdit(m.id)}>
+                                    Save
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                {m.text && (
+                                  <div className="whitespace-pre-wrap text-sm">
+                                    {m.text}
+                                  </div>
+                                )}
+                                {m.media && (
+                                  <div className="mt-2 overflow-hidden rounded-lg">
+                                    {m.media.type === "image" ? (
+                                      <img
+                                        src={m.media.url}
+                                        alt="attachment"
+                                        className="max-h-96 rounded-lg"
+                                      />
+                                    ) : (
+                                      <video
+                                        src={m.media.url}
+                                        controls
+                                        className="max-h-96 rounded-lg"
+                                      />
+                                    )}
+                                  </div>
+                                )}
+                                <div className="mt-1 flex items-center justify-between gap-3 text-[11px] opacity-80">
+                                  <div className="flex items-center gap-2">
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <button
+                                          className={cn(
+                                            "inline-flex items-center gap-1 rounded-full px-2 py-0.5",
+                                            isSelf
+                                              ? "bg-primary-foreground/20"
+                                              : "bg-background/60"
+                                          )}>
+                                          <span>{m.userReaction || "😍"}</span>
+                                          <span>{m.reactionsCount || 0}</span>
+                                        </button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent
+                                        align={isSelf ? "end" : "start"}>
+                                        {REACTION_EMOJIS.map((emoji) => (
+                                          <DropdownMenuItem
+                                            key={emoji}
+                                            onClick={() =>
+                                              void toggleReaction(m.id, emoji)
+                                            }>
+                                            {emoji}
+                                          </DropdownMenuItem>
+                                        ))}
+                                        {m.userReaction && (
+                                          <DropdownMenuItem
+                                            onClick={() =>
+                                              void toggleReaction(
+                                                m.id,
+                                                m.userReaction!
+                                              )
+                                            }>
+                                            <span className="text-red-500">
+                                              Remove my reaction
+                                            </span>
+                                          </DropdownMenuItem>
+                                        )}
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span>
+                                      {m.timestamp}
+                                      {m.isEdited ? " • edited" : ""}
+                                    </span>
+                                    {isSelf && (
+                                      <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <button className="h-6 w-6 inline-flex items-center justify-center rounded hover:bg-background/60">
+                                            <MoreVertical className="h-3.5 w-3.5" />
+                                          </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                          <DropdownMenuItem
+                                            onClick={() => handleEdit(m)}>
+                                            Edit
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem
+                                            onClick={() =>
+                                              handleDeleteClick(m.id)
+                                            }
+                                            className="text-destructive">
+                                            Delete
+                                          </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
+                                    )}
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                          {isSelf && (
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage
+                                src={user?.profileImage}
+                                alt={user?.username}
+                              />
+                              <AvatarFallback>
+                                {user?.username?.[0]?.toUpperCase() || "U"}
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -672,6 +714,7 @@ export default function ChatPage() {
                   {media.type === "image" ? (
                     <img
                       src={media.url}
+                      alt="Attached media"
                       className="h-14 w-14 object-cover rounded"
                     />
                   ) : (
@@ -680,7 +723,8 @@ export default function ChatPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setMedia(null)}>
+                    onClick={() => setMedia(null)}
+                    aria-label="Remove media">
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
@@ -691,7 +735,8 @@ export default function ChatPage() {
                   variant="ghost"
                   size="icon"
                   onClick={handleAttachClick}
-                  disabled={uploading}>
+                  disabled={uploading}
+                  aria-label="Attach media">
                   {uploading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
@@ -707,17 +752,35 @@ export default function ChatPage() {
                     void handleFileSelected(e.target.files?.[0] || null)
                   }
                 />
-                <Textarea
-                  value={text}
-                  onChange={(e) => handleTextChange(e.target.value)}
-                  placeholder="Write a message"
-                  rows={1}
-                  className="min-h-[44px] resize-none"
-                />
+                <div className="flex-1 relative">
+                  <Textarea
+                    value={text}
+                    onChange={(e) => handleTextChange(e.target.value)}
+                    placeholder="Write a message"
+                    rows={1}
+                    maxLength={MAX_MESSAGE_LENGTH}
+                    className="min-h-[44px] resize-none pr-16"
+                    aria-label="Message input"
+                  />
+                  <div
+                    className={cn(
+                      "absolute bottom-2 right-2 text-xs",
+                      text.length > MAX_MESSAGE_LENGTH * 0.9
+                        ? "text-destructive"
+                        : "text-muted-foreground"
+                    )}>
+                    {text.length}/{MAX_MESSAGE_LENGTH}
+                  </div>
+                </div>
                 <Button
                   type="button"
                   onClick={() => void handleSend()}
-                  disabled={sending || (!text.trim() && !media)}>
+                  disabled={
+                    sending ||
+                    (!text.trim() && !media) ||
+                    text.length > MAX_MESSAGE_LENGTH
+                  }
+                  aria-label="Send message">
                   {sending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
@@ -728,6 +791,19 @@ export default function ChatPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Delete confirmation dialog */}
+        <ConfirmDialog
+          open={deleteConfirmOpen}
+          onOpenChange={setDeleteConfirmOpen}
+          title="Delete Message"
+          description="Are you sure you want to delete this message? This action cannot be undone."
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          variant="destructive"
+          onConfirm={handleDeleteConfirm}
+          loading={deleting}
+        />
       </div>
     </div>
   );
