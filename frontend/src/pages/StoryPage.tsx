@@ -1,13 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Share2 } from "lucide-react";
+import { Loader2, Share2, MoreHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
 import { ReactionPicker } from "@/components/reactions/ReactionPicker";
 import { ReactionService, type ReactionType } from "@/services/reactionService";
 import { CommentsSection } from "@/components/comments/CommentsSection";
+import { useAuthStore } from "@/stores/authStore";
 import toast from "react-hot-toast";
 
 const reactionEmojiMap: Record<ReactionType, string> = {
@@ -34,10 +42,14 @@ function getErrorMessage(error: unknown): string {
 
 export default function StoryPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
   const [reactionCounts, setReactionCounts] = useState<
@@ -125,6 +137,31 @@ export default function StoryPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!id) return;
+    try {
+      setDeleting(true);
+      const res = await StoryService.delete(id);
+      if (res.success) {
+        toast.success("Story deleted successfully");
+        navigate("/app/stories");
+      } else {
+        toast.error(res.message || "Failed to delete story");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(getErrorMessage(err));
+    } finally {
+      setDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
+  const handleEdit = () => {
+    if (!id) return;
+    navigate(`/app/stories/${id}/edit`);
+  };
+
   const handleSelectReaction = async (type: ReactionType) => {
     if (!id) return;
     const prevType = userReaction;
@@ -179,17 +216,40 @@ export default function StoryPage() {
 
   if (!story) return null;
 
+  const isOwner = user?.clerkId === story.author.clerkId;
+
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-3xl space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">{story.title}</h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => void handleShare()}>
-            <Share2 className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => void handleShare()}>
+              <Share2 className="h-5 w-5" />
+            </Button>
+            {isOwner && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreHorizontal className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleEdit}>
+                    Edit story
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={() => setIsDeleteDialogOpen(true)}>
+                    Delete story
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
 
         {story.coverImage && (
@@ -252,6 +312,18 @@ export default function StoryPage() {
 
         <CommentsSection contentType="story" contentId={story._id} />
       </div>
+
+      {/* Delete confirmation dialog */}
+      <ConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        title="Delete story?"
+        description="This action cannot be undone. This will permanently delete your story and all its comments."
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={handleDelete}
+        loading={deleting}
+      />
     </div>
   );
 }

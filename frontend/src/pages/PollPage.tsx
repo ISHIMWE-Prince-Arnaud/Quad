@@ -1,13 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, MoreHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PollService } from "@/services/pollService";
 import type { Poll } from "@/types/poll";
 import { CommentsSection } from "@/components/comments/CommentsSection";
 import { ReactionPicker } from "@/components/reactions/ReactionPicker";
 import { ReactionService, type ReactionType } from "@/services/reactionService";
+import { useAuthStore } from "@/stores/authStore";
 import toast from "react-hot-toast";
 
 const reactionEmojiMap: Record<ReactionType, string> = {
@@ -34,11 +42,15 @@ function getErrorMessage(error: unknown): string {
 
 export default function PollPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   const [poll, setPoll] = useState<Poll | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [voting, setVoting] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
 
@@ -196,6 +208,31 @@ export default function PollPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!id) return;
+    try {
+      setDeleting(true);
+      const res = await PollService.delete(id);
+      if (res.success) {
+        toast.success("Poll deleted successfully");
+        navigate("/app/polls");
+      } else {
+        toast.error(res.message || "Failed to delete poll");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(getErrorMessage(err));
+    } finally {
+      setDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
+  const handleEdit = () => {
+    if (!id) return;
+    navigate(`/app/polls/${id}/edit`);
+  };
+
   const renderOptionRow = (optionIndex: number) => {
     if (!poll) return null;
     const opt = poll.options[optionIndex];
@@ -258,15 +295,37 @@ export default function PollPage() {
   if (!poll) return null;
 
   const hasVoted = (poll.userVote?.length ?? 0) > 0;
+  const isOwner = user?.clerkId === poll.author.clerkId;
 
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-3xl space-y-6">
         <Card className="shadow-sm">
           <CardHeader className="space-y-2">
-            <CardTitle className="text-lg font-semibold">
-              {poll.question}
-            </CardTitle>
+            <div className="flex items-start justify-between">
+              <CardTitle className="text-lg font-semibold">
+                {poll.question}
+              </CardTitle>
+              {isOwner && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleEdit}>
+                      Edit poll
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => setIsDeleteDialogOpen(true)}>
+                      Delete poll
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span>by {poll.author.username}</span>
               <span>
@@ -378,6 +437,18 @@ export default function PollPage() {
 
         <CommentsSection contentType="poll" contentId={poll.id} />
       </div>
+
+      {/* Delete confirmation dialog */}
+      <ConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        title="Delete poll?"
+        description="This action cannot be undone. This will permanently delete your poll, all votes, and comments."
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={handleDelete}
+        loading={deleting}
+      />
     </div>
   );
 }

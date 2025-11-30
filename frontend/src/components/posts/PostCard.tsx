@@ -15,14 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { MediaGallery } from "./MediaGallery";
 import { timeAgo } from "@/lib/timeUtils";
 import { cn } from "@/lib/utils";
@@ -405,28 +398,15 @@ export function PostCard({
       </motion.div>
 
       {/* Delete confirmation dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete post?</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete your
-              post and remove it from feeds.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="button" variant="destructive" onClick={handleDelete}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        title="Delete post?"
+        description="This action cannot be undone. This will permanently delete your post and remove it from feeds."
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={handleDelete}
+      />
     </>
   );
 }
