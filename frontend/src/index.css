@@ -79,6 +79,16 @@
   *:focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
+  
+  /* Smooth theme transitions */
+  html.theme-transitioning,
+  html.theme-transitioning *,
+  html.theme-transitioning *::before,
+  html.theme-transitioning *::after {
+    transition: background-color 300ms ease-in-out, 
+                border-color 300ms ease-in-out, 
+                color 300ms ease-in-out !important;
+  }
 }
 
 @layer utilities {

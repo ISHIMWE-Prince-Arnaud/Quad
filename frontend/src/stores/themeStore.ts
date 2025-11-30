@@ -1,103 +1,148 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-type Theme = 'light' | 'dark' | 'system'
+type Theme = "light" | "dark" | "system";
 
 interface ThemeState {
-  theme: Theme
-  isDarkMode: boolean
-  
+  theme: Theme;
+  isDarkMode: boolean;
+  effectiveTheme: "light" | "dark";
+
   // Actions
-  setTheme: (theme: Theme) => void
-  toggleDarkMode: () => void
-  applyTheme: () => void
-  initializeTheme: () => void
+  setTheme: (theme: Theme) => void;
+  toggleDarkMode: () => void;
+  applyTheme: () => void;
+  initializeTheme: () => void;
 }
 
 // Helper function to detect system preference
 const getSystemTheme = (): boolean => {
-  if (typeof window !== 'undefined') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  if (typeof window !== "undefined") {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
   }
-  return false
-}
+  return false;
+};
 
 // Helper function to calculate effective dark mode
 const calculateDarkMode = (theme: Theme): boolean => {
   switch (theme) {
-    case 'dark':
-      return true
-    case 'light':
-      return false
-    case 'system':
-      return getSystemTheme()
+    case "dark":
+      return true;
+    case "light":
+      return false;
+    case "system":
+      return getSystemTheme();
     default:
-      return false
+      return false;
   }
-}
+};
+
+// Helper function to apply theme with smooth transition
+const applyThemeToDOM = (isDarkMode: boolean) => {
+  if (typeof window === "undefined") return;
+
+  // Add transition class for smooth theme changes
+  const root = document.documentElement;
+  root.classList.add("theme-transitioning");
+
+  // Apply or remove dark class
+  if (isDarkMode) {
+    root.classList.add("dark");
+  } else {
+    root.classList.remove("dark");
+  }
+
+  // Remove transition class after animation completes
+  setTimeout(() => {
+    root.classList.remove("theme-transitioning");
+  }, 300);
+};
+
+// Store system theme listener reference for cleanup
+let systemThemeListener: ((e: MediaQueryListEvent) => void) | null = null;
 
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
-      theme: 'system',
+      theme: "system",
       isDarkMode: getSystemTheme(),
+      effectiveTheme: getSystemTheme() ? "dark" : "light",
 
       setTheme: (theme: Theme) => {
-        const isDarkMode = calculateDarkMode(theme)
-        set({ theme, isDarkMode })
-        
-        // Apply theme to DOM
-        if (isDarkMode) {
-          document.documentElement.classList.add('dark')
-        } else {
-          document.documentElement.classList.remove('dark')
+        const isDarkMode = calculateDarkMode(theme);
+        const effectiveTheme = isDarkMode ? "dark" : "light";
+        set({ theme, isDarkMode, effectiveTheme });
+
+        // Apply theme to DOM with smooth transition
+        applyThemeToDOM(isDarkMode);
+
+        // Broadcast theme change to other tabs
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem(
+            "quad-theme-change",
+            Date.now().toString()
+          );
         }
       },
 
       toggleDarkMode: () => {
-        const currentTheme = get().theme
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
-        get().setTheme(newTheme)
+        const currentTheme = get().theme;
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        get().setTheme(newTheme);
       },
 
       applyTheme: () => {
-        const { theme } = get()
-        const isDarkMode = calculateDarkMode(theme)
-        set({ isDarkMode })
-        
-        // Apply theme to DOM
-        if (isDarkMode) {
-          document.documentElement.classList.add('dark')
-        } else {
-          document.documentElement.classList.remove('dark')
-        }
+        const { theme } = get();
+        const isDarkMode = calculateDarkMode(theme);
+        const effectiveTheme = isDarkMode ? "dark" : "light";
+        set({ isDarkMode, effectiveTheme });
+
+        // Apply theme to DOM with smooth transition
+        applyThemeToDOM(isDarkMode);
       },
 
       initializeTheme: () => {
+        if (typeof window === "undefined") return;
+
+        // Apply initial theme
+        get().applyTheme();
+
         // Listen for system theme changes
-        if (typeof window !== 'undefined') {
-          const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-          const handleChange = () => {
-            const { theme } = get()
-            if (theme === 'system') {
-              get().applyTheme()
-            }
-          }
-          
-          mediaQuery.addEventListener('change', handleChange)
-          
-          // Apply initial theme
-          get().applyTheme()
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        // Remove old listener if exists
+        if (systemThemeListener) {
+          mediaQuery.removeEventListener("change", systemThemeListener);
         }
+
+        // Create new listener
+        systemThemeListener = () => {
+          const { theme } = get();
+          if (theme === "system") {
+            get().applyTheme();
+          }
+        };
+
+        mediaQuery.addEventListener("change", systemThemeListener);
+
+        // Listen for theme changes from other tabs
+        const handleStorageChange = (e: StorageEvent) => {
+          if (e.key === "quad-theme-storage") {
+            // Theme was changed in another tab, rehydrate
+            get().applyTheme();
+          }
+        };
+
+        window.addEventListener("storage", handleStorageChange);
       },
     }),
     {
-      name: 'quad-theme-storage',
+      name: "quad-theme-storage",
       onRehydrateStorage: () => (state) => {
         if (state) {
-          state.applyTheme()
+          state.applyTheme();
         }
       },
     }
   )
-)
+);
