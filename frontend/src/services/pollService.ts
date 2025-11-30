@@ -1,66 +1,116 @@
 import { endpoints } from "@/lib/api";
 import type {
-  CreatePollInput,
-  PollQueryParams,
-  PollResponse,
+  Poll,
   PollsListResponse,
+  PollResponse,
+  CreatePollInput,
   UpdatePollInput,
   VoteOnPollInput,
+  PollQueryParams,
 } from "@/types/poll";
 
+/**
+ * Poll Service
+ * Handles all poll-related API calls including voting
+ */
 export class PollService {
+  /**
+   * Create a new poll
+   * @param data - Poll data with question, options, settings
+   * @returns Created poll response
+   */
   static async create(data: CreatePollInput): Promise<PollResponse> {
-    const res = await endpoints.polls.create(data);
-    return res.data as PollResponse;
+    const response = await endpoints.polls.create(data);
+    return response.data;
   }
 
+  /**
+   * Get all polls with pagination and filters
+   * @param params - Query parameters (page, limit, status, etc.)
+   * @returns Paginated polls response
+   */
+  static async getAll(params?: PollQueryParams): Promise<PollsListResponse> {
+    const response = await endpoints.polls.getAll(params);
+    return response.data;
+  }
+
+  /**
+   * Get current user's polls
+   * @param params - Query parameters (page, limit)
+   * @returns Paginated polls response
+   */
+  static async getMine(params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<PollsListResponse> {
+    const response = await endpoints.polls.getMine(params);
+    return response.data;
+  }
+
+  /**
+   * Get a single poll by ID
+   * @param id - Poll ID
+   * @returns Poll data
+   */
+  static async getById(id: string): Promise<PollResponse> {
+    const response = await endpoints.polls.getById(id);
+    return response.data;
+  }
+
+  /**
+   * Update an existing poll (author only)
+   * @param id - Poll ID
+   * @param data - Updated poll data
+   * @returns Updated poll response
+   */
   static async update(
     id: string,
     data: UpdatePollInput
   ): Promise<PollResponse> {
-    const res = await endpoints.polls.update(id, data);
-    return res.data as PollResponse;
+    const response = await endpoints.polls.update(id, data);
+    return response.data;
   }
 
+  /**
+   * Delete a poll (author only)
+   * @param id - Poll ID
+   * @returns Delete confirmation
+   */
   static async delete(
     id: string
   ): Promise<{ success: boolean; message?: string }> {
-    const res = await endpoints.polls.delete(id);
-    return res.data as { success: boolean; message?: string };
+    const response = await endpoints.polls.delete(id);
+    return response.data;
   }
 
-  static async getById(id: string): Promise<PollResponse> {
-    const res = await endpoints.polls.getById(id);
-    return res.data as PollResponse;
-  }
-
-  static async getAll(params?: PollQueryParams): Promise<PollsListResponse> {
-    const res = await endpoints.polls.getAll(params);
-    return res.data as PollsListResponse;
-  }
-
-  static async getMine(params?: {
-    page?: number | string;
-    limit?: number | string;
-  }): Promise<PollsListResponse> {
-    const res = await endpoints.polls.getMine(params);
-    return res.data as PollsListResponse;
-  }
-
+  /**
+   * Vote on a poll
+   * @param id - Poll ID
+   * @param data - Vote data with option indices
+   * @returns Updated poll with vote
+   */
   static async vote(id: string, data: VoteOnPollInput): Promise<PollResponse> {
-    const res = await endpoints.polls.vote(id, data);
-    return res.data as PollResponse;
+    const response = await endpoints.polls.vote(id, data);
+    return response.data;
   }
 
-  static async removeVote(
-    id: string
-  ): Promise<{ success: boolean; message?: string }> {
-    const res = await endpoints.polls.removeVote(id);
-    return res.data as { success: boolean; message?: string };
+  /**
+   * Remove vote from a poll
+   * @param id - Poll ID
+   * @returns Updated poll without vote
+   */
+  static async removeVote(id: string): Promise<PollResponse> {
+    const response = await endpoints.polls.removeVote(id);
+    return response.data;
   }
 
+  /**
+   * Close a poll (author only)
+   * @param id - Poll ID
+   * @returns Updated poll with closed status
+   */
   static async close(id: string): Promise<PollResponse> {
-    const res = await endpoints.polls.close(id);
-    return res.data as PollResponse;
+    const response = await endpoints.polls.close(id);
+    return response.data;
   }
 }

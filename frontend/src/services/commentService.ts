@@ -53,6 +53,19 @@ export class CommentService {
     };
   }
 
+  static async getById(id: string): Promise<{
+    success: boolean;
+    data: Comment;
+    message?: string;
+  }> {
+    const response = await endpoints.comments.getById(id);
+    return response.data as {
+      success: boolean;
+      data: Comment;
+      message?: string;
+    };
+  }
+
   static async getReplies(
     id: string,
     params?: { limit?: number; skip?: number }

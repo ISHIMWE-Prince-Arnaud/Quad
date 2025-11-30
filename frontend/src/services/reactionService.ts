@@ -63,6 +63,31 @@ export class ReactionService {
     return response.data as ToggleReactionResponse;
   }
 
+  static async getUserReactions(): Promise<{
+    success: boolean;
+    data: Array<{
+      _id: string;
+      contentType: ReactableContentType;
+      contentId: string;
+      type: ReactionType;
+      createdAt: string;
+    }>;
+    message?: string;
+  }> {
+    const response = await endpoints.reactions.getUserReactions();
+    return response.data as {
+      success: boolean;
+      data: Array<{
+        _id: string;
+        contentType: ReactableContentType;
+        contentId: string;
+        type: ReactionType;
+        createdAt: string;
+      }>;
+      message?: string;
+    };
+  }
+
   static async getByContent(
     contentType: ReactableContentType,
     contentId: string
