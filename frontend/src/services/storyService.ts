@@ -37,12 +37,13 @@ export class StoryService {
 
   /**
    * Get current user's stories (both draft and published)
-   * @param params - Query parameters (limit, skip)
+   * @param params - Query parameters (limit, skip, status)
    * @returns Paginated stories response
    */
   static async getMine(params?: {
     limit?: number;
     skip?: number;
+    status?: "draft" | "published";
   }): Promise<StoriesListResponse> {
     const response = await endpoints.stories.getMine(params);
     return response.data;

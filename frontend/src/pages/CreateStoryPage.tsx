@@ -1,14 +1,21 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
+import Placeholder from "@tiptap/extension-placeholder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { UploadService } from "@/services/uploadService";
 import { StoryService } from "@/services/storyService";
 import type { CreateStoryInput, Story, StoryStatus } from "@/types/story";
+import { createStorySchema } from "@/schemas/story.schema";
 import {
   Loader2,
   Image as ImageIcon,
-  Type,
+  Heading2,
+  Heading3,
   Quote,
   List,
   ListOrdered,
@@ -17,6 +24,7 @@ import {
   Link as LinkIcon,
   Save,
   Send,
+  X,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -34,21 +42,58 @@ function getErrorMessage(error: unknown): string {
 }
 
 export default function CreateStoryPage() {
-  const editorRef = useRef<HTMLDivElement>(null);
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [myDrafts, setMyDrafts] = useState<Story[]>([]);
   const [myPublished, setMyPublished] = useState<Story[]>([]);
   const [loadingMine, setLoadingMine] = useState(true);
+  const [validationErrors, setValidationErrors] = useState<{
+    title?: string;
+    content?: string;
+  }>({});
 
-  const canSubmit = useMemo(
-    () => title.trim().length > 0 && content.trim().length > 0,
-    [title, content]
-  );
+  // Initialize TipTap editor
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: {
+          levels: [2, 3],
+        },
+      }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: "text-blue-500 underline",
+        },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: "max-w-full h-auto rounded-lg my-4",
+        },
+      }),
+      Placeholder.configure({
+        placeholder: "Write your story content here...",
+      }),
+    ],
+    content: "",
+    editorProps: {
+      attributes: {
+        class:
+          "prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none min-h-[300px] max-w-none p-4",
+      },
+    },
+  });
 
+  const canSubmit = useMemo(() => {
+    if (!editor) return false;
+    const content = editor.getHTML();
+    const textContent = content.replace(/<[^>]*>/g, "").trim();
+    return title.trim().length > 0 && textContent.length > 0;
+  }, [title, editor?.getHTML()]);
+
+  // Load user's stories
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -79,16 +124,18 @@ export default function CreateStoryPage() {
     };
   }, []);
 
-  const exec = (command: string, value?: string) => {
-    editorRef.current?.focus();
-    document.execCommand(command, false, value);
-    setContent(editorRef.current?.innerHTML || "");
-  };
+  // Cleanup editor on unmount
+  useEffect(() => {
+    return () => {
+      editor?.destroy();
+    };
+  }, [editor]);
 
   const handleInsertLink = () => {
+    if (!editor) return;
     const url = window.prompt("Enter URL");
     if (!url) return;
-    exec("createLink", url);
+    editor.chain().focus().setLink({ href: url }).run();
   };
 
   const handleUploadCover = async (file: File | null) => {
@@ -107,16 +154,11 @@ export default function CreateStoryPage() {
   };
 
   const handleInsertInlineImage = async (file: File | null) => {
-    if (!file) return;
+    if (!file || !editor) return;
     try {
       const res = await UploadService.uploadStoryMedia(file);
-      editorRef.current?.focus();
-      document.execCommand(
-        "insertHTML",
-        false,
-        `<img src="${res.url}" alt="image" />`
-      );
-      setContent(editorRef.current?.innerHTML || "");
+      editor.chain().focus().setImage({ src: res.url }).run();
+      toast.success("Image inserted");
     } catch (err) {
       console.error(err);
       toast.error(getErrorMessage(err));
@@ -124,7 +166,35 @@ export default function CreateStoryPage() {
   };
 
   const handleSubmit = async (status: StoryStatus) => {
-    if (!canSubmit || submitting) return;
+    if (!canSubmit || submitting || !editor) return;
+
+    // Clear previous validation errors
+    setValidationErrors({});
+
+    const content = editor.getHTML();
+
+    // Validate using Zod schema
+    const validation = createStorySchema.safeParse({
+      title: title.trim(),
+      content,
+      coverImage,
+      status,
+    });
+
+    if (!validation.success) {
+      const errors: { title?: string; content?: string } = {};
+      validation.error.issues.forEach((err) => {
+        if (err.path[0] === "title") {
+          errors.title = err.message;
+        } else if (err.path[0] === "content") {
+          errors.content = err.message;
+        }
+      });
+      setValidationErrors(errors);
+      toast.error("Please fix validation errors");
+      return;
+    }
+
     try {
       setSubmitting(true);
       const payload: CreateStoryInput = {
@@ -139,10 +209,14 @@ export default function CreateStoryPage() {
         return;
       }
       toast.success(status === "published" ? "Story published" : "Draft saved");
+
+      // Clear form
       setTitle("");
-      setContent("");
       setCoverImage(undefined);
-      if (editorRef.current) editorRef.current.innerHTML = "";
+      editor.commands.clearContent();
+      setValidationErrors({});
+
+      // Refresh story lists
       try {
         const drafts = await StoryService.getMine({
           status: "draft",
@@ -201,11 +275,27 @@ export default function CreateStoryPage() {
                 </div>
               </div>
 
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Story title"
-              />
+              <div className="space-y-1">
+                <Input
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    if (validationErrors.title) {
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        title: undefined,
+                      }));
+                    }
+                  }}
+                  placeholder="Story title"
+                  className={validationErrors.title ? "border-red-500" : ""}
+                />
+                {validationErrors.title && (
+                  <p className="text-sm text-red-500">
+                    {validationErrors.title}
+                  </p>
+                )}
+              </div>
 
               <div className="flex items-center gap-2">
                 <label className="inline-flex items-center gap-2">
@@ -247,83 +337,126 @@ export default function CreateStoryPage() {
               </div>
 
               {coverImage && (
-                <div className="overflow-hidden rounded-lg">
+                <div className="relative overflow-hidden rounded-lg">
                   <img
                     src={coverImage}
                     alt="cover"
                     className="w-full max-h-80 object-cover"
                   />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => setCoverImage(undefined)}>
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-2 border rounded-md p-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => exec("formatBlock", "H2")}>
-                  {" "}
-                  <Type className="h-4 w-4 mr-1" /> H2
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => exec("formatBlock", "H3")}>
-                  {" "}
-                  <Type className="h-4 w-4 mr-1" /> H3
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => exec("formatBlock", "BLOCKQUOTE")}>
-                  <Quote className="h-4 w-4 mr-1" /> Quote
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => exec("insertUnorderedList")}>
-                  <List className="h-4 w-4 mr-1" /> Bullets
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => exec("insertOrderedList")}>
-                  <ListOrdered className="h-4 w-4 mr-1" /> Numbers
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => exec("bold")}>
-                  <Bold className="h-4 w-4 mr-1" /> Bold
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => exec("italic")}>
-                  <Italic className="h-4 w-4 mr-1" /> Italic
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleInsertLink}>
-                  <LinkIcon className="h-4 w-4 mr-1" /> Link
-                </Button>
-              </div>
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2 border rounded-md p-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      editor?.chain().focus().toggleHeading({ level: 2 }).run()
+                    }
+                    className={
+                      editor?.isActive("heading", { level: 2 })
+                        ? "bg-accent"
+                        : ""
+                    }>
+                    <Heading2 className="h-4 w-4 mr-1" /> H2
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      editor?.chain().focus().toggleHeading({ level: 3 }).run()
+                    }
+                    className={
+                      editor?.isActive("heading", { level: 3 })
+                        ? "bg-accent"
+                        : ""
+                    }>
+                    <Heading3 className="h-4 w-4 mr-1" /> H3
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      editor?.chain().focus().toggleBlockquote().run()
+                    }
+                    className={
+                      editor?.isActive("blockquote") ? "bg-accent" : ""
+                    }>
+                    <Quote className="h-4 w-4 mr-1" /> Quote
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      editor?.chain().focus().toggleBulletList().run()
+                    }
+                    className={
+                      editor?.isActive("bulletList") ? "bg-accent" : ""
+                    }>
+                    <List className="h-4 w-4 mr-1" /> Bullets
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      editor?.chain().focus().toggleOrderedList().run()
+                    }
+                    className={
+                      editor?.isActive("orderedList") ? "bg-accent" : ""
+                    }>
+                    <ListOrdered className="h-4 w-4 mr-1" /> Numbers
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => editor?.chain().focus().toggleBold().run()}
+                    className={editor?.isActive("bold") ? "bg-accent" : ""}>
+                    <Bold className="h-4 w-4 mr-1" /> Bold
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => editor?.chain().focus().toggleItalic().run()}
+                    className={editor?.isActive("italic") ? "bg-accent" : ""}>
+                    <Italic className="h-4 w-4 mr-1" /> Italic
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleInsertLink}>
+                    <LinkIcon className="h-4 w-4 mr-1" /> Link
+                  </Button>
+                </div>
 
-              <div
-                ref={editorRef}
-                className="min-h-[240px] rounded-md border bg-background p-3 focus:outline-none prose prose-invert max-w-none"
-                contentEditable
-                onInput={() => setContent(editorRef.current?.innerHTML || "")}
-                suppressContentEditableWarning
-              />
+                <div
+                  className={`rounded-md border bg-background ${
+                    validationErrors.content ? "border-red-500" : ""
+                  }`}>
+                  <EditorContent editor={editor} />
+                </div>
+                {validationErrors.content && (
+                  <p className="text-sm text-red-500">
+                    {validationErrors.content}
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
