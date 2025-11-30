@@ -104,32 +104,45 @@ export function CreatePostForm({
               name="text"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>What's happening?</FormLabel>
+                  <FormLabel htmlFor="post-text">What's happening?</FormLabel>
                   <FormControl>
                     <Textarea
+                      id="post-text"
                       placeholder="Share your thoughts..."
                       className="min-h-[120px] resize-none"
                       disabled={isLoading}
+                      aria-describedby="post-text-description post-text-error"
+                      aria-invalid={!!form.formState.errors.text}
                       {...field}
                     />
                   </FormControl>
                   <FormDescription
-                    className={isOverLimit ? "text-destructive" : ""}>
+                    id="post-text-description"
+                    className={isOverLimit ? "text-destructive" : ""}
+                    role={isOverLimit ? "alert" : undefined}>
                     {charCount}/1000 characters
+                    {isOverLimit && " - Character limit exceeded"}
                   </FormDescription>
-                  <FormMessage />
+                  <FormMessage id="post-text-error" />
                 </FormItem>
               )}
             />
 
             {/* Media Upload */}
             <div>
-              <FormLabel>Add Media (Optional)</FormLabel>
+              <FormLabel htmlFor="media-upload">Add Media (Optional)</FormLabel>
+              <p
+                className="text-xs text-muted-foreground mb-2"
+                id="media-upload-description">
+                Upload up to 10 images or videos. Supported formats: JPG, PNG,
+                GIF, MP4
+              </p>
               <MediaUploader
                 onMediaChange={handleMediaChange}
                 maxFiles={10}
                 initialMedia={initialValues?.media}
                 className="mt-2"
+                aria-describedby="media-upload-description"
               />
             </div>
 

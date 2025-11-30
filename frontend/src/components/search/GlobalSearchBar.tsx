@@ -89,6 +89,11 @@ export function GlobalSearchBar() {
           onKeyDown={handleKeyDown}
           placeholder="Search users, posts, stories, polls..."
           className="pl-10 pr-8"
+          data-search-input
+          aria-label="Search (Shortcut: S)"
+          aria-autocomplete="list"
+          aria-expanded={isOpen && (query.trim() || loading)}
+          aria-controls={isOpen ? "search-suggestions" : undefined}
         />
         {query && (
           <button
@@ -97,17 +102,23 @@ export function GlobalSearchBar() {
               setQuery("");
               setSuggestions([]);
             }}
-            className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-muted">
-            <X className="h-3 w-3" />
+            className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Clear search">
+            <X className="h-3 w-3" aria-hidden="true" />
           </button>
         )}
       </div>
 
       {isOpen && (query.trim() || loading) && (
-        <Card className="absolute top-full z-50 mt-2 w-full overflow-hidden border bg-background shadow-lg">
+        <Card
+          className="absolute top-full z-50 mt-2 w-full overflow-hidden border bg-background shadow-lg"
+          id="search-suggestions"
+          role="listbox">
           {loading && (
-            <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
-              <Loader2 className="h-3 w-3 animate-spin" />
+            <div
+              className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground"
+              role="status">
+              <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
               <span>Searching...</span>
             </div>
           )}
@@ -115,10 +126,10 @@ export function GlobalSearchBar() {
           {!loading && suggestions.length > 0 && (
             <ul className="max-h-64 overflow-y-auto text-sm">
               {suggestions.map((s) => (
-                <li key={s}>
+                <li key={s} role="option">
                   <button
                     type="button"
-                    className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-muted"
+                    className="flex w-full items-center justify-between px-3 py-2 text-left hover:bg-muted focus-visible:outline-none focus-visible:bg-muted"
                     onClick={() => runSearch(s)}>
                     <span className="truncate">{s}</span>
                   </button>

@@ -58,7 +58,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3">
+      <nav className="flex-1 px-3" aria-label="Main navigation">
         <ul className="space-y-1">
           {navigationItems.map((item) => {
             const isActive = location.pathname === item.href;
@@ -69,13 +69,13 @@ export function Sidebar() {
                 <Link
                   to={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors duration-200",
+                    "flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     isActive
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
                   )}
                   aria-current={isActive ? "page" : undefined}>
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-5 w-5" aria-hidden="true" />
                   <span>{item.name}</span>
                 </Link>
               </li>
@@ -88,8 +88,9 @@ export function Sidebar() {
       <div className="px-3 py-4">
         <Link
           to="/app/create"
-          className="inline-flex items-center justify-center gap-3 w-full h-12 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200">
-          <Plus className="h-5 w-5" />
+          className="inline-flex items-center justify-center gap-3 w-full h-12 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          aria-label="Create new post">
+          <Plus className="h-5 w-5" aria-hidden="true" />
           Create Post
         </Link>
       </div>

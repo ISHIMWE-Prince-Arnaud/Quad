@@ -71,7 +71,20 @@ export function RootLayout() {
         toastOptions={{
           className: "bg-card text-card-foreground border border-border",
           duration: 4000,
+          ariaProps: {
+            role: "status",
+            "aria-live": "polite",
+          },
         }}
+      />
+
+      {/* ARIA Live Region for Screen Readers */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+        id="aria-live-region"
       />
     </div>
   );

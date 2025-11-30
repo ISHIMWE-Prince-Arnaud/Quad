@@ -262,8 +262,12 @@ export function PostCard({
               {/* More options */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreHorizontal className="h-4 w-4" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    aria-label="Post options">
+                    <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -321,7 +325,10 @@ export function PostCard({
           </CardContent>
 
           {/* Interaction buttons */}
-          <CardFooter className="pt-0 pb-3 flex items-center justify-between border-t">
+          <CardFooter
+            className="pt-0 pb-3 flex items-center justify-between border-t"
+            role="group"
+            aria-label="Post actions">
             <div className="flex items-center gap-1">
               <ReactionPicker
                 onSelect={handleSelectReaction}
@@ -334,9 +341,18 @@ export function PostCard({
                     className={cn(
                       "gap-2 text-muted-foreground",
                       userReaction ? "text-pink-600" : "hover:text-pink-600"
-                    )}>
-                    <span className="text-sm">{selectedEmoji}</span>
-                    <span className="text-xs">{reactionCount ?? 0}</span>
+                    )}
+                    aria-label={`React to post. Current reactions: ${
+                      reactionCount ?? 0
+                    }${
+                      userReaction ? `, You reacted with ${userReaction}` : ""
+                    }`}>
+                    <span className="text-sm" aria-hidden="true">
+                      {selectedEmoji}
+                    </span>
+                    <span className="text-xs" aria-hidden="true">
+                      {reactionCount ?? 0}
+                    </span>
                   </Button>
                 }
               />
@@ -362,9 +378,13 @@ export function PostCard({
                 size="sm"
                 className="gap-2 text-muted-foreground hover:text-blue-600"
                 asChild>
-                <Link to={`/app/posts/${post._id}`}>
-                  <MessageCircle className="h-4 w-4" />
-                  <span className="text-xs">{post.commentsCount || 0}</span>
+                <Link
+                  to={`/app/posts/${post._id}`}
+                  aria-label={`View ${post.commentsCount || 0} comments`}>
+                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                  <span className="text-xs" aria-hidden="true">
+                    {post.commentsCount || 0}
+                  </span>
                 </Link>
               </Button>
             </div>
@@ -375,8 +395,9 @@ export function PostCard({
                 variant="ghost"
                 size="sm"
                 onClick={handleCopyLink}
-                className="gap-2 text-muted-foreground hover:text-green-600">
-                <Share2 className="h-4 w-4" />
+                className="gap-2 text-muted-foreground hover:text-green-600"
+                aria-label="Share post">
+                <Share2 className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
 
@@ -389,8 +410,10 @@ export function PostCard({
                 className={cn(
                   "gap-2 text-muted-foreground",
                   bookmarked ? "text-amber-600" : "hover:text-amber-600"
-                )}>
-                <Bookmark className="h-4 w-4" />
+                )}
+                aria-label={bookmarked ? "Remove bookmark" : "Bookmark post"}
+                aria-pressed={bookmarked}>
+                <Bookmark className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
           </CardFooter>

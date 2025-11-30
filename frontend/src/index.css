@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    /* Light mode colors */
+    /* Light mode colors - WCAG AA compliant */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -16,7 +16,8 @@
     --secondary: 210 40% 96%;
     --secondary-foreground: 222.2 84% 4.9%;
     --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Improved contrast for muted-foreground: was 46.9%, now 40% for better readability */
+    --muted-foreground: 215.4 16.3% 40%;
     --accent: 210 40% 96%;
     --accent-foreground: 222.2 84% 4.9%;
     --destructive: 0 84.2% 60.2%;
@@ -32,7 +33,7 @@
   }
 
   .dark {
-    /* Dark mode colors */
+    /* Dark mode colors - WCAG AA compliant */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
@@ -44,10 +45,12 @@
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Improved contrast for muted-foreground: was 65.1%, now 70% for better readability */
+    --muted-foreground: 215 20.2% 70%;
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+    /* Improved contrast for destructive: lighter red for better visibility on dark background */
+    --destructive: 0 72% 50%;
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
