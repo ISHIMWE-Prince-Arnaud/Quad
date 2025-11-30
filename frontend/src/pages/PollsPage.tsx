@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams, PollStatus } from "@/types/poll";
-import { Loader2 } from "lucide-react";
+import { SkeletonPost } from "@/components/ui/loading";
+import { motion } from "framer-motion";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -186,8 +187,10 @@ export default function PollsPage() {
         )}
 
         {loading && polls.length === 0 && (
-          <div className="flex items-center justify-center py-16 text-muted-foreground">
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading polls...
+          <div className="space-y-4 py-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonPost key={i} />
+            ))}
           </div>
         )}
 
@@ -201,45 +204,51 @@ export default function PollsPage() {
 
         <div className="space-y-4">
           {polls.map((poll) => (
-            <Card key={poll.id} className="shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex flex-col gap-1 text-base font-medium">
-                  <Link
-                    to={`/app/polls/${poll.id}`}
-                    className="hover:underline">
-                    {poll.question}
-                  </Link>
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                    <span>by {poll.author.username}</span>
-                    <span>
-                      {poll.totalVotes} vote{poll.totalVotes === 1 ? "" : "s"}
-                    </span>
-                    {poll.expiresAt && (
+            <motion.div
+              key={poll.id}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}>
+              <Card className="shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex flex-col gap-1 text-base font-medium">
+                    <Link
+                      to={`/app/polls/${poll.id}`}
+                      className="hover:underline">
+                      {poll.question}
+                    </Link>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <span>by {poll.author.username}</span>
                       <span>
-                        Expires {new Date(poll.expiresAt).toLocaleString()}
+                        {poll.totalVotes} vote{poll.totalVotes === 1 ? "" : "s"}
                       </span>
-                    )}
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] uppercase tracking-wide">
-                      {poll.status}
-                    </span>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 pt-0 pb-4">
-                {poll.options.length > 0 && (
-                  <div className="space-y-2">
-                    {poll.options
-                      .slice(0, 4)
-                      .map((_, idx) => renderPollOptionBar(poll, idx))}
-                  </div>
-                )}
-                {!poll.canViewResults && (
-                  <p className="text-xs text-muted-foreground">
-                    Results are hidden until you vote or the poll expires.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+                      {poll.expiresAt && (
+                        <span>
+                          Expires {new Date(poll.expiresAt).toLocaleString()}
+                        </span>
+                      )}
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] uppercase tracking-wide">
+                        {poll.status}
+                      </span>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 pt-0 pb-4">
+                  {poll.options.length > 0 && (
+                    <div className="space-y-2">
+                      {poll.options
+                        .slice(0, 4)
+                        .map((_, idx) => renderPollOptionBar(poll, idx))}
+                    </div>
+                  )}
+                  {!poll.canViewResults && (
+                    <p className="text-xs text-muted-foreground">
+                      Results are hidden until you vote or the poll expires.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
 

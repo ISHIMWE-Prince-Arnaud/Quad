@@ -73,7 +73,8 @@ export function Sidebar() {
                     isActive
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                  )}>
+                  )}
+                  aria-current={isActive ? "page" : undefined}>
                   <Icon className="h-5 w-5" />
                   <span>{item.name}</span>
                 </Link>

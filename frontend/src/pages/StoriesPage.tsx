@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
-import { Loader2 } from "lucide-react";
+import { SkeletonPost } from "@/components/ui/loading";
+import { motion } from "framer-motion";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -130,50 +131,58 @@ export default function StoriesPage() {
         )}
 
         {loading && stories.length === 0 && (
-          <div className="flex items-center justify-center py-16 text-muted-foreground">
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading stories...
+          <div className="space-y-4 py-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonPost key={i} />
+            ))}
           </div>
         )}
 
         <div className="grid gap-4">
           {stories.map((s) => (
-            <Card key={s._id}>
-              <CardContent className="flex gap-4 p-4">
-                {s.coverImage && (
-                  <Link
-                    to={`/app/stories/${s._id}`}
-                    className="block w-36 shrink-0 overflow-hidden rounded-md">
-                    <img
-                      src={s.coverImage}
-                      alt={s.title}
-                      className="h-24 w-36 object-cover"
-                    />
-                  </Link>
-                )}
-                <div className="min-w-0 flex-1">
-                  <Link to={`/app/stories/${s._id}`} className="block">
-                    <h2 className="truncate text-lg font-medium hover:underline">
-                      {s.title}
-                    </h2>
-                  </Link>
-                  {s.excerpt && (
-                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                      {s.excerpt}
-                    </p>
+            <motion.div
+              key={s._id}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}>
+              <Card>
+                <CardContent className="flex gap-4 p-4">
+                  {s.coverImage && (
+                    <Link
+                      to={`/app/stories/${s._id}`}
+                      className="block w-36 shrink-0 overflow-hidden rounded-md">
+                      <img
+                        src={s.coverImage}
+                        alt={s.title}
+                        className="h-24 w-36 object-cover"
+                      />
+                    </Link>
                   )}
-                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                    <span>by {s.author.username}</span>
-                    {typeof s.readTime === "number" && (
-                      <span>{s.readTime} min read</span>
+                  <div className="min-w-0 flex-1">
+                    <Link to={`/app/stories/${s._id}`} className="block">
+                      <h2 className="truncate text-lg font-medium hover:underline">
+                        {s.title}
+                      </h2>
+                    </Link>
+                    {s.excerpt && (
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                        {s.excerpt}
+                      </p>
                     )}
-                    {typeof s.viewsCount === "number" && (
-                      <span>{s.viewsCount} views</span>
-                    )}
-                    <span>{new Date(s.createdAt).toLocaleDateString()}</span>
+                    <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                      <span>by {s.author.username}</span>
+                      {typeof s.readTime === "number" && (
+                        <span>{s.readTime} min read</span>
+                      )}
+                      {typeof s.viewsCount === "number" && (
+                        <span>{s.viewsCount} views</span>
+                      )}
+                      <span>{new Date(s.createdAt).toLocaleDateString()}</span>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
 

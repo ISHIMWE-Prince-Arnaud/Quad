@@ -1,12 +1,14 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "../components/layout/Navbar";
 import { Sidebar } from "../components/layout/Sidebar";
 import { RightPanel } from "../components/layout/RightPanel";
 import { useAuthStore } from "@/stores/authStore";
 import { LoadingSpinner } from "@/components/ui/loading";
+import { AnimatePresence, motion } from "framer-motion";
 
 export function MainLayout() {
   const { isLoading } = useAuthStore();
+  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -37,7 +39,16 @@ export function MainLayout() {
         <div className="flex-1 lg:pl-64 xl:pr-80">
           <div className="max-w-4xl mx-auto">
             <main className="px-4 py-6 sm:px-6 lg:px-8">
-              <Outlet />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={location.pathname}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}>
+                  <Outlet />
+                </motion.div>
+              </AnimatePresence>
             </main>
           </div>
         </div>

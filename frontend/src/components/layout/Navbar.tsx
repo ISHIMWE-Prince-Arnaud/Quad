@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, X, Plus, Bell } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { UserAvatar } from "@/components/auth/UserMenu";
-import { ThemeSelector } from "@/components/theme/ThemeSelector";
+import { AdvancedThemeSelector } from "@/components/theme/ThemeSelector";
 import { GlobalSearchBar } from "@/components/search/GlobalSearchBar";
 import { cn } from "@/lib/utils";
 import { useNotificationStore } from "@/stores/notificationStore";
@@ -52,7 +52,7 @@ export function Navbar() {
             </Link>
 
             {/* Theme Selector */}
-            <ThemeSelector />
+            <AdvancedThemeSelector />
 
             {/* User Avatar */}
             <UserAvatar />

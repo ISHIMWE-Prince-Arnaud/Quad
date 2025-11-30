@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/posts/PostCard";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
+import { FeedSkeleton } from "@/components/ui/loading";
 import { FeedService } from "@/services/feedService";
 import { PostService } from "@/services/postService";
 import { useAuthStore } from "@/stores/authStore";
@@ -403,11 +404,7 @@ export default function FeedPage() {
         )}
 
         {/* Loading state */}
-        {loading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        )}
+        {loading && items.length === 0 && <FeedSkeleton />}
 
         {/* Error state */}
         {error && !loading && (

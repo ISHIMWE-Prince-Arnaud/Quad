@@ -33,6 +33,7 @@ import { ReactionService } from "@/services/reactionService";
 import type { ReactionType } from "@/services/reactionService";
 import { BookmarkService } from "@/services/bookmarkService";
 import { ReactionPicker } from "@/components/reactions/ReactionPicker";
+import { motion } from "framer-motion";
 
 interface PostCardProps {
   post: Post;
@@ -236,167 +237,172 @@ export function PostCard({
 
   return (
     <>
-      <Card className={cn("w-full", className)}>
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            {/* Author info */}
-            <Link
-              to={`/app/profile/${post.author.username}`}
-              className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={post.author.profileImage} />
-                <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                  {displayName.charAt(0).toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-semibold text-sm truncate max-w-[180px]">
-                  {displayName}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  @{post.author.username}
-                  <span className="mx-1">·</span>
-                  {timeAgo(post.createdAt)}
-                </p>
-              </div>
-            </Link>
-
-            {/* More options */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link to={`/app/posts/${post._id}`}>View post</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleCopyLink}>
-                  Copy link
-                </DropdownMenuItem>
-                {isOwner && (
-                  <>
-                    <DropdownMenuItem onClick={handleEdit}>
-                      Edit post
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive"
-                      onClick={() => setIsDeleteDialogOpen(true)}>
-                      Delete post
-                    </DropdownMenuItem>
-                  </>
-                )}
-                {!isOwner && (
-                  <>
-                    <DropdownMenuItem>Report post</DropdownMenuItem>
-                    <DropdownMenuItem>
-                      Block {post.author.username}
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </CardHeader>
-
-        {/* Post content */}
-        <CardContent className="pb-3 space-y-3">
-          {/* Text content */}
-          {fullText && (
-            <Link to={`/app/posts/${post._id}`} className="block">
-              <p className="text-sm whitespace-pre-wrap break-words">
-                {isSingleView || !hasLongText ? fullText : previewText}
-                {!isSingleView && hasLongText && (
-                  <span className="ml-1 text-primary font-medium">
-                    See more
-                  </span>
-                )}
-              </p>
-            </Link>
-          )}
-
-          {/* Media gallery */}
-          {post.media && post.media.length > 0 && (
-            <MediaGallery media={post.media} />
-          )}
-        </CardContent>
-
-        {/* Interaction buttons */}
-        <CardFooter className="pt-0 pb-3 flex items-center justify-between border-t">
-          <div className="flex items-center gap-1">
-            <ReactionPicker
-              onSelect={handleSelectReaction}
-              trigger={
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={reactionPending}
-                  className={cn(
-                    "gap-2 text-muted-foreground",
-                    userReaction ? "text-pink-600" : "hover:text-pink-600"
-                  )}>
-                  <span className="text-sm">{selectedEmoji}</span>
-                  <span className="text-xs">{reactionCount ?? 0}</span>
-                </Button>
-              }
-            />
-            <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
-              {(Object.keys(reactionCounts) as ReactionType[]).map((type) => {
-                const count = reactionCounts[type] ?? 0;
-                if (!count) return null;
-                return (
-                  <span
-                    key={type}
-                    className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
-                    <span>{reactionEmojiMap[type]}</span>
-                    <span>{count}</span>
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-2 text-muted-foreground hover:text-blue-600"
-              asChild>
-              <Link to={`/app/posts/${post._id}`}>
-                <MessageCircle className="h-4 w-4" />
-                <span className="text-xs">{post.commentsCount || 0}</span>
+      <motion.div
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}>
+        <Card className={cn("w-full", className)}>
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between">
+              {/* Author info */}
+              <Link
+                to={`/app/profile/${post.author.username}`}
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={post.author.profileImage} />
+                  <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                    {displayName.charAt(0).toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold text-sm truncate max-w-[180px]">
+                    {displayName}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    @{post.author.username}
+                    <span className="mx-1">·</span>
+                    {timeAgo(post.createdAt)}
+                  </p>
+                </div>
               </Link>
-            </Button>
-          </div>
 
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleCopyLink}
-              className="gap-2 text-muted-foreground hover:text-green-600">
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </div>
+              {/* More options */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to={`/app/posts/${post._id}`}>View post</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleCopyLink}>
+                    Copy link
+                  </DropdownMenuItem>
+                  {isOwner && (
+                    <>
+                      <DropdownMenuItem onClick={handleEdit}>
+                        Edit post
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => setIsDeleteDialogOpen(true)}>
+                        Delete post
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {!isOwner && (
+                    <>
+                      <DropdownMenuItem>Report post</DropdownMenuItem>
+                      <DropdownMenuItem>
+                        Block {post.author.username}
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </CardHeader>
 
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleToggleBookmark}
-              className={cn(
-                "gap-2 text-muted-foreground",
-                bookmarked ? "text-amber-600" : "hover:text-amber-600"
-              )}>
-              <Bookmark className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardFooter>
-      </Card>
+          {/* Post content */}
+          <CardContent className="pb-3 space-y-3">
+            {/* Text content */}
+            {fullText && (
+              <Link to={`/app/posts/${post._id}`} className="block">
+                <p className="text-sm whitespace-pre-wrap break-words">
+                  {isSingleView || !hasLongText ? fullText : previewText}
+                  {!isSingleView && hasLongText && (
+                    <span className="ml-1 text-primary font-medium">
+                      See more
+                    </span>
+                  )}
+                </p>
+              </Link>
+            )}
+
+            {/* Media gallery */}
+            {post.media && post.media.length > 0 && (
+              <MediaGallery media={post.media} />
+            )}
+          </CardContent>
+
+          {/* Interaction buttons */}
+          <CardFooter className="pt-0 pb-3 flex items-center justify-between border-t">
+            <div className="flex items-center gap-1">
+              <ReactionPicker
+                onSelect={handleSelectReaction}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={reactionPending}
+                    className={cn(
+                      "gap-2 text-muted-foreground",
+                      userReaction ? "text-pink-600" : "hover:text-pink-600"
+                    )}>
+                    <span className="text-sm">{selectedEmoji}</span>
+                    <span className="text-xs">{reactionCount ?? 0}</span>
+                  </Button>
+                }
+              />
+              <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
+                {(Object.keys(reactionCounts) as ReactionType[]).map((type) => {
+                  const count = reactionCounts[type] ?? 0;
+                  if (!count) return null;
+                  return (
+                    <span
+                      key={type}
+                      className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
+                      <span>{reactionEmojiMap[type]}</span>
+                      <span>{count}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-muted-foreground hover:text-blue-600"
+                asChild>
+                <Link to={`/app/posts/${post._id}`}>
+                  <MessageCircle className="h-4 w-4" />
+                  <span className="text-xs">{post.commentsCount || 0}</span>
+                </Link>
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleCopyLink}
+                className="gap-2 text-muted-foreground hover:text-green-600">
+                <Share2 className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleToggleBookmark}
+                className={cn(
+                  "gap-2 text-muted-foreground",
+                  bookmarked ? "text-amber-600" : "hover:text-amber-600"
+                )}>
+                <Bookmark className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      </motion.div>
 
       {/* Delete confirmation dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

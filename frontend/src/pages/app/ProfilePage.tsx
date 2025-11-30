@@ -10,7 +10,7 @@ import {
   ProfileContentGrid,
   type ContentItem,
 } from "@/components/profile/ProfileContentGrid";
-import { LoadingSpinner } from "@/components/ui/loading";
+import { ProfileSkeleton } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
 import { useAuthStore } from "@/stores/authStore";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
@@ -304,14 +304,7 @@ export default function ProfilePage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-4">
-          <LoadingSpinner size="lg" />
-          <p className="text-muted-foreground">Loading profile...</p>
-        </div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (error) {
