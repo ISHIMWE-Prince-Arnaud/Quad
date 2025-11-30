@@ -68,6 +68,17 @@ export default function StoryPage() {
     [reactionCounts]
   );
 
+  // Calculate reading time from content
+  const readingTime = useMemo(() => {
+    if (!story?.content) return 0;
+    // If backend provides readTime, use it
+    if (story.readTime) return story.readTime;
+    // Otherwise calculate: average reading speed is 200 words per minute
+    const text = story.content.replace(/<[^>]*>/g, "");
+    const wordCount = text.trim().split(/\s+/).length;
+    return Math.max(1, Math.ceil(wordCount / 200));
+  }, [story]);
+
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
@@ -78,6 +89,8 @@ export default function StoryPage() {
         const res = await StoryService.getById(id);
         if (!cancelled && res.success && res.data) {
           setStory(res.data);
+          // Track view automatically - backend should handle this on GET request
+          // The view count is already incremented by the backend when fetching
         }
       } catch (err) {
         console.error(err);
@@ -266,8 +279,9 @@ export default function StoryPage() {
           <CardContent className="prose prose-invert max-w-none p-4 md:p-6">
             <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span>By {story.author.username}</span>
-              {typeof story.readTime === "number" && (
-                <span>{story.readTime} min read</span>
+              {readingTime > 0 && <span>{readingTime} min read</span>}
+              {typeof story.viewsCount === "number" && story.viewsCount > 0 && (
+                <span>{story.viewsCount} views</span>
               )}
               <span>{new Date(story.createdAt).toLocaleDateString()}</span>
             </div>

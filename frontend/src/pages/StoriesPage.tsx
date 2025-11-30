@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
 import { SkeletonPost } from "@/components/ui/loading";
-import { motion } from "framer-motion";
+import { X } from "lucide-react";
+import { StoryCard } from "@/components/stories/StoryCard";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -34,6 +33,7 @@ export default function StoriesPage() {
   const [sortBy, setSortBy] = useState<
     "newest" | "oldest" | "popular" | "views"
   >("newest");
+  const [selectedTag, setSelectedTag] = useState<string | undefined>(undefined);
 
   // debounce search
   useEffect(() => {
@@ -42,8 +42,14 @@ export default function StoriesPage() {
   }, [search]);
 
   const queryParams = useMemo(
-    () => ({ search: debouncedSearch || undefined, sortBy, limit, skip }),
-    [debouncedSearch, sortBy, limit, skip]
+    () => ({ 
+      search: debouncedSearch || undefined, 
+      sortBy, 
+      limit, 
+      skip,
+      tag: selectedTag 
+    }),
+    [debouncedSearch, sortBy, limit, skip, selectedTag]
   );
 
   useEffect(() => {
@@ -97,31 +103,86 @@ export default function StoriesPage() {
     setSortBy(value);
   };
 
+  const handleTagSelect = (tag: string) => {
+    setStories([]);
+    setSkip(0);
+    setSelectedTag(tag);
+  };
+
+  const handleClearTag = () => {
+    setStories([]);
+    setSkip(0);
+    setSelectedTag(undefined);
+  };
+
+  const handleDeleteStory = (storyId: string) => {
+    setStories((prev) => prev.filter((s) => s._id !== storyId));
+  };
+
+  // Extract all unique tags from current stories
+  const availableTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    stories.forEach((story) => {
+      story.tags?.forEach((tag) => tagSet.add(tag));
+    });
+    return Array.from(tagSet).sort();
+  }, [stories]);
+
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-4xl">
-        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h1 className="text-xl font-semibold">Stories</h1>
-          <div className="flex items-center gap-2">
-            <Input
-              value={search}
-              onChange={(e) => resetAndSearch(e.target.value)}
-              placeholder="Search stories..."
-            />
-            <select
-              className="h-9 rounded-md border bg-background px-2 text-sm"
-              value={sortBy}
-              onChange={(e) =>
-                handleSortChange(
-                  e.target.value as "newest" | "oldest" | "popular" | "views"
-                )
-              }>
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="popular">Popular</option>
-              <option value="views">Most Viewed</option>
-            </select>
+        <div className="mb-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <h1 className="text-xl font-semibold">Stories</h1>
+            <div className="flex items-center gap-2">
+              <Input
+                value={search}
+                onChange={(e) => resetAndSearch(e.target.value)}
+                placeholder="Search stories..."
+                className="w-full md:w-64"
+              />
+              <select
+                className="h-9 rounded-md border bg-background px-2 text-sm"
+                value={sortBy}
+                onChange={(e) =>
+                  handleSortChange(
+                    e.target.value as "newest" | "oldest" | "popular" | "views"
+                  )
+                }>
+                <option value="newest">Newest</option>
+                <option value="oldest">Oldest</option>
+                <option value="popular">Popular</option>
+                <option value="views">Most Viewed</option>
+              </select>
+            </div>
           </div>
+
+          {/* Tag filter */}
+          {availableTags.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-muted-foreground">Tags:</span>
+              {availableTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => handleTagSelect(tag)}
+                  className={ounded-full px-3 py-1 text-xs transition-colors UTF8{
+                    selectedTag === tag
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }}>
+                  {tag}
+                </button>
+              ))}
+              {selectedTag && (
+                <button
+                  onClick={handleClearTag}
+                  className="flex items-center gap-1 rounded-full bg-destructive/10 px-3 py-1 text-xs text-destructive hover:bg-destructive/20">
+                  <X className="h-3 w-3" />
+                  Clear
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {error && (
@@ -138,51 +199,25 @@ export default function StoriesPage() {
           </div>
         )}
 
+        {!loading && stories.length === 0 && (
+          <div className="py-12 text-center">
+            <p className="text-muted-foreground">
+              {selectedTag
+                ? No stories found with tag "UTF8{selectedTag}"
+                : search
+                ? "No stories found matching your search"
+                : "No stories available"}
+            </p>
+          </div>
+        )}
+
         <div className="grid gap-4">
-          {stories.map((s) => (
-            <motion.div
-              key={s._id}
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 260, damping: 20 }}>
-              <Card>
-                <CardContent className="flex gap-4 p-4">
-                  {s.coverImage && (
-                    <Link
-                      to={`/app/stories/${s._id}`}
-                      className="block w-36 shrink-0 overflow-hidden rounded-md">
-                      <img
-                        src={s.coverImage}
-                        alt={s.title}
-                        className="h-24 w-36 object-cover"
-                      />
-                    </Link>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <Link to={`/app/stories/${s._id}`} className="block">
-                      <h2 className="truncate text-lg font-medium hover:underline">
-                        {s.title}
-                      </h2>
-                    </Link>
-                    {s.excerpt && (
-                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                        {s.excerpt}
-                      </p>
-                    )}
-                    <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                      <span>by {s.author.username}</span>
-                      {typeof s.readTime === "number" && (
-                        <span>{s.readTime} min read</span>
-                      )}
-                      {typeof s.viewsCount === "number" && (
-                        <span>{s.viewsCount} views</span>
-                      )}
-                      <span>{new Date(s.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+          {stories.map((story) => (
+            <StoryCard
+              key={story._id}
+              story={story}
+              onDelete={handleDeleteStory}
+            />
           ))}
         </div>
 

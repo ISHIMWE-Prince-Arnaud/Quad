@@ -6,6 +6,7 @@ import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { UploadService } from "@/services/uploadService";
 import { StoryService } from "@/services/storyService";
@@ -43,6 +44,7 @@ function getErrorMessage(error: unknown): string {
 
 export default function CreateStoryPage() {
   const [title, setTitle] = useState("");
+  const [excerpt, setExcerpt] = useState("");
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -51,8 +53,11 @@ export default function CreateStoryPage() {
   const [loadingMine, setLoadingMine] = useState(true);
   const [validationErrors, setValidationErrors] = useState<{
     title?: string;
+    excerpt?: string;
     content?: string;
   }>({});
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Initialize TipTap editor
   const editor = useEditor({
@@ -92,6 +97,36 @@ export default function CreateStoryPage() {
     const textContent = content.replace(/<[^>]*>/g, "").trim();
     return title.trim().length > 0 && textContent.length > 0;
   }, [title, editor?.getHTML()]);
+
+  // Auto-save draft every 30 seconds
+  useEffect(() => {
+    if (!canSubmit || submitting || autoSaving) return;
+
+    const autoSaveInterval = setInterval(() => {
+      void (async () => {
+        if (!editor) return;
+        try {
+          setAutoSaving(true);
+          const content = editor.getHTML();
+          const payload: CreateStoryInput = {
+            title: title.trim(),
+            content,
+            excerpt: excerpt.trim() || undefined,
+            coverImage,
+            status: "draft",
+          };
+          await StoryService.create(payload);
+          setLastSaved(new Date());
+        } catch (err) {
+          console.error("Auto-save failed:", err);
+        } finally {
+          setAutoSaving(false);
+        }
+      })();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(autoSaveInterval);
+  }, [canSubmit, submitting, autoSaving, title, excerpt, coverImage, editor]);
 
   // Load user's stories
   useEffect(() => {
@@ -177,15 +212,18 @@ export default function CreateStoryPage() {
     const validation = createStorySchema.safeParse({
       title: title.trim(),
       content,
+      excerpt: excerpt.trim() || undefined,
       coverImage,
       status,
     });
 
     if (!validation.success) {
-      const errors: { title?: string; content?: string } = {};
+      const errors: { title?: string; excerpt?: string; content?: string } = {};
       validation.error.issues.forEach((err) => {
         if (err.path[0] === "title") {
           errors.title = err.message;
+        } else if (err.path[0] === "excerpt") {
+          errors.excerpt = err.message;
         } else if (err.path[0] === "content") {
           errors.content = err.message;
         }
@@ -200,6 +238,7 @@ export default function CreateStoryPage() {
       const payload: CreateStoryInput = {
         title: title.trim(),
         content,
+        excerpt: excerpt.trim() || undefined,
         coverImage,
         status,
       };
@@ -212,9 +251,11 @@ export default function CreateStoryPage() {
 
       // Clear form
       setTitle("");
+      setExcerpt("");
       setCoverImage(undefined);
       editor.commands.clearContent();
       setValidationErrors({});
+      setLastSaved(null);
 
       // Refresh story lists
       try {
@@ -249,7 +290,19 @@ export default function CreateStoryPage() {
           <Card>
             <CardContent className="p-4 md:p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <h1 className="text-xl font-semibold">Create Story</h1>
+                <div>
+                  <h1 className="text-xl font-semibold">Create Story</h1>
+                  {autoSaving && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Auto-saving...
+                    </p>
+                  )}
+                  {!autoSaving && lastSaved && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Last saved: {lastSaved.toLocaleTimeString()}
+                    </p>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   <Button
                     variant="secondary"
@@ -295,6 +348,33 @@ export default function CreateStoryPage() {
                     {validationErrors.title}
                   </p>
                 )}
+              </div>
+
+              <div className="space-y-1">
+                <Textarea
+                  value={excerpt}
+                  onChange={(e) => {
+                    setExcerpt(e.target.value);
+                    if (validationErrors.excerpt) {
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        excerpt: undefined,
+                      }));
+                    }
+                  }}
+                  placeholder="Brief excerpt or summary (optional)"
+                  className={validationErrors.excerpt ? "border-red-500" : ""}
+                  rows={3}
+                  maxLength={500}
+                />
+                {validationErrors.excerpt && (
+                  <p className="text-sm text-red-500">
+                    {validationErrors.excerpt}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  {excerpt.length}/500 characters
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
