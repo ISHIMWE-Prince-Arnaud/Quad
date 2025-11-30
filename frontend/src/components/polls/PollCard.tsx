@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MoreHorizontal, MessageCircle, Share2, Bookmark } from "lucide-react";
 import {
@@ -25,15 +25,22 @@ import { ReactionService } from "@/services/reactionService";
 import type { ReactionType } from "@/services/reactionService";
 import { BookmarkService } from "@/services/bookmarkService";
 import { ReactionPicker } from "@/components/reactions/ReactionPicker";
+import { PollService } from "@/services/pollService";
 import { motion } from "framer-motion";
 
 interface PollCardProps {
   poll: Poll;
   onDelete?: (pollId: string) => void;
+  onUpdate?: (updatedPoll: Poll) => void;
   className?: string;
 }
 
-export function PollCard({ poll, onDelete, className }: PollCardProps) {
+export function PollCard({
+  poll,
+  onDelete,
+  onUpdate,
+  className,
+}: PollCardProps) {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const isOwner = user?.clerkId === poll.author.clerkId;
@@ -55,7 +62,28 @@ export function PollCard({ poll, onDelete, className }: PollCardProps) {
   });
   const [bookmarked, setBookmarked] = useState(false);
 
+  // Local poll state for optimistic updates
+  const [localPoll, setLocalPoll] = useState<Poll>(poll);
+  const [selectedIndices, setSelectedIndices] = useState<number[]>(
+    poll.userVote || []
+  );
+  const [voting, setVoting] = useState(false);
+
   const displayName = poll.author.username;
+
+  // Update local state when poll prop changes
+  useEffect(() => {
+    setLocalPoll(poll);
+    setSelectedIndices(poll.userVote || []);
+  }, [poll]);
+
+  // Check if poll can be voted on
+  const canVote = useMemo(() => {
+    if (localPoll.status !== "active") return false;
+    if (localPoll.expiresAt && new Date(localPoll.expiresAt) < new Date())
+      return false;
+    return true;
+  }, [localPoll.status, localPoll.expiresAt]);
 
   const reactionEmojiMap: Record<ReactionType, string> = {
     like: "👍",
@@ -211,6 +239,193 @@ export function PollCard({ poll, onDelete, className }: PollCardProps) {
     );
   };
 
+  const toggleSelection = (index: number) => {
+    if (!canVote) return;
+
+    if (localPoll.settings.allowMultiple) {
+      setSelectedIndices((prev) =>
+        prev.includes(index)
+          ? prev.filter((i) => i !== index)
+          : [...prev, index]
+      );
+    } else {
+      setSelectedIndices([index]);
+    }
+  };
+
+  const handleVote = async () => {
+    if (!canVote || voting) return;
+    if (selectedIndices.length === 0) {
+      toast.error("Please select at least one option");
+      return;
+    }
+
+    try {
+      setVoting(true);
+
+      // Optimistic update
+      const optimisticPoll = { ...localPoll };
+      const oldUserVote = optimisticPoll.userVote || [];
+      optimisticPoll.userVote = selectedIndices;
+
+      // Calculate new vote counts optimistically
+      const newOptions = optimisticPoll.options.map((opt, idx) => {
+        let newVotesCount = opt.votesCount ?? 0;
+
+        // Remove old votes
+        if (oldUserVote.includes(idx)) {
+          newVotesCount = Math.max(0, newVotesCount - 1);
+        }
+
+        // Add new votes
+        if (selectedIndices.includes(idx)) {
+          newVotesCount += 1;
+        }
+
+        return { ...opt, votesCount: newVotesCount };
+      });
+
+      // Calculate new total
+      const newTotal = newOptions.reduce(
+        (sum, opt) => sum + (opt.votesCount ?? 0),
+        0
+      );
+
+      // Calculate percentages
+      const optionsWithPercentages = newOptions.map((opt) => ({
+        ...opt,
+        percentage:
+          newTotal > 0
+            ? Math.round(((opt.votesCount ?? 0) / newTotal) * 100)
+            : 0,
+      }));
+
+      optimisticPoll.options = optionsWithPercentages;
+      optimisticPoll.totalVotes = newTotal;
+      optimisticPoll.canViewResults = true;
+
+      setLocalPoll(optimisticPoll);
+
+      // Make API call
+      const res = await PollService.vote(poll.id, {
+        optionIndices: selectedIndices,
+      });
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || "Failed to submit vote");
+      }
+
+      // Update with server response
+      setLocalPoll(res.data);
+      setSelectedIndices(res.data.userVote || []);
+
+      if (onUpdate) {
+        onUpdate(res.data);
+      }
+
+      toast.success("Vote recorded!");
+    } catch (err: unknown) {
+      console.error(err);
+      // Revert optimistic update
+      setLocalPoll(poll);
+      setSelectedIndices(poll.userVote || []);
+
+      let msg = "Failed to submit vote";
+      if (
+        err &&
+        typeof err === "object" &&
+        "message" in err &&
+        typeof (err as { message?: unknown }).message === "string"
+      ) {
+        msg = (err as { message: string }).message;
+      }
+      toast.error(msg);
+    } finally {
+      setVoting(false);
+    }
+  };
+
+  const handleRemoveVote = async () => {
+    if (voting) return;
+
+    try {
+      setVoting(true);
+
+      // Optimistic update
+      const optimisticPoll = { ...localPoll };
+      const oldUserVote = optimisticPoll.userVote || [];
+      optimisticPoll.userVote = [];
+
+      // Calculate new vote counts optimistically
+      const newOptions = optimisticPoll.options.map((opt, idx) => {
+        let newVotesCount = opt.votesCount ?? 0;
+
+        // Remove old votes
+        if (oldUserVote.includes(idx)) {
+          newVotesCount = Math.max(0, newVotesCount - 1);
+        }
+
+        return { ...opt, votesCount: newVotesCount };
+      });
+
+      // Calculate new total
+      const newTotal = newOptions.reduce(
+        (sum, opt) => sum + (opt.votesCount ?? 0),
+        0
+      );
+
+      // Calculate percentages
+      const optionsWithPercentages = newOptions.map((opt) => ({
+        ...opt,
+        percentage:
+          newTotal > 0
+            ? Math.round(((opt.votesCount ?? 0) / newTotal) * 100)
+            : 0,
+      }));
+
+      optimisticPoll.options = optionsWithPercentages;
+      optimisticPoll.totalVotes = newTotal;
+
+      setLocalPoll(optimisticPoll);
+      setSelectedIndices([]);
+
+      // Make API call
+      const res = await PollService.removeVote(poll.id);
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || "Failed to remove vote");
+      }
+
+      // Update with server response
+      setLocalPoll(res.data);
+      setSelectedIndices(res.data.userVote || []);
+
+      if (onUpdate) {
+        onUpdate(res.data);
+      }
+
+      toast.success("Vote removed");
+    } catch (err: unknown) {
+      console.error(err);
+      // Revert optimistic update
+      setLocalPoll(poll);
+      setSelectedIndices(poll.userVote || []);
+
+      let msg = "Failed to remove vote";
+      if (
+        err &&
+        typeof err === "object" &&
+        "message" in err &&
+        typeof (err as { message?: unknown }).message === "string"
+      ) {
+        msg = (err as { message: string }).message;
+      }
+      toast.error(msg);
+    } finally {
+      setVoting(false);
+    }
+  };
+
   return (
     <>
       <motion.div
@@ -283,9 +498,13 @@ export function PollCard({ poll, onDelete, className }: PollCardProps) {
 
           {/* Poll content */}
           <CardContent className="pb-3 space-y-3">
-            <Link to={`/app/polls/${poll.id}`} className="block space-y-3">
+            <div className="space-y-3">
               {/* Question */}
-              <h3 className="font-semibold text-base">{poll.question}</h3>
+              <Link to={`/app/polls/${poll.id}`}>
+                <h3 className="font-semibold text-base hover:underline">
+                  {poll.question}
+                </h3>
+              </Link>
 
               {/* Question media */}
               {poll.questionMedia && (
@@ -306,35 +525,114 @@ export function PollCard({ poll, onDelete, className }: PollCardProps) {
                 </div>
               )}
 
-              {/* Options preview */}
+              {/* Options with voting UI */}
               <div className="space-y-2">
-                {poll.options.slice(0, 3).map((option) => (
-                  <div
-                    key={option.index}
-                    className="p-2 border rounded-md text-sm">
-                    {option.text}
-                  </div>
-                ))}
-                {poll.options.length > 3 && (
-                  <p className="text-xs text-muted-foreground">
-                    +{poll.options.length - 3} more options
-                  </p>
-                )}
+                {localPoll.options.map((option) => {
+                  const votesCount = option.votesCount ?? 0;
+                  const percentage =
+                    typeof option.percentage === "number"
+                      ? option.percentage
+                      : localPoll.totalVotes > 0
+                      ? Math.round((votesCount / localPoll.totalVotes) * 100)
+                      : 0;
+                  const hasVoted =
+                    localPoll.userVote && localPoll.userVote.length > 0;
+                  const isSelected = selectedIndices.includes(option.index);
+
+                  return (
+                    <button
+                      key={option.index}
+                      type="button"
+                      onClick={() => toggleSelection(option.index)}
+                      disabled={!canVote}
+                      className={cn(
+                        "relative overflow-hidden rounded-md border w-full text-left transition-all",
+                        canVote && "hover:border-primary cursor-pointer",
+                        !canVote && "cursor-not-allowed opacity-75",
+                        isSelected && canVote && "border-primary bg-primary/5"
+                      )}>
+                      {/* Progress bar background */}
+                      {localPoll.canViewResults && (
+                        <div
+                          className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      )}
+
+                      {/* Option content */}
+                      <div className="relative p-3 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={cn(
+                              "text-sm",
+                              isSelected && "font-semibold"
+                            )}>
+                            {option.text}
+                            {isSelected && " ✓"}
+                          </span>
+                          {localPoll.canViewResults && (
+                            <span className="text-xs text-muted-foreground font-medium">
+                              {percentage}%
+                            </span>
+                          )}
+                        </div>
+                        {localPoll.canViewResults && (
+                          <div className="text-xs text-muted-foreground">
+                            {votesCount} vote{votesCount !== 1 ? "s" : ""}
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
 
+              {/* Vote button */}
+              {canVote && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleVote}
+                    disabled={voting || selectedIndices.length === 0}
+                    className="flex-1">
+                    {voting ? "Voting..." : hasVoted ? "Change Vote" : "Vote"}
+                  </Button>
+                  {hasVoted && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={handleRemoveVote}
+                      disabled={voting}>
+                      Remove Vote
+                    </Button>
+                  )}
+                </div>
+              )}
+
               {/* Poll stats */}
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span>{poll.totalVotes} votes</span>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="font-medium">
+                  {localPoll.totalVotes} vote
+                  {localPoll.totalVotes !== 1 ? "s" : ""}
+                </span>
                 <span>·</span>
-                <span className="capitalize">{poll.status}</span>
-                {poll.expiresAt && (
+                <span className="capitalize">{localPoll.status}</span>
+                {localPoll.expiresAt && (
                   <>
                     <span>·</span>
-                    <span>Expires {timeAgo(poll.expiresAt)}</span>
+                    <span>Expires {timeAgo(localPoll.expiresAt)}</span>
                   </>
                 )}
               </div>
-            </Link>
+
+              {!localPoll.canViewResults && (
+                <p className="text-xs text-muted-foreground italic">
+                  Vote to see results
+                </p>
+              )}
+            </div>
           </CardContent>
 
           {/* Interaction buttons */}

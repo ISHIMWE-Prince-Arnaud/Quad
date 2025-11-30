@@ -7,6 +7,8 @@ import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams, PollStatus } from "@/types/poll";
 import { SkeletonPost } from "@/components/ui/loading";
 import { motion } from "framer-motion";
+import { getSocket } from "@/lib/socket";
+import type { FeedEngagementUpdatePayload } from "@/lib/socket";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -36,6 +38,12 @@ export default function PollsPage() {
   const [status, setStatus] = useState<PollStatus | "all">("all");
   const [sort, setSort] = useState<SortKey>("newest");
   const [voted, setVoted] = useState<"all" | "voted" | "unvoted">("all");
+
+  const handlePollUpdate = (updatedPoll: Poll) => {
+    setPolls((prevPolls) =>
+      prevPolls.map((poll) => (poll.id === updatedPoll.id ? updatedPoll : poll))
+    );
+  };
 
   // debounce search
   useEffect(() => {
@@ -77,6 +85,35 @@ export default function PollsPage() {
       cancelled = true;
     };
   }, [queryParams]);
+
+  // Set up Socket.IO listeners for real-time poll updates
+  useEffect(() => {
+    const socket = getSocket();
+
+    const handleEngagementUpdate = (payload: FeedEngagementUpdatePayload) => {
+      if (payload.contentType === "poll") {
+        setPolls((prevPolls) =>
+          prevPolls.map((poll) => {
+            if (poll.id === payload.contentId) {
+              return {
+                ...poll,
+                totalVotes: payload.votes ?? poll.totalVotes,
+                reactionsCount: payload.reactionsCount ?? poll.reactionsCount,
+                commentsCount: payload.commentsCount ?? poll.commentsCount,
+              };
+            }
+            return poll;
+          })
+        );
+      }
+    };
+
+    socket.on("feed:engagement-update", handleEngagementUpdate);
+
+    return () => {
+      socket.off("feed:engagement-update", handleEngagementUpdate);
+    };
+  }, []);
 
   const handleChangePage = (next: number) => {
     setPage(next);
