@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface ButtonProps
@@ -15,6 +16,7 @@ export interface ButtonProps
     | "warning";
   size?: "default" | "sm" | "lg" | "icon";
   asChild?: boolean;
+  loading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -24,6 +26,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant = "default",
       size = "default",
       asChild = false,
+      loading = false,
+      disabled,
+      children,
       ...props
     },
     ref
@@ -32,7 +37,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(
-          "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95",
+          "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95",
           {
             "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md":
               variant === "default",
@@ -54,13 +59,16 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             "h-10 px-4 py-2": size === "default",
             "h-9 rounded-md px-3": size === "sm",
             "h-11 rounded-md px-8": size === "lg",
-            "h-10 w-10": size === "icon",
+            "h-10 w-10 p-0": size === "icon",
           },
           className
         )}
         ref={ref}
-        {...props}
-      />
+        disabled={disabled || loading}
+        {...props}>
+        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+        {children}
+      </Comp>
     );
   }
 );
