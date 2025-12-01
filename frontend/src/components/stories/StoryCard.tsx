@@ -214,38 +214,30 @@ export function StoryCard({ story, onDelete, className }: StoryCardProps) {
   return (
     <>
       <motion.div
-        whileHover={{ y: -2 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ type: "spring", stiffness: 260, damping: 20 }}>
-        <Card className={cn("w-full", className)}>
-          <CardHeader className="pb-3">
+        initial="rest"
+        whileHover="hover"
+        animate="rest"
+        variants={{
+          rest: { y: 0, scale: 1 },
+          hover: { y: -8, scale: 1.01 },
+        }}
+        transition={{ duration: 0.3, ease: "easeOut" }}>
+        <Card
+          className={cn(
+            "w-full transition-shadow duration-300 overflow-hidden",
+            "hover:shadow-lg",
+            className
+          )}>
+          <CardHeader className="pb-2 px-4 pt-3">
             <div className="flex items-start justify-between">
-              {/* Author info */}
-              <Link
-                to={`/app/profile/${story.author.username}`}
-                className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={story.author.profileImage} />
-                  <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                    {displayName.charAt(0).toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold text-sm truncate max-w-[180px]">
-                    {displayName}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    @{story.author.username}
-                    <span className="mx-1">·</span>
-                    {timeAgo(story.createdAt)}
-                  </p>
-                </div>
-              </Link>
+              <span className="text-xs text-muted-foreground">
+                {timeAgo(story.createdAt)}
+              </span>
 
               {/* More options */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -282,106 +274,106 @@ export function StoryCard({ story, onDelete, className }: StoryCardProps) {
           </CardHeader>
 
           {/* Story content */}
-          <CardContent className="pb-3 space-y-3">
+          <CardContent className="p-0">
             {/* Cover image */}
             {story.coverImage && (
               <Link to={`/app/stories/${story._id}`} className="block">
-                <img
-                  src={story.coverImage}
-                  alt={story.title}
-                  className="w-full h-48 object-cover rounded-md"
-                />
+                <div className="aspect-video w-full overflow-hidden">
+                  <img
+                    src={story.coverImage}
+                    alt={story.title}
+                    className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
               </Link>
             )}
 
             {/* Title and excerpt */}
-            <Link to={`/app/stories/${story._id}`} className="block space-y-2">
-              <h3 className="font-bold text-lg line-clamp-2">{story.title}</h3>
-              {story.excerpt && (
-                <p className="text-sm text-muted-foreground line-clamp-3">
-                  {story.excerpt}
-                </p>
-              )}
-              {story.readTime && (
-                <p className="text-xs text-muted-foreground">
-                  {story.readTime} min read
-                </p>
-              )}
-            </Link>
+            <div className="p-4 space-y-2">
+              <Link
+                to={`/app/stories/${story._id}`}
+                className="block space-y-2">
+                <h3 className="font-semibold text-lg line-clamp-2 leading-tight">
+                  {story.title}
+                </h3>
+                {story.excerpt && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {story.excerpt}
+                  </p>
+                )}
+              </Link>
+
+              {/* Author info and metadata */}
+              <div className="flex items-center gap-2 pt-2">
+                <Link
+                  to={`/app/profile/${story.author.username}`}
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={story.author.profileImage} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                      {displayName.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs text-muted-foreground truncate">
+                    {displayName}
+                  </span>
+                </Link>
+                {story.readTime && (
+                  <>
+                    <span className="text-xs text-muted-foreground">·</span>
+                    <span className="text-xs text-muted-foreground">
+                      {story.readTime} min read
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
           </CardContent>
 
           {/* Interaction buttons */}
-          <CardFooter className="pt-0 pb-3 flex items-center justify-between border-t">
-            <div className="flex items-center gap-1">
+          <CardFooter className="px-4 pb-3 pt-2 flex items-center justify-between text-xs text-muted-foreground border-t">
+            <div className="flex items-center gap-3">
               <ReactionPicker
                 onSelect={handleSelectReaction}
                 trigger={
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
                     disabled={reactionPending}
                     className={cn(
-                      "gap-2 text-muted-foreground",
-                      userReaction ? "text-pink-600" : "hover:text-pink-600"
+                      "flex items-center gap-1 hover:text-pink-600 transition-colors",
+                      userReaction && "text-pink-600"
                     )}>
-                    <span className="text-sm">{selectedEmoji}</span>
-                    <span className="text-xs">{reactionCount}</span>
-                  </Button>
+                    <span>{selectedEmoji}</span>
+                    <span>{reactionCount}</span>
+                  </button>
                 }
               />
-              <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
-                {(Object.keys(reactionCounts) as ReactionType[]).map((type) => {
-                  const count = reactionCounts[type] ?? 0;
-                  if (!count) return null;
-                  return (
-                    <span
-                      key={type}
-                      className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
-                      <span>{reactionEmojiMap[type]}</span>
-                      <span>{count}</span>
-                    </span>
-                  );
-                })}
-              </div>
+
+              <Link
+                to={`/app/stories/${story._id}`}
+                className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+                <MessageCircle className="h-3.5 w-3.5" />
+                <span>{story.commentsCount || 0}</span>
+              </Link>
             </div>
 
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-2 text-muted-foreground hover:text-blue-600"
-                asChild>
-                <Link to={`/app/stories/${story._id}`}>
-                  <MessageCircle className="h-4 w-4" />
-                  <span className="text-xs">{story.commentsCount || 0}</span>
-                </Link>
-              </Button>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <Button
+            <div className="flex items-center gap-2">
+              <button
                 type="button"
-                variant="ghost"
-                size="sm"
                 onClick={handleCopyLink}
-                className="gap-2 text-muted-foreground hover:text-green-600">
-                <Share2 className="h-4 w-4" />
-              </Button>
-            </div>
+                className="hover:text-green-600 transition-colors">
+                <Share2 className="h-3.5 w-3.5" />
+              </button>
 
-            <div className="flex items-center gap-1">
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="sm"
                 onClick={handleToggleBookmark}
                 className={cn(
-                  "gap-2 text-muted-foreground",
+                  "transition-colors",
                   bookmarked ? "text-amber-600" : "hover:text-amber-600"
                 )}>
-                <Bookmark className="h-4 w-4" />
-              </Button>
+                <Bookmark className="h-3.5 w-3.5" />
+              </button>
             </div>
           </CardFooter>
         </Card>

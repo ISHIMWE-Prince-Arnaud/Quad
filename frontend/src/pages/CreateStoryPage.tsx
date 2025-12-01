@@ -4,6 +4,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
+import Underline from "@tiptap/extension-underline";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,12 +23,15 @@ import {
   ListOrdered,
   Bold,
   Italic,
+  Underline as UnderlineIcon,
   Link as LinkIcon,
+  AtSign,
   Save,
   Send,
   X,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -67,6 +71,7 @@ export default function CreateStoryPage() {
           levels: [2, 3],
         },
       }),
+      Underline,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -377,39 +382,70 @@ export default function CreateStoryPage() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <label className="inline-flex items-center gap-2">
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    className="hidden"
-                    onChange={(e) =>
-                      void handleUploadCover(e.target.files?.[0] || null)
+              <div className="space-y-3">
+                <div
+                  className={cn(
+                    "border-2 border-dashed rounded-lg p-6 text-center transition-colors",
+                    uploadingCover
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-primary/50"
+                  )}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const file = e.dataTransfer.files?.[0];
+                    if (file && file.type.startsWith("image/")) {
+                      void handleUploadCover(file);
                     }
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={uploadingCover}>
-                    {uploadingCover ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <ImageIcon className="h-4 w-4 mr-2" />
-                    )}
-                    {coverImage ? "Change Cover" : "Add Cover"}
-                  </Button>
-                </label>
+                  }}>
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) =>
+                        void handleUploadCover(e.target.files?.[0] || null)
+                      }
+                    />
+                    <div className="flex flex-col items-center gap-2">
+                      {uploadingCover ? (
+                        <>
+                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                          <p className="text-sm text-muted-foreground">
+                            Uploading cover image...
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                          <p className="text-sm font-medium">
+                            {coverImage
+                              ? "Change Cover Image"
+                              : "Add Cover Image"}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Drag and drop or click to upload
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </label>
+                </div>
 
                 <label className="inline-flex items-center gap-2">
                   <input
                     type="file"
-                    accept="image/*,video/*"
+                    accept="image/*"
                     className="hidden"
                     onChange={(e) =>
                       void handleInsertInlineImage(e.target.files?.[0] || null)
                     }
                   />
-                  <Button type="button" variant="outline">
+                  <Button type="button" variant="outline" size="sm">
                     <ImageIcon className="h-4 w-4 mr-2" />
                     Insert Inline Image
                   </Button>
@@ -520,8 +556,39 @@ export default function CreateStoryPage() {
                     type="button"
                     variant="ghost"
                     size="sm"
+                    onClick={() =>
+                      editor?.chain().focus().toggleUnderline().run()
+                    }
+                    className={
+                      editor?.isActive("underline") ? "bg-accent" : ""
+                    }>
+                    <UnderlineIcon className="h-4 w-4 mr-1" /> Underline
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={handleInsertLink}>
                     <LinkIcon className="h-4 w-4 mr-1" /> Link
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const username = window.prompt(
+                        "Enter username to mention (without @)"
+                      );
+                      if (username) {
+                        editor
+                          ?.chain()
+                          .focus()
+                          .insertContent(`@${username} `)
+                          .run();
+                      }
+                    }}
+                    title="Mention user">
+                    <AtSign className="h-4 w-4 mr-1" /> Mention
                   </Button>
                 </div>
 
