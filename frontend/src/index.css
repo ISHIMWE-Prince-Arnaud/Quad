@@ -25,11 +25,26 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    
+    /* Updated border radius for modern feel - 12px */
+    --radius: 0.75rem;
+    
+    /* Semantic colors */
     --success: 142 76% 36%;
     --success-foreground: 355.7 100% 97.3%;
     --warning: 38 92% 50%;
     --warning-foreground: 48 96% 89%;
+    
+    /* Z-index scale for consistent layering */
+    --z-base: 0;
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-toast: 1070;
+    --z-tooltip: 1080;
   }
 
   .dark {
@@ -121,6 +136,14 @@
     @apply p-6;
   }
   
+  .card-spacing-tight {
+    @apply p-4;
+  }
+  
+  .card-spacing-spacious {
+    @apply p-8;
+  }
+  
   .form-spacing {
     @apply space-y-4;
   }
@@ -169,6 +192,36 @@
   
   .container-wide {
     @apply max-w-6xl mx-auto;
+  }
+  
+  /* Skeleton loading */
+  .skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+  
+  /* Screen reader only - accessible but visually hidden */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
+
+/* Accessibility: Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
