@@ -86,10 +86,13 @@ describe("Post Creation Integration", () => {
       message: "Post text is required",
     });
 
-    const result = await PostService.createPost(postData);
-
-    expect(result.success).toBe(false);
-    expect(result.message).toContain("required");
+    try {
+      await PostService.createPost(postData);
+      expect.fail("Should have thrown an error");
+    } catch (error: any) {
+      expect(error.response.status).toBe(400);
+      expect(error.response.data.message).toContain("required");
+    }
   });
 
   it("should retrieve created post", async () => {

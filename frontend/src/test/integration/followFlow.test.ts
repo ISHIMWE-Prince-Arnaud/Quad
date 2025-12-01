@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import MockAdapter from "axios-mock-adapter";
-import { api } from "@/lib/api";
+import { api, invalidateCache } from "@/lib/api";
 import { FollowService } from "@/services/followService";
 
 describe("Follow Flow Integration", () => {
@@ -8,10 +8,12 @@ describe("Follow Flow Integration", () => {
 
   beforeEach(() => {
     mock = new MockAdapter(api);
+    invalidateCache(); // Clear cache before each test
   });
 
   afterEach(() => {
     mock.reset();
+    invalidateCache(); // Clear cache after each test
   });
 
   it("should follow a user", async () => {
@@ -50,8 +52,7 @@ describe("Follow Flow Integration", () => {
 
     const result = await FollowService.checkFollowing(userId);
 
-    expect(result.success).toBe(true);
-    expect(result.data?.isFollowing).toBe(true);
+    expect(result.isFollowing).toBe(true);
   });
 
   it("should get followers list", async () => {
@@ -73,12 +74,16 @@ describe("Follow Flow Integration", () => {
     mock.onGet(`/follow/${userId}/followers`).reply(200, {
       success: true,
       data: mockFollowers,
+      pagination: {
+        hasMore: false,
+        total: 2,
+      },
     });
 
     const result = await FollowService.getFollowers(userId);
 
-    expect(result.success).toBe(true);
-    expect(result.data).toHaveLength(2);
+    expect(result.followers).toHaveLength(2);
+    expect(result.total).toBe(2);
   });
 
   it("should get following list", async () => {
@@ -95,12 +100,16 @@ describe("Follow Flow Integration", () => {
     mock.onGet(`/follow/${userId}/following`).reply(200, {
       success: true,
       data: mockFollowing,
+      pagination: {
+        hasMore: false,
+        total: 1,
+      },
     });
 
     const result = await FollowService.getFollowing(userId);
 
-    expect(result.success).toBe(true);
-    expect(result.data).toHaveLength(1);
+    expect(result.following).toHaveLength(1);
+    expect(result.total).toBe(1);
   });
 
   it("should get follow stats", async () => {
@@ -116,11 +125,10 @@ describe("Follow Flow Integration", () => {
       data: mockStats,
     });
 
-    const result = await FollowService.getStats(userId);
+    const result = await FollowService.getFollowStats(userId);
 
-    expect(result.success).toBe(true);
-    expect(result.data?.followersCount).toBe(150);
-    expect(result.data?.followingCount).toBe(75);
+    expect(result.followersCount).toBe(150);
+    expect(result.followingCount).toBe(75);
   });
 
   it("should handle complete follow/unfollow cycle", async () => {
@@ -133,7 +141,11 @@ describe("Follow Flow Integration", () => {
     });
 
     let checkResult = await FollowService.checkFollowing(userId);
-    expect(checkResult.data?.isFollowing).toBe(false);
+    expect(checkResult.isFollowing).toBe(false);
+
+    // Clear cache and reset mock for next call
+    invalidateCache();
+    mock.reset();
 
     // Follow user
     mock.onPost(`/follow/${userId}`).reply(200, {
@@ -144,6 +156,10 @@ describe("Follow Flow Integration", () => {
     const followResult = await FollowService.followUser(userId);
     expect(followResult.success).toBe(true);
 
+    // Clear cache and reset mock for next call
+    invalidateCache();
+    mock.reset();
+
     // Check state after following
     mock.onGet(`/follow/${userId}/check`).reply(200, {
       success: true,
@@ -151,7 +167,11 @@ describe("Follow Flow Integration", () => {
     });
 
     checkResult = await FollowService.checkFollowing(userId);
-    expect(checkResult.data?.isFollowing).toBe(true);
+    expect(checkResult.isFollowing).toBe(true);
+
+    // Clear cache and reset mock for next call
+    invalidateCache();
+    mock.reset();
 
     // Unfollow user
     mock.onDelete(`/follow/${userId}`).reply(200, {
@@ -162,6 +182,10 @@ describe("Follow Flow Integration", () => {
     const unfollowResult = await FollowService.unfollowUser(userId);
     expect(unfollowResult.success).toBe(true);
 
+    // Clear cache and reset mock for next call
+    invalidateCache();
+    mock.reset();
+
     // Check final state (not following)
     mock.onGet(`/follow/${userId}/check`).reply(200, {
       success: true,
@@ -169,7 +193,7 @@ describe("Follow Flow Integration", () => {
     });
 
     checkResult = await FollowService.checkFollowing(userId);
-    expect(checkResult.data?.isFollowing).toBe(false);
+    expect(checkResult.isFollowing).toBe(false);
   });
 
   it("should handle follow errors gracefully", async () => {
@@ -180,10 +204,13 @@ describe("Follow Flow Integration", () => {
       message: "Cannot follow yourself",
     });
 
-    const result = await FollowService.followUser(userId);
-
-    expect(result.success).toBe(false);
-    expect(result.message).toContain("Cannot follow");
+    try {
+      await FollowService.followUser(userId);
+      expect.fail("Should have thrown an error");
+    } catch (error: any) {
+      expect(error.response.status).toBe(400);
+      expect(error.response.data.message).toContain("Cannot follow");
+    }
   });
 
   it("should get mutual follows", async () => {
@@ -200,11 +227,12 @@ describe("Follow Flow Integration", () => {
     mock.onGet(`/follow/${userId}/mutual`).reply(200, {
       success: true,
       data: mockMutualFollows,
+      count: 1,
     });
 
     const result = await FollowService.getMutualFollows(userId);
 
-    expect(result.success).toBe(true);
-    expect(result.data).toHaveLength(1);
+    expect(result.mutualFollows).toHaveLength(1);
+    expect(result.count).toBe(1);
   });
 });
