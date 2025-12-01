@@ -4,7 +4,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { RootLayout } from "@/layouts/RootLayout";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { MainLayout } from "@/layouts/MainLayout";
-import { Loading } from "@/components/ui/loading";
+import { LoadingPage } from "@/components/ui/loading";
 
 // Lazy load pages for code splitting
 const HomePage = lazy(() => import("@/pages/HomePage"));
@@ -32,7 +32,7 @@ const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
 // Wrapper component for lazy loaded routes
 const LazyRoute = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<Loading />}>{children}</Suspense>
+  <Suspense fallback={<LoadingPage />}>{children}</Suspense>
 );
 
 export const router = createBrowserRouter([

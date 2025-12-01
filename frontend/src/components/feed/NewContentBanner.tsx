@@ -15,7 +15,7 @@ export function NewContentBanner({
   onRefresh,
 }: NewContentBannerProps) {
   const [newContentCount, setNewContentCount] = useState(0);
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollIntervalRef = useRef<number | null>(null);
 
   // Poll for new content count
   const pollNewContent = useCallback(async () => {

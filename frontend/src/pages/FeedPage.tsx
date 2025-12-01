@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useFeedStore } from "@/stores/feedStore";
+import { useFeedStore, type FeedItem } from "@/stores/feedStore";
 import { FeedService } from "@/services/feedService";
 import { PostCard } from "@/components/posts/PostCard";
 import { NewContentBanner } from "@/components/feed/NewContentBanner";
@@ -51,11 +51,13 @@ export default function FeedPage() {
         });
 
         if (response.success && response.data) {
-          const items = response.data.items.map((item) => item.content);
+          const items = response.data.items.map(
+            (item) => item.content
+          ) as FeedItem[];
           if (reset) {
             setFeedItems(items);
             if (items.length > 0) {
-              setLastSeenId(items[0]._id);
+              setLastSeenId((items[0] as any)._id);
             }
           } else {
             addFeedItems(items);
@@ -210,7 +212,7 @@ export default function FeedPage() {
       {/* Feed Items */}
       <div className="space-y-4">
         {feedItems.map((item) => (
-          <PostCard key={item._id} post={item} />
+          <PostCard key={item._id} post={item as any} />
         ))}
       </div>
 

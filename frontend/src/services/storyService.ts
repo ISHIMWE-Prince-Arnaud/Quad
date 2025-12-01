@@ -1,6 +1,5 @@
 import { endpoints } from "@/lib/api";
 import type {
-  Story,
   StoriesListResponse,
   StoryResponse,
   CreateStoryInput,

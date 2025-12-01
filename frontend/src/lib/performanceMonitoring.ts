@@ -216,14 +216,6 @@ class PerformanceMonitor {
 
     // Log loaded scripts
     const scripts = Array.from(document.querySelectorAll("script[src]"));
-    const totalSize = scripts.reduce((sum, script) => {
-      const src = script.getAttribute("src");
-      if (src) {
-        // This is approximate - actual size would need server integration
-        return sum + 1;
-      }
-      return sum;
-    }, 0);
 
     console.log(`[Performance] Loaded ${scripts.length} script bundles`);
   }

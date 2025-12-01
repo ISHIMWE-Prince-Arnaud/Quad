@@ -47,7 +47,17 @@ class ErrorTracker {
 
     try {
       // Dynamically import Sentry only in production
-      const Sentry = await import("@sentry/react");
+      const Sentry = await import("@sentry/react").catch(() => {
+        console.warn(
+          "[ErrorTracking] Sentry not installed, error tracking disabled"
+        );
+        return null;
+      });
+
+      if (!Sentry) {
+        this.config.enabled = false;
+        return;
+      }
 
       Sentry.init({
         dsn: this.config.dsn,
@@ -73,7 +83,7 @@ class ErrorTracker {
           "Network request failed",
         ],
         // Filter sensitive data
-        beforeSend(event) {
+        beforeSend(event: any) {
           // Remove sensitive data from event
           if (event.request?.cookies) {
             delete event.request.cookies;

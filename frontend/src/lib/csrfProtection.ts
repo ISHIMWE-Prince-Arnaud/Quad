@@ -123,7 +123,7 @@ export async function refreshCSRFToken(): Promise<string | null> {
  * CSRF token middleware for fetch requests
  */
 export function csrfFetchMiddleware(
-  url: string,
+  _url: string,
   options: RequestInit = {}
 ): RequestInit {
   const method = options.method || "GET";

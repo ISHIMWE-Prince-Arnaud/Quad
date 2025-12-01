@@ -197,6 +197,7 @@ export default function SearchPage() {
   // Helper functions to map API types to component types
   const mapApiPostToPost = (apiPost: ApiPost): Post => ({
     _id: apiPost._id,
+    userId: apiPost.author._id,
     author: apiPost.author,
     text: apiPost.text,
     media: apiPost.media || [],

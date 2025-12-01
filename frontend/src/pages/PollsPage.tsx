@@ -39,11 +39,11 @@ export default function PollsPage() {
   const [sort, setSort] = useState<SortKey>("newest");
   const [voted, setVoted] = useState<"all" | "voted" | "unvoted">("all");
 
-  const handlePollUpdate = (updatedPoll: Poll) => {
-    setPolls((prevPolls) =>
-      prevPolls.map((poll) => (poll.id === updatedPoll.id ? updatedPoll : poll))
-    );
-  };
+  // const handlePollUpdate = (updatedPoll: Poll) => {
+  //   setPolls((prevPolls) =>
+  //     prevPolls.map((poll) => (poll.id === updatedPoll.id ? updatedPoll : poll))
+  //   );
+  // };
 
   // debounce search
   useEffect(() => {

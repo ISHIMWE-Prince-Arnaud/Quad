@@ -53,7 +53,7 @@ export interface Poll {
 }
 
 export type FeedItem = Post | Story | Poll;
-export type FeedType = "general" | "following" | "foryou";
+export type FeedType = "following" | "foryou";
 
 interface FeedState {
   // Feed data
@@ -77,7 +77,7 @@ interface FeedState {
 
 export const useFeedStore = create<FeedState>((set, get) => ({
   feedItems: [],
-  feedType: "general",
+  feedType: "following",
   isLoading: false,
   hasMore: true,
   cursor: null,

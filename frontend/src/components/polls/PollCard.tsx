@@ -535,8 +535,6 @@ export function PollCard({
                       : localPoll.totalVotes > 0
                       ? Math.round((votesCount / localPoll.totalVotes) * 100)
                       : 0;
-                  const hasVoted =
-                    localPoll.userVote && localPoll.userVote.length > 0;
                   const isSelected = selectedIndices.includes(option.index);
 
                   return (
@@ -596,9 +594,13 @@ export function PollCard({
                     onClick={handleVote}
                     disabled={voting || selectedIndices.length === 0}
                     className="flex-1">
-                    {voting ? "Voting..." : hasVoted ? "Change Vote" : "Vote"}
+                    {voting
+                      ? "Voting..."
+                      : localPoll.userVote && localPoll.userVote.length > 0
+                      ? "Change Vote"
+                      : "Vote"}
                   </Button>
-                  {hasVoted && (
+                  {localPoll.userVote && localPoll.userVote.length > 0 && (
                     <Button
                       type="button"
                       size="sm"

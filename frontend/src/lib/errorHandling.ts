@@ -4,16 +4,18 @@ import { AxiosError } from "axios";
 /**
  * Error types for categorization
  */
-export enum ErrorType {
-  NETWORK = "NETWORK",
-  AUTHENTICATION = "AUTHENTICATION",
-  AUTHORIZATION = "AUTHORIZATION",
-  VALIDATION = "VALIDATION",
-  NOT_FOUND = "NOT_FOUND",
-  SERVER = "SERVER",
-  RATE_LIMIT = "RATE_LIMIT",
-  UNKNOWN = "UNKNOWN",
-}
+export const ErrorType = {
+  NETWORK: "NETWORK",
+  AUTHENTICATION: "AUTHENTICATION",
+  AUTHORIZATION: "AUTHORIZATION",
+  VALIDATION: "VALIDATION",
+  NOT_FOUND: "NOT_FOUND",
+  SERVER: "SERVER",
+  RATE_LIMIT: "RATE_LIMIT",
+  UNKNOWN: "UNKNOWN",
+} as const;
+
+export type ErrorType = (typeof ErrorType)[keyof typeof ErrorType];
 
 /**
  * Structured error object
@@ -275,7 +277,7 @@ export async function retryWithBackoff<T>(
     initialDelay = 1000,
     maxDelay = 10000,
     backoffMultiplier = 2,
-    shouldRetry = (error) => {
+    shouldRetry = (error: unknown) => {
       // Retry on network errors and 5xx errors
       const errorType = categorizeError(error);
       return errorType === ErrorType.NETWORK || errorType === ErrorType.SERVER;

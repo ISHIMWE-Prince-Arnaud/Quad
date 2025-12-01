@@ -78,7 +78,7 @@ class RateLimitManager {
    * Show user-friendly toast notification for rate limit
    */
   private showRateLimitToast(
-    endpoint: string,
+    _endpoint: string,
     retryAfterSeconds: number
   ): void {
     const minutes = Math.ceil(retryAfterSeconds / 60);

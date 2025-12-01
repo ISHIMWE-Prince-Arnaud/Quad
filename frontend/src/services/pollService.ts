@@ -1,6 +1,5 @@
 import { endpoints } from "@/lib/api";
 import type {
-  Poll,
   PollsListResponse,
   PollResponse,
   CreatePollInput,

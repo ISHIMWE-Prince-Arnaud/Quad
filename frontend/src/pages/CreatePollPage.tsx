@@ -193,7 +193,7 @@ export default function CreatePollPage() {
       } catch (validationError) {
         if (validationError instanceof ZodError) {
           const errors: ValidationErrors = {};
-          validationError.errors.forEach((err) => {
+          validationError.issues.forEach((err: any) => {
             const path = err.path[0] as string;
             if (path === "question") {
               errors.question = err.message;

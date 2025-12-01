@@ -115,7 +115,6 @@ export default function ChatPage() {
     if (!oldestMessageId || loadingOlder) return;
     try {
       setLoadingOlder(true);
-      const prevLength = messages.length;
 
       const res = await ChatService.getMessages({
         before: oldestMessageId,

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { LogoWithText } from "@/components/ui/Logo";
 import { UserAvatar } from "@/components/auth/UserMenu";
-import { AdvancedThemeSelector } from "@/components/theme/ThemeSelector";
+import { ThemeSelector } from "@/components/theme/ThemeSelector";
 import { useAuthStore } from "@/stores/authStore";
 import { cn } from "@/lib/utils";
 
@@ -102,7 +102,7 @@ export function Sidebar() {
             Theme
           </span>
         </div>
-        <AdvancedThemeSelector />
+        <ThemeSelector />
       </div>
 
       {/* User Profile */}

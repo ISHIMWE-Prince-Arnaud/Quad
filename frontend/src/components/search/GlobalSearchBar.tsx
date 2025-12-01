@@ -92,7 +92,7 @@ export function GlobalSearchBar() {
           data-search-input
           aria-label="Search (Shortcut: S)"
           aria-autocomplete="list"
-          aria-expanded={isOpen && (query.trim() || loading)}
+          aria-expanded={isOpen && (!!query.trim() || loading)}
           aria-controls={isOpen ? "search-suggestions" : undefined}
         />
         {query && (

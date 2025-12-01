@@ -5,7 +5,7 @@ import { verifyToken, ensureFreshToken, logAuthEvent } from "./authAudit";
 // Hook for token management with enhanced security
 export function useTokenManager() {
   const { getToken } = useAuth();
-  const refreshIntervalRef = useRef<number>();
+  const refreshIntervalRef = useRef<number | undefined>(undefined);
 
   const getAuthToken = useCallback(async (): Promise<string | null> => {
     try {
