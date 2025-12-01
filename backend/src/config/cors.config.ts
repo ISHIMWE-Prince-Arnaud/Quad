@@ -68,6 +68,7 @@ export const corsOptions: CorsOptions = {
     "X-Requested-With",
     "Accept",
     "Origin",
+    "x-retry-count",
   ],
   exposedHeaders: [
     "X-Total-Count",
