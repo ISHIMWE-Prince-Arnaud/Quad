@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserCard, type UserCardData } from "@/components/user/UserCard";
 import { FollowService } from "@/services/followService";
+import { SearchService } from "@/services/searchService";
+import type { ApiProfile } from "@/types/api";
 
 interface WhoToFollowProps {
   limit?: number;
@@ -12,126 +14,23 @@ interface WhoToFollowProps {
   className?: string;
 }
 
-// Mock function to get user suggestions - replace with actual API call
-const getUserSuggestions = async (
-  limit: number = 3
-): Promise<UserCardData[]> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const allUsers: UserCardData[] = [
-    {
-      _id: "1",
-      clerkId: "user_1",
-      username: "techguru2024",
-      email: "tech@example.com",
-      firstName: "David",
-      lastName: "Chen",
-      profileImage:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-      bio: "Senior Software Engineer at TechCorp. Passionate about AI and machine learning.",
-      isVerified: true,
-      followers: 3456,
-      following: 234,
-      postsCount: 127,
-      joinedAt: "2023-08-15",
-      isFollowing: false,
-    },
-    {
-      _id: "2",
-      clerkId: "user_2",
-      username: "designpro",
-      email: "design@example.com",
-      firstName: "Emma",
-      lastName: "Rodriguez",
-      profileImage:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=150&h=150&fit=crop&crop=face",
-      coverImage:
-        "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1200&h=400&fit=crop",
-      bio: "UI/UX Designer creating beautiful and functional digital experiences",
-      isVerified: false,
-      followers: 1892,
-      following: 445,
-      postsCount: 89,
-      joinedAt: "2023-12-03",
-      isFollowing: false,
-    },
-    {
-      _id: "3",
-      clerkId: "user_3",
-      username: "startup_founder",
-      email: "founder@example.com",
-      firstName: "Michael",
-      lastName: "Johnson",
-      profileImage:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-      bio: "Entrepreneur | Building the future of fintech | Angel investor",
-      isVerified: true,
-      followers: 8923,
-      following: 567,
-      postsCount: 203,
-      joinedAt: "2023-06-20",
-      isFollowing: false,
-    },
-    {
-      _id: "4",
-      clerkId: "user_4",
-      username: "creativecoder",
-      email: "creative@example.com",
-      firstName: "Sophia",
-      lastName: "Wilson",
-      profileImage:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-      bio: "Full-stack developer with a passion for creative coding and interactive art",
-      isVerified: false,
-      followers: 2134,
-      following: 123,
-      postsCount: 156,
-      joinedAt: "2024-01-10",
-      isFollowing: false,
-    },
-    {
-      _id: "5",
-      clerkId: "user_5",
-      username: "datascientist",
-      email: "data@example.com",
-      firstName: "Alex",
-      lastName: "Kumar",
-      profileImage:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-      bio: "Data Scientist | ML Engineer | Making sense of complex data patterns",
-      isVerified: false,
-      followers: 1567,
-      following: 289,
-      postsCount: 94,
-      joinedAt: "2023-09-14",
-      isFollowing: false,
-    },
-    {
-      _id: "6",
-      clerkId: "user_6",
-      username: "productmanager",
-      email: "product@example.com",
-      firstName: "Rachel",
-      lastName: "Thompson",
-      profileImage:
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
-      coverImage:
-        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=400&fit=crop",
-      bio: "Senior Product Manager | Building products that users love",
-      isVerified: true,
-      followers: 4321,
-      following: 678,
-      postsCount: 178,
-      joinedAt: "2023-07-08",
-      isFollowing: false,
-    },
-  ];
-
-  // Shuffle and return limited number of users
-  const shuffled = allUsers.sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, limit);
-};
+const convertProfileToUserCard = (profile: ApiProfile): UserCardData => ({
+  _id: profile._id,
+  clerkId: profile.clerkId,
+  username: profile.username,
+  email: profile.email,
+  firstName: profile.firstName,
+  lastName: profile.lastName,
+  profileImage: profile.profileImage,
+  coverImage: profile.coverImage,
+  bio: profile.bio,
+  isVerified: profile.isVerified,
+  followers: profile.followers,
+  following: profile.following,
+  postsCount: profile.postsCount,
+  joinedAt: profile.joinedAt || profile.createdAt || new Date().toISOString(),
+  isFollowing: profile.isFollowing,
+});
 
 export function WhoToFollow({
   limit = 3,
@@ -143,17 +42,46 @@ export function WhoToFollow({
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const loadSuggestions = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const users = await getUserSuggestions(limit);
-      setSuggestions(users);
-    } catch (error) {
-      console.error("Failed to load user suggestions:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [limit]);
+  const fetchSuggestions = useCallback(
+    async (showSkeleton: boolean) => {
+      if (showSkeleton) {
+        setIsLoading(true);
+      } else {
+        setIsRefreshing(true);
+      }
+
+      try {
+        const result = await SearchService.searchUsers({
+          q: "",
+          limit: Math.max(limit * 2, limit),
+          sortBy: "followers",
+        });
+
+        const normalized = result.results
+          .map(convertProfileToUserCard)
+          .filter((user) => Boolean(user.clerkId));
+
+        const randomized = normalized
+          .sort(() => Math.random() - 0.5)
+          .slice(0, limit);
+
+        setSuggestions(randomized);
+      } catch (error) {
+        console.error("Failed to load user suggestions:", error);
+      } finally {
+        if (showSkeleton) {
+          setIsLoading(false);
+        } else {
+          setIsRefreshing(false);
+        }
+      }
+    },
+    [limit]
+  );
+
+  const loadSuggestions = useCallback(() => {
+    void fetchSuggestions(true);
+  }, [fetchSuggestions]);
 
   // Load initial suggestions
   useEffect(() => {
@@ -161,15 +89,7 @@ export function WhoToFollow({
   }, [limit, loadSuggestions]);
 
   const refreshSuggestions = async () => {
-    setIsRefreshing(true);
-    try {
-      const users = await getUserSuggestions(limit);
-      setSuggestions(users);
-    } catch (error) {
-      console.error("Failed to refresh suggestions:", error);
-    } finally {
-      setIsRefreshing(false);
-    }
+    await fetchSuggestions(false);
   };
 
   // Handle follow/unfollow
