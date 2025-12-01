@@ -17,6 +17,7 @@ import { createPollSchema } from "@/schemas/poll.schema";
 import { Image as ImageIcon, Loader2, X, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { ZodError } from "zod";
+import { cn } from "@/lib/utils";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -234,11 +235,14 @@ export default function CreatePollPage() {
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
         <div className="md:col-span-2 space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Create Poll</CardTitle>
+          <Card className="shadow-md">
+            <CardHeader className="border-b">
+              <CardTitle className="text-2xl">Create Poll</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Ask a question and let your community vote
+              </p>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 pt-6">
               {/* Question Input */}
               <div className="space-y-2">
                 <Label htmlFor="poll-question" className="text-sm font-medium">
@@ -338,43 +342,50 @@ export default function CreatePollPage() {
                 </div>
               </div>
 
-              {/* Poll Options */}
+              {/* Poll Options - Redesigned */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Options *</Label>
+                  <Label className="text-sm font-medium">Poll Options *</Label>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
                     onClick={handleAddOption}
                     disabled={options.length >= 5}
-                    aria-label="Add poll option">
-                    <Plus className="mr-1 h-4 w-4" />
+                    aria-label="Add poll option"
+                    className="gap-1">
+                    <Plus className="h-4 w-4" />
                     Add option
                   </Button>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {options.map((opt, index) => (
                     <div
                       key={opt.id}
-                      className="flex flex-col gap-2 rounded-md border p-3 md:flex-row md:items-start">
+                      className="flex flex-col gap-2 rounded-lg border border-border p-4 bg-card hover:border-primary/50 transition-colors md:flex-row md:items-start">
                       <div className="flex-1 space-y-2">
-                        <Input
-                          value={opt.text}
-                          onChange={(e) => {
-                            handleOptionChange(opt.id, e.target.value);
-                            if (validationErrors.options) {
-                              setValidationErrors((prev) => ({
-                                ...prev,
-                                options: undefined,
-                              }));
-                            }
-                          }}
-                          placeholder={`Option ${index + 1}`}
-                          maxLength={200}
-                          aria-label={`Poll option ${index + 1}`}
-                        />
                         <div className="flex items-center gap-2">
+                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+                            {index + 1}
+                          </span>
+                          <Input
+                            value={opt.text}
+                            onChange={(e) => {
+                              handleOptionChange(opt.id, e.target.value);
+                              if (validationErrors.options) {
+                                setValidationErrors((prev) => ({
+                                  ...prev,
+                                  options: undefined,
+                                }));
+                              }
+                            }}
+                            placeholder={`Enter option ${index + 1}`}
+                            maxLength={200}
+                            aria-label={`Poll option ${index + 1}`}
+                            className="flex-1"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 pl-8">
                           <label className="inline-flex items-center gap-1 cursor-pointer">
                             <input
                               type="file"
@@ -432,15 +443,16 @@ export default function CreatePollPage() {
                           )}
                         </div>
                       </div>
-                      <div className="flex justify-end md:w-20">
+                      <div className="flex justify-end md:w-auto">
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveOption(opt.id)}
                           disabled={options.length <= 2}
-                          aria-label={`Remove option ${index + 1}`}>
-                          Remove
+                          aria-label={`Remove option ${index + 1}`}
+                          className="text-destructive hover:text-destructive">
+                          <X className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -452,20 +464,21 @@ export default function CreatePollPage() {
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    Provide between 2 and 5 unique options.
+                    Provide between 2 and 5 unique options. Each option can have
+                    optional media.
                   </p>
                 )}
               </div>
 
-              {/* Settings and Duration */}
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Settings</Label>
-                  <div className="space-y-3 text-sm">
-                    <label className="flex items-center gap-2 cursor-pointer">
+              {/* Settings and Duration - Redesigned */}
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Poll Settings</Label>
+                  <div className="space-y-3 rounded-lg border border-border p-4 bg-card">
+                    <label className="flex items-center gap-3 cursor-pointer group">
                       <input
                         type="checkbox"
-                        className="h-4 w-4 rounded border"
+                        className="h-4 w-4 rounded border-input accent-primary"
                         checked={settings.allowMultiple}
                         onChange={(e) =>
                           setSettings((prev) => ({
@@ -474,17 +487,24 @@ export default function CreatePollPage() {
                           }))
                         }
                       />
-                      <span>Allow multiple selections</span>
+                      <div className="flex-1">
+                        <span className="text-sm font-medium group-hover:text-primary transition-colors">
+                          Allow multiple selections
+                        </span>
+                        <p className="text-xs text-muted-foreground">
+                          Users can select more than one option
+                        </p>
+                      </div>
                     </label>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <Label
                         htmlFor="results-visibility"
-                        className="text-xs text-muted-foreground">
-                        When should results be visible?
+                        className="text-sm font-medium">
+                        Results visibility
                       </Label>
                       <select
                         id="results-visibility"
-                        className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                        className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                         value={settings.showResults}
                         onChange={(e) =>
                           setSettings((prev) => ({
@@ -492,71 +512,84 @@ export default function CreatePollPage() {
                             showResults: e.target.value as ResultsVisibility,
                           }))
                         }>
-                        <option value="always">Always</option>
+                        <option value="always">Always visible</option>
                         <option value="afterVote">After user votes</option>
                         <option value="afterExpiry">After poll expires</option>
                       </select>
+                      <p className="text-xs text-muted-foreground">
+                        Control when voters can see results
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Label htmlFor="poll-expiry" className="text-sm font-medium">
-                    Expiry (optional)
+                    Poll Duration
                   </Label>
-                  <Input
-                    id="poll-expiry"
-                    type="datetime-local"
-                    value={expiresAt}
-                    onChange={(e) => {
-                      setExpiresAt(e.target.value);
-                      if (validationErrors.expiresAt) {
-                        setValidationErrors((prev) => ({
-                          ...prev,
-                          expiresAt: undefined,
-                        }));
+                  <div className="space-y-2">
+                    <Input
+                      id="poll-expiry"
+                      type="datetime-local"
+                      value={expiresAt}
+                      onChange={(e) => {
+                        setExpiresAt(e.target.value);
+                        if (validationErrors.expiresAt) {
+                          setValidationErrors((prev) => ({
+                            ...prev,
+                            expiresAt: undefined,
+                          }));
+                        }
+                      }}
+                      className={cn(
+                        "h-10",
+                        validationErrors.expiresAt && "border-red-500"
+                      )}
+                      aria-invalid={!!validationErrors.expiresAt}
+                      aria-describedby={
+                        validationErrors.expiresAt
+                          ? "expiry-error"
+                          : "expiry-help"
                       }
-                    }}
-                    className={
-                      validationErrors.expiresAt ? "border-red-500" : ""
-                    }
-                    aria-invalid={!!validationErrors.expiresAt}
-                    aria-describedby={
-                      validationErrors.expiresAt
-                        ? "expiry-error"
-                        : "expiry-help"
-                    }
-                  />
-                  {validationErrors.expiresAt ? (
-                    <p
-                      id="expiry-error"
-                      className="text-xs text-red-500"
-                      role="alert">
-                      {validationErrors.expiresAt}
-                    </p>
-                  ) : (
-                    <p
-                      id="expiry-help"
-                      className="text-xs text-muted-foreground">
-                      Leave empty for no automatic expiry.
-                    </p>
-                  )}
+                    />
+                    {validationErrors.expiresAt ? (
+                      <p
+                        id="expiry-error"
+                        className="text-xs text-red-500"
+                        role="alert">
+                        {validationErrors.expiresAt}
+                      </p>
+                    ) : (
+                      <p
+                        id="expiry-help"
+                        className="text-xs text-muted-foreground">
+                        Set when voting should close. Leave empty for no expiry.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="flex justify-end pt-2">
+              {/* Submit Button - Redesigned */}
+              <div className="flex items-center justify-between pt-4 border-t">
+                <p className="text-sm text-muted-foreground">
+                  {canSubmit
+                    ? "Ready to publish your poll"
+                    : "Fill in all required fields to continue"}
+                </p>
                 <Button
                   type="button"
                   disabled={!canSubmit || submitting}
-                  onClick={() => void handleSubmit()}>
+                  onClick={() => void handleSubmit()}
+                  size="lg"
+                  className="min-w-[140px]">
                   {submitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Creating...
                     </>
                   ) : (
-                    "Create poll"
+                    "Create Poll"
                   )}
                 </Button>
               </div>

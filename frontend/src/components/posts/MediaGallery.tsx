@@ -175,16 +175,18 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
     <>
       <div
         className={cn(
-          "grid grid-cols-2 gap-1 rounded-lg overflow-hidden",
+          "grid grid-cols-2 gap-2 rounded-xl overflow-hidden",
           className
         )}>
         {displayItems.map((item, index) => (
-          <div key={index} className="relative aspect-square">
+          <div
+            key={index}
+            className="relative aspect-square rounded-lg overflow-hidden">
             {item.type === "image" ? (
               <img
                 src={item.url}
                 alt={`Post media ${index + 1}`}
-                className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-all duration-200"
                 onClick={() => openLightbox(index)}
               />
             ) : (
@@ -196,7 +198,7 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
             )}
             {index === 3 && remaining > 0 && (
               <div
-                className="absolute inset-0 bg-black/60 flex items-center justify-center cursor-pointer"
+                className="absolute inset-0 bg-black/60 flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-black/70"
                 onClick={() => openLightbox(index)}>
                 <span className="text-white text-3xl font-bold">
                   +{remaining}

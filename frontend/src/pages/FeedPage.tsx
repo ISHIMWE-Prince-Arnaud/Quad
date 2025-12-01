@@ -1,8 +1,11 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useFeedStore, type FeedItem } from "@/stores/feedStore";
 import { FeedService } from "@/services/feedService";
+import { PostService } from "@/services/postService";
 import { PostCard } from "@/components/posts/PostCard";
 import { NewContentBanner } from "@/components/feed/NewContentBanner";
+import { CreatePostModal } from "@/components/forms/CreatePostModal";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSocket } from "@/lib/socket";
 import type {
@@ -11,9 +14,11 @@ import type {
   FeedContentDeletedPayload,
 } from "@/lib/socket";
 import type { FeedType } from "@/types/feed";
+import type { CreatePostData } from "@/schemas/post.schema";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { Plus } from "lucide-react";
 
 export default function FeedPage() {
   const {
