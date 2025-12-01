@@ -10,7 +10,9 @@ export interface ButtonProps
     | "outline"
     | "secondary"
     | "ghost"
-    | "link";
+    | "link"
+    | "success"
+    | "warning";
   size?: "default" | "sm" | "lg" | "icon";
   asChild?: boolean;
 }
@@ -36,6 +38,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               variant === "default",
             "bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:shadow-md":
               variant === "destructive",
+            "bg-success text-success-foreground hover:bg-success/90 hover:shadow-md":
+              variant === "success",
+            "bg-warning text-warning-foreground hover:bg-warning/90 hover:shadow-md":
+              variant === "warning",
             "border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-accent-foreground/20":
               variant === "outline",
             "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-sm":
