@@ -3,7 +3,7 @@
  * Provides endpoints for monitoring application health
  */
 
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import mongoose from "mongoose";
 import { env } from "../config/env.config.js";
 import { logger } from "../utils/logger.util.js";

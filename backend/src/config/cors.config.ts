@@ -3,7 +3,7 @@
  * Centralized CORS settings for Express and Socket.IO
  */
 
-import { CorsOptions } from "cors";
+import type { CorsOptions } from "cors";
 import { env } from "./env.config.js";
 import { logger } from "../utils/logger.util.js";
 
