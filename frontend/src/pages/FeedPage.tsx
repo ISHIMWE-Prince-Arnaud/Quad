@@ -3,7 +3,7 @@ import { useFeedStore, type FeedItem } from "@/stores/feedStore";
 import { FeedService } from "@/services/feedService";
 import { PostCard } from "@/components/posts/PostCard";
 import { NewContentBanner } from "@/components/feed/NewContentBanner";
-import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getSocket } from "@/lib/socket";
 import type {
   FeedNewContentPayload,
@@ -13,6 +13,7 @@ import type {
 import type { FeedType } from "@/types/feed";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function FeedPage() {
   const {
@@ -184,7 +185,11 @@ export default function FeedPage() {
           )}>
           Following
           {feedType === "following" && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            <motion.div
+              layoutId="activeTab"
+              className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+            />
           )}
         </button>
         <button
@@ -197,7 +202,11 @@ export default function FeedPage() {
           )}>
           For You
           {feedType === "foryou" && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            <motion.div
+              layoutId="activeTab"
+              className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+            />
           )}
         </button>
       </div>
@@ -209,41 +218,87 @@ export default function FeedPage() {
         onRefresh={handleRefreshFeed}
       />
 
-      {/* Feed Items */}
+      {/* Feed Items - Single column layout with consistent spacing */}
       <div className="space-y-4">
-        {feedItems.map((item) => (
-          <PostCard key={item._id} post={item as any} />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {feedItems.map((item, index) => (
+            <motion.div
+              key={item._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{
+                duration: 0.3,
+                delay: index < 3 ? index * 0.1 : 0,
+              }}>
+              <PostCard post={item as any} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
-      {/* Infinite Scroll Trigger */}
-      {hasMore && feedItems.length > 0 && (
-        <div
-          ref={loadMoreRef}
-          className="h-20 flex items-center justify-center">
-          {isLoading && (
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          )}
+      {/* Skeleton Loading States */}
+      {isLoading && feedItems.length === 0 && (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <PostCardSkeleton key={i} />
+          ))}
         </div>
       )}
 
-      {/* Loading State (initial load) */}
-      {isLoading && feedItems.length === 0 && (
-        <div className="flex justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      {/* Infinite Scroll Trigger with Skeleton */}
+      {hasMore && feedItems.length > 0 && (
+        <div ref={loadMoreRef} className="mt-4">
+          {isLoading && <PostCardSkeleton />}
         </div>
       )}
 
       {/* Empty State */}
       {!isLoading && feedItems.length === 0 && (
-        <div className="text-center py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center py-12">
           <p className="text-muted-foreground">
             {feedType === "following"
               ? "Follow some users to see their posts here"
               : "No posts available yet"}
           </p>
-        </div>
+        </motion.div>
       )}
+    </div>
+  );
+}
+
+// Skeleton component for loading states
+function PostCardSkeleton() {
+  return (
+    <div className="w-full bg-card border border-border rounded-xl p-6 space-y-4">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <Skeleton variant="circular" className="h-10 w-10" />
+        <div className="flex-1 space-y-2">
+          <Skeleton variant="text" className="h-4 w-32" />
+          <Skeleton variant="text" className="h-3 w-24" />
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="space-y-2">
+        <Skeleton variant="text" className="h-4 w-full" />
+        <Skeleton variant="text" className="h-4 w-5/6" />
+        <Skeleton variant="text" className="h-4 w-4/6" />
+      </div>
+
+      {/* Media placeholder */}
+      <Skeleton variant="rectangular" className="h-64 w-full rounded-lg" />
+
+      {/* Actions */}
+      <div className="flex items-center gap-4 pt-3 border-t">
+        <Skeleton variant="text" className="h-8 w-16" />
+        <Skeleton variant="text" className="h-8 w-16" />
+        <Skeleton variant="text" className="h-8 w-16" />
+      </div>
     </div>
   );
 }

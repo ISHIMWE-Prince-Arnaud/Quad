@@ -39,19 +39,19 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
     const item = media[0];
     return (
       <>
-        <div className={cn("relative rounded-lg overflow-hidden", className)}>
+        <div className={cn("relative rounded-xl overflow-hidden", className)}>
           {item.type === "image" ? (
             <img
               src={item.url}
               alt="Post media"
-              className="w-full max-h-[500px] object-cover cursor-pointer hover:opacity-95 transition-opacity"
+              className="w-full max-h-[500px] object-cover cursor-pointer hover:opacity-95 transition-all duration-200"
               onClick={() => openLightbox(0)}
             />
           ) : (
             <video
               src={item.url}
               controls
-              className="w-full max-h-[500px] object-cover"
+              className="w-full max-h-[500px] object-cover rounded-xl"
             />
           )}
         </div>
@@ -73,16 +73,18 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
       <>
         <div
           className={cn(
-            "grid grid-cols-2 gap-1 rounded-lg overflow-hidden",
+            "grid grid-cols-2 gap-2 rounded-xl overflow-hidden",
             className
           )}>
           {media.map((item, index) => (
-            <div key={index} className="relative aspect-square">
+            <div
+              key={index}
+              className="relative aspect-square rounded-lg overflow-hidden">
               {item.type === "image" ? (
                 <img
                   src={item.url}
                   alt={`Post media ${index + 1}`}
-                  className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                  className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-all duration-200"
                   onClick={() => openLightbox(index)}
                 />
               ) : (
@@ -113,16 +115,18 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
       <>
         <div
           className={cn(
-            "grid grid-cols-2 gap-1 rounded-lg overflow-hidden",
+            "grid grid-cols-2 gap-2 rounded-xl overflow-hidden",
             className
           )}>
           {media.slice(0, 2).map((item, index) => (
-            <div key={index} className="relative aspect-square">
+            <div
+              key={index}
+              className="relative aspect-square rounded-lg overflow-hidden">
               {item.type === "image" ? (
                 <img
                   src={item.url}
                   alt={`Post media ${index + 1}`}
-                  className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                  className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-all duration-200"
                   onClick={() => openLightbox(index)}
                 />
               ) : (
@@ -134,12 +138,12 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
               )}
             </div>
           ))}
-          <div className="relative aspect-video col-span-2">
+          <div className="relative aspect-video col-span-2 rounded-lg overflow-hidden">
             {media[2].type === "image" ? (
               <img
                 src={media[2].url}
                 alt="Post media 3"
-                className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-all duration-200"
                 onClick={() => openLightbox(2)}
               />
             ) : (

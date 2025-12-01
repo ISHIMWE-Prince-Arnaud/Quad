@@ -231,30 +231,36 @@ export function PostCard({
   return (
     <>
       <motion.div
-        whileHover={{ y: -2 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ type: "spring", stiffness: 260, damping: 20 }}>
-        <Card className={cn("w-full", className)}>
-          <CardHeader className="pb-3">
+        whileHover={{ y: -4, transition: { duration: 0.2 } }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}>
+        <Card
+          className={cn(
+            "w-full transition-shadow duration-200",
+            "hover:shadow-lg",
+            className
+          )}>
+          <CardHeader className="pb-4">
             <div className="flex items-start justify-between">
               {/* Author info */}
               <Link
                 to={`/app/profile/${post.author.username}`}
                 className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <Avatar className="h-10 w-10">
+                <Avatar className="h-10 w-10 ring-2 ring-background">
                   <AvatarImage src={post.author.profileImage} />
                   <AvatarFallback className="bg-primary/10 text-primary font-medium">
                     {displayName.charAt(0).toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <p className="font-semibold text-sm truncate max-w-[180px]">
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm truncate">
                     {displayName}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    @{post.author.username}
-                    <span className="mx-1">·</span>
-                    {timeAgo(post.createdAt)}
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <span className="truncate">@{post.author.username}</span>
+                    <span>·</span>
+                    <span className="whitespace-nowrap">
+                      {timeAgo(post.createdAt)}
+                    </span>
                   </p>
                 </div>
               </Link>
@@ -265,7 +271,7 @@ export function PostCard({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0"
+                    className="h-8 w-8 p-0 shrink-0"
                     aria-label="Post options">
                     <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                   </Button>
@@ -303,14 +309,14 @@ export function PostCard({
           </CardHeader>
 
           {/* Post content */}
-          <CardContent className="pb-3 space-y-3">
+          <CardContent className="pb-4 space-y-4">
             {/* Text content */}
             {fullText && (
               <Link to={`/app/posts/${post._id}`} className="block">
-                <p className="text-sm whitespace-pre-wrap break-words">
+                <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                   {isSingleView || !hasLongText ? fullText : previewText}
                   {!isSingleView && hasLongText && (
-                    <span className="ml-1 text-primary font-medium">
+                    <span className="ml-1 text-primary font-medium hover:underline">
                       See more
                     </span>
                   )}
@@ -326,10 +332,10 @@ export function PostCard({
 
           {/* Interaction buttons */}
           <CardFooter
-            className="pt-0 pb-3 flex items-center justify-between border-t"
+            className="pt-3 pb-4 flex items-center gap-2 border-t"
             role="group"
             aria-label="Post actions">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-1">
               <ReactionPicker
                 onSelect={handleSelectReaction}
                 trigger={
@@ -339,83 +345,102 @@ export function PostCard({
                     size="sm"
                     disabled={reactionPending}
                     className={cn(
-                      "gap-2 text-muted-foreground",
-                      userReaction ? "text-pink-600" : "hover:text-pink-600"
+                      "gap-2 text-muted-foreground transition-colors",
+                      userReaction
+                        ? "text-pink-600"
+                        : "hover:text-pink-600 hover:bg-pink-50 dark:hover:bg-pink-950/20"
                     )}
                     aria-label={`React to post. Current reactions: ${
                       reactionCount ?? 0
                     }${
                       userReaction ? `, You reacted with ${userReaction}` : ""
                     }`}>
-                    <span className="text-sm" aria-hidden="true">
+                    <motion.span
+                      className="text-sm"
+                      aria-hidden="true"
+                      whileTap={{ scale: 1.2 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 10,
+                      }}>
                       {selectedEmoji}
-                    </span>
-                    <span className="text-xs" aria-hidden="true">
+                    </motion.span>
+                    <span className="text-xs font-medium" aria-hidden="true">
                       {reactionCount ?? 0}
                     </span>
                   </Button>
                 }
               />
-              <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
-                {(Object.keys(reactionCounts) as ReactionType[]).map((type) => {
-                  const count = reactionCounts[type] ?? 0;
-                  if (!count) return null;
-                  return (
-                    <span
-                      key={type}
-                      className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
-                      <span>{reactionEmojiMap[type]}</span>
-                      <span>{count}</span>
-                    </span>
-                  );
-                })}
-              </div>
+              {(Object.keys(reactionCounts) as ReactionType[]).some(
+                (type) => reactionCounts[type] > 0
+              ) && (
+                <div className="flex flex-wrap gap-1 text-xs text-muted-foreground ml-1">
+                  {(Object.keys(reactionCounts) as ReactionType[]).map(
+                    (type) => {
+                      const count = reactionCounts[type] ?? 0;
+                      if (!count) return null;
+                      return (
+                        <span
+                          key={type}
+                          className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
+                          <span>{reactionEmojiMap[type]}</span>
+                          <span>{count}</span>
+                        </span>
+                      );
+                    }
+                  )}
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-2 text-muted-foreground hover:text-blue-600"
-                asChild>
-                <Link
-                  to={`/app/posts/${post._id}`}
-                  aria-label={`View ${post.commentsCount || 0} comments`}>
-                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                  <span className="text-xs" aria-hidden="true">
-                    {post.commentsCount || 0}
-                  </span>
-                </Link>
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"
+              asChild>
+              <Link
+                to={`/app/posts/${post._id}`}
+                aria-label={`View ${post.commentsCount || 0} comments`}>
+                <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                <span className="text-xs font-medium" aria-hidden="true">
+                  {post.commentsCount || 0}
+                </span>
+              </Link>
+            </Button>
 
-            <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleCopyLink}
-                className="gap-2 text-muted-foreground hover:text-green-600"
-                aria-label="Share post">
-                <Share2 className="h-4 w-4" aria-hidden="true" />
-              </Button>
-            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleCopyLink}
+              className="gap-2 text-muted-foreground hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-950/20 transition-colors"
+              aria-label="Share post">
+              <Share2 className="h-4 w-4" aria-hidden="true" />
+            </Button>
 
-            <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleToggleBookmark}
-                className={cn(
-                  "gap-2 text-muted-foreground",
-                  bookmarked ? "text-amber-600" : "hover:text-amber-600"
-                )}
-                aria-label={bookmarked ? "Remove bookmark" : "Bookmark post"}
-                aria-pressed={bookmarked}>
-                <Bookmark className="h-4 w-4" aria-hidden="true" />
-              </Button>
-            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleToggleBookmark}
+              className={cn(
+                "gap-2 text-muted-foreground transition-colors",
+                bookmarked
+                  ? "text-amber-600"
+                  : "hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+              )}
+              aria-label={bookmarked ? "Remove bookmark" : "Bookmark post"}
+              aria-pressed={bookmarked}>
+              <motion.div
+                whileTap={{ scale: 1.2 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+                <Bookmark
+                  className={cn("h-4 w-4", bookmarked && "fill-current")}
+                  aria-hidden="true"
+                />
+              </motion.div>
+            </Button>
           </CardFooter>
         </Card>
       </motion.div>

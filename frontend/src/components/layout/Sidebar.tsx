@@ -1,59 +1,80 @@
 import { Link, useLocation } from "react-router-dom";
-import {
-  Home,
-  Search,
-  Bell,
-  MessageCircle,
-  BarChart3,
-  Calendar,
-  User,
-  Settings,
-  Plus,
-  TrendingUp,
-} from "lucide-react";
-import { LogoWithText } from "@/components/ui/Logo";
-import { UserAvatar } from "@/components/auth/UserMenu";
+import { Home, MessageCircle, BarChart3, BookOpen, User } from "lucide-react";
+import { motion } from "framer-motion";
+import { Logo } from "@/components/ui/Logo";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
 import { useAuthStore } from "@/stores/authStore";
+import { useNotificationStore } from "@/stores/notificationStore";
 import { cn } from "@/lib/utils";
 
+/**
+ * Sidebar Component
+ *
+ * Redesigned navigation sidebar with:
+ * - Logo and tagline at the top
+ * - Navigation items with icons and labels
+ * - Active state highlighting with background and icon color changes
+ * - Hover effects on navigation items
+ * - Notification badges on nav items
+ * - Theme toggle at the bottom
+ * - Responsive design (hidden on mobile, shown on desktop)
+ *
+ * Validates: Requirements 9.1, 9.2, 9.3, 9.4, 9.5
+ */
 export function Sidebar() {
   const location = useLocation();
   const { user } = useAuthStore();
+  const { unreadCount } = useNotificationStore();
 
-  // Generate navigation items with dynamic profile link
-  const getNavigationItems = () => {
-    const items = [
-      { name: "Home", href: "/app/feed", icon: Home },
-      { name: "Search", href: "/app/search", icon: Search },
-      { name: "Notifications", href: "/app/notifications", icon: Bell },
-      { name: "Messages", href: "/app/chat", icon: MessageCircle },
-      { name: "Stories", href: "/app/stories", icon: Calendar },
-      { name: "Polls", href: "/app/polls", icon: BarChart3 },
-      { name: "Analytics", href: "/app/analytics", icon: TrendingUp },
-      { name: "Settings", href: "/app/settings", icon: Settings },
-    ];
-
-    // Add profile link if user exists
-    if (user?.username) {
-      items.splice(7, 0, {
-        name: "Profile",
-        href: `/app/profile/${user.username}`,
-        icon: User,
-      });
-    }
-
-    return items;
-  };
-
-  const navigationItems = getNavigationItems();
+  // Core navigation items as per design spec
+  const navigationItems = [
+    {
+      name: "Feed",
+      href: "/app/feed",
+      icon: Home,
+      badge: 0,
+    },
+    {
+      name: "Chat",
+      href: "/app/chat",
+      icon: MessageCircle,
+      badge: unreadCount, // Show notification badge for unread messages
+    },
+    {
+      name: "Stories",
+      href: "/app/stories",
+      icon: BookOpen,
+      badge: 0,
+    },
+    {
+      name: "Polls",
+      href: "/app/polls",
+      icon: BarChart3,
+      badge: 0,
+    },
+    {
+      name: "Profile",
+      href: user?.username ? `/app/profile/${user.username}` : "/app/profile",
+      icon: User,
+      badge: 0,
+    },
+  ];
 
   return (
-    <div className="flex flex-col h-full bg-background border-r border-border">
-      {/* Logo */}
+    <div className="flex flex-col h-full bg-card border-r border-border">
+      {/* Logo and Tagline */}
       <div className="p-6">
-        <Link to="/app/feed" className="flex items-center">
-          <LogoWithText className="transition-opacity hover:opacity-80" />
+        <Link
+          to="/app/feed"
+          className="flex flex-col items-start gap-1 transition-opacity hover:opacity-80"
+          aria-label="Quad - Go to feed">
+          <div className="flex items-center gap-2">
+            <Logo size="sm" />
+            <span className="text-2xl font-bold text-foreground">Quad</span>
+          </div>
+          <span className="text-xs text-muted-foreground ml-10">
+            Connect. Create.
+          </span>
         </Link>
       </div>
 
@@ -61,22 +82,48 @@ export function Sidebar() {
       <nav className="flex-1 px-3" aria-label="Main navigation">
         <ul className="space-y-1">
           {navigationItems.map((item) => {
-            const isActive = location.pathname === item.href;
+            const isActive =
+              location.pathname === item.href ||
+              (item.href !== "/app/feed" &&
+                location.pathname.startsWith(item.href));
             const Icon = item.icon;
+            const hasBadge = item.badge > 0;
 
             return (
               <li key={item.name}>
                 <Link
                   to={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    "relative flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                     isActive
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
                   )}
                   aria-current={isActive ? "page" : undefined}>
-                  <Icon className="h-5 w-5" aria-hidden="true" />
+                  <Icon
+                    className={cn(
+                      "h-5 w-5 transition-colors duration-200",
+                      isActive ? "text-primary-foreground" : ""
+                    )}
+                    aria-hidden="true"
+                  />
                   <span>{item.name}</span>
+
+                  {/* Notification Badge */}
+                  {hasBadge && (
+                    <motion.span
+                      className="ml-auto bg-primary text-primary-foreground text-xs rounded-full px-2 py-0.5 min-w-[1.25rem] text-center"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30,
+                      }}
+                      aria-label={`${item.badge} unread`}>
+                      {item.badge > 99 ? "99+" : item.badge}
+                    </motion.span>
+                  )}
                 </Link>
               </li>
             );
@@ -84,40 +131,9 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      {/* Create Post Button */}
-      <div className="px-3 py-4">
-        <Link
-          to="/app/create"
-          className="inline-flex items-center justify-center gap-3 w-full h-12 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          aria-label="Create new post">
-          <Plus className="h-5 w-5" aria-hidden="true" />
-          Create Post
-        </Link>
-      </div>
-
-      {/* Theme Selector */}
-      <div className="px-3 py-2">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Theme
-          </span>
-        </div>
+      {/* Theme Toggle */}
+      <div className="p-4 border-t border-border">
         <ThemeSelector />
-      </div>
-
-      {/* User Profile */}
-      <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors duration-200 cursor-pointer">
-          <UserAvatar />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">
-              {user?.firstName || user?.username || "User"}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">
-              @{user?.username || "username"}
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );
