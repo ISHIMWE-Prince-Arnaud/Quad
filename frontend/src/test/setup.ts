@@ -26,6 +26,7 @@ const localStorageMock = {
 };
 
 global.localStorage = localStorageMock as any;
+global.sessionStorage = localStorageMock as any;
 
 // Set up a mock auth token for all tests
 beforeEach(() => {

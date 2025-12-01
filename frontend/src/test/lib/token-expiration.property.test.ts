@@ -19,11 +19,6 @@ describe("Token Expiration Property Tests", () => {
     // Mock axios
     mock = new MockAdapter(api);
 
-    // Mock localStorage
-    vi.spyOn(Storage.prototype, "getItem");
-    vi.spyOn(Storage.prototype, "setItem");
-    vi.spyOn(Storage.prototype, "removeItem");
-
     // Mock window.location
     originalLocation = window.location;
     delete (window as { location?: Location }).location;
@@ -33,8 +28,13 @@ describe("Token Expiration Property Tests", () => {
       pathname: "/app/feed",
     } as Location;
 
-    // Mock sessionStorage
-    vi.spyOn(Storage.prototype, "setItem");
+    // Spy on localStorage methods (already mocked in setup.ts)
+    vi.spyOn(localStorage, "getItem");
+    vi.spyOn(localStorage, "setItem");
+    vi.spyOn(localStorage, "removeItem");
+
+    // Spy on sessionStorage methods
+    vi.spyOn(sessionStorage, "setItem");
   });
 
   afterEach(() => {
