@@ -18,6 +18,27 @@ import type {
   FeedContentDeletedPayload,
 } from "@/lib/socket";
 
+function getFeedItemKey(item: FeedItem): string {
+  if (item.type === "post") {
+    const content = item.content as Post;
+    return `post:${content._id}`;
+  }
+
+  return `${item.type}:${String(item._id)}`;
+}
+
+function dedupeFeedItems(items: FeedItem[]): FeedItem[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = getFeedItemKey(item);
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
     const response = (error as { response?: { data?: { message?: string } } })
@@ -81,10 +102,13 @@ export default function FeedPage() {
       }
 
       const data = response.data;
-      setItems(data.items || []);
+      const dedupedItems = dedupeFeedItems(data.items || []);
+      setItems(dedupedItems);
       setCursor(data.pagination.nextCursor || null);
       setHasMore(Boolean(data.pagination.hasMore));
-      setLastSeenId(data.items.length > 0 ? String(data.items[0]._id) : null);
+      setLastSeenId(
+        dedupedItems.length > 0 ? String(dedupedItems[0]._id) : null
+      );
     } catch (err: unknown) {
       console.error("Error refreshing feed:", err);
       setError(getErrorMessage(err));
@@ -128,11 +152,12 @@ export default function FeedPage() {
         }
 
         if (!isCancelled) {
-          setItems(data.items);
+          const dedupedItems = dedupeFeedItems(data.items);
+          setItems(dedupedItems);
           setCursor(data.pagination.nextCursor || null);
           setHasMore(Boolean(data.pagination.hasMore));
           setLastSeenId(
-            data.items.length > 0 ? String(data.items[0]._id) : null
+            dedupedItems.length > 0 ? String(dedupedItems[0]._id) : null
           );
         }
       } catch (err: unknown) {
@@ -279,16 +304,9 @@ export default function FeedPage() {
       }
 
       const data = response.data;
-      const newItems = data.items || [];
+      const newItems = dedupeFeedItems(data.items || []);
 
-      setItems((prev) => {
-        const existingIds = new Set(prev.map((item) => String(item._id)));
-        const merged = [
-          ...prev,
-          ...newItems.filter((item) => !existingIds.has(String(item._id))),
-        ];
-        return merged;
-      });
+      setItems((prev) => dedupeFeedItems([...prev, ...newItems]));
       setCursor(data.pagination.nextCursor || null);
       setHasMore(Boolean(data.pagination.hasMore));
     } catch (err: unknown) {
@@ -370,7 +388,7 @@ export default function FeedPage() {
               ))}
             </div>
           </div>
-          
+
           {/* New content banner */}
           {newCount > 0 && !loading && (
             <Card
