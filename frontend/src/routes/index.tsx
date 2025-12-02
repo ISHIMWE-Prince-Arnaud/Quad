@@ -1,10 +1,10 @@
-import { lazy, Suspense } from "react";
+import { lazy } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { RootLayout } from "@/layouts/RootLayout";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { MainLayout } from "@/layouts/MainLayout";
-import { LoadingPage } from "@/components/ui/loading";
+import { LazyRoute } from "./LazyRoute";
 
 // Lazy load pages for code splitting
 const HomePage = lazy(() => import("@/pages/HomePage"));
@@ -29,11 +29,6 @@ const AnalyticsPage = lazy(() => import("@/pages/app/AnalyticsPage"));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
-
-// Wrapper component for lazy loaded routes
-const LazyRoute = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<LoadingPage />}>{children}</Suspense>
-);
 
 export const router = createBrowserRouter([
   {
