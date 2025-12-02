@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import type { LucideIcon } from "lucide-react";
 import {
   Home,
   Search,
@@ -7,7 +8,6 @@ import {
   BarChart3,
   Calendar,
   User,
-  Settings,
   Plus,
   TrendingUp,
   LogOut,
@@ -17,6 +17,12 @@ import { UserAvatar } from "@/components/auth/UserMenu";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuth } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
+
+type NavItem = {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+};
 
 export function Sidebar() {
   const location = useLocation();
@@ -32,103 +38,96 @@ export function Sidebar() {
     }
   };
 
-  // Generate navigation items with dynamic profile link
-  const getNavigationItems = () => {
-    const items = [
-      { name: "Home", href: "/app/feed", icon: Home },
-      { name: "Search", href: "/app/search", icon: Search },
-      { name: "Notifications", href: "/app/notifications", icon: Bell },
-      { name: "Messages", href: "/app/chat", icon: MessageCircle },
-      { name: "Stories", href: "/app/stories", icon: Calendar },
-      { name: "Polls", href: "/app/polls", icon: BarChart3 },
-      { name: "Analytics", href: "/app/analytics", icon: TrendingUp },
-      { name: "Settings", href: "/app/settings", icon: Settings },
-    ];
-
-    // Add profile link if user exists
-    if (user?.username) {
-      items.splice(7, 0, {
-        name: "Profile",
-        href: `/app/profile/${user.username}`,
-        icon: User,
-      });
-    }
-
-    return items;
-  };
-
-  const navigationItems = getNavigationItems();
+  const navigationItems: NavItem[] = [
+    { name: "Home", href: "/app/feed", icon: Home },
+    { name: "Search", href: "/app/search", icon: Search },
+    { name: "Notifications", href: "/app/notifications", icon: Bell },
+    { name: "Messages", href: "/app/chat", icon: MessageCircle },
+    { name: "Stories", href: "/app/stories", icon: Calendar },
+    { name: "Polls", href: "/app/polls", icon: BarChart3 },
+    { name: "Analytics", href: "/app/analytics", icon: TrendingUp },
+    ...(user?.username
+      ? [
+          {
+            name: "Profile",
+            href: `/app/profile/${user.username}`,
+            icon: User,
+          },
+        ]
+      : [])
+  ];
 
   return (
-    <div className="flex flex-col h-full bg-background border-r border-border">
+    <div
+      className={cn(
+        "flex flex-col h-full border-r border-border bg-background"
+        // Optional subtle glass style:
+        // "backdrop-blur-md bg-background/70"
+      )}>
       {/* Logo */}
-      <div className="p-6">
-        <Link to="/app/feed" className="flex items-center">
-          <LogoWithText className="transition-opacity hover:opacity-80" />
+      <div className="px-6 py-5 border-b border-border/60">
+        <Link to="/app/feed">
+          <LogoWithText className="hover:opacity-80 transition opacity-90" />
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3" aria-label="Main navigation">
-        <ul className="space-y-1">
-          {navigationItems.map((item) => {
-            const isActive = location.pathname === item.href;
-            const Icon = item.icon;
+      <nav className="flex-1 px-3 pt-4 space-y-1" aria-label="Sidebar">
+        {navigationItems.map((item) => {
+          const isActive = location.pathname === item.href;
+          const Icon = item.icon;
 
-            return (
-              <li key={item.name}>
-                <Link
-                  to={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                  )}
-                  aria-current={isActive ? "page" : undefined}>
-                  <Icon className="h-5 w-5" aria-hidden="true" />
-                  <span>{item.name}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+          return (
+            <Link
+              key={item.name}
+              to={item.href}
+              aria-current={isActive ? "page" : undefined}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all",
+                "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              )}>
+              <Icon className="w-5 h-5 shrink-0" />
+              <span className="truncate">{item.name}</span>
+            </Link>
+          );
+        })}
       </nav>
 
-      {/* Create Post Button */}
-      <div className="px-3 py-4">
+      {/* Create Post */}
+      <div className="px-3 mt-2 mb-4">
         <Link
           to="/app/create"
-          className="inline-flex items-center justify-center gap-3 w-full h-12 px-4 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          aria-label="Create new post">
-          <Plus className="h-5 w-5" aria-hidden="true" />
-          Create Post
+          className="flex items-center justify-center gap-2 w-full h-11 rounded-md text-sm font-medium transition bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm">
+          <Plus className="w-5 h-5" />
+          Create
         </Link>
       </div>
 
-      {/* Logout Button */}
-      <div className="px-3 py-2">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-3 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-          <LogOut className="h-5 w-5" aria-hidden="true" />
-          <span>Log Out</span>
-        </button>
-      </div>
-
-      {/* User Profile */}
-      <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors duration-200 cursor-pointer">
+      {/* Profile & Logout */}
+      <div className="border-t border-border/70 px-3 py-4 space-y-3">
+        <Link
+          to={user?.username ? `/app/profile/${user.username}` : "#"}
+          className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent transition">
           <UserAvatar />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold truncate">
               {user?.firstName || user?.username || "User"}
             </p>
             <p className="text-xs text-muted-foreground truncate">
               @{user?.username || "username"}
             </p>
           </div>
-        </div>
+        </Link>
+
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition">
+          <LogOut className="h-5 w-5" />
+          Log Out
+        </button>
       </div>
     </div>
   );

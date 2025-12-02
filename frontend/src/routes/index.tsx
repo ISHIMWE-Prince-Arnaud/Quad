@@ -27,7 +27,6 @@ const SearchPage = lazy(() => import("@/pages/app/SearchPage"));
 const CreatePage = lazy(() => import("@/pages/app/CreatePage"));
 const AnalyticsPage = lazy(() => import("@/pages/app/AnalyticsPage"));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
-const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
 export const router = createBrowserRouter([
@@ -222,15 +221,7 @@ export const router = createBrowserRouter([
                 <NotificationsPage />
               </LazyRoute>
             ),
-          },
-          {
-            path: "settings",
-            element: (
-              <LazyRoute>
-                <SettingsPage />
-              </LazyRoute>
-            ),
-          },
+          }
         ],
       },
     ],
