@@ -68,6 +68,45 @@ export default function FeedPage() {
   const [newCount, setNewCount] = useState(0);
   const [lastSeenId, setLastSeenId] = useState<string | null>(null);
 
+  const emptyStateCopy: Record<
+    FeedTab,
+    {
+      title: string;
+      description: string;
+      actionLabel?: string;
+      actionHref?: string;
+    }
+  > = {
+    home: {
+      title: "Your feed is quiet",
+      description:
+        "Follow more people or share something to get the conversation going.",
+      actionLabel: "Create Post",
+      actionHref: "/app/create",
+    },
+    posts: {
+      title: "No posts yet",
+      description: "Be the first to publish a post for this community.",
+      actionLabel: "Create Post",
+      actionHref: "/app/create/post",
+    },
+    stories: {
+      title: "No stories yet",
+      description: "Share a long-form update or experience with the community.",
+      actionLabel: "Create Story",
+      actionHref: "/app/create/story",
+    },
+    polls: {
+      title: "No polls yet",
+      description:
+        "Start the conversation with a quick poll and gather votes in real time.",
+      actionLabel: "Create Poll",
+      actionHref: "/app/create/poll",
+    },
+  };
+
+  const currentEmptyState = emptyStateCopy[tab];
+
   const parentRef = useRef<HTMLDivElement>(null);
 
   // Virtual scrolling setup - only enable for lists with 100+ items
@@ -425,13 +464,20 @@ export default function FeedPage() {
           {!loading && !error && items.length === 0 && (
             <Card className="shadow-sm">
               <CardContent className="pt-6 text-center py-12">
-                <h3 className="text-lg font-semibold mb-2">No posts yet</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  {currentEmptyState.title}
+                </h3>
                 <p className="text-muted-foreground mb-4">
-                  Be the first to share something!
+                  {currentEmptyState.description}
                 </p>
-                <Button asChild>
-                  <Link to="/app/create">Create Post</Link>
-                </Button>
+                {currentEmptyState.actionLabel &&
+                  currentEmptyState.actionHref && (
+                    <Button asChild>
+                      <Link to={currentEmptyState.actionHref}>
+                        {currentEmptyState.actionLabel}
+                      </Link>
+                    </Button>
+                  )}
               </CardContent>
             </Card>
           )}
