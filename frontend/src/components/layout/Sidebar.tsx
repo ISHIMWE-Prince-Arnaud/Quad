@@ -10,16 +10,27 @@ import {
   Settings,
   Plus,
   TrendingUp,
+  LogOut,
 } from "lucide-react";
 import { LogoWithText } from "@/components/ui/Logo";
 import { UserAvatar } from "@/components/auth/UserMenu";
-import { ThemeSelector } from "@/components/theme/ThemeSelector";
 import { useAuthStore } from "@/stores/authStore";
+import { useAuth } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
   const location = useLocation();
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      logout();
+      await signOut();
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
+  };
 
   // Generate navigation items with dynamic profile link
   const getNavigationItems = () => {
@@ -95,14 +106,14 @@ export function Sidebar() {
         </Link>
       </div>
 
-      {/* Theme Selector */}
+      {/* Logout Button */}
       <div className="px-3 py-2">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Theme
-          </span>
-        </div>
-        <ThemeSelector />
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 w-full px-3 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <LogOut className="h-5 w-5" aria-hidden="true" />
+          <span>Log Out</span>
+        </button>
       </div>
 
       {/* User Profile */}

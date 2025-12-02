@@ -2,26 +2,7 @@ import { Moon, Sun, Monitor } from "lucide-react";
 import { motion } from "framer-motion";
 import { useThemeStore } from "@/stores/themeStore";
 import { cn } from "@/lib/utils";
-import {
-  themeSelectorVariants,
-  themeSelectorTransition,
-  themeIndicatorTransition,
-  themeIconRotationTransition,
-  toggleIconTransition,
-} from "@/lib/theme-animations";
 
-/**
- * ThemeSelector Component
- *
- * Provides a three-option theme selector with smooth animations.
- * Features:
- * - Animated background indicator that slides between options
- * - Icon rotation animation on selection
- * - Hover and tap feedback
- * - Full keyboard accessibility
- *
- * Validates: Requirements 1.1, 1.2, 1.3, 19.5
- */
 export function ThemeSelector() {
   const { theme, setTheme } = useThemeStore();
 
@@ -33,92 +14,64 @@ export function ThemeSelector() {
 
   return (
     <motion.div
-      className="flex items-center gap-1 p-1 bg-accent rounded-lg"
       role="group"
       aria-label="Theme selector"
-      variants={themeSelectorVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={themeSelectorTransition}>
-      {themes.map(({ name, icon: Icon, value }) => (
-        <motion.button
-          key={value}
-          onClick={() => setTheme(value)}
-          className={cn(
-            "relative flex items-center justify-center p-2 rounded-md text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            theme === value
-              ? "text-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-          title={`Switch to ${name.toLowerCase()} theme`}
-          aria-label={`Switch to ${name.toLowerCase()} theme`}
-          aria-pressed={theme === value}
-          aria-current={theme === value ? "true" : undefined}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ duration: 0.2 }}>
-          {/* Animated background indicator with layout animation */}
-          {theme === value && (
+      className="flex items-center gap-1 p-1 rounded-xl bg-accent/70 backdrop-blur-sm border border-border/40 shadow-sm"
+      initial={false}
+      animate={{ opacity: 1 }}
+    >
+      {themes.map(({ name, icon: Icon, value }) => {
+        const isActive = theme === value;
+
+        return (
+          <motion.button
+            key={value}
+            onClick={() => setTheme(value)}
+            aria-pressed={isActive}
+            aria-label={`Switch to ${name.toLowerCase()} theme`}
+            className={cn(
+              "relative flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-md transition-colors text-xs font-medium",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              isActive
+                ? "text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.94 }}
+          >
+            {/* Improved selection indicator */}
+            {isActive && (
+              <motion.div
+                layoutId="theme-selector-indicator"
+                className="absolute inset-0 rounded-md bg-background/90 shadow-md border border-border/40"
+                transition={{
+                  type: "spring",
+                  stiffness: 350,
+                  damping: 28,
+                }}
+              />
+            )}
+
+            {/* Icon animation */}
             <motion.div
-              className="absolute inset-0 bg-background rounded-md shadow-sm"
-              layoutId="theme-indicator"
-              transition={themeIndicatorTransition}
-            />
-          )}
+              className="relative z-10"
+              animate={{
+                rotate: isActive ? [0, 360] : 0,
+                scale: isActive ? [1, 1.15, 1] : 1,
+              }}
+              transition={{
+                duration: 0.45,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <Icon className="h-4 w-4" aria-hidden="true" />
+            </motion.div>
 
-          {/* Icon with rotation animation on selection */}
-          <motion.div
-            className="relative z-10"
-            animate={{
-              rotate: theme === value ? [0, 360] : 0,
-            }}
-            transition={themeIconRotationTransition}>
-            <Icon className="h-4 w-4" aria-hidden="true" />
-          </motion.div>
-        </motion.button>
-      ))}
+            {/* Optional icon label */}
+            <span className="relative z-10">{name}</span>
+          </motion.button>
+        );
+      })}
     </motion.div>
-  );
-}
-
-/**
- * SimpleThemeToggle Component
- *
- * A simple two-state theme toggle with smooth animations.
- * Kept for backward compatibility and simpler use cases.
- * Features:
- * - Smooth rotation animation between sun and moon icons
- * - Scale animation on theme change
- * - Hover and tap feedback
- *
- * Validates: Requirements 1.1, 1.2, 1.3
- */
-export function SimpleThemeToggle() {
-  const { isDarkMode, toggleDarkMode } = useThemeStore();
-
-  return (
-    <motion.button
-      onClick={toggleDarkMode}
-      className="p-2 rounded-lg hover:bg-accent"
-      title={`Switch to ${isDarkMode ? "light" : "dark"} mode`}
-      aria-label={`Switch to ${isDarkMode ? "light" : "dark"} mode`}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.2 }}>
-      <motion.div
-        initial={false}
-        animate={{
-          rotate: isDarkMode ? 180 : 0,
-          scale: [1, 1.2, 1],
-        }}
-        transition={toggleIconTransition}>
-        {isDarkMode ? (
-          <Sun className="h-5 w-5" />
-        ) : (
-          <Moon className="h-5 w-5" />
-        )}
-      </motion.div>
-    </motion.button>
   );
 }
