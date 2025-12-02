@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus } from "lucide-react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/posts/PostCard";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
@@ -11,7 +9,6 @@ import { FeedSkeleton } from "@/components/ui/loading";
 import { PageTransition } from "@/components/ui/page-transition";
 import { FeedService } from "@/services/feedService";
 import { PostService } from "@/services/postService";
-import { useAuthStore } from "@/stores/authStore";
 import type { Post } from "@/types/post";
 import type { FeedItem, FeedTab, FeedType } from "@/types/feed";
 import toast from "react-hot-toast";
@@ -39,8 +36,6 @@ function getErrorMessage(error: unknown): string {
 }
 
 export default function FeedPage() {
-  const { user } = useAuthStore();
-
   const [feedType, setFeedType] = useState<FeedType>("foryou");
   const [tab, setTab] = useState<FeedTab>("home");
   const [items, setItems] = useState<FeedItem[]>([]);
@@ -375,33 +370,7 @@ export default function FeedPage() {
               ))}
             </div>
           </div>
-          {/* Create Post Card */}
-          <Card className="shadow-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={user?.profileImage} />
-                  <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                    {user?.firstName?.charAt(0) ||
-                      user?.username?.charAt(0) ||
-                      "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <Button
-                  variant="outline"
-                  className="flex-1 justify-start text-muted-foreground"
-                  asChild>
-                  <Link to="/app/create">What's on your mind?</Link>
-                </Button>
-                <Button size="icon" className="shrink-0" asChild>
-                  <Link to="/app/create">
-                    <Plus className="h-5 w-5" />
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
+          
           {/* New content banner */}
           {newCount > 0 && !loading && (
             <Card
