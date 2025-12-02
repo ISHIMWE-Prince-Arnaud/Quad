@@ -8,7 +8,7 @@
  * Validates: Requirements 1.3, 2.6, 19.5
  */
 
-import type { Transition, Variants } from "framer-motion";
+import type { Transition, Variants, TargetAndTransition } from "framer-motion";
 
 /**
  * Theme transition duration in milliseconds
@@ -35,12 +35,12 @@ export const themeSelectorTransition: Transition = {
  * Theme button hover animation
  * Used for individual theme option buttons
  */
-export const themeButtonHover: Transition = {
+export const themeButtonHover: TargetAndTransition = {
   scale: 1.05,
   transition: { duration: 0.2, ease: "easeOut" },
 };
 
-export const themeButtonTap: Transition = {
+export const themeButtonTap: TargetAndTransition = {
   scale: 0.95,
   transition: { duration: 0.1, ease: "easeOut" },
 };

@@ -1,11 +1,8 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useFeedStore, type FeedItem } from "@/stores/feedStore";
+import { useFeedStore, type FeedItem, type Post } from "@/stores/feedStore";
 import { FeedService } from "@/services/feedService";
-import { PostService } from "@/services/postService";
 import { PostCard } from "@/components/posts/PostCard";
 import { NewContentBanner } from "@/components/feed/NewContentBanner";
-import { CreatePostModal } from "@/components/forms/CreatePostModal";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSocket } from "@/lib/socket";
 import type {
@@ -14,11 +11,18 @@ import type {
   FeedContentDeletedPayload,
 } from "@/lib/socket";
 import type { FeedType } from "@/types/feed";
-import type { CreatePostData } from "@/schemas/post.schema";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus } from "lucide-react";
+
+const isPostItem = (item: FeedItem): item is Post => {
+  return (
+    "author" in item &&
+    "reactionsCount" in item &&
+    "commentsCount" in item &&
+    "media" in item
+  );
+};
 
 export default function FeedPage() {
   const {
@@ -57,13 +61,14 @@ export default function FeedPage() {
         });
 
         if (response.success && response.data) {
-          const items = response.data.items.map(
-            (item) => item.content
-          ) as FeedItem[];
+          const items: FeedItem[] = response.data.items.map(
+            (item) => item.content as FeedItem
+          );
           if (reset) {
             setFeedItems(items);
-            if (items.length > 0) {
-              setLastSeenId((items[0] as any)._id);
+            const firstItem = items[0];
+            if (firstItem?._id) {
+              setLastSeenId(firstItem._id);
             }
           } else {
             addFeedItems(items);
@@ -105,7 +110,7 @@ export default function FeedPage() {
   // Load feed on mount and when feed type changes
   useEffect(() => {
     loadFeed(true);
-  }, [feedType]);
+  }, [feedType, loadFeed]);
 
   // Set up infinite scroll with Intersection Observer
   useEffect(() => {
@@ -236,7 +241,13 @@ export default function FeedPage() {
                 duration: 0.3,
                 delay: index < 3 ? index * 0.1 : 0,
               }}>
-              <PostCard post={item as any} />
+              {isPostItem(item) ? (
+                <PostCard post={item} />
+              ) : (
+                <div className="rounded-lg border border-dashed border-muted-foreground/30 p-6 text-center text-sm text-muted-foreground">
+                  Unsupported feed item type
+                </div>
+              )}
             </motion.div>
           ))}
         </AnimatePresence>

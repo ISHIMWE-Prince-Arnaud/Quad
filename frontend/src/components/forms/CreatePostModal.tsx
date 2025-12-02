@@ -17,7 +17,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -66,14 +65,20 @@ export function CreatePostModal({
     },
   });
 
-  // Reset form when modal closes
+  const resetFormState = useCallback(() => {
+    form.reset();
+    setUploadedMedia([]);
+    setUploadingFiles([]);
+  }, [form]);
+
+  // Reset form when modal closes (effect cleanup avoids synchronous state updates in body)
   useEffect(() => {
-    if (!open) {
-      form.reset();
-      setUploadedMedia([]);
-      setUploadingFiles([]);
-    }
-  }, [open, form]);
+    if (!open) return;
+
+    return () => {
+      resetFormState();
+    };
+  }, [open, resetFormState]);
 
   const textValue =
     useWatch({ control: form.control, name: "text", defaultValue: "" }) || "";
