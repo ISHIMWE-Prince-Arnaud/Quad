@@ -120,11 +120,6 @@ export function Navbar() {
               )}
             </Link>
 
-            {/* Theme Selector (hidden on mobile) */}
-            <div className="hidden sm:block">
-              <ThemeSelector />
-            </div>
-
             {/* User Avatar */}
             <UserAvatar />
 
