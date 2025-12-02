@@ -138,7 +138,7 @@ export default function ChatPage() {
     } finally {
       setLoadingOlder(false);
     }
-  }, [oldestMessageId, loadingOlder, messages.length, virtualizer]);
+  }, [oldestMessageId, loadingOlder, virtualizer]);
 
   // Initial load
   useEffect(() => {
