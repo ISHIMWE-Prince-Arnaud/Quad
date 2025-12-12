@@ -41,9 +41,10 @@ export function useAuthSync() {
         }
 
         // Eagerly sync current user profile in backend via Clerk ID
+        let databaseProfile = null;
         try {
           if (clerkUser?.id) {
-            await ProfileService.getProfileById(clerkUser.id);
+            databaseProfile = await ProfileService.getProfileById(clerkUser.id);
             logAuthEvent("Profile synced successfully", {
               userId: clerkUser.id,
             });
@@ -60,7 +61,26 @@ export function useAuthSync() {
           return;
         }
 
+        // Sync with Clerk first, then update with database profile data if available
         syncWithClerk(clerkUser);
+
+        // If we have database profile data, update the auth store with it
+        if (databaseProfile) {
+          const { setUser } = useAuthStore.getState();
+          const currentUser = useAuthStore.getState().user;
+          if (currentUser) {
+            setUser({
+              ...currentUser,
+              _id: databaseProfile._id,
+              firstName: databaseProfile.firstName || currentUser.firstName,
+              lastName: databaseProfile.lastName || currentUser.lastName,
+              profileImage:
+                databaseProfile.profileImage || currentUser.profileImage,
+              bio: databaseProfile.bio || currentUser.bio,
+              isVerified: databaseProfile.isVerified || currentUser.isVerified,
+            });
+          }
+        }
         setLoading(false);
       } catch (error) {
         console.error("Auth sync error:", error);

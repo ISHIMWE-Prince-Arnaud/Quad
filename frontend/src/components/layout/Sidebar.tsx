@@ -144,7 +144,9 @@ export function Sidebar() {
           <UserAvatar />
           <div className="min-w-0">
             <p className="text-sm font-semibold truncate">
-              {user?.firstName || user?.username || "User"}
+              {[user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+                user?.username ||
+                "User"}
             </p>
             <p className="text-xs text-muted-foreground truncate">
               @{currentUsername}

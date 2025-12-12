@@ -1,33 +1,34 @@
-import { useAuth, useUser, UserButton } from '@clerk/clerk-react'
-import { useAuthStore } from '@/stores/authStore'
-import { useThemeStore } from '@/stores/themeStore'
-import { getClerkAppearance } from '@/lib/clerkTheme'
-import { Button } from '@/components/ui/button'
+import { useAuth, useUser, UserButton } from "@clerk/clerk-react";
+import { useAuthStore } from "@/stores/authStore";
+import { useThemeStore } from "@/stores/themeStore";
+import { getClerkAppearance } from "@/lib/clerkTheme";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function UserMenu() {
-  const { signOut } = useAuth()
-  const { user: clerkUser } = useUser()
-  const { user, logout } = useAuthStore()
-  const { isDarkMode } = useThemeStore()
+  const { signOut } = useAuth();
+  const { user: clerkUser } = useUser();
+  const { user, logout } = useAuthStore();
+  const { isDarkMode } = useThemeStore();
 
   const handleSignOut = async () => {
     try {
-      logout()
-      await signOut()
+      logout();
+      await signOut();
     } catch (error) {
-      console.error('Sign out error:', error)
+      console.error("Sign out error:", error);
     }
-  }
+  };
 
   if (!clerkUser) {
-    return null
+    return null;
   }
 
   return (
@@ -48,37 +49,43 @@ export function UserMenu() {
             <strong>Username:</strong> {user?.username}
           </p>
           <p className="text-xs text-muted-foreground">
-            <strong>Verified:</strong> {user?.isVerified ? 'Yes' : 'No'}
+            <strong>Verified:</strong> {user?.isVerified ? "Yes" : "No"}
           </p>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleSignOut}
-            className="w-full"
-          >
+            className="w-full">
             Sign Out
           </Button>
         </CardContent>
       </Card>
 
       {/* Clerk User Button (Production ready) */}
-      <UserButton 
-        appearance={getClerkAppearance(isDarkMode)}
-        showName
-        afterSignOutUrl="/"
-      />
+      <UserButton appearance={getClerkAppearance(isDarkMode)} showName />
     </div>
-  )
+  );
 }
 
 // Simplified version for navigation
 export function UserAvatar() {
-  const { isDarkMode } = useThemeStore()
-  
+  const { user } = useAuthStore();
+
+  const displayName =
+    user?.firstName && user?.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : user?.firstName || user?.username || "User";
+
   return (
-    <UserButton 
-      appearance={getClerkAppearance(isDarkMode)}
-      afterSignOutUrl="/"
-    />
-  )
+    <Avatar className="h-10 w-10">
+      <AvatarImage
+        src={user?.profileImage}
+        alt={displayName}
+        className="object-cover"
+      />
+      <AvatarFallback className="text-sm font-bold bg-gradient-to-br from-primary to-purple-600 text-white">
+        {displayName.charAt(0).toUpperCase()}
+      </AvatarFallback>
+    </Avatar>
+  );
 }
