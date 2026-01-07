@@ -181,8 +181,8 @@ export interface ProfileUpdateData {
   lastName?: string;
   username?: string;
   bio?: string;
-  profileImage?: string;
-  coverImage?: string;
+  profileImage?: string | null;
+  coverImage?: string | null;
 }
 
 // Content item for profile grid and services
