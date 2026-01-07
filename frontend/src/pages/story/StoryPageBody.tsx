@@ -6,7 +6,6 @@ import type { ReactionType } from "@/services/reactionService";
 import { reactionEmojiMap } from "./constants";
 
 export function StoryPageBody({
-  storyId,
   title,
   coverImage,
   contentHtml,
@@ -19,7 +18,6 @@ export function StoryPageBody({
   totalReactions,
   onSelectReaction,
 }: {
-  storyId: string;
   title: string;
   coverImage?: string;
   contentHtml: string;
