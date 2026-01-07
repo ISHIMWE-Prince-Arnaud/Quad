@@ -1,13 +1,8 @@
 import { useState, useRef } from 'react';
+import type { ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Camera, Upload, AlertCircle, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   processProfileImage,
   processCoverImage,
@@ -15,6 +10,13 @@ import {
   formatFileSize
 } from '@/lib/imageUtils';
 import { UploadService } from '@/services/uploadService';
+
+import { CoverImageSection } from './edit-profile/CoverImageSection';
+import { EditProfileActions } from './edit-profile/EditProfileActions';
+import { EditProfileFields } from './edit-profile/EditProfileFields';
+import { EditProfileModalHeader } from './edit-profile/EditProfileModalHeader';
+import { ProfileImageSection } from './edit-profile/ProfileImageSection';
+import { UploadErrorAlert } from './edit-profile/UploadErrorAlert';
 
 // Validation schema
 const editProfileSchema = z.object({
@@ -116,7 +118,7 @@ export function EditProfileModal({
   const bioValue = watch('bio') || '';
 
   // Handle profile image upload
-  const handleProfileImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -164,7 +166,7 @@ export function EditProfileModal({
   };
 
   // Handle cover image upload
-  const handleCoverImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -263,215 +265,42 @@ export function EditProfileModal({
       {/* Modal */}
       <div className="relative bg-background border rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-lg font-semibold">Edit Profile</h2>
-              <p className="text-sm text-muted-foreground">Update your profile information and images.</p>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleClose}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <EditProfileModalHeader onClose={handleClose} />
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Cover Image Section */}
-          <div className="space-y-4">
-            <Label>Cover Image</Label>
-            <div className="relative">
-              {/* Cover Image Preview */}
-              <div className="relative h-32 sm:h-40 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 via-purple-500/20 to-pink-500/20">
-                {(coverImage.preview || user.coverImage) && (
-                  <img
-                    src={coverImage.preview || user.coverImage}
-                    alt="Cover preview"
-                    className="w-full h-full object-cover"
-                  />
-                )}
-                
-                {/* Upload overlay */}
-                <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => coverImageInputRef.current?.click()}
-                    disabled={coverImage.processing}
-                    className="bg-black/20 hover:bg-black/30 text-white border-white/20 backdrop-blur-sm"
-                  >
-                    {coverImage.processing ? (
-                      <>Processing...</>
-                    ) : (
-                      <>
-                        <Camera className="h-4 w-4 mr-2" />
-                        Change Cover
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Cover Image Input */}
-              <input
-                ref={coverImageInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleCoverImageChange}
-                className="hidden"
-              />
-
-              <p className="text-xs text-muted-foreground mt-2">
-                Recommended size: 1200×400px. Max file size: 10MB.
-              </p>
-            </div>
-          </div>
+          <CoverImageSection
+            src={coverImage.preview || user.coverImage || null}
+            processing={coverImage.processing}
+            inputRef={coverImageInputRef}
+            onChange={handleCoverImageChange}
+          />
 
           {/* Profile Image Section */}
-          <div className="space-y-4">
-            <Label>Profile Picture</Label>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Avatar className="h-20 w-20 border-4 border-background shadow-lg">
-                  <AvatarImage 
-                    src={profileImage.preview || user.profileImage} 
-                    alt="Profile preview" 
-                  />
-                  <AvatarFallback className="text-lg">
-                    {displayName.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-
-                {/* Profile Image Upload Button */}
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => profileImageInputRef.current?.click()}
-                  disabled={profileImage.processing}
-                  className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full p-0 shadow-lg"
-                >
-                  {profileImage.processing ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent" />
-                  ) : (
-                    <Camera className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-
-              <div className="flex-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => profileImageInputRef.current?.click()}
-                  disabled={profileImage.processing}
-                  className="w-full sm:w-auto"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  {profileImage.processing ? 'Processing...' : 'Upload New Photo'}
-                </Button>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Square image recommended. Max file size: 10MB.
-                </p>
-              </div>
-
-              {/* Profile Image Input */}
-              <input
-                ref={profileImageInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleProfileImageChange}
-                className="hidden"
-              />
-            </div>
-          </div>
+          <ProfileImageSection
+            src={profileImage.preview || user.profileImage || null}
+            displayInitial={displayName}
+            processing={profileImage.processing}
+            inputRef={profileImageInputRef}
+            onChange={handleProfileImageChange}
+          />
 
           {/* Upload Error */}
-          {uploadError && (
-            <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive">
-              <AlertCircle className="h-4 w-4" />
-              <span className="text-sm">{uploadError}</span>
-            </div>
-          )}
+          <UploadErrorAlert error={uploadError} />
 
           {/* Form Fields */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input
-                id="firstName"
-                {...register('firstName')}
-                placeholder="Enter your first name"
-              />
-              {errors.firstName && (
-                <p className="text-sm text-destructive">{errors.firstName.message}</p>
-              )}
-            </div>
+          <EditProfileFields
+            register={register}
+            errors={errors}
+            bioValue={bioValue}
+          />
 
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                {...register('lastName')}
-                placeholder="Enter your last name"
-              />
-              {errors.lastName && (
-                <p className="text-sm text-destructive">{errors.lastName.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              {...register('username')}
-              placeholder="Enter your username"
-            />
-            {errors.username && (
-              <p className="text-sm text-destructive">{errors.username.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="bio">Bio</Label>
-              <span className="text-xs text-muted-foreground">
-                {bioValue.length}/500
-              </span>
-            </div>
-            <Textarea
-              id="bio"
-              {...register('bio')}
-              placeholder="Tell us about yourself..."
-              rows={4}
-              className="resize-none"
-            />
-            {errors.bio && (
-              <p className="text-sm text-destructive">{errors.bio.message}</p>
-            )}
-          </div>
-
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2 mt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || profileImage.processing || coverImage.processing}
-            >
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
+          <EditProfileActions
+            isSubmitting={isSubmitting}
+            profileProcessing={profileImage.processing}
+            coverProcessing={coverImage.processing}
+            onCancel={handleClose}
+          />
         </form>
         </div>
       </div>
