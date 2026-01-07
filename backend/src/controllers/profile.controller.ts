@@ -184,7 +184,10 @@ export const updateProfile = async (req: Request, res: Response) => {
         firstName: updates.firstName ?? undefined,
         lastName: updates.lastName ?? undefined,
         username: updates.username ?? undefined,
-        imageUrl: updates.profileImage ?? undefined,
+        imageUrl:
+          updates.profileImage === null
+            ? null
+            : updates.profileImage ?? undefined,
       } as any);
     } catch (clerkError) {
       console.error("Failed to sync profile updates to Clerk", clerkError);

@@ -30,11 +30,13 @@ export const updateProfileSchema = z.object({
   profileImage: z
     .string()
     .url("Invalid profile image URL")
+    .nullable()
     .optional(),
 
   coverImage: z
     .string()
     .url("Invalid cover image URL")
+    .nullable()
     .optional(),
 
   // Legacy field kept for backwards compatibility

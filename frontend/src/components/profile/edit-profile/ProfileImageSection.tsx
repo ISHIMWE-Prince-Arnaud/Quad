@@ -3,7 +3,7 @@ import type { ChangeEvent, RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Upload } from "lucide-react";
+import { Camera, Trash2, Upload } from "lucide-react";
 
 export function ProfileImageSection({
   src,
@@ -11,12 +11,14 @@ export function ProfileImageSection({
   processing,
   inputRef,
   onChange,
+  onRemove,
 }: {
   src: string | null;
   displayInitial: string;
   processing: boolean;
   inputRef: RefObject<HTMLInputElement | null>;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onRemove?: () => void;
 }) {
   return (
     <div className="space-y-4">
@@ -55,6 +57,17 @@ export function ProfileImageSection({
             <Upload className="h-4 w-4 mr-2" />
             {processing ? "Processing..." : "Upload New Photo"}
           </Button>
+          {onRemove && src && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onRemove}
+              disabled={processing}
+              className="w-full sm:w-auto sm:ml-2 text-destructive hover:text-destructive">
+              <Trash2 className="h-4 w-4 mr-2" />
+              Remove
+            </Button>
+          )}
           <p className="text-xs text-muted-foreground mt-1">
             Square image recommended. Max file size: 10MB.
           </p>

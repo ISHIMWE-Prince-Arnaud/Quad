@@ -55,8 +55,8 @@ interface EditProfileModalProps {
   onClose: () => void;
   user: User;
   onSave: (data: EditProfileFormData & { 
-    profileImageUrl?: string; 
-    coverImageUrl?: string;
+    profileImageUrl?: string | null; 
+    coverImageUrl?: string | null;
   }) => Promise<void>;
 }
 
@@ -218,8 +218,8 @@ export function EditProfileModal({
     try {
       await onSave({
         ...data,
-        profileImageUrl: profileImage.preview || user.profileImage,
-        coverImageUrl: coverImage.preview || user.coverImage,
+        profileImageUrl: profileImage.preview,
+        coverImageUrl: coverImage.preview,
       });
 
       showToast('Profile updated successfully');
@@ -274,6 +274,10 @@ export function EditProfileModal({
             processing={coverImage.processing}
             inputRef={coverImageInputRef}
             onChange={handleCoverImageChange}
+            onRemove={() => {
+              if (coverImage.preview) revokePreviewUrl(coverImage.preview);
+              setCoverImage({ file: null, preview: null, processing: false });
+            }}
           />
 
           {/* Profile Image Section */}
@@ -283,6 +287,10 @@ export function EditProfileModal({
             processing={profileImage.processing}
             inputRef={profileImageInputRef}
             onChange={handleProfileImageChange}
+            onRemove={() => {
+              if (profileImage.preview) revokePreviewUrl(profileImage.preview);
+              setProfileImage({ file: null, preview: null, processing: false });
+            }}
           />
 
           {/* Upload Error */}

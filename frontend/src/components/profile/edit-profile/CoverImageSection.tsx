@@ -2,18 +2,20 @@ import type { ChangeEvent, RefObject } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Camera } from "lucide-react";
+import { Camera, Trash2 } from "lucide-react";
 
 export function CoverImageSection({
   src,
   processing,
   inputRef,
   onChange,
+  onRemove,
 }: {
   src: string | null;
   processing: boolean;
   inputRef: RefObject<HTMLInputElement | null>;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onRemove?: () => void;
 }) {
   return (
     <div className="space-y-4">
@@ -28,7 +30,7 @@ export function CoverImageSection({
             />
           )}
 
-          <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
             <Button
               type="button"
               variant="secondary"
@@ -45,6 +47,18 @@ export function CoverImageSection({
                 </>
               )}
             </Button>
+            {onRemove && src && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={onRemove}
+                disabled={processing}
+                className="bg-black/20 hover:bg-black/30 text-white border-white/20 backdrop-blur-sm">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Remove
+              </Button>
+            )}
           </div>
         </div>
 
