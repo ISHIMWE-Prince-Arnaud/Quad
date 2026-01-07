@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
-import { X, Users, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { UserCard, type UserCardData } from "@/components/user/UserCard";
+import type { UserCardData } from "@/components/user/UserCard";
 import { FollowService } from "@/services/followService";
 import type { ApiFollowUser } from "@/types/api";
+
+import { FollowersModalBody } from "./followers-modal/FollowersModalBody";
+import { FollowersModalFooter } from "./followers-modal/FollowersModalFooter";
+import { FollowersModalHeader } from "./followers-modal/FollowersModalHeader";
+import { FollowersModalSearch } from "./followers-modal/FollowersModalSearch";
 
 interface FollowersModalProps {
   isOpen: boolean;
@@ -228,115 +230,38 @@ export function FollowersModal({
       {/* Modal */}
       <div className="relative w-full max-w-md mx-4 bg-background rounded-lg shadow-lg max-h-[80vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="h-8 w-8 p-0">
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+        <FollowersModalHeader title={title} onClose={onClose} />
 
         {/* Search */}
-        <div className="p-4 border-b">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={`Search ${type}...`}
-              className="pl-10"
-            />
-          </div>
-        </div>
+        <FollowersModalSearch
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          type={type}
+        />
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
-          {isLoading ? (
-            <div className="p-4">
-              <div className="space-y-3">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="flex items-center gap-3 p-2">
-                    <div className="h-10 w-10 bg-muted rounded-full animate-pulse" />
-                    <div className="flex-1 space-y-1">
-                      <div className="h-4 bg-muted rounded animate-pulse" />
-                      <div className="h-3 bg-muted rounded w-2/3 animate-pulse" />
-                    </div>
-                    <div className="h-8 w-16 bg-muted rounded animate-pulse" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : filteredUsers.length > 0 ? (
-            <div className="divide-y">
-              {filteredUsers.map((user) => (
-                <UserCard
-                  key={user._id}
-                  user={user}
-                  onFollow={handleFollow}
-                  onUnfollow={handleUnfollow}
-                  compact={true}
-                  showBio={true}
-                  showStats={false}
-                  className="border-0 rounded-none hover:bg-accent/50"
-                />
-              ))}
-            </div>
-          ) : searchQuery ? (
-            <div className="flex flex-col items-center justify-center gap-3 py-8 text-muted-foreground">
-              <Search className="h-8 w-8" />
-              <div className="text-center">
-                <p className="font-medium">No results found</p>
-                <p className="text-sm">Try searching with different keywords</p>
-              </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center gap-3 py-8 text-muted-foreground">
-              <Users className="h-8 w-8" />
-              <div className="text-center">
-                <p className="font-medium">
-                  {type === "followers"
-                    ? "No followers yet"
-                    : type === "following"
-                    ? "No following yet"
-                    : "No mutual connections yet"}
-                </p>
-                <p className="text-sm">
-                  {type === "followers"
-                    ? "When people follow this user, they will appear here"
-                    : type === "following"
-                    ? "When this user follows people, they will appear here"
-                    : "When you share connections with this user, they will appear here"}
-                </p>
-              </div>
-            </div>
-          )}
+          <FollowersModalBody
+            isLoading={isLoading}
+            filteredUsers={filteredUsers}
+            searchQuery={searchQuery}
+            type={type}
+            onFollow={handleFollow}
+            onUnfollow={handleUnfollow}
+          />
         </div>
 
         {/* Footer with count and pagination */}
-        {!isLoading && filteredUsers.length > 0 && (
-          <div className="p-4 border-t bg-muted/30 flex flex-col items-center gap-3">
-            <p className="text-sm text-muted-foreground text-center">
-              {searchQuery
-                ? `${filteredUsers.length} ${type} matching "${searchQuery}"`
-                : `${filteredUsers.length} of ${
-                    totalCount || filteredUsers.length
-                  } ${type}`}
-            </p>
-
-            {hasMore && type !== "mutual" && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLoadMore}
-                disabled={isLoadingMore}>
-                {isLoadingMore ? "Loading..." : "Load more"}
-              </Button>
-            )}
-          </div>
-        )}
+        <FollowersModalFooter
+          isLoading={isLoading}
+          filteredUsers={filteredUsers}
+          totalCount={totalCount || filteredUsers.length}
+          type={type}
+          searchQuery={searchQuery}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={handleLoadMore}
+        />
       </div>
     </div>
   );
