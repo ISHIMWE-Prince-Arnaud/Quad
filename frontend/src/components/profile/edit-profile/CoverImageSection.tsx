@@ -12,7 +12,7 @@ export function CoverImageSection({
 }: {
   src: string | null;
   processing: boolean;
-  inputRef: RefObject<HTMLInputElement>;
+  inputRef: RefObject<HTMLInputElement | null>;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (

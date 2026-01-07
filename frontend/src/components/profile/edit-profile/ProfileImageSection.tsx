@@ -15,7 +15,7 @@ export function ProfileImageSection({
   src: string | null;
   displayInitial: string;
   processing: boolean;
-  inputRef: RefObject<HTMLInputElement>;
+  inputRef: RefObject<HTMLInputElement | null>;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (

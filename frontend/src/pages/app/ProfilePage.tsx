@@ -49,7 +49,7 @@ export default function ProfilePage() {
   const {
     user: currentUser,
     isLoading: authLoading,
-    setUser: setAuthUser,
+    setUser: setStoreUser,
   } = useAuthStore();
 
   const controller = useProfilePageController({
@@ -57,7 +57,10 @@ export default function ProfilePage() {
     navigate,
     currentUser,
     authLoading,
-    setAuthUser,
+    setAuthUser: (next) => {
+      if (!currentUser) return;
+      setStoreUser({ ...currentUser, ...next });
+    },
   });
 
   const profileHeaderUser = useMemo(() => {
