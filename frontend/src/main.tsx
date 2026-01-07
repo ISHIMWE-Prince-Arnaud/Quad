@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ClerkProvider } from '@clerk/clerk-react'
 import './index.css'
+import './styles/tiptap.css'
 import App from './App.tsx'
 
 // Get Clerk publishable key
