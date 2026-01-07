@@ -1,0 +1,67 @@
+import { Link } from "react-router-dom";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+export function StoryCardBody({
+  storyId,
+  coverImage,
+  title,
+  excerpt,
+  authorUsername,
+  authorProfileImage,
+  readTime,
+}: {
+  storyId: string;
+  coverImage?: string;
+  title: string;
+  excerpt?: string;
+  authorUsername: string;
+  authorProfileImage?: string;
+  readTime?: number;
+}) {
+  return (
+    <>
+      {/* Cover image */}
+      {coverImage && (
+        <Link to={`/app/stories/${storyId}`} className="block">
+          <div className="aspect-video w-full overflow-hidden">
+            <img
+              src={coverImage}
+              alt={title}
+              className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+            />
+          </div>
+        </Link>
+      )}
+
+      {/* Title and excerpt */}
+      <div className="p-4 space-y-2">
+        <Link to={`/app/stories/${storyId}`} className="block space-y-2">
+          <h3 className="font-semibold text-lg line-clamp-2 leading-tight">{title}</h3>
+          {excerpt && <p className="text-sm text-muted-foreground line-clamp-2">{excerpt}</p>}
+        </Link>
+
+        {/* Author info and metadata */}
+        <div className="flex items-center gap-2 pt-2">
+          <Link
+            to={`/app/profile/${authorUsername}`}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Avatar className="h-6 w-6">
+              <AvatarImage src={authorProfileImage} />
+              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
+                {authorUsername.charAt(0).toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-xs text-muted-foreground truncate">{authorUsername}</span>
+          </Link>
+          {readTime && (
+            <>
+              <span className="text-xs text-muted-foreground">·</span>
+              <span className="text-xs text-muted-foreground">{readTime} min read</span>
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
