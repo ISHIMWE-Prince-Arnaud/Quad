@@ -24,6 +24,7 @@ export interface PollOption {
 
 export interface PollSettings {
   allowMultiple: boolean;
+  anonymousVoting: boolean;
   showResults: ResultsVisibility;
 }
 
@@ -79,6 +80,7 @@ export interface CreatePollInput {
   options: CreatePollOptionInput[];
   settings?: {
     allowMultiple?: boolean;
+    anonymousVoting?: boolean;
     showResults?: ResultsVisibility;
   };
   expiresAt?: string; // ISO string

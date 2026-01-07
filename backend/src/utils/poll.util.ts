@@ -123,12 +123,17 @@ export const formatPollResponse = (
   userVote?: IPollVoteDocument,
   showResults: boolean = false
 ) => {
+  const settings = {
+    ...poll.settings,
+    anonymousVoting: poll.settings?.anonymousVoting ?? false,
+  };
+
   const response: any = {
     id: poll._id,
     author: poll.author,
     question: poll.question,
     questionMedia: poll.questionMedia,
-    settings: poll.settings,
+    settings,
     status: poll.status,
     expiresAt: poll.expiresAt,
     totalVotes: poll.totalVotes,

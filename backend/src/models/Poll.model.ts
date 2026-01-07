@@ -18,6 +18,7 @@ export interface IPollDocument extends Document {
   }>;
   settings: {
     allowMultiple: boolean;
+    anonymousVoting: boolean;
     showResults: ResultsVisibility;
   };
   status: PollStatus;
@@ -105,6 +106,10 @@ const PollSchema = new Schema<IPollDocument>(
       allowMultiple: { 
         type: Boolean, 
         default: false 
+      },
+      anonymousVoting: {
+        type: Boolean,
+        default: false,
       },
       showResults: { 
         type: String, 

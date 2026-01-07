@@ -33,6 +33,7 @@ export interface IPollOption {
  */
 export interface IPollSettings {
   allowMultiple: boolean;       // Allow multiple option selection
+  anonymousVoting: boolean;     // Hide voter identities (votes remain anonymous)
   showResults: ResultsVisibility; // When to show results
 }
 
@@ -91,6 +92,7 @@ export interface ICreatePoll {
   }>;
   settings?: {
     allowMultiple?: boolean;
+    anonymousVoting?: boolean;
     showResults?: ResultsVisibility;
   };
   expiresAt?: Date;

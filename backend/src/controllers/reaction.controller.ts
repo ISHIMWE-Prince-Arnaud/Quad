@@ -4,6 +4,7 @@ import { User } from "../models/User.model.js";
 import type { CreateReactionSchemaType } from "../schemas/reaction.schema.js";
 import type { ReactableContentType } from "../types/reaction.types.js";
 import { getSocketIO } from "../config/socket.config.js";
+import { emitEngagementUpdate } from "../sockets/feed.socket.js";
 import {
   verifyReactableContent,
   updateContentReactionsCount,
@@ -14,6 +15,34 @@ import {
 } from "../utils/notification.util.js";
 import { DatabaseService } from "../services/database.service.js";
 import { logger } from "../utils/logger.util.js";
+
+const getEngagementSnapshot = async (
+  contentType: ReactableContentType,
+  contentId: string
+): Promise<{ commentsCount: number; votes?: number }> => {
+  if (contentType === "poll") {
+    const { Poll } = await import("../models/Poll.model.js");
+    const poll = await Poll.findById(contentId).select("commentsCount totalVotes");
+    return {
+      commentsCount: poll?.commentsCount ?? 0,
+      votes: poll?.totalVotes ?? 0,
+    };
+  }
+
+  if (contentType === "post") {
+    const { Post } = await import("../models/Post.model.js");
+    const post = await Post.findById(contentId).select("commentsCount");
+    return { commentsCount: post?.commentsCount ?? 0 };
+  }
+
+  if (contentType === "story") {
+    const { Story } = await import("../models/Story.model.js");
+    const story = await Story.findById(contentId).select("commentsCount");
+    return { commentsCount: story?.commentsCount ?? 0 };
+  }
+
+  return { commentsCount: 0 };
+};
 
 // =========================
 // CREATE OR UPDATE REACTION
@@ -68,12 +97,25 @@ export const toggleReaction = async (req: Request, res: Response) => {
         });
 
         // Emit real-time event
-        getSocketIO().emit("reactionRemoved", {
+        const io = getSocketIO();
+        io.emit("reactionRemoved", {
           contentType,
           contentId,
           userId,
           reactionCount,
         });
+
+        if (contentType === "post" || contentType === "story" || contentType === "poll") {
+          const snapshot = await getEngagementSnapshot(contentType, contentId);
+          emitEngagementUpdate(
+            io,
+            contentType,
+            contentId,
+            reactionCount,
+            snapshot.commentsCount,
+            snapshot.votes
+          );
+        }
 
         return res.status(200).json({
           success: true,
@@ -153,7 +195,8 @@ export const toggleReaction = async (req: Request, res: Response) => {
     }
 
     // Emit real-time event
-    getSocketIO().emit("reactionAdded", {
+    const io = getSocketIO();
+    io.emit("reactionAdded", {
       contentType,
       contentId,
       userId,
@@ -161,6 +204,18 @@ export const toggleReaction = async (req: Request, res: Response) => {
       reaction: newReaction,
       reactionCount,
     });
+
+    if (contentType === "post" || contentType === "story" || contentType === "poll") {
+      const snapshot = await getEngagementSnapshot(contentType, contentId);
+      emitEngagementUpdate(
+        io,
+        contentType,
+        contentId,
+        reactionCount,
+        snapshot.commentsCount,
+        snapshot.votes
+      );
+    }
 
     return res.status(201).json({
       success: true,

@@ -48,6 +48,28 @@ export function PollSettingsAndDuration({
             </div>
           </label>
 
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border-input accent-primary"
+              checked={settings.anonymousVoting}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  anonymousVoting: e.target.checked,
+                }))
+              }
+            />
+            <div className="flex-1">
+              <span className="text-sm font-medium group-hover:text-primary transition-colors">
+                Anonymous voting
+              </span>
+              <p className="text-xs text-muted-foreground">
+                Hide voter identities (vote counts are still shown)
+              </p>
+            </div>
+          </label>
+
           <div className="space-y-2">
             <Label htmlFor="results-visibility" className="text-sm font-medium">
               Results visibility

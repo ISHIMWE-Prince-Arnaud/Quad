@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { CommentsSection } from "@/components/comments/CommentsSection";
 import { useAuthStore } from "@/stores/authStore";
+import { getSocket } from "@/lib/socket";
 import { PollDetailsCard } from "./poll/PollDetailsCard";
 import { usePollData } from "./poll/usePollData";
 import { usePollDelete } from "./poll/usePollDelete";
@@ -19,6 +21,30 @@ export default function PollPage() {
     usePollData({ id });
 
   usePollEngagementSocket({ id, setPoll });
+
+  useEffect(() => {
+    if (!id) return;
+    const socket = getSocket();
+
+    const handlePollExpired = (pollId: string) => {
+      if (pollId !== id) return;
+      setPoll((prev) => {
+        if (!prev) return prev;
+        const shouldRevealResults =
+          prev.settings.showResults === "afterExpiry" || prev.settings.showResults === "always";
+        return {
+          ...prev,
+          status: "expired",
+          canViewResults: shouldRevealResults ? true : prev.canViewResults,
+        };
+      });
+    };
+
+    socket.on("pollExpired", handlePollExpired);
+    return () => {
+      socket.off("pollExpired", handlePollExpired);
+    };
+  }, [id, setPoll]);
 
   const { userReaction, reactionCounts, totalReactions, handleSelectReaction } =
     usePollReactions({ id });

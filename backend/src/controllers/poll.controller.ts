@@ -12,6 +12,11 @@ import type {
 } from "../schemas/poll.schema.js";
 import { getSocketIO } from "../config/socket.config.js";
 import {
+  emitContentDeleted,
+  emitEngagementUpdate,
+  emitNewContent,
+} from "../sockets/feed.socket.js";
+import {
   canVoteOnPoll,
   canViewResults,
   validateVoteIndices,
@@ -62,6 +67,7 @@ export const createPoll = async (req: Request, res: Response) => {
       options,
       settings: pollData.settings || {
         allowMultiple: false,
+        anonymousVoting: false,
         showResults: "afterVote",
       },
       status: "active",
@@ -72,7 +78,9 @@ export const createPoll = async (req: Request, res: Response) => {
     });
 
     // Emit real-time event
-    getSocketIO().emit("newPoll", poll);
+    const io = getSocketIO();
+    io.emit("newPoll", poll);
+    emitNewContent(io, "poll", String(poll._id), poll.author.clerkId);
 
     return res.status(201).json({
       success: true,
@@ -343,6 +351,11 @@ export const updatePoll = async (req: Request, res: Response) => {
 export const deletePoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Poll ID is required" });
+    }
     const userId = req.auth.userId;
 
     // Find poll
@@ -368,7 +381,9 @@ export const deletePoll = async (req: Request, res: Response) => {
     ]);
 
     // Emit real-time event
-    getSocketIO().emit("pollDeleted", id);
+    const io = getSocketIO();
+    io.emit("pollDeleted", id);
+    emitContentDeleted(io, "poll", id);
 
     return res.json({
       success: true,
@@ -386,6 +401,11 @@ export const deletePoll = async (req: Request, res: Response) => {
 export const voteOnPoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Poll ID is required" });
+    }
     const userId = req.auth.userId;
     const { optionIndices } = req.body as VoteOnPollSchemaType;
 
@@ -464,11 +484,20 @@ export const voteOnPoll = async (req: Request, res: Response) => {
     }
 
     // Emit real-time event (no user info for privacy)
-    getSocketIO().emit("pollVoted", {
+    const io = getSocketIO();
+    io.emit("pollVoted", {
       pollId: id,
       updatedVoteCounts: poll.options.map((opt) => opt.votesCount),
       totalVotes: poll.totalVotes,
     });
+    emitEngagementUpdate(
+      io,
+      "poll",
+      id,
+      poll.reactionsCount,
+      poll.commentsCount,
+      poll.totalVotes
+    );
 
     // Return updated poll with results visible
     const formattedPoll = formatPollResponse(poll, vote, true);
@@ -490,6 +519,11 @@ export const voteOnPoll = async (req: Request, res: Response) => {
 export const removeVote = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Poll ID is required" });
+    }
     const userId = req.auth.userId;
 
     // Find poll
@@ -528,6 +562,16 @@ export const removeVote = async (req: Request, res: Response) => {
     // Delete vote and save poll
     await Promise.all([PollVote.findByIdAndDelete(vote._id), poll.save()]);
 
+    const io = getSocketIO();
+    emitEngagementUpdate(
+      io,
+      "poll",
+      id,
+      poll.reactionsCount,
+      poll.commentsCount,
+      poll.totalVotes
+    );
+
     return res.json({
       success: true,
       message: "Vote removed successfully",
@@ -544,6 +588,11 @@ export const removeVote = async (req: Request, res: Response) => {
 export const closePoll = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Poll ID is required" });
+    }
     const userId = req.auth.userId;
 
     // Find poll

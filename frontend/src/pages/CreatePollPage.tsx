@@ -30,6 +30,7 @@ export default function CreatePollPage() {
   ]);
   const [settings, setSettings] = useState<PollSettingsState>({
     allowMultiple: false,
+    anonymousVoting: false,
     showResults: "afterVote",
   });
   const [expiresAt, setExpiresAt] = useState<string | "">("");
@@ -148,6 +149,7 @@ export default function CreatePollPage() {
         options: finalOptions.map((o) => ({ text: o.text, media: o.media })),
         settings: {
           allowMultiple: settings.allowMultiple,
+          anonymousVoting: settings.anonymousVoting,
           showResults: settings.showResults,
         },
         expiresAt: expiresAt || undefined,

@@ -97,8 +97,26 @@ export default function PollsPage() {
 
     socket.on("feed:engagement-update", handleEngagementUpdate);
 
+    const handlePollExpired = (pollId: string) => {
+      setPolls((prevPolls) =>
+        prevPolls.map((poll) => {
+          if (poll.id !== pollId) return poll;
+          const shouldRevealResults =
+            poll.settings.showResults === "afterExpiry" || poll.settings.showResults === "always";
+          return {
+            ...poll,
+            status: "expired",
+            canViewResults: shouldRevealResults ? true : poll.canViewResults,
+          };
+        })
+      );
+    };
+
+    socket.on("pollExpired", handlePollExpired);
+
     return () => {
       socket.off("feed:engagement-update", handleEngagementUpdate);
+      socket.off("pollExpired", handlePollExpired);
     };
   }, []);
 

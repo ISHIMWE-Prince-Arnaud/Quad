@@ -15,5 +15,6 @@ export interface ValidationErrors {
 
 export type PollSettingsState = {
   allowMultiple: boolean;
+  anonymousVoting: boolean;
   showResults: ResultsVisibility;
 };

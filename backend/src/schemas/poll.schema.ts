@@ -48,12 +48,14 @@ export const createPollSchema = z.object({
   
   settings: z.object({
     allowMultiple: z.boolean().optional().default(false),
+    anonymousVoting: z.boolean().optional().default(false),
     showResults: z
       .enum(["always", "afterVote", "afterExpiry"])
       .optional()
       .default("afterVote"),
   }).optional().default({
     allowMultiple: false,
+    anonymousVoting: false,
     showResults: "afterVote"
   }),
   
