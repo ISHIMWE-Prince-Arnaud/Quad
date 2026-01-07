@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import type { ResultsVisibility } from "@/types/poll";
+import type { Dispatch, SetStateAction } from "react";
 
 import type { PollSettingsState, ValidationErrors } from "./types";
 
@@ -14,11 +15,11 @@ export function PollSettingsAndDuration({
   setValidationErrors,
 }: {
   settings: PollSettingsState;
-  setSettings: React.Dispatch<React.SetStateAction<PollSettingsState>>;
+  setSettings: Dispatch<SetStateAction<PollSettingsState>>;
   expiresAt: string | "";
   setExpiresAt: (v: string | "") => void;
   validationErrors: ValidationErrors;
-  setValidationErrors: React.Dispatch<React.SetStateAction<ValidationErrors>>;
+  setValidationErrors: Dispatch<SetStateAction<ValidationErrors>>;
 }) {
   return (
     <div className="grid gap-6 md:grid-cols-2">

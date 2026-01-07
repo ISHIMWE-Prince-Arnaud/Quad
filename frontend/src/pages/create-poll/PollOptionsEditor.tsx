@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Image as ImageIcon, Loader2, Plus, X } from "lucide-react";
+import type { Dispatch, SetStateAction } from "react";
 
 import type { LocalOption, ValidationErrors } from "./types";
 
@@ -17,14 +18,14 @@ export function PollOptionsEditor({
   setValidationErrors,
 }: {
   options: LocalOption[];
-  setOptions: React.Dispatch<React.SetStateAction<LocalOption[]>>;
+  setOptions: Dispatch<SetStateAction<LocalOption[]>>;
   uploadingOptionId: string | null;
   onAddOption: () => void;
   onRemoveOption: (id: string) => void;
   onOptionChange: (id: string, value: string) => void;
   onUploadOptionMedia: (id: string, file: File | null) => void;
   validationErrors: ValidationErrors;
-  setValidationErrors: React.Dispatch<React.SetStateAction<ValidationErrors>>;
+  setValidationErrors: Dispatch<SetStateAction<ValidationErrors>>;
 }) {
   return (
     <div className="space-y-3">
