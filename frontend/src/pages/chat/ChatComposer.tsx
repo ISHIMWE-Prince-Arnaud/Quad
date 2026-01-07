@@ -3,8 +3,23 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { ChatMedia } from "@/types/chat";
-import { Image as ImageIcon, Loader2, Send, X } from "lucide-react";
-import { MAX_MESSAGE_LENGTH } from "./constants";
+import {
+  Image as ImageIcon,
+  Loader2,
+  Send,
+  Smile,
+  X,
+} from "lucide-react";
+import {
+  COMPOSER_EMOJIS,
+  MAX_MESSAGE_LENGTH,
+} from "./constants";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function ChatComposer({
   text,
@@ -14,6 +29,7 @@ export function ChatComposer({
   onTextChange,
   onRemoveMedia,
   onFileSelected,
+  onInsertEmoji,
   onSend,
 }: {
   text: string;
@@ -23,6 +39,7 @@ export function ChatComposer({
   onTextChange: (v: string) => void;
   onRemoveMedia: () => void;
   onFileSelected: (file: File | null) => void;
+  onInsertEmoji: (emoji: string) => void;
   onSend: () => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -73,6 +90,26 @@ export function ChatComposer({
           className="hidden"
           onChange={(e) => onFileSelected(e.target.files?.[0] || null)}
         />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Insert emoji">
+              <Smile className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="min-w-[180px]">
+            {COMPOSER_EMOJIS.map((emoji) => (
+              <DropdownMenuItem key={emoji} onClick={() => onInsertEmoji(emoji)}>
+                <span className="text-lg">{emoji}</span>
+                <span className="sr-only">Insert emoji</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <div className="flex-1 relative">
           <Textarea

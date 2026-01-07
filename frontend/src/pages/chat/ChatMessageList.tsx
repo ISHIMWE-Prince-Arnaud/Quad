@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { RefObject } from "react";
 import type { Virtualizer } from "@tanstack/react-virtual";
 
@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/types/chat";
 import { Loader2, MoreVertical } from "lucide-react";
@@ -57,6 +58,16 @@ export function ChatMessageList({
   onToggleReaction: (messageId: string, emoji: string) => void;
   onDeleteMessage: (id: string) => void;
 }) {
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxMedia, setLightboxMedia] = useState<
+    { url: string; type: "image" | "video" } | null
+  >(null);
+
+  const openLightbox = (media: { url: string; type: "image" | "video" }) => {
+    setLightboxMedia(media);
+    setLightboxOpen(true);
+  };
+
   useEffect(() => {
     const container = listRef.current;
     if (!container || !hasMoreOlder || loadingOlder) return;
@@ -73,9 +84,33 @@ export function ChatMessageList({
   }, [hasMoreOlder, loadingOlder, onLoadOlder, listRef]);
 
   return (
-    <div
-      ref={listRef}
-      className="h-[calc(100vh-260px)] overflow-y-auto p-4">
+    <>
+      <Dialog
+        open={lightboxOpen}
+        onOpenChange={(open) => {
+          setLightboxOpen(open);
+          if (!open) setLightboxMedia(null);
+        }}>
+        <DialogContent className="max-w-5xl p-0 overflow-hidden">
+          <div className="bg-black">
+            {lightboxMedia?.type === "image" ? (
+              <img
+                src={lightboxMedia.url}
+                alt="Chat attachment"
+                className="max-h-[80vh] w-full object-contain"
+              />
+            ) : lightboxMedia?.type === "video" ? (
+              <video
+                src={lightboxMedia.url}
+                controls
+                className="max-h-[80vh] w-full object-contain"
+              />
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <div ref={listRef} className="h-[calc(100vh-260px)] overflow-y-auto p-4">
       {loading && (
         <div className="flex items-center justify-center py-8 text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading
@@ -181,13 +216,15 @@ export function ChatMessageList({
                               <img
                                 src={m.media.url}
                                 alt="attachment"
-                                className="max-h-96 rounded-lg"
+                                className="max-h-96 rounded-lg cursor-pointer"
+                                onClick={() => openLightbox(m.media!)}
                               />
                             ) : (
                               <video
                                 src={m.media.url}
                                 controls
-                                className="max-h-96 rounded-lg"
+                                className="max-h-96 rounded-lg cursor-pointer"
+                                onClick={() => openLightbox(m.media!)}
                               />
                             )}
                           </div>
@@ -278,6 +315,7 @@ export function ChatMessageList({
           })}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
