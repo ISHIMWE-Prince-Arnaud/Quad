@@ -5,33 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EditProfileModal } from "./EditProfileModal";
 import { FollowersModal } from "@/components/user/FollowersModal";
-import { ProfileService } from "@/services/profileService";
 
-interface ProfileHeaderProps {
-  user: {
-    _id: string;
-    clerkId: string;
-    username: string;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    profileImage?: string;
-    coverImage?: string;
-    bio?: string;
-    joinedAt: string;
-    isVerified?: boolean;
-    followers?: number;
-    following?: number;
-    postsCount?: number;
-    mutualFollows?: number;
-  };
-  isOwnProfile?: boolean;
-  isFollowing?: boolean;
-  onFollow?: () => void;
-  onUnfollow?: () => void;
-  onEditProfile?: () => void;
-  onUserUpdate?: (updatedUser: Partial<ProfileHeaderProps["user"]>) => void;
-}
+import { useProfileHeaderController } from "./profile-header/useProfileHeaderController";
+import type { ProfileHeaderProps } from "./profile-header/types";
 
 export function ProfileHeader({
   user,
@@ -43,79 +19,33 @@ export function ProfileHeader({
   onUserUpdate,
 }: ProfileHeaderProps) {
   const [isImageLoading, setIsImageLoading] = useState(true);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [followersModalOpen, setFollowersModalOpen] = useState(false);
-  const [followingModalOpen, setFollowingModalOpen] = useState(false);
-  const [mutualModalOpen, setMutualModalOpen] = useState(false);
 
-  const displayName =
-    user.firstName && user.lastName
-      ? `${user.firstName} ${user.lastName}`
-      : user.firstName || user.username;
-
-  const handleFollowClick = () => {
-    if (isFollowing) {
-      onUnfollow?.();
-    } else {
-      onFollow?.();
-    }
-  };
-
-  const joinedDate = new Date(user.joinedAt).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
+  const controller = useProfileHeaderController({
+    user,
+    isFollowing,
+    onFollow,
+    onUnfollow,
+    onEditProfile,
+    onUserUpdate,
   });
 
+  const displayName = controller.displayName;
+  const joinedDate = controller.joinedDate;
+  const isEditModalOpen = controller.isEditModalOpen;
+  const setIsEditModalOpen = controller.setIsEditModalOpen;
+  const followersModalOpen = controller.followersModalOpen;
+  const setFollowersModalOpen = controller.setFollowersModalOpen;
+  const followingModalOpen = controller.followingModalOpen;
+  const setFollowingModalOpen = controller.setFollowingModalOpen;
+  const mutualModalOpen = controller.mutualModalOpen;
+  const setMutualModalOpen = controller.setMutualModalOpen;
+  const handleFollowClick = controller.handleFollowClick;
+
   // Handle edit profile modal
-  const handleEditProfileClick = () => {
-    setIsEditModalOpen(true);
-    onEditProfile?.(); // Still call the original callback if provided
-  };
+  const handleEditProfileClick = controller.handleEditProfileClick;
 
   // Handle profile save
-  const handleProfileSave = async (data: {
-    firstName: string;
-    lastName: string;
-    username: string;
-    bio?: string;
-    profileImageUrl?: string;
-    coverImageUrl?: string;
-  }) => {
-    console.log("Saving profile data:", data);
-
-    // Persist changes via backend API
-    const updatedProfile = await ProfileService.updateProfile(user.username, {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      username: data.username,
-      bio: data.bio,
-      profileImage: data.profileImageUrl,
-      coverImage: data.coverImageUrl,
-    });
-
-    // Notify parent with updated profile data
-    const joinedAt =
-      updatedProfile.joinedAt ||
-      updatedProfile.createdAt ||
-      updatedProfile.updatedAt;
-
-    onUserUpdate?.({
-      _id: updatedProfile._id,
-      clerkId: updatedProfile.clerkId,
-      username: updatedProfile.username,
-      email: updatedProfile.email,
-      firstName: updatedProfile.firstName,
-      lastName: updatedProfile.lastName,
-      profileImage: updatedProfile.profileImage,
-      coverImage: updatedProfile.coverImage,
-      bio: updatedProfile.bio,
-      joinedAt,
-      isVerified: updatedProfile.isVerified,
-      followers: updatedProfile.followers,
-      following: updatedProfile.following,
-      postsCount: updatedProfile.postsCount,
-    });
-  };
+  const handleProfileSave = controller.handleProfileSave;
 
   return (
     <>

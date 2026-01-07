@@ -1,22 +1,20 @@
-import { useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import {
   ProfileTabs,
   TabContent,
-  type ProfileTab,
 } from "@/components/profile/ProfileTabs";
 import {
   ProfileContentGrid,
-  type ContentItem,
 } from "@/components/profile/ProfileContentGrid";
 import { ProfileSkeleton } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
 import { useAuthStore } from "@/stores/authStore";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
-import { ProfileService } from "@/services/profileService";
-import { FollowService } from "@/services/followService";
 import type { ApiProfile } from "@/types/api";
+
+import { useProfilePageController } from "./profile/useProfilePageController";
 
 // Convert ApiProfile to the format expected by ProfileHeader
 const convertApiProfileToUser = (profile: ApiProfile) => {
@@ -54,270 +52,33 @@ export default function ProfilePage() {
     setUser: setAuthUser,
   } = useAuthStore();
 
-  const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
-  const [user, setUser] = useState<ApiProfile | null>(null);
-  const [content, setContent] = useState<ContentItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isNotFound, setIsNotFound] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
-
-  // Check if this is the current user's profile
-  const isOwnProfile = currentUser?.username === username;
-
-  // Filter content based on active tab
-  const filteredContent = content.filter((item) => {
-    switch (activeTab) {
-      case "posts":
-        return item.type === "post";
-      case "stories":
-        return item.type === "story";
-      case "polls":
-        return item.type === "poll";
-      case "saved":
-        // TODO: Filter saved content when implemented
-        return false;
-      case "liked":
-        // TODO: Filter liked content when implemented
-        return false;
-      default:
-        return false;
-    }
+  const controller = useProfilePageController({
+    username,
+    navigate,
+    currentUser,
+    authLoading,
+    setAuthUser,
   });
 
-  // Load user's content based on active tab
-  const loadUserContent = useCallback(async () => {
-    if (!username) return;
+  const profileHeaderUser = useMemo(() => {
+    return controller.user ? convertApiProfileToUser(controller.user) : null;
+  }, [controller.user]);
 
-    try {
-      let result;
-      switch (activeTab) {
-        case "posts":
-          result = await ProfileService.getUserContent(username, "posts");
-          break;
-        case "stories":
-          result = await ProfileService.getUserContent(username, "stories");
-          break;
-        case "polls":
-          result = await ProfileService.getUserContent(username, "polls");
-          break;
-        case "saved":
-        case "liked":
-          // TODO: Implement saved and liked content
-          setContent([]);
-          return;
-        default:
-          setContent([]);
-          return;
-      }
-      // Convert API content to expected format
-      const convertedItems = result.items.map((item) => ({
-        ...item,
-        updatedAt: item.createdAt, // Use createdAt as updatedAt if missing
-      })) as ContentItem[];
-      setContent(convertedItems);
-    } catch (err) {
-      console.error(`Failed to load ${activeTab}:`, err);
-      setContent([]);
-    }
-  }, [username, activeTab]);
-
-  // Get content counts
-  const postCount = content.filter((item) => item.type === "post").length;
-  const storyCount = content.filter((item) => item.type === "story").length;
-  const pollCount = content.filter((item) => item.type === "poll").length;
-
-  // Real API calls to fetch profile data
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      if (!username || authLoading) return;
-
-      setLoading(true);
-      setError(null);
-      setIsNotFound(false);
-
-      try {
-        let profileData: ApiProfile | null = null;
-
-        try {
-          // Primary fetch by username (canonical route)
-          profileData = await ProfileService.getProfileByUsername(username);
-        } catch (err: unknown) {
-          let status: number | undefined;
-
-          if (
-            typeof err === "object" &&
-            err !== null &&
-            "response" in err &&
-            typeof (err as { response?: { status?: number } }).response
-              ?.status === "number"
-          ) {
-            status = (err as { response?: { status?: number } }).response
-              ?.status;
-          }
-
-          // Fallback: when viewing any profile and username lookup 404s,
-          // retry by Clerk ID (getProfileById) before showing "Profile not found".
-          if (status === 404 && currentUser?.clerkId) {
-            // Retry by Clerk ID before giving up. This covers cases where the
-            // username in the URL is stale (e.g., just changed) but the
-            // logged-in user is still the same.
-            profileData = await ProfileService.getProfileById(
-              currentUser.clerkId
-            );
-
-            // If we successfully loaded a profile and its canonical username
-            // differs from the URL, fix the URL to avoid future 404s.
-            if (profileData?.username && profileData.username !== username) {
-              navigate(`/app/profile/${profileData.username}`, {
-                replace: true,
-              });
-            }
-          } else {
-            throw err;
-          }
-        }
-
-        if (!profileData) {
-          setIsNotFound(true);
-          setError("This profile does not exist or is no longer available.");
-          return;
-        }
-
-        // Enrich profile with follow statistics (followers, following, mutual follows)
-        try {
-          const followStats = await FollowService.getFollowStats(
-            profileData.clerkId
-          );
-
-          profileData = {
-            ...profileData,
-            followers: followStats.followers,
-            following: followStats.following,
-            mutualFollows: followStats.mutualFollows,
-          };
-        } catch (statsError) {
-          console.error("Failed to load follow stats:", statsError);
-        }
-
-        setUser(profileData);
-
-        // Only check follow status when viewing another user's profile
-        if (!isOwnProfile) {
-          const followStatus = await FollowService.checkFollowing(
-            profileData.clerkId
-          );
-          setIsFollowing(followStatus.isFollowing);
-        }
-
-        // Load user's content based on active tab
-        await loadUserContent();
-      } catch (err: unknown) {
-        let status: number | undefined;
-
-        if (
-          typeof err === "object" &&
-          err !== null &&
-          "response" in err &&
-          typeof (err as { response?: { status?: number } }).response
-            ?.status === "number"
-        ) {
-          status = (err as { response?: { status?: number } }).response?.status;
-        }
-
-        if (status === 404) {
-          setIsNotFound(true);
-          setError("This profile does not exist or is no longer available.");
-        } else {
-          setIsNotFound(false);
-          setError(
-            "Something went wrong while loading this profile. Please try again."
-          );
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    console.log("ProfilePage load", {
-      urlUsername: username,
-      storeUsername: currentUser?.username,
-      clerkId: currentUser?.clerkId,
-      isOwnProfile,
-    });
-
-    if (username && !authLoading) {
-      fetchProfileData();
-    }
-  }, [
-    username,
-    loadUserContent,
-    authLoading,
-    currentUser?.clerkId,
-    currentUser?.username,
-    isOwnProfile,
-    navigate,
-  ]);
-
-  // Handle follow/unfollow
-  const handleFollow = async () => {
-    if (!user) return;
-
-    try {
-      await FollowService.followUser(user.clerkId);
-      setIsFollowing(true);
-      setUser((prev) =>
-        prev
-          ? {
-              ...prev,
-              followers: (prev.followers || 0) + 1,
-            }
-          : prev
-      );
-    } catch (err) {
-      console.error("Failed to follow user:", err);
-    }
-  };
-
-  const handleUnfollow = async () => {
-    if (!user) return;
-
-    try {
-      await FollowService.unfollowUser(user.clerkId);
-      setIsFollowing(false);
-      setUser((prev) =>
-        prev
-          ? {
-              ...prev,
-              followers: Math.max((prev.followers || 0) - 1, 0),
-            }
-          : prev
-      );
-    } catch (err) {
-      console.error("Failed to unfollow user:", err);
-    }
-  };
-
-  const handleEditProfile = () => {
-    // TODO: Navigate to edit profile page
-    console.log("Edit profile clicked");
-  };
-
-  if (loading) {
+  if (controller.loading) {
     return <ProfileSkeleton />;
   }
 
-  if (error) {
+  if (controller.error) {
     return (
       <ErrorFallback
-        title={isNotFound ? "Profile Not Found" : "Something Went Wrong"}
-        description={error}
+        title={controller.isNotFound ? "Profile Not Found" : "Something Went Wrong"}
+        description={controller.error}
         resetErrorBoundary={() => window.location.reload()}
       />
     );
   }
 
-  if (!user) {
+  if (!controller.user || !profileHeaderUser) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-4">
@@ -334,59 +95,31 @@ export default function ProfilePage() {
           {/* Profile Header */}
           <div className="px-4 py-6">
             <ProfileHeader
-              user={convertApiProfileToUser(user)}
-              isOwnProfile={isOwnProfile}
-              isFollowing={isFollowing}
-              onFollow={handleFollow}
-              onUnfollow={handleUnfollow}
-              onEditProfile={handleEditProfile}
-              onUserUpdate={(updatedUser) => {
-                setUser((prev) =>
-                  prev ? ({ ...prev, ...updatedUser } as ApiProfile) : prev
-                );
-
-                // If this is the current user's profile and the username changed,
-                // update auth store user and navigate to the new profile URL.
-                if (
-                  isOwnProfile &&
-                  updatedUser.username &&
-                  updatedUser.username !== username
-                ) {
-                  if (currentUser) {
-                    setAuthUser({
-                      ...currentUser,
-                      username: updatedUser.username,
-                      firstName: updatedUser.firstName ?? currentUser.firstName,
-                      lastName: updatedUser.lastName ?? currentUser.lastName,
-                      profileImage:
-                        updatedUser.profileImage ?? currentUser.profileImage,
-                      bio: updatedUser.bio ?? currentUser.bio,
-                    });
-                  }
-
-                  navigate(`/app/profile/${updatedUser.username}`, {
-                    replace: true,
-                  });
-                }
-              }}
+              user={profileHeaderUser}
+              isOwnProfile={controller.isOwnProfile}
+              isFollowing={controller.isFollowing}
+              onFollow={controller.handleFollow}
+              onUnfollow={controller.handleUnfollow}
+              onEditProfile={controller.handleEditProfile}
+              onUserUpdate={controller.handleUserUpdate}
             />
           </div>
 
           {/* Profile Navigation Tabs */}
           <ProfileTabs
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            postCount={postCount}
-            storyCount={storyCount}
-            pollCount={pollCount}
-            isOwnProfile={isOwnProfile}
+            activeTab={controller.activeTab}
+            onTabChange={controller.setActiveTab}
+            postCount={controller.postCount}
+            storyCount={controller.storyCount}
+            pollCount={controller.pollCount}
+            isOwnProfile={controller.isOwnProfile}
           />
 
           {/* Profile Content */}
           <TabContent>
             <ProfileContentGrid
-              items={filteredContent}
-              loading={loading}
+              items={controller.filteredContent}
+              loading={controller.loading}
               hasMore={false} // TODO: Implement pagination
               onLoadMore={() => {
                 // TODO: Load more content
