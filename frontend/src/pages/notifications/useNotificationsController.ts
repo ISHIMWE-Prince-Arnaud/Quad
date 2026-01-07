@@ -1,0 +1,208 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import type { NavigateFunction } from "react-router-dom";
+import toast from "react-hot-toast";
+
+import { NotificationService } from "@/services/notificationService";
+import { useNotificationStore } from "@/stores/notificationStore";
+import type { ApiNotification } from "@/types/api";
+
+export type FilterTab = "all" | "unread";
+
+export function useNotificationsController({
+  navigate,
+  limit = 20,
+}: {
+  navigate: NavigateFunction;
+  limit?: number;
+}) {
+  const [notifications, setNotifications] = useState<ApiNotification[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<FilterTab>("all");
+
+  const { fetchUnreadCount } = useNotificationStore();
+
+  // Reset when filter changes
+  useEffect(() => {
+    setPage(1);
+    setNotifications([]);
+    setHasMore(true);
+  }, [filter]);
+
+  // Load notifications
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await NotificationService.getNotifications({
+          page,
+          limit,
+          unreadOnly: filter === "unread",
+        });
+
+        if (cancelled) return;
+
+        const items = res.data || [];
+        setNotifications((prev) => (page === 1 ? items : [...prev, ...items]));
+        setHasMore(Boolean(res.pagination?.hasMore));
+      } catch (e) {
+        if (!cancelled) {
+          const msg = e instanceof Error ? e.message : "Failed to load notifications";
+          setError(msg);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+          setInitialLoading(false);
+        }
+      }
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [page, filter, limit]);
+
+  const unreadLocalCount = useMemo(() => {
+    return notifications.filter((n) => !n.isRead).length;
+  }, [notifications]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!loading && hasMore) setPage((p) => p + 1);
+  }, [hasMore, loading]);
+
+  const handleFilterChange = useCallback((tab: FilterTab) => {
+    setFilter(tab);
+  }, []);
+
+  const handleMarkAsRead = useCallback(
+    async (notification: ApiNotification) => {
+      if (notification.isRead) return;
+      const prev = notifications;
+
+      try {
+        // Optimistic update
+        setNotifications((curr) =>
+          curr.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n))
+        );
+
+        const res = await NotificationService.markAsRead(notification.id);
+        if (!res.success) throw new Error(res.message);
+
+        await fetchUnreadCount();
+      } catch {
+        setNotifications(prev);
+        toast.error("Failed to mark as read");
+      }
+    },
+    [fetchUnreadCount, notifications]
+  );
+
+  const handleDelete = useCallback(
+    async (notification: ApiNotification) => {
+      const prev = notifications;
+      try {
+        // Optimistic update
+        setNotifications((curr) => curr.filter((n) => n.id !== notification.id));
+
+        const res = await NotificationService.deleteNotification(notification.id);
+        if (!res.success) throw new Error(res.message);
+
+        await fetchUnreadCount();
+        toast.success("Notification deleted");
+      } catch {
+        setNotifications(prev);
+        toast.error("Failed to delete notification");
+      }
+    },
+    [fetchUnreadCount, notifications]
+  );
+
+  const handleMarkAllAsRead = useCallback(async () => {
+    const prev = notifications;
+
+    try {
+      setNotifications((curr) => curr.map((n) => ({ ...n, isRead: true })));
+
+      const res = await NotificationService.markAllAsRead();
+      if (!res.success) throw new Error(res.message);
+
+      await fetchUnreadCount();
+      toast.success("All notifications marked as read");
+    } catch {
+      setNotifications(prev);
+      toast.error("Failed to mark all as read");
+    }
+  }, [fetchUnreadCount, notifications]);
+
+  const handleClearRead = useCallback(async () => {
+    const prev = notifications;
+
+    try {
+      setNotifications((curr) => curr.filter((n) => !n.isRead));
+
+      const res = await NotificationService.deleteAllRead();
+      if (!res.success) throw new Error(res.message);
+
+      await fetchUnreadCount();
+      toast.success("Cleared read notifications");
+    } catch {
+      setNotifications(prev);
+      toast.error("Failed to clear read notifications");
+    }
+  }, [fetchUnreadCount, notifications]);
+
+  const resolveNotificationTarget = useCallback((notification: ApiNotification) => {
+    const { contentType, contentId, type, actor } = notification;
+
+    if (contentType === "post" && contentId) return `/app/posts/${contentId}`;
+    if (contentType === "story" && contentId) return `/app/stories/${contentId}`;
+    if (contentType === "poll" && contentId) return `/app/polls/${contentId}`;
+    if (contentType && ["chat", "conversation"].includes(contentType) && contentId)
+      return `/app/chat/${contentId}`;
+
+    if (type === "chat_mention") return contentId ? `/app/chat/${contentId}` : "/app/chat";
+    if (type === "follow" && actor?.username) return `/app/profile/${actor.username}`;
+
+    return null;
+  }, []);
+
+  const handleNavigate = useCallback(
+    (notification: ApiNotification) => {
+      const target = resolveNotificationTarget(notification);
+      if (!target) return;
+
+      if (!notification.isRead) {
+        void handleMarkAsRead(notification);
+      }
+
+      navigate(target);
+    },
+    [handleMarkAsRead, navigate, resolveNotificationTarget]
+  );
+
+  return {
+    notifications,
+    hasMore,
+    loading,
+    initialLoading,
+    error,
+    filter,
+    unreadLocalCount,
+    handleLoadMore,
+    handleFilterChange,
+    handleMarkAsRead,
+    handleDelete,
+    handleMarkAllAsRead,
+    handleClearRead,
+    handleNavigate,
+  };
+}
