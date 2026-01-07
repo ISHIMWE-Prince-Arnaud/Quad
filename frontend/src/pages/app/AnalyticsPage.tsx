@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
 import { useAuthStore } from "@/stores/authStore";
 import { AnalyticsAuthRequiredCard } from "./analytics/AnalyticsAuthRequiredCard";
