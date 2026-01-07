@@ -105,6 +105,7 @@ export function useChatMessageActions({
 
   return {
     editingId,
+    setEditingId,
     editText,
     setEditText,
     handleEdit,

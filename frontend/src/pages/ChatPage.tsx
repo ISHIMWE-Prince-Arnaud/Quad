@@ -81,6 +81,7 @@ export default function ChatPage() {
 
   const {
     editingId,
+    setEditingId,
     editText,
     setEditText,
     handleEdit,
