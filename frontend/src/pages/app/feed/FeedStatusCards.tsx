@@ -1,0 +1,50 @@
+import { Link } from "react-router-dom";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { FeedSkeleton } from "@/components/ui/loading";
+
+import type { FeedEmptyState } from "./feedEmptyState";
+
+export function FeedStatusCards({
+  loading,
+  error,
+  itemsLength,
+  emptyState,
+}: {
+  loading: boolean;
+  error: string | null;
+  itemsLength: number;
+  emptyState: FeedEmptyState;
+}) {
+  if (loading && itemsLength === 0) return <FeedSkeleton />;
+
+  if (error && !loading) {
+    return (
+      <Card className="shadow-sm">
+        <CardContent className="pt-6 text-center">
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>Try Again</Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!loading && !error && itemsLength === 0) {
+    return (
+      <Card className="shadow-sm">
+        <CardContent className="pt-6 text-center py-12">
+          <h3 className="text-lg font-semibold mb-2">{emptyState.title}</h3>
+          <p className="text-muted-foreground mb-4">{emptyState.description}</p>
+          {emptyState.actionLabel && emptyState.actionHref && (
+            <Button asChild>
+              <Link to={emptyState.actionHref}>{emptyState.actionLabel}</Link>
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return null;
+}
