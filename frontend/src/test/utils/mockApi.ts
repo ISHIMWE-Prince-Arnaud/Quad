@@ -13,7 +13,7 @@ export function createMockApi() {
  * Mock successful API responses
  */
 export const mockApiResponses = {
-  success: (data: any) => ({
+  success: <T>(data: T) => ({
     success: true,
     data,
   }),
@@ -25,7 +25,7 @@ export const mockApiResponses = {
   }),
 
   paginated: (
-    data: any[],
+    data: unknown[],
     cursor: string | null = null,
     hasMore: boolean = false
   ) => ({

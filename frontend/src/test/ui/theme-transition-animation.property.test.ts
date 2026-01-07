@@ -183,12 +183,14 @@ describe("Theme Transition Animation Property Tests", () => {
     // Verify that the CSS transition is configured for the right properties
     // This is a structural test to ensure the CSS is set up correctly
     const style = getComputedStyle(document.documentElement);
+    void style;
 
     // Add the transitioning class
     document.documentElement.classList.add("theme-transitioning");
 
     // Get computed style with transitioning class
     const transitioningStyle = getComputedStyle(document.documentElement);
+    void transitioningStyle;
 
     // The transition property should be set when theme-transitioning class is present
     // Note: In a real browser, this would show the transition properties

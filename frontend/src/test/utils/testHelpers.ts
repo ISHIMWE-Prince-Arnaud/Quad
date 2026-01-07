@@ -1,7 +1,7 @@
 // Test utilities and helpers for Vitest and React Testing Library
 import { vi } from "vitest";
 import { render, RenderOptions } from "@testing-library/react";
-import { ReactElement } from "react";
+import React, { ReactElement } from "react";
 import { BrowserRouter } from "react-router-dom";
 import * as fc from "fast-check";
 
@@ -13,7 +13,8 @@ export function renderWithRouter(
   options?: Omit<RenderOptions, "wrapper">
 ) {
   return render(ui, {
-    wrapper: ({ children }) => <BrowserRouter>{children}</BrowserRouter>,
+    wrapper: ({ children }) =>
+      React.createElement(BrowserRouter, null, children),
     ...options,
   });
 }
@@ -77,7 +78,7 @@ export function createMockSocket() {
     emit: vi.fn(),
     connect: vi.fn(),
     disconnect: vi.fn(),
-    _triggerEvent: (event: string, data: any) => {
+    _triggerEvent: (event: string, data: unknown) => {
       if (eventHandlers[event]) {
         eventHandlers[event].forEach((handler) => handler(data));
       }

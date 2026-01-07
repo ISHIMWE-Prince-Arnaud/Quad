@@ -59,7 +59,7 @@ class Analytics {
 
       // Initialize gtag
       window.dataLayer = window.dataLayer || [];
-      function gtag(...args: any[]) {
+      function gtag(...args: unknown[]) {
         window.dataLayer.push(args);
       }
       window.gtag = gtag;
@@ -230,8 +230,8 @@ class Analytics {
 // Extend Window interface for gtag
 declare global {
   interface Window {
-    dataLayer: any[];
-    gtag?: (...args: any[]) => void;
+    dataLayer: unknown[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
 

@@ -135,9 +135,7 @@ export function useIsDesktop() {
 export function useIsTouchDevice() {
   const [touch, setTouch] = useState(() => isTouchDevice());
 
-  useEffect(() => {
-    setTouch(isTouchDevice());
-  }, []);
+  void setTouch;
 
   return touch;
 }
@@ -227,9 +225,6 @@ export function useMediaQuery(query: string): boolean {
       // Fallback for older browsers
       mediaQuery.addListener(handleChange);
     }
-
-    // Initial check
-    setMatches(mediaQuery.matches);
 
     return () => {
       if (mediaQuery.removeEventListener) {

@@ -43,12 +43,15 @@ export function NewContentBanner({
     }
 
     // Poll immediately on mount
-    pollNewContent();
+    const initialPollTimeout = window.setTimeout(() => {
+      void pollNewContent();
+    }, 0);
 
     // Then poll every 30 seconds
     pollIntervalRef.current = setInterval(pollNewContent, 30000);
 
     return () => {
+      window.clearTimeout(initialPollTimeout);
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
       }
@@ -57,7 +60,13 @@ export function NewContentBanner({
 
   // Reset count when feed type changes
   useEffect(() => {
-    setNewContentCount(0);
+    const resetTimeout = window.setTimeout(() => {
+      setNewContentCount(0);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(resetTimeout);
+    };
   }, [feedType]);
 
   const handleClick = () => {

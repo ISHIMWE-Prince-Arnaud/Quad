@@ -49,7 +49,7 @@ export const nonEmptyStringValidator = (
     validator = validator.max(
       maxLength,
       `${fieldName} must be less than ${maxLength} characters`
-    ) as any;
+    );
   }
 
   return validator;
@@ -187,9 +187,13 @@ export const formatValidationErrors = (
   const errors: Record<string, string> = {};
 
   // Zod v4 uses 'issues' instead of 'errors'
-  const issues = error.issues || (error as any).errors || [];
+  const legacyErrors = (error as { errors?: unknown }).errors;
+  const issues = (error.issues ?? legacyErrors ?? []) as Array<{
+    path: Array<string | number>;
+    message: string;
+  }>;
 
-  issues.forEach((err: any) => {
+  issues.forEach((err) => {
     const path = err.path.join(".");
     errors[path] = err.message;
   });

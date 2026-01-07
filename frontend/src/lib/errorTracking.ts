@@ -83,14 +83,21 @@ class ErrorTracker {
           "Network request failed",
         ],
         // Filter sensitive data
-        beforeSend(event: any) {
+        beforeSend(event: unknown) {
           // Remove sensitive data from event
-          if (event.request?.cookies) {
-            delete event.request.cookies;
+          const typedEvent = event as {
+            request?: {
+              cookies?: unknown;
+              headers?: Record<string, unknown>;
+            };
+          };
+
+          if (typedEvent.request?.cookies) {
+            delete typedEvent.request.cookies;
           }
-          if (event.request?.headers) {
-            delete event.request.headers["Authorization"];
-            delete event.request.headers["Cookie"];
+          if (typedEvent.request?.headers) {
+            delete typedEvent.request.headers["Authorization"];
+            delete typedEvent.request.headers["Cookie"];
           }
           return event;
         },
