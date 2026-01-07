@@ -1,50 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
-import Placeholder from "@tiptap/extension-placeholder";
-import Underline from "@tiptap/extension-underline";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
 import { UploadService } from "@/services/uploadService";
 import { StoryService } from "@/services/storyService";
 import type { CreateStoryInput, Story, StoryStatus } from "@/types/story";
 import { createStorySchema } from "@/schemas/story.schema";
-import {
-  Loader2,
-  Image as ImageIcon,
-  Heading2,
-  Heading3,
-  Quote,
-  List,
-  ListOrdered,
-  Bold,
-  Italic,
-  Underline as UnderlineIcon,
-  Link as LinkIcon,
-  AtSign,
-  Save,
-  Send,
-  X,
-} from "lucide-react";
+import { getErrorMessage } from "./create-story/getErrorMessage";
+import { CreateStoryForm } from "./create-story/CreateStoryForm";
+import { MyStoriesSidebar } from "./create-story/MyStoriesSidebar";
+import { useStoryEditor } from "./create-story/useStoryEditor";
 import toast from "react-hot-toast";
-import { cn } from "@/lib/utils";
-
-function getErrorMessage(error: unknown): string {
-  if (typeof error === "object" && error !== null && "response" in error) {
-    const response = (error as { response?: { data?: { message?: string } } })
-      .response;
-    const apiMessage = response?.data?.message;
-    if (typeof apiMessage === "string" && apiMessage.length > 0) {
-      return apiMessage;
-    }
-  }
-  if (error instanceof Error && error.message) return error.message;
-  return "Something went wrong";
-}
 
 export default function CreateStoryPage() {
   const [title, setTitle] = useState("");
@@ -52,6 +15,7 @@ export default function CreateStoryPage() {
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [editorHtml, setEditorHtml] = useState<string>("");
   const [myDrafts, setMyDrafts] = useState<Story[]>([]);
   const [myPublished, setMyPublished] = useState<Story[]>([]);
   const [loadingMine, setLoadingMine] = useState(true);
@@ -63,47 +27,27 @@ export default function CreateStoryPage() {
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  // Initialize TipTap editor
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [2, 3],
-        },
-      }),
-      Underline,
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: "text-blue-500 underline",
-        },
-      }),
-      Image.configure({
-        HTMLAttributes: {
-          class: "max-w-full h-auto rounded-lg my-4",
-        },
-      }),
-      Placeholder.configure({
-        placeholder: "Write your story content here...",
-      }),
-    ],
-    content: "",
-    editorProps: {
-      attributes: {
-        class:
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none min-h-[300px] max-w-none p-4",
-      },
-    },
-  });
+  const editor = useStoryEditor();
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const update = () => {
+      setEditorHtml(editor.getHTML());
+    };
+
+    update();
+    editor.on("update", update);
+    return () => {
+      editor.off("update", update);
+    };
+  }, [editor]);
 
   const canSubmit = useMemo(() => {
-    if (!editor) return false;
-    const content = editor.getHTML();
-    const textContent = content.replace(/<[^>]*>/g, "").trim();
+    const textContent = editorHtml.replace(/<[^>]*>/g, "").trim();
     return title.trim().length > 0 && textContent.length > 0;
-  }, [title, editor?.getHTML()]);
+  }, [title, editorHtml]);
 
-  // Auto-save draft every 30 seconds
   useEffect(() => {
     if (!canSubmit || submitting || autoSaving) return;
 
@@ -133,7 +77,6 @@ export default function CreateStoryPage() {
     return () => clearInterval(autoSaveInterval);
   }, [canSubmit, submitting, autoSaving, title, excerpt, coverImage, editor]);
 
-  // Load user's stories
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -164,7 +107,6 @@ export default function CreateStoryPage() {
     };
   }, []);
 
-  // Cleanup editor on unmount
   useEffect(() => {
     return () => {
       editor?.destroy();
@@ -292,364 +234,57 @@ export default function CreateStoryPage() {
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
-          <Card>
-            <CardContent className="p-4 md:p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-xl font-semibold">Create Story</h1>
-                  {autoSaving && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Auto-saving...
-                    </p>
-                  )}
-                  {!autoSaving && lastSaved && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Last saved: {lastSaved.toLocaleTimeString()}
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="secondary"
-                    disabled={!canSubmit || submitting}
-                    onClick={() => void handleSubmit("draft")}>
-                    {submitting ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <Save className="h-4 w-4 mr-2" />
-                    )}
-                    Save Draft
-                  </Button>
-                  <Button
-                    disabled={!canSubmit || submitting}
-                    onClick={() => void handleSubmit("published")}>
-                    {submitting ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <Send className="h-4 w-4 mr-2" />
-                    )}
-                    Publish
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <Input
-                  value={title}
-                  onChange={(e) => {
-                    setTitle(e.target.value);
-                    if (validationErrors.title) {
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        title: undefined,
-                      }));
-                    }
-                  }}
-                  placeholder="Story title"
-                  className={validationErrors.title ? "border-red-500" : ""}
-                />
-                {validationErrors.title && (
-                  <p className="text-sm text-red-500">
-                    {validationErrors.title}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <Textarea
-                  value={excerpt}
-                  onChange={(e) => {
-                    setExcerpt(e.target.value);
-                    if (validationErrors.excerpt) {
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        excerpt: undefined,
-                      }));
-                    }
-                  }}
-                  placeholder="Brief excerpt or summary (optional)"
-                  className={validationErrors.excerpt ? "border-red-500" : ""}
-                  rows={3}
-                  maxLength={500}
-                />
-                {validationErrors.excerpt && (
-                  <p className="text-sm text-red-500">
-                    {validationErrors.excerpt}
-                  </p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  {excerpt.length}/500 characters
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <div
-                  className={cn(
-                    "border-2 border-dashed rounded-lg p-6 text-center transition-colors",
-                    uploadingCover
-                      ? "border-primary bg-primary/5"
-                      : "border-muted-foreground/25 hover:border-primary/50"
-                  )}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const file = e.dataTransfer.files?.[0];
-                    if (file && file.type.startsWith("image/")) {
-                      void handleUploadCover(file);
-                    }
-                  }}>
-                  <label className="cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) =>
-                        void handleUploadCover(e.target.files?.[0] || null)
-                      }
-                    />
-                    <div className="flex flex-col items-center gap-2">
-                      {uploadingCover ? (
-                        <>
-                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                          <p className="text-sm text-muted-foreground">
-                            Uploading cover image...
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                          <p className="text-sm font-medium">
-                            {coverImage
-                              ? "Change Cover Image"
-                              : "Add Cover Image"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Drag and drop or click to upload
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  </label>
-                </div>
-
-                <label className="inline-flex items-center gap-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) =>
-                      void handleInsertInlineImage(e.target.files?.[0] || null)
-                    }
-                  />
-                  <Button type="button" variant="outline" size="sm">
-                    <ImageIcon className="h-4 w-4 mr-2" />
-                    Insert Inline Image
-                  </Button>
-                </label>
-              </div>
-
-              {coverImage && (
-                <div className="relative overflow-hidden rounded-lg">
-                  <img
-                    src={coverImage}
-                    alt="cover"
-                    className="w-full max-h-80 object-cover"
-                  />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={() => setCoverImage(undefined)}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <div className="flex flex-wrap gap-2 border rounded-md p-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      editor?.chain().focus().toggleHeading({ level: 2 }).run()
-                    }
-                    className={
-                      editor?.isActive("heading", { level: 2 })
-                        ? "bg-accent"
-                        : ""
-                    }>
-                    <Heading2 className="h-4 w-4 mr-1" /> H2
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      editor?.chain().focus().toggleHeading({ level: 3 }).run()
-                    }
-                    className={
-                      editor?.isActive("heading", { level: 3 })
-                        ? "bg-accent"
-                        : ""
-                    }>
-                    <Heading3 className="h-4 w-4 mr-1" /> H3
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      editor?.chain().focus().toggleBlockquote().run()
-                    }
-                    className={
-                      editor?.isActive("blockquote") ? "bg-accent" : ""
-                    }>
-                    <Quote className="h-4 w-4 mr-1" /> Quote
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      editor?.chain().focus().toggleBulletList().run()
-                    }
-                    className={
-                      editor?.isActive("bulletList") ? "bg-accent" : ""
-                    }>
-                    <List className="h-4 w-4 mr-1" /> Bullets
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      editor?.chain().focus().toggleOrderedList().run()
-                    }
-                    className={
-                      editor?.isActive("orderedList") ? "bg-accent" : ""
-                    }>
-                    <ListOrdered className="h-4 w-4 mr-1" /> Numbers
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => editor?.chain().focus().toggleBold().run()}
-                    className={editor?.isActive("bold") ? "bg-accent" : ""}>
-                    <Bold className="h-4 w-4 mr-1" /> Bold
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => editor?.chain().focus().toggleItalic().run()}
-                    className={editor?.isActive("italic") ? "bg-accent" : ""}>
-                    <Italic className="h-4 w-4 mr-1" /> Italic
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      editor?.chain().focus().toggleUnderline().run()
-                    }
-                    className={
-                      editor?.isActive("underline") ? "bg-accent" : ""
-                    }>
-                    <UnderlineIcon className="h-4 w-4 mr-1" /> Underline
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleInsertLink}>
-                    <LinkIcon className="h-4 w-4 mr-1" /> Link
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      const username = window.prompt(
-                        "Enter username to mention (without @)"
-                      );
-                      if (username) {
-                        editor
-                          ?.chain()
-                          .focus()
-                          .insertContent(`@${username} `)
-                          .run();
-                      }
-                    }}
-                    title="Mention user">
-                    <AtSign className="h-4 w-4 mr-1" /> Mention
-                  </Button>
-                </div>
-
-                <div
-                  className={`rounded-md border bg-background ${
-                    validationErrors.content ? "border-red-500" : ""
-                  }`}>
-                  <EditorContent editor={editor} />
-                </div>
-                {validationErrors.content && (
-                  <p className="text-sm text-red-500">
-                    {validationErrors.content}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <CreateStoryForm
+            title={title}
+            excerpt={excerpt}
+            coverImage={coverImage}
+            uploadingCover={uploadingCover}
+            validationErrors={validationErrors}
+            canSubmit={canSubmit}
+            submitting={submitting}
+            autoSaving={autoSaving}
+            lastSaved={lastSaved}
+            editor={editor}
+            onTitleChange={(value) => {
+              setTitle(value);
+              if (validationErrors.title) {
+                setValidationErrors((prev) => ({
+                  ...prev,
+                  title: undefined,
+                }));
+              }
+            }}
+            onExcerptChange={(value) => {
+              setExcerpt(value);
+              if (validationErrors.excerpt) {
+                setValidationErrors((prev) => ({
+                  ...prev,
+                  excerpt: undefined,
+                }));
+              }
+            }}
+            onUploadCover={(file) => void handleUploadCover(file)}
+            onRemoveCover={() => setCoverImage(undefined)}
+            onInsertInlineImage={(file) => void handleInsertInlineImage(file)}
+            onSaveDraft={() => void handleSubmit("draft")}
+            onPublish={() => void handleSubmit("published")}
+            onInsertLink={handleInsertLink}
+            onMention={() => {
+              const username = window.prompt(
+                "Enter username to mention (without @)"
+              );
+              if (username) {
+                editor?.chain().focus().insertContent(`@${username} `).run();
+              }
+            }}
+          />
         </div>
         <div className="md:col-span-1">
-          <Card>
-            <CardContent className="p-4 md:p-6 space-y-4">
-              <h2 className="text-sm font-medium">My Stories</h2>
-              <div className="space-y-2">
-                <div className="text-xs text-muted-foreground">Drafts</div>
-                {loadingMine && (
-                  <div className="text-xs text-muted-foreground">
-                    Loading...
-                  </div>
-                )}
-                {!loadingMine && myDrafts.length === 0 && (
-                  <div className="text-xs text-muted-foreground">
-                    No drafts yet
-                  </div>
-                )}
-                {myDrafts.map((s) => (
-                  <a
-                    key={s._id}
-                    href={`/app/stories/${s._id}`}
-                    className="block truncate hover:underline">
-                    {s.title}
-                  </a>
-                ))}
-              </div>
-              <div className="space-y-2">
-                <div className="text-xs text-muted-foreground">Published</div>
-                {!loadingMine && myPublished.length === 0 && (
-                  <div className="text-xs text-muted-foreground">
-                    No published stories
-                  </div>
-                )}
-                {myPublished.map((s) => (
-                  <a
-                    key={s._id}
-                    href={`/app/stories/${s._id}`}
-                    className="block truncate hover:underline">
-                    {s.title}
-                  </a>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <MyStoriesSidebar
+            loadingMine={loadingMine}
+            myDrafts={myDrafts}
+            myPublished={myPublished}
+          />
         </div>
       </div>
     </div>
