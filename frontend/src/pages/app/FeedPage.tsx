@@ -28,7 +28,7 @@ export default function FeedPage() {
 
   const currentEmptyState = emptyStateCopy[tab];
 
-  const parentRef = useRef<HTMLDivElement>(null);
+  const parentRef = useRef<HTMLDivElement>(null!);
 
   // Virtual scrolling setup - only enable for lists with 100+ items
   const shouldUseVirtualization = items.length >= 100;
