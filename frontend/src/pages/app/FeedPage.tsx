@@ -9,6 +9,7 @@ import { FeedList } from "./feed/FeedList";
 import { FeedNewContentBanner } from "./feed/FeedNewContentBanner";
 import { FeedStatusCards } from "./feed/FeedStatusCards";
 import { useFeedController } from "./feed/useFeedController";
+import { RecentStoriesBar } from "@/components/stories/RecentStoriesBar";
 
 export default function FeedPage() {
   const [feedType, setFeedType] = useState<FeedType>("foryou");
@@ -45,6 +46,8 @@ export default function FeedPage() {
     <ComponentErrorBoundary>
       <PageTransition>
         <div className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
+          <RecentStoriesBar />
+
           <FeedHeaderTabs
             feedType={feedType}
             tab={tab}

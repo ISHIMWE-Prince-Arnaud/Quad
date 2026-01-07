@@ -3,6 +3,7 @@ import { UploadService } from "@/services/uploadService";
 import { StoryService } from "@/services/storyService";
 import type { CreateStoryInput, Story, StoryStatus } from "@/types/story";
 import { createStorySchema } from "@/schemas/story.schema";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getErrorMessage } from "./create-story/getErrorMessage";
 import { CreateStoryForm } from "./create-story/CreateStoryForm";
 import { MyStoriesSidebar } from "./create-story/MyStoriesSidebar";
@@ -26,6 +27,7 @@ export default function CreateStoryPage() {
   }>({});
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const editor = useStoryEditor();
 
@@ -232,6 +234,30 @@ export default function CreateStoryPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Story Preview</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {coverImage && (
+              <div className="overflow-hidden rounded-lg">
+                <img src={coverImage} alt={title} className="w-full max-h-[360px] object-cover" />
+              </div>
+            )}
+            <div>
+              <h2 className="text-2xl font-semibold">{title || "Untitled"}</h2>
+              {excerpt && (
+                <p className="mt-1 text-sm text-muted-foreground">{excerpt}</p>
+              )}
+            </div>
+            <div className="prose prose-invert max-w-none rounded-md border bg-background p-4">
+              <div dangerouslySetInnerHTML={{ __html: editorHtml }} />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <CreateStoryForm
@@ -266,6 +292,7 @@ export default function CreateStoryPage() {
             onUploadCover={(file) => void handleUploadCover(file)}
             onRemoveCover={() => setCoverImage(undefined)}
             onInsertInlineImage={(file) => void handleInsertInlineImage(file)}
+            onPreview={() => setPreviewOpen(true)}
             onSaveDraft={() => void handleSubmit("draft")}
             onPublish={() => void handleSubmit("published")}
             onInsertLink={handleInsertLink}

@@ -9,6 +9,9 @@ import type {
   GetStoriesQuerySchemaType,
 } from "../schemas/story.schema.js";
 import { getSocketIO } from "../config/socket.config.js";
+import { emitContentDeleted, emitNewContent } from "../sockets/feed.socket.js";
+import { extractMentions } from "../utils/chat.util.js";
+import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
 import {
   calculateReadingTime,
   generateExcerpt,
@@ -72,7 +75,26 @@ export const createStory = async (req: Request, res: Response) => {
 
     // Emit real-time event only if published
     if (newStory.status === "published") {
-      getSocketIO().emit("newStory", newStory);
+      const io = getSocketIO();
+      io.emit("newStory", newStory);
+      emitNewContent(io, "story", String(newStory._id), newStory.author.clerkId);
+
+      const mentions = extractMentions(newStory.content);
+      if (mentions.length > 0) {
+        for (const mentionedUsername of mentions) {
+          const mentionedUser = await User.findOne({ username: mentionedUsername });
+          if (mentionedUser && mentionedUser.clerkId !== userId) {
+            await createNotification({
+              userId: mentionedUser.clerkId,
+              type: "mention_story",
+              actorId: userId,
+              contentId: String(newStory._id),
+              contentType: "Story",
+              message: generateNotificationMessage("mention_story", user.username),
+            });
+          }
+        }
+      }
     }
 
     return res.status(201).json({
@@ -287,7 +309,26 @@ export const updateStory = async (req: Request, res: Response) => {
     if (nowPublished) {
       if (!wasPublished) {
         // Newly published
-        getSocketIO().emit("newStory", story);
+        const io = getSocketIO();
+        io.emit("newStory", story);
+        emitNewContent(io, "story", String(story._id), story.author.clerkId);
+
+        const mentions = extractMentions(story.content);
+        if (mentions.length > 0) {
+          for (const mentionedUsername of mentions) {
+            const mentionedUser = await User.findOne({ username: mentionedUsername });
+            if (mentionedUser && mentionedUser.clerkId !== userId) {
+              await createNotification({
+                userId: mentionedUser.clerkId,
+                type: "mention_story",
+                actorId: userId,
+                contentId: String(story._id),
+                contentType: "Story",
+                message: generateNotificationMessage("mention_story", story.author.username),
+              });
+            }
+          }
+        }
       } else {
         // Updated published story
         getSocketIO().emit("storyUpdated", story);
@@ -313,6 +354,11 @@ export const updateStory = async (req: Request, res: Response) => {
 export const deleteStory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (!id) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Story ID is required" });
+    }
     const userId = req.auth.userId;
 
     const story = await Story.findById(id);
@@ -336,7 +382,9 @@ export const deleteStory = async (req: Request, res: Response) => {
 
     // Emit real-time event (only if was published)
     if (story.status === "published") {
-      getSocketIO().emit("storyDeleted", id);
+      const io = getSocketIO();
+      io.emit("storyDeleted", id);
+      emitContentDeleted(io, "story", id);
     }
 
     return res.status(200).json({
