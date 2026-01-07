@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Comment } from "@/types/comment";
 import { CommentService } from "@/services/commentService";

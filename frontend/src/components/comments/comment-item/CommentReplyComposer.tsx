@@ -7,7 +7,7 @@ export function CommentReplyComposer({
   placeholder,
   onCreated,
 }: {
-  contentType: string;
+  contentType: "post" | "story" | "poll";
   contentId: string;
   parentId: string;
   placeholder: string;
