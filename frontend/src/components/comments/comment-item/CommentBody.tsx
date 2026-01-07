@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { MentionText } from "@/components/ui/mention-text";
 
 export function CommentBody({
   isEditing,
@@ -49,6 +50,8 @@ export function CommentBody({
   }
 
   return (
-    <p className="mt-1 text-sm whitespace-pre-wrap break-words">{bodyText}</p>
+    <p className="mt-1 text-sm whitespace-pre-wrap break-words">
+      <MentionText text={bodyText} />
+    </p>
   );
 }

@@ -6,6 +6,9 @@ import type {
   UpdatePostSchemaType,
 } from "../schemas/post.schema.js";
 import { getSocketIO } from "../config/socket.config.js";
+import { emitContentDeleted, emitNewContent } from "../sockets/feed.socket.js";
+import { extractMentions } from "../utils/chat.util.js";
+import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
 
 // =========================
 // CREATE POST
@@ -13,7 +16,10 @@ import { getSocketIO } from "../config/socket.config.js";
 export const createPost = async (req: Request, res: Response) => {
   try {
     const data = req.body as CreatePostSchemaType;
-    const userId = req.auth.userId;
+    const userId = req.auth?.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
 
     // Fetch author data from database
     const author = await User.findOne({ clerkId: userId });
@@ -39,7 +45,29 @@ export const createPost = async (req: Request, res: Response) => {
       },
     });
 
-    getSocketIO().emit("newPost", newPost);
+    const newPostId = String(newPost._id);
+
+    const io = getSocketIO();
+    io.emit("newPost", newPost);
+    emitNewContent(io, "post", newPostId, author.clerkId);
+
+    // Mention notifications
+    const mentions = extractMentions(newPost.text);
+    if (mentions.length > 0) {
+      for (const mentionedUsername of mentions) {
+        const mentionedUser = await User.findOne({ username: mentionedUsername });
+        if (mentionedUser && mentionedUser.clerkId !== userId) {
+          await createNotification({
+            userId: mentionedUser.clerkId,
+            type: "mention_post",
+            actorId: userId,
+            contentId: newPostId,
+            contentType: "Post",
+            message: generateNotificationMessage("mention_post", author.username),
+          });
+        }
+      }
+    }
 
     return res.status(201).json({ success: true, data: newPost });
   } catch (error: any) {
@@ -106,8 +134,15 @@ export const getPost = async (req: Request, res: Response) => {
 // =========================
 export const updatePost = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id;
+    if (!id) {
+      return res.status(400).json({ success: false, message: "Post ID is required" });
+    }
     const updates = req.body as UpdatePostSchemaType;
+    const userId = req.auth?.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
     const post = await Post.findById(id);
     if (!post) {
       return res
@@ -116,7 +151,7 @@ export const updatePost = async (req: Request, res: Response) => {
     }
 
     // Only author can update
-    if (post.author.clerkId !== req.auth.userId) {
+    if (post.author.clerkId !== userId) {
       return res.status(403).json({ success: false, message: "Unauthorized" });
     }
 
@@ -126,7 +161,33 @@ export const updatePost = async (req: Request, res: Response) => {
       new: true,
     });
 
+    if (!updatedPost) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
+    }
+
     getSocketIO().emit("updatePost", updatedPost);
+
+    // Mention notifications (best-effort)
+    if (updatedPost?.text) {
+      const mentions = extractMentions(updatedPost.text);
+      if (mentions.length > 0) {
+        for (const mentionedUsername of mentions) {
+          const mentionedUser = await User.findOne({ username: mentionedUsername });
+          if (mentionedUser && mentionedUser.clerkId !== userId) {
+            await createNotification({
+              userId: mentionedUser.clerkId,
+              type: "mention_post",
+              actorId: userId,
+              contentId: id,
+              contentType: "Post",
+              message: generateNotificationMessage("mention_post", post.author.username),
+            });
+          }
+        }
+      }
+    }
 
     return res.status(200).json({ success: true, data: updatedPost });
   } catch (error: any) {
@@ -140,7 +201,14 @@ export const updatePost = async (req: Request, res: Response) => {
 // =========================
 export const deletePost = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id;
+    if (!id) {
+      return res.status(400).json({ success: false, message: "Post ID is required" });
+    }
+    const userId = req.auth?.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
     const post = await Post.findById(id);
     if (!post) {
       return res
@@ -149,13 +217,15 @@ export const deletePost = async (req: Request, res: Response) => {
     }
 
     // Only author can delete
-    if (post.author.clerkId !== req.auth.userId) {
+    if (post.author.clerkId !== userId) {
       return res.status(403).json({ success: false, message: "Unauthorized" });
     }
 
     await Post.findByIdAndDelete(id);
 
-    getSocketIO().emit("deletePost", id);
+    const io = getSocketIO();
+    io.emit("deletePost", id);
+    emitContentDeleted(io, "post", id);
 
     return res
       .status(200)

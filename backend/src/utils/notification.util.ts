@@ -113,6 +113,15 @@ export const generateNotificationMessage = (
     
     case "comment_reply":
       return `${actorUsername || "Someone"} replied to your comment`;
+
+    case "mention_post":
+      return `${actorUsername || "Someone"} mentioned you in a post`;
+
+    case "mention_story":
+      return `${actorUsername || "Someone"} mentioned you in a story`;
+
+    case "mention_comment":
+      return `${actorUsername || "Someone"} mentioned you in a comment`;
     
     case "chat_mention":
       return `${actorUsername || "Someone"} mentioned you in chat`;

@@ -163,10 +163,16 @@ export function useNotificationsController({
   const resolveNotificationTarget = useCallback((notification: ApiNotification) => {
     const { contentType, contentId, type, actor } = notification;
 
-    if (contentType === "post" && contentId) return `/app/posts/${contentId}`;
-    if (contentType === "story" && contentId) return `/app/stories/${contentId}`;
-    if (contentType === "poll" && contentId) return `/app/polls/${contentId}`;
-    if (contentType && ["chat", "conversation"].includes(contentType) && contentId)
+    const normalizedContentType = contentType?.toLowerCase();
+
+    if (normalizedContentType === "post" && contentId) return `/app/posts/${contentId}`;
+    if (normalizedContentType === "story" && contentId) return `/app/stories/${contentId}`;
+    if (normalizedContentType === "poll" && contentId) return `/app/polls/${contentId}`;
+    if (
+      normalizedContentType &&
+      ["chat", "conversation", "chatmessage"].includes(normalizedContentType) &&
+      contentId
+    )
       return `/app/chat/${contentId}`;
 
     if (type === "chat_mention") return contentId ? `/app/chat/${contentId}` : "/app/chat";

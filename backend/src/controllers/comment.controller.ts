@@ -7,6 +7,7 @@ import type {
   UpdateCommentSchemaType,
 } from "../schemas/comment.schema.js";
 import { getSocketIO } from "../config/socket.config.js";
+import { emitEngagementUpdate } from "../sockets/feed.socket.js";
 import {
   verifyCommentableContent,
   updateContentCommentsCount,
@@ -15,8 +16,46 @@ import {
   createNotification,
   generateNotificationMessage,
 } from "../utils/notification.util.js";
+import { extractMentions } from "../utils/chat.util.js";
 import { DatabaseService } from "../services/database.service.js";
 import { logger } from "../utils/logger.util.js";
+
+const getContentEngagementCounts = async (
+  contentType: "post" | "story" | "poll",
+  contentId: string
+): Promise<{ reactionsCount: number; commentsCount: number; votes?: number }> => {
+  if (contentType === "poll") {
+    const { Poll } = await import("../models/Poll.model.js");
+    const poll = await Poll.findById(contentId).select(
+      "reactionsCount commentsCount totalVotes"
+    );
+    return {
+      reactionsCount: poll?.reactionsCount ?? 0,
+      commentsCount: poll?.commentsCount ?? 0,
+      votes: poll?.totalVotes ?? 0,
+    };
+  }
+
+  if (contentType === "post") {
+    const { Post } = await import("../models/Post.model.js");
+    const post = await Post.findById(contentId).select(
+      "reactionsCount commentsCount"
+    );
+    return {
+      reactionsCount: post?.reactionsCount ?? 0,
+      commentsCount: post?.commentsCount ?? 0,
+    };
+  }
+
+  const { Story } = await import("../models/Story.model.js");
+  const story = await Story.findById(contentId).select(
+    "reactionsCount commentsCount"
+  );
+  return {
+    reactionsCount: story?.reactionsCount ?? 0,
+    commentsCount: story?.commentsCount ?? 0,
+  };
+};
 
 // =========================
 // CREATE COMMENT
@@ -80,6 +119,29 @@ export const createComment = async (req: Request, res: Response) => {
       repliesCount: 0,
     });
 
+    // Mention notifications (in addition to comment notifications)
+    const mentions = extractMentions(text);
+    if (mentions.length > 0) {
+      for (const mentionedUsername of mentions) {
+        const mentionedUser = await User.findOne({ username: mentionedUsername });
+        if (mentionedUser && mentionedUser.clerkId !== userId) {
+          await createNotification({
+            userId: mentionedUser.clerkId,
+            type: "mention_comment",
+            actorId: userId,
+            contentId,
+            contentType:
+              contentType === "post"
+                ? "Post"
+                : contentType === "story"
+                ? "Story"
+                : "Poll",
+            message: generateNotificationMessage("mention_comment", user.username),
+          });
+        }
+      }
+    }
+
     // Update content comments count
     await updateContentCommentsCount(contentType, contentId, 1);
 
@@ -128,12 +190,27 @@ export const createComment = async (req: Request, res: Response) => {
     }
 
     // Emit real-time event
-    getSocketIO().emit("commentAdded", {
+    const io = getSocketIO();
+    io.emit("commentAdded", {
       contentType,
       contentId,
       parentId,
       comment: newComment,
     });
+
+    try {
+      const counts = await getContentEngagementCounts(contentType, contentId);
+      emitEngagementUpdate(
+        io,
+        contentType,
+        contentId,
+        counts.reactionsCount,
+        counts.commentsCount,
+        counts.votes
+      );
+    } catch {
+      // Best-effort; engagement update shouldn't fail comment creation
+    }
 
     return res.status(201).json({
       success: true,
@@ -337,12 +414,30 @@ export const deleteComment = async (req: Request, res: Response) => {
     await Comment.findByIdAndDelete(id);
 
     // Emit real-time event
-    getSocketIO().emit("commentDeleted", {
+    const io = getSocketIO();
+    io.emit("commentDeleted", {
       contentType: comment.contentType,
       contentId: comment.contentId,
       commentId: id,
       parentId: comment.parentId,
     });
+
+    try {
+      const counts = await getContentEngagementCounts(
+        comment.contentType,
+        comment.contentId
+      );
+      emitEngagementUpdate(
+        io,
+        comment.contentType,
+        comment.contentId,
+        counts.reactionsCount,
+        counts.commentsCount,
+        counts.votes
+      );
+    } catch {
+      // Best-effort
+    }
 
     return res.status(200).json({
       success: true,
