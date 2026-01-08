@@ -14,6 +14,7 @@ import {
 } from "../utils/profile.util.js";
 import { clerkClient } from "@clerk/express";
 import { logger } from "../utils/logger.util.js";
+import { propagateUserSnapshotUpdates } from "../utils/userSnapshotPropagation.util.js";
 
 // Helper to ensure a user exists in MongoDB based on Clerk user ID
 const ensureUserByClerkId = async (clerkId: string | null) => {
@@ -178,6 +179,30 @@ export const updateProfile = async (req: Request, res: Response) => {
         message: "User not found",
       });
     }
+
+    void propagateUserSnapshotUpdates({
+      clerkId: user.clerkId,
+      username: user.username,
+      email: user.email,
+      displayName: user.displayName,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      profileImage: user.profileImage,
+      coverImage: user.coverImage,
+      bio: user.bio,
+    })
+      .then((result) => {
+        logger.info("Propagated user snapshot updates after updateProfile", {
+          clerkId: user.clerkId,
+          ...result,
+        });
+      })
+      .catch((propagationError) => {
+        logger.error(
+          "Failed to propagate user snapshot updates after updateProfile",
+          propagationError
+        );
+      });
 
     // Sync relevant fields back to Clerk so names/usernames stay consistent
     try {

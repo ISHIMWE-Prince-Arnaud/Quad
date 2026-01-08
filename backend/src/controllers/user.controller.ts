@@ -3,6 +3,7 @@ import { User } from "../models/User.model.js";
 import type { CreateUserSchemaType, UpdateUserSchemaType } from "../schemas/user.schema.js";
 import { logger } from "../utils/logger.util.js";
 import { getAuth, clerkClient } from "@clerk/express";
+import { propagateUserSnapshotUpdates } from "../utils/userSnapshotPropagation.util.js";
 
 /**
  * =========================
@@ -100,6 +101,27 @@ export const updateUser = async (req: Request, res: Response) => {
     if (!updatedUser) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
+
+    void propagateUserSnapshotUpdates({
+      clerkId: updatedUser.clerkId,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      displayName: updatedUser.displayName,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      profileImage: updatedUser.profileImage,
+      coverImage: updatedUser.coverImage,
+      bio: updatedUser.bio,
+    })
+      .then((result) => {
+        logger.info("Propagated user snapshot updates after updateUser", {
+          clerkId: updatedUser.clerkId,
+          ...result,
+        });
+      })
+      .catch((propagationError) => {
+        logger.error("Failed to propagate user snapshot updates after updateUser", propagationError);
+      });
 
     return res.status(200).json({ success: true, data: updatedUser });
   } catch (error: any) {
