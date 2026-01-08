@@ -4,6 +4,7 @@ import { CheckCircle, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { logError } from "@/lib/errorHandling";
 
 export interface UserCardData {
   _id: string;
@@ -64,7 +65,11 @@ export function UserCard({
         setIsFollowing(true);
       }
     } catch (error) {
-      console.error("Follow action failed:", error);
+      logError(error, {
+        component: "UserCard",
+        action: "toggleFollow",
+        metadata: { clerkId: user.clerkId, username: user.username },
+      });
     } finally {
       setFollowLoading(false);
     }

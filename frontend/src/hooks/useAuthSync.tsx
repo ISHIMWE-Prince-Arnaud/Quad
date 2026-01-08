@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useTokenManager } from "@/lib/tokens";
 import { ProfileService } from "@/services/profileService";
 import { logAuthEvent, clearAuthData } from "@/lib/authAudit";
+import { logError } from "@/lib/errorHandling";
 
 // Custom hook to sync Clerk user with our auth store
 export function useAuthSync() {
@@ -50,7 +51,11 @@ export function useAuthSync() {
             });
           }
         } catch (syncError) {
-          console.error("Failed to sync profile on login", syncError);
+          logError(syncError, {
+            component: "AuthSync",
+            action: "syncProfileOnLogin",
+            userId: clerkUser.id,
+          });
           logAuthEvent("Profile sync failed", {
             userId: clerkUser.id,
             error: (syncError as Error).message,
@@ -83,7 +88,7 @@ export function useAuthSync() {
         }
         setLoading(false);
       } catch (error) {
-        console.error("Auth sync error:", error);
+        logError(error, { component: "AuthSync", action: "syncTokenAndProfile" });
         logAuthEvent("Auth sync error", { error: (error as Error).message });
 
         if (isMounted) {

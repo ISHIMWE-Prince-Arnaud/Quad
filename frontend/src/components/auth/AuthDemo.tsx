@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTokenManager, useAuthenticatedRequest } from '@/lib/tokens'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { logError } from '@/lib/errorHandling'
 
 export function AuthDemo() {
   const [token, setToken] = useState<string | null>(null)
@@ -15,7 +16,7 @@ export function AuthDemo() {
       const authToken = await getAuthToken()
       setToken(authToken)
     } catch (error) {
-      console.error('Error getting token:', error)
+      logError(error, { component: 'AuthDemo', action: 'getToken' })
     } finally {
       setLoading(false)
     }
@@ -25,9 +26,9 @@ export function AuthDemo() {
     setLoading(true)
     try {
       const response = await makeAuthenticatedRequest('/api/test')
-      console.log('Test request response:', response)
+      void response
     } catch (error) {
-      console.error('Test request error:', error)
+      logError(error, { component: 'AuthDemo', action: 'testRequest' })
     } finally {
       setLoading(false)
     }

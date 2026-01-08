@@ -3,6 +3,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useThemeStore } from "@/stores/themeStore";
 import { getClerkAppearance } from "@/lib/clerkTheme";
 import { Button } from "@/components/ui/button";
+import { logError } from "@/lib/errorHandling";
 import {
   Card,
   CardContent,
@@ -23,7 +24,7 @@ export function UserMenu() {
       logout();
       await signOut();
     } catch (error) {
-      console.error("Sign out error:", error);
+      logError(error, { component: "UserMenu", action: "signOut" });
     }
   };
 

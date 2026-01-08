@@ -7,6 +7,7 @@
 
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
+import { logError } from "./errorHandling";
 
 export interface AuthAuditResult {
   clerkIntegration: {
@@ -213,7 +214,7 @@ export async function ensureFreshToken(
 
     return token;
   } catch (error) {
-    console.error("Error ensuring fresh token:", error);
+    logError(error, { component: "AuthAudit", action: "ensureFreshToken" });
     return null;
   }
 }

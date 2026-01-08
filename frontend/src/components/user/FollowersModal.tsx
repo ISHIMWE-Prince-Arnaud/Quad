@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { UserCardData } from "@/components/user/UserCard";
 import { FollowService } from "@/services/followService";
 import type { ApiFollowUser } from "@/types/api";
+import { logError } from "@/lib/errorHandling";
 
 import { FollowersModalBody } from "./followers-modal/FollowersModalBody";
 import { FollowersModalFooter } from "./followers-modal/FollowersModalFooter";
@@ -50,7 +51,11 @@ const getFollowers = async (
       total: result.total,
     };
   } catch (error) {
-    console.error("Failed to load followers:", error);
+    logError(error, {
+      component: "FollowersModal",
+      action: "getFollowers",
+      metadata: { userId, page, limit },
+    });
     return { users: [], hasMore: false, total: 0 };
   }
 };
@@ -68,7 +73,11 @@ const getFollowing = async (
       total: result.total,
     };
   } catch (error) {
-    console.error("Failed to load following:", error);
+    logError(error, {
+      component: "FollowersModal",
+      action: "getFollowing",
+      metadata: { userId, page, limit },
+    });
     return { users: [], hasMore: false, total: 0 };
   }
 };
@@ -83,7 +92,11 @@ const getMutualFollowsForUser = async (
       total: result.count,
     };
   } catch (error) {
-    console.error("Failed to load mutual follows:", error);
+    logError(error, {
+      component: "FollowersModal",
+      action: "getMutualFollowsForUser",
+      metadata: { userId },
+    });
     return { users: [], total: 0 };
   }
 };
@@ -136,7 +149,11 @@ export function FollowersModal({
 
         setPage(pageToLoad);
       } catch (error) {
-        console.error(`Failed to load ${type}:`, error);
+        logError(error, {
+          component: "FollowersModal",
+          action: "loadUsers",
+          metadata: { userId, type, pageToLoad },
+        });
       } finally {
         if (pageToLoad === 1) {
           setIsLoading(false);
@@ -187,7 +204,11 @@ export function FollowersModal({
         )
       );
     } catch (error) {
-      console.error("Failed to follow user:", error);
+      logError(error, {
+        component: "FollowersModal",
+        action: "followUser",
+        metadata: { targetUserId },
+      });
     }
   };
 
@@ -206,7 +227,11 @@ export function FollowersModal({
         )
       );
     } catch (error) {
-      console.error("Failed to unfollow user:", error);
+      logError(error, {
+        component: "FollowersModal",
+        action: "unfollowUser",
+        metadata: { targetUserId },
+      });
     }
   };
 
