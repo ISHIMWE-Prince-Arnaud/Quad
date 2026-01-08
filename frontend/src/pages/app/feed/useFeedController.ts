@@ -10,6 +10,7 @@ import { FeedService } from "@/services/feedService";
 import { PostService } from "@/services/postService";
 import type { FeedItem, FeedTab, FeedType } from "@/types/feed";
 import type { Post } from "@/types/post";
+import { logError } from "@/lib/errorHandling";
 
 import { getErrorMessage } from "./feedError";
 import { dedupeFeedItems } from "./feedUtils";
@@ -57,7 +58,11 @@ export function useFeedController({
       setHasMore(Boolean(data.pagination.hasMore));
       setLastSeenId(dedupedItems.length > 0 ? String(dedupedItems[0]._id) : null);
     } catch (err: unknown) {
-      console.error("Error refreshing feed:", err);
+      logError(err, {
+        component: "FeedController",
+        action: "refreshFeed",
+        metadata: { feedType, tab },
+      });
       setError(getErrorMessage(err));
     } finally {
       setLoading(false);
@@ -105,7 +110,11 @@ export function useFeedController({
           setLastSeenId(dedupedItems.length > 0 ? String(dedupedItems[0]._id) : null);
         }
       } catch (err: unknown) {
-        console.error("Error fetching feed:", err);
+        logError(err, {
+          component: "FeedController",
+          action: "fetchFeed",
+          metadata: { feedType, tab },
+        });
         if (!isCancelled) {
           setError(getErrorMessage(err));
         }
@@ -138,7 +147,11 @@ export function useFeedController({
           setNewCount(response.data.count);
         }
       } catch (err) {
-        console.error("Error fetching new content count:", err);
+        logError(err, {
+          component: "FeedController",
+          action: "fetchNewContentCount",
+          metadata: { feedType, tab, lastSeenId },
+        });
       }
     }, 30000);
 
@@ -247,7 +260,11 @@ export function useFeedController({
       setCursor(data.pagination.nextCursor || null);
       setHasMore(Boolean(data.pagination.hasMore));
     } catch (err: unknown) {
-      console.error("Error loading more feed items:", err);
+      logError(err, {
+        component: "FeedController",
+        action: "loadMore",
+        metadata: { feedType, tab, cursor },
+      });
       toast.error(getErrorMessage(err));
     } finally {
       setLoadingMore(false);
@@ -271,7 +288,11 @@ export function useFeedController({
         toast.error(response.message || "Failed to delete post");
       }
     } catch (err: unknown) {
-      console.error("Error deleting post:", err);
+      logError(err, {
+        component: "FeedController",
+        action: "deletePost",
+        metadata: { postId },
+      });
       toast.error(getErrorMessage(err));
     }
   }, []);

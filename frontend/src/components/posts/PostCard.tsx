@@ -12,6 +12,7 @@ import { useAuthStore } from "@/stores/authStore";
 import type { Post } from "@/types/post";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import { logError } from "@/lib/errorHandling";
 
 import { MAX_PREVIEW_LENGTH } from "./post-card/constants";
 import { PostCardBody } from "./post-card/PostCardBody";
@@ -88,7 +89,11 @@ export function PostCard({
         toast.success("Post link copied to clipboard");
       }
     } catch (e) {
-      console.error("Failed to copy link:", e);
+      logError(e, {
+        component: "PostCard",
+        action: "copyLink",
+        metadata: { postId: post._id },
+      });
       toast.error("Failed to copy link");
     }
   };

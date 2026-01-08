@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FeedService } from "@/services/feedService";
 import type { FeedType } from "@/types/feed";
+import { logError } from "@/lib/errorHandling";
 
 interface NewContentBannerProps {
   feedType: FeedType;
@@ -32,7 +33,11 @@ export function NewContentBanner({
         setNewContentCount(response.data.count);
       }
     } catch (error) {
-      console.error("Failed to poll new content:", error);
+      logError(error, {
+        component: "NewContentBanner",
+        action: "pollNewContent",
+        metadata: { feedType, lastSeenId },
+      });
     }
   }, [feedType, lastSeenId]);
 

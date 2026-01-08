@@ -7,6 +7,7 @@ import { PostService } from "@/services/postService";
 import type { CreatePostData } from "@/schemas/post.schema";
 import type { Post } from "@/types/post";
 import toast from "react-hot-toast";
+import { logError } from "@/lib/errorHandling";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -57,7 +58,7 @@ export default function EditPostPage() {
           setError(response.message || "Failed to load post");
         }
       } catch (err: unknown) {
-        console.error("Error fetching post:", err);
+        logError(err, { component: "EditPostPage", action: "fetchPost", metadata: { id } });
         setError(getErrorMessage(err));
       } finally {
         setLoading(false);
@@ -81,7 +82,7 @@ export default function EditPostPage() {
         toast.error(response.message || "Failed to update post");
       }
     } catch (err: unknown) {
-      console.error("Error updating post:", err);
+      logError(err, { component: "EditPostPage", action: "updatePost", metadata: { id } });
       toast.error(getErrorMessage(err));
     } finally {
       setIsSubmitting(false);

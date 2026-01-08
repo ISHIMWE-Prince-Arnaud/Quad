@@ -7,6 +7,7 @@ import { PostService } from "@/services/postService";
 import toast from "react-hot-toast";
 import type { Post } from "@/types/post";
 import { CommentsSection } from "@/components/comments/CommentsSection";
+import { logError } from "@/lib/errorHandling";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -49,7 +50,7 @@ export default function PostPage() {
           setError(response.message || "Failed to load post");
         }
       } catch (err: unknown) {
-        console.error("Error fetching post:", err);
+        logError(err, { component: "PostPage", action: "fetchPost", metadata: { id } });
         setError(getErrorMessage(err));
       } finally {
         setLoading(false);
@@ -69,7 +70,11 @@ export default function PostPage() {
         toast.error(response.message || "Failed to delete post");
       }
     } catch (err: unknown) {
-      console.error("Error deleting post:", err);
+      logError(err, {
+        component: "PostPage",
+        action: "deletePost",
+        metadata: { postId: deletedPostId },
+      });
       toast.error(getErrorMessage(err));
     }
   };

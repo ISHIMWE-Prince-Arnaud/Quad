@@ -4,6 +4,7 @@ import { CreatePostForm } from "@/components/forms/CreatePostForm";
 import { PostService } from "@/services/postService";
 import type { CreatePostData } from "@/schemas/post.schema";
 import toast from "react-hot-toast";
+import { logError } from "@/lib/errorHandling";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -46,7 +47,7 @@ export default function CreatePostPage() {
         toast.error(response.message || "Failed to create post");
       }
     } catch (error: unknown) {
-      console.error("Error creating post:", error);
+      logError(error, { component: "CreatePostPage", action: "createPost" });
       toast.error(getErrorMessage(error));
     } finally {
       setIsSubmitting(false);
