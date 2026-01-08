@@ -166,6 +166,7 @@ export default function CreateStoryPage() {
             width: 260,
             height: 180,
             zIndex: prev.length + 1,
+            rotationDeg: 0,
           },
         ]);
         toast.success("Image added to canvas");
@@ -354,7 +355,27 @@ export default function CreateStoryPage() {
                 "Enter username to mention (without @)"
               );
               if (username) {
-                editor?.chain().focus().insertContent(`@${username} `).run();
+                if (editorMode === "canvas") {
+                  setCanvasElements((prev) => [
+                    ...prev,
+                    {
+                      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                      kind: "text",
+                      text: `@${username}`,
+                      x: 24,
+                      y: 24,
+                      width: 220,
+                      height: 60,
+                      zIndex: prev.length + 1,
+                      rotationDeg: 0,
+                      fontSize: 20,
+                      color: "#ffffff",
+                      fontWeight: "bold",
+                    },
+                  ]);
+                } else {
+                  editor?.chain().focus().insertContent(`@${username} `).run();
+                }
               }
             }}
           />

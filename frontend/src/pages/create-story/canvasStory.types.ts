@@ -5,6 +5,7 @@ export type CanvasElementBase = {
   width: number;
   height: number;
   zIndex: number;
+  rotationDeg: number;
 };
 
 export type CanvasTextElement = CanvasElementBase & {

@@ -13,7 +13,8 @@ export function canvasElementsToHtml(elements: CanvasElement[], heightPx = 560) 
   const sorted = [...elements].sort((a, b) => a.zIndex - b.zIndex);
   const inner = sorted
     .map((el) => {
-      const commonStyle = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.width}px;height:${el.height}px;z-index:${el.zIndex};`;
+      const rotate = Number.isFinite(el.rotationDeg) ? el.rotationDeg : 0;
+      const commonStyle = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.width}px;height:${el.height}px;z-index:${el.zIndex};transform-origin:center;transform:translate(0px, 0px) rotate(${rotate}deg);`;
 
       if (el.kind === "image") {
         const alt = escapeHtml(el.alt || "");
