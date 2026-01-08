@@ -4,6 +4,7 @@
  */
 
 import { env, isProduction } from "./envValidation";
+import { logError } from "./errorHandling";
 
 interface ErrorTrackingConfig {
   dsn?: string;
@@ -39,18 +40,12 @@ class ErrorTracker {
    */
   async initialize(): Promise<void> {
     if (!this.config.enabled || this.initialized) {
-      console.log(
-        "[ErrorTracking] Skipping initialization (disabled or already initialized)"
-      );
       return;
     }
 
     try {
       // Dynamically import Sentry only in production
       const Sentry = await import("@sentry/react").catch(() => {
-        console.warn(
-          "[ErrorTracking] Sentry not installed, error tracking disabled"
-        );
         return null;
       });
 
@@ -104,9 +99,8 @@ class ErrorTracker {
       });
 
       this.initialized = true;
-      console.log("[ErrorTracking] Initialized successfully");
     } catch (error) {
-      console.error("[ErrorTracking] Failed to initialize:", error);
+      logError(error, { component: "ErrorTracker", action: "initialize" });
     }
   }
 
@@ -128,7 +122,9 @@ class ErrorTracker {
           Sentry.setUser(null);
         }
       })
-      .catch(console.error);
+      .catch((error) => {
+        logError(error, { component: "ErrorTracker", action: "setUser" });
+      });
   }
 
   /**
@@ -136,7 +132,6 @@ class ErrorTracker {
    */
   captureException(error: Error, context?: ErrorContext): void {
     if (!this.config.enabled) {
-      console.error("[ErrorTracking] Exception:", error, context);
       return;
     }
 
@@ -146,7 +141,9 @@ class ErrorTracker {
           extra: context,
         });
       })
-      .catch(console.error);
+      .catch((captureError) => {
+        logError(captureError, { component: "ErrorTracker", action: "captureException" });
+      });
   }
 
   /**
@@ -158,7 +155,6 @@ class ErrorTracker {
     context?: ErrorContext
   ): void {
     if (!this.config.enabled) {
-      console.log(`[ErrorTracking] ${level.toUpperCase()}:`, message, context);
       return;
     }
 
@@ -169,7 +165,9 @@ class ErrorTracker {
           extra: context,
         });
       })
-      .catch(console.error);
+      .catch((captureError) => {
+        logError(captureError, { component: "ErrorTracker", action: "captureMessage" });
+      });
   }
 
   /**
@@ -187,7 +185,9 @@ class ErrorTracker {
           level: "info",
         });
       })
-      .catch(console.error);
+      .catch((error) => {
+        logError(error, { component: "ErrorTracker", action: "addBreadcrumb" });
+      });
   }
 
   /**
@@ -200,7 +200,9 @@ class ErrorTracker {
       .then((Sentry) => {
         Sentry.setContext(name, context);
       })
-      .catch(console.error);
+      .catch((error) => {
+        logError(error, { component: "ErrorTracker", action: "setContext" });
+      });
   }
 
   /**

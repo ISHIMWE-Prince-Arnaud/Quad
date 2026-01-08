@@ -5,6 +5,8 @@
  * This should be coordinated with backend CSRF implementation.
  */
 
+import { logError } from "./errorHandling";
+
 /**
  * Generate a CSRF token
  * In production, this should be provided by the backend
@@ -50,7 +52,7 @@ export async function fetchCSRFToken(): Promise<string | null> {
   try {
     return null;
   } catch (error) {
-    console.error("Failed to fetch CSRF token:", error);
+    logError(error, { component: "CSRF", action: "fetchCSRFToken" });
     return null;
   }
 }
@@ -103,7 +105,10 @@ export async function initializeCSRFProtection(): Promise<void> {
     token = await fetchCSRFToken();
 
     if (!token) {
-      console.warn("Failed to initialize CSRF protection");
+      logError(new Error("Failed to initialize CSRF protection"), {
+        component: "CSRF",
+        action: "initializeCSRFProtection",
+      });
     }
   }
 }

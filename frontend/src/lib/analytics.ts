@@ -4,6 +4,7 @@
  */
 
 import { env, isProduction } from "./envValidation";
+import { logError } from "./errorHandling";
 
 interface AnalyticsConfig {
   measurementId?: string;
@@ -44,9 +45,6 @@ class Analytics {
    */
   initialize(): void {
     if (!this.config.enabled || this.initialized) {
-      console.log(
-        "[Analytics] Skipping initialization (disabled or already initialized)"
-      );
       return;
     }
 
@@ -71,9 +69,8 @@ class Analytics {
       });
 
       this.initialized = true;
-      console.log("[Analytics] Initialized successfully");
     } catch (error) {
-      console.error("[Analytics] Failed to initialize:", error);
+      logError(error, { component: "Analytics", action: "initialize" });
     }
   }
 
@@ -90,7 +87,7 @@ class Analytics {
         page_path: data?.page_path || window.location.pathname,
       });
     } catch (error) {
-      console.error("[Analytics] Failed to track page view:", error);
+      logError(error, { component: "Analytics", action: "pageView" });
     }
   }
 
@@ -103,7 +100,11 @@ class Analytics {
     try {
       window.gtag?.("event", eventName, data);
     } catch (error) {
-      console.error("[Analytics] Failed to track event:", error);
+      logError(error, {
+        component: "Analytics",
+        action: "event",
+        metadata: { eventName },
+      });
     }
   }
 
@@ -198,7 +199,7 @@ class Analytics {
     try {
       window.gtag?.("set", "user_properties", properties);
     } catch (error) {
-      console.error("[Analytics] Failed to set user properties:", error);
+      logError(error, { component: "Analytics", action: "setUserProperties" });
     }
   }
 
@@ -215,7 +216,7 @@ class Analytics {
         });
       }
     } catch (error) {
-      console.error("[Analytics] Failed to set user ID:", error);
+      logError(error, { component: "Analytics", action: "setUserId" });
     }
   }
 

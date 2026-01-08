@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { ReactionService, type ReactionType } from "@/services/reactionService";
 import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
+import { logError } from "@/lib/errorHandling";
 
 import { EMPTY_REACTION_COUNTS } from "./constants";
 import { getErrorMessage } from "./getErrorMessage";
@@ -51,7 +52,7 @@ export function useStoryPageController({
           setStory(res.data);
         }
       } catch (err) {
-        console.error(err);
+        logError(err, { component: "StoryPage", action: "loadStory", metadata: { id } });
         if (!cancelled) setError(getErrorMessage(err));
       } finally {
         if (!cancelled) setLoading(false);
@@ -79,7 +80,11 @@ export function useStoryPageController({
           setUserReaction((res.data.userReaction?.type as ReactionType) || null);
         }
       } catch (err) {
-        console.error(err);
+        logError(err, {
+          component: "StoryPage",
+          action: "loadReactions",
+          metadata: { id },
+        });
       }
     })();
 
@@ -98,9 +103,9 @@ export function useStoryPageController({
         toast.success("Link copied to clipboard");
       }
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "StoryPage", action: "shareStory", metadata: { id } });
     }
-  }, [story?.title]);
+  }, [story?.title, id]);
 
   const handleDelete = useCallback(async () => {
     if (!id) return;
@@ -114,7 +119,7 @@ export function useStoryPageController({
         toast.error(res.message || "Failed to delete story");
       }
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "StoryPage", action: "deleteStory", metadata: { id } });
       toast.error(getErrorMessage(err));
     } finally {
       setDeleting(false);
@@ -155,7 +160,11 @@ export function useStoryPageController({
           if (!res.success) throw new Error(res.message || "Failed to react");
         }
       } catch (err) {
-        console.error(err);
+        logError(err, {
+          component: "StoryPage",
+          action: "toggleReaction",
+          metadata: { id, reactionType: type },
+        });
         toast.error("Failed to update reaction");
         setReactionCounts(prevCounts);
         setUserReaction(prevType);

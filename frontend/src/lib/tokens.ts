@@ -1,6 +1,7 @@
 import { useAuth } from "@clerk/clerk-react";
 import { useCallback, useEffect, useRef } from "react";
 import { verifyToken, ensureFreshToken, logAuthEvent } from "./authAudit";
+import { logError } from "./errorHandling";
 
 // Hook for token management with enhanced security
 export function useTokenManager() {
@@ -22,7 +23,7 @@ export function useTokenManager() {
 
       return token;
     } catch (error) {
-      console.error("Error getting token:", error);
+      logError(error, { component: "TokenManager", action: "getAuthToken" });
       logAuthEvent("Token retrieval error", {
         error: (error as Error).message,
       });
@@ -42,7 +43,11 @@ export function useTokenManager() {
 
         return token;
       } catch (error) {
-        console.error("Error getting token with claims:", error);
+        logError(error, {
+          component: "TokenManager",
+          action: "getTokenWithClaims",
+          metadata: { template },
+        });
         logAuthEvent("Token with claims error", {
           template,
           error: (error as Error).message,
@@ -111,7 +116,7 @@ export function useAuthenticatedRequest() {
         "Content-Type": "application/json",
       };
     } catch (error) {
-      console.error("Error getting auth headers:", error);
+      logError(error, { component: "TokenManager", action: "getAuthHeaders" });
       throw error;
     }
   };
@@ -131,7 +136,11 @@ export function useAuthenticatedRequest() {
         },
       });
     } catch (error) {
-      console.error("Error making authenticated request:", error);
+      logError(error, {
+        component: "TokenManager",
+        action: "makeAuthenticatedRequest",
+        metadata: { url },
+      });
       throw error;
     }
   };

@@ -5,7 +5,7 @@
  * and implementing exponential backoff strategies.
  */
 
-import { toast } from "@/hooks/use-toast";
+import { toast } from "react-hot-toast";
 
 interface RateLimitInfo {
   retryAfter: number; // milliseconds
@@ -85,11 +85,7 @@ class RateLimitManager {
     const timeString =
       minutes > 1 ? `${minutes} minutes` : `${retryAfterSeconds} seconds`;
 
-    toast({
-      title: "Rate Limit Reached",
-      description: `Too many requests. Please wait ${timeString} before trying again.`,
-      variant: "destructive",
-    });
+    toast.error(`Too many requests. Please wait ${timeString} before trying again.`);
   }
 
   /**
@@ -167,10 +163,6 @@ export async function retryWithBackoff<T>(
 
       // Calculate backoff delay
       const delay = calculateBackoff(attempt, baseDelay);
-
-      console.log(
-        `Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`
-      );
 
       await wait(delay);
     }

@@ -1,3 +1,5 @@
+import { logError } from "../errorHandling";
+
 export class SecureStorage {
   private static readonly PREFIX = "quad_secure_";
 
@@ -12,7 +14,7 @@ export class SecureStorage {
     try {
       localStorage.setItem(finalKey, finalValue);
     } catch (error) {
-      console.warn("Failed to save to localStorage:", error);
+      logError(error, { component: "SecureStorage", action: "setItem", metadata: { key } });
     }
   }
 
@@ -29,7 +31,7 @@ export class SecureStorage {
 
       return value;
     } catch (error) {
-      console.warn("Failed to read from localStorage:", error);
+      logError(error, { component: "SecureStorage", action: "getItem", metadata: { key } });
       return null;
     }
   }

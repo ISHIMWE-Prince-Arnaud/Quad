@@ -2,6 +2,7 @@ import React from 'react'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 import { Button } from './button'
 import { Card, CardContent, CardHeader, CardTitle } from './card'
+import { logError, showErrorToast } from '@/lib/errorHandling'
 
 interface ErrorBoundaryState {
   hasError: boolean
@@ -25,7 +26,13 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo)
+    logError(error, {
+      component: 'ErrorBoundary',
+      action: 'componentDidCatch',
+      metadata: { componentStack: errorInfo.componentStack },
+    })
+
+    showErrorToast(error)
     this.props.onError?.(error, errorInfo)
   }
 
@@ -109,7 +116,11 @@ export function PageErrorBoundary({ children }: { children: React.ReactNode }) {
       fallback={PageErrorFallback}
       onError={(error, errorInfo) => {
         // Log to error reporting service
-        console.error('Page error:', { error, errorInfo })
+        logError(error, {
+          component: 'PageErrorBoundary',
+          action: 'onError',
+          metadata: { componentStack: errorInfo.componentStack },
+        })
       }}
     >
       {children}
