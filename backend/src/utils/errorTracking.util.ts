@@ -27,10 +27,13 @@ class ErrorTracker {
   private Sentry: any = null;
 
   constructor() {
+    const dsn = env.SENTRY_DSN;
+    const environment = env.SENTRY_ENVIRONMENT || env.NODE_ENV;
+
     this.config = {
-      dsn: env.SENTRY_DSN,
-      environment: env.SENTRY_ENVIRONMENT || env.NODE_ENV,
-      enabled: env.NODE_ENV === "production" && !!env.SENTRY_DSN,
+      ...(dsn ? { dsn } : {}),
+      ...(environment ? { environment } : {}),
+      enabled: env.NODE_ENV === "production" && !!dsn,
     };
   }
 

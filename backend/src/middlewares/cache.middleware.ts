@@ -3,7 +3,7 @@
  * Adds cache headers to responses for better performance
  */
 
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { env } from "../config/env.config.js";
 
 /**

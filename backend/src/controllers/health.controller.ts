@@ -118,8 +118,16 @@ async function checkDatabase(): Promise<ServiceStatus> {
       };
     }
 
+    const db = mongoose.connection.db;
+    if (!db) {
+      return {
+        status: "down",
+        message: "Database connection not ready",
+      };
+    }
+
     // Perform a simple ping to verify connection
-    await mongoose.connection.db.admin().ping();
+    await db.admin().ping();
 
     const responseTime = Date.now() - startTime;
 

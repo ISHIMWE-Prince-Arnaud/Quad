@@ -59,9 +59,9 @@ export class DatabaseService {
    */
   static async getFollowStatus(followerId: string, followingId: string): Promise<boolean> {
     try {
-      const follow = await Follow.findOne({ 
-        follower: followerId, 
-        following: followingId 
+      const follow = await Follow.findOne({
+        userId: followerId,
+        followingId,
       }).lean();
       return !!follow;
     } catch (error) {
@@ -79,14 +79,14 @@ export class DatabaseService {
   ): Promise<Map<string, boolean>> {
     try {
       const follows = await Follow.find({
-        follower: followerId,
-        following: { $in: followingIds }
+        userId: followerId,
+        followingId: { $in: followingIds },
       }).lean();
 
       const followMap = new Map<string, boolean>();
       followingIds.forEach(id => followMap.set(id, false));
       follows.forEach(follow => {
-        followMap.set(follow.followingId.toString(), true);
+        followMap.set(String(follow.followingId), true);
       });
 
       return followMap;
@@ -217,10 +217,10 @@ export class DatabaseService {
     increment: number = 1
   ): Promise<boolean> {
     try {
-      await User.findByIdAndUpdate(
-        userId,
+      await User.findOneAndUpdate(
+        { clerkId: userId },
         { $inc: { followersCount: increment } }
-      );
+      ).lean();
       return true;
     } catch (error) {
       logger.error('Failed to update follower count', error);
@@ -236,10 +236,10 @@ export class DatabaseService {
     increment: number = 1
   ): Promise<boolean> {
     try {
-      await User.findByIdAndUpdate(
-        userId,
+      await User.findOneAndUpdate(
+        { clerkId: userId },
         { $inc: { followingCount: increment } }
-      );
+      ).lean();
       return true;
     } catch (error) {
       logger.error('Failed to update following count', error);
