@@ -38,18 +38,17 @@ export class DatabaseService {
 
   /**
    * Get multiple users by IDs (prevents N+1 queries)
-   * TODO: Fix TypeScript lean() type issues
    */
   static async getUsersByIds(userIds: string[]): Promise<Map<string, any>> {
     try {
-      const users = await User.find({ _id: { $in: userIds } });
+      const users = await User.find({ _id: { $in: userIds } }).lean();
       const userMap = new Map<string, any>();
-      users.forEach(user => {
-        userMap.set((user._id as any).toString(), user);
+      users.forEach((user) => {
+        userMap.set(String(user._id), user);
       });
       return userMap;
     } catch (error) {
-      logger.error('Failed to get users by IDs', error);
+      logger.error("Failed to get users by IDs", error);
       return new Map();
     }
   }
