@@ -1,7 +1,8 @@
-import { useMemo, useRef, useState } from "react";
-import type { PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
 import {
   ArrowDown,
+  Grid3X3,
   ArrowUp,
   AtSign,
   ChevronsDown,
@@ -36,10 +37,45 @@ export default function CanvasStoryEditor({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
+  const [textDraft, setTextDraft] = useState<string>("");
+  const [snapToGrid, setSnapToGrid] = useState(true);
+
+  const historyRef = useRef<{ past: CanvasElement[][]; future: CanvasElement[][] }>({
+    past: [],
+    future: [],
+  });
+  const actionRecordedRef = useRef(false);
+  const editTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const selected = useMemo(() => {
     return elements.find((e) => e.id === selectedId) || null;
   }, [elements, selectedId]);
+
+  const selectedEditingText = useMemo(() => {
+    const el = elements.find((e) => e.id === editingTextId);
+    return el && el.kind === "text" ? el : null;
+  }, [elements, editingTextId]);
+
+  const gridSize = 24;
+  const snap = (value: number) => {
+    if (!snapToGrid) return value;
+    return Math.round(value / gridSize) * gridSize;
+  };
+
+  const cloneElements = (els: CanvasElement[]) => {
+    return els.map((el) => ({ ...el }));
+  };
+
+  const recordHistory = () => {
+    if (actionRecordedRef.current) return;
+    historyRef.current.past.push(cloneElements(elements));
+    historyRef.current.future = [];
+    actionRecordedRef.current = true;
+  };
+
+  const finishAction = () => {
+    actionRecordedRef.current = false;
+  };
 
   const normalizeZIndexes = (els: CanvasElement[]) => {
     const sorted = [...els].sort((a, b) => a.zIndex - b.zIndex);
@@ -47,10 +83,13 @@ export default function CanvasStoryEditor({
   };
 
   const setZOrder = (nextOrdered: CanvasElement[]) => {
+    recordHistory();
     onChange(normalizeZIndexes(nextOrdered));
+    finishAction();
   };
 
   const addTextElement = (text: string) => {
+    recordHistory();
     const id = createId();
     const next: CanvasTextElement = {
       id,
@@ -71,6 +110,8 @@ export default function CanvasStoryEditor({
     onChange(updated);
     setSelectedId(id);
     setEditingTextId(id);
+    setTextDraft(text);
+    finishAction();
   };
 
   const addText = () => {
@@ -84,6 +125,7 @@ export default function CanvasStoryEditor({
   };
 
   const startDrag = (e: ReactPointerEvent, elementId: string) => {
+    if (editingTextId) return;
     const container = containerRef.current;
     if (!container) return;
 
@@ -94,14 +136,16 @@ export default function CanvasStoryEditor({
     const start = elements.find((el) => el.id === elementId);
     if (!start) return;
 
+    recordHistory();
+
     setSelectedId(elementId);
 
     const onMove = (ev: PointerEvent) => {
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
 
-      const nextX = Math.max(0, Math.min(rect.width - start.width, start.x + dx));
-      const nextY = Math.max(0, Math.min(rect.height - start.height, start.y + dy));
+      const nextX = Math.max(0, Math.min(rect.width - start.width, snap(start.x + dx)));
+      const nextY = Math.max(0, Math.min(rect.height - start.height, snap(start.y + dy)));
 
       onChange(
         elements.map((el) =>
@@ -113,6 +157,7 @@ export default function CanvasStoryEditor({
     const onUp = () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      finishAction();
     };
 
     window.addEventListener("pointermove", onMove);
@@ -124,6 +169,7 @@ export default function CanvasStoryEditor({
     elementId: string,
     handle: ResizeHandle
   ) => {
+    if (editingTextId) return;
     e.stopPropagation();
     const container = containerRef.current;
     if (!container) return;
@@ -134,6 +180,8 @@ export default function CanvasStoryEditor({
 
     const start = elements.find((el) => el.id === elementId);
     if (!start) return;
+
+    recordHistory();
 
     setSelectedId(elementId);
 
@@ -170,6 +218,11 @@ export default function CanvasStoryEditor({
         y = start.y + (start.height - h);
       }
 
+      x = snap(x);
+      y = snap(y);
+      w = snap(w);
+      h = snap(h);
+
       x = Math.max(0, Math.min(rect.width - w, x));
       y = Math.max(0, Math.min(rect.height - h, y));
 
@@ -183,6 +236,7 @@ export default function CanvasStoryEditor({
     const onUp = () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      finishAction();
     };
 
     window.addEventListener("pointermove", onMove);
@@ -191,11 +245,14 @@ export default function CanvasStoryEditor({
 
   const updateSelectedText = (patch: Partial<CanvasTextElement>) => {
     if (!selected || selected.kind !== "text") return;
+    recordHistory();
     onChange(elements.map((el) => (el.id === selected.id ? { ...selected, ...patch } : el)));
+    finishAction();
   };
 
   const updateSelected = (patch: Partial<Omit<CanvasElement, "kind">>) => {
     if (!selected) return;
+    recordHistory();
     onChange(
       elements.map((el) => {
         if (el.id !== selected.id) return el;
@@ -205,6 +262,7 @@ export default function CanvasStoryEditor({
         return { ...el, ...patch };
       })
     );
+    finishAction();
   };
 
   const bringForward = () => {
@@ -306,6 +364,7 @@ export default function CanvasStoryEditor({
   };
 
   const startRotate = (e: ReactPointerEvent, elementId: string) => {
+    if (editingTextId) return;
     e.stopPropagation();
     const container = containerRef.current;
     if (!container) return;
@@ -313,6 +372,8 @@ export default function CanvasStoryEditor({
 
     const start = elements.find((el) => el.id === elementId);
     if (!start) return;
+
+    recordHistory();
 
     setSelectedId(elementId);
 
@@ -329,7 +390,11 @@ export default function CanvasStoryEditor({
     const onMove = (ev: PointerEvent) => {
       const angle = startAngle(ev);
       const delta = angle - initialPointerAngle;
-      const nextRotation = initialRotation + delta;
+      let nextRotation = initialRotation + delta;
+      if ((ev as unknown as { shiftKey?: boolean }).shiftKey) {
+        const step = 15;
+        nextRotation = Math.round(nextRotation / step) * step;
+      }
       onChange(
         elements.map((el) =>
           el.id === elementId ? { ...el, rotationDeg: nextRotation } : el
@@ -340,6 +405,7 @@ export default function CanvasStoryEditor({
     const onUp = () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      finishAction();
     };
 
     window.addEventListener("pointermove", onMove);
@@ -348,14 +414,142 @@ export default function CanvasStoryEditor({
 
   const deleteSelected = () => {
     if (!selected) return;
+    recordHistory();
     onChange(elements.filter((el) => el.id !== selected.id));
     setSelectedId(null);
     setEditingTextId(null);
+    finishAction();
   };
+
+  const beginEditSelectedText = (textEl: CanvasTextElement) => {
+    setSelectedId(textEl.id);
+    setEditingTextId(textEl.id);
+    setTextDraft(textEl.text);
+  };
+
+  const cancelTextEdit = () => {
+    setEditingTextId(null);
+  };
+
+  const commitTextEdit = () => {
+    if (!selectedEditingText) return;
+    const textarea = editTextareaRef.current;
+    const nextHeight = textarea ? Math.max(24, textarea.scrollHeight + 8) : selectedEditingText.height;
+    recordHistory();
+    onChange(
+      elements.map((el) =>
+        el.id === selectedEditingText.id && el.kind === "text"
+          ? { ...el, text: textDraft, height: nextHeight }
+          : el
+      )
+    );
+    finishAction();
+    setEditingTextId(null);
+  };
+
+  const undo = () => {
+    const past = historyRef.current.past;
+    if (past.length === 0) return;
+    const prev = past.pop();
+    if (!prev) return;
+    historyRef.current.future.push(cloneElements(elements));
+    onChange(cloneElements(prev));
+  };
+
+  const redo = () => {
+    const future = historyRef.current.future;
+    if (future.length === 0) return;
+    const next = future.pop();
+    if (!next) return;
+    historyRef.current.past.push(cloneElements(elements));
+    onChange(cloneElements(next));
+  };
+
+  const handleCanvasKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (editingTextId) return;
+    if (!selected) return;
+
+    const isMac = navigator.platform.toLowerCase().includes("mac");
+    const mod = isMac ? e.metaKey : e.ctrlKey;
+
+    if (mod && e.key.toLowerCase() === "z") {
+      e.preventDefault();
+      if (e.shiftKey) {
+        redo();
+      } else {
+        undo();
+      }
+      return;
+    }
+
+    if (mod && e.key.toLowerCase() === "y") {
+      e.preventDefault();
+      redo();
+      return;
+    }
+
+    if (e.key === "Delete" || e.key === "Backspace") {
+      e.preventDefault();
+      deleteSelected();
+      return;
+    }
+
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+
+    const step = snapToGrid ? gridSize : e.shiftKey ? 10 : 1;
+    let dx = 0;
+    let dy = 0;
+    if (e.key === "ArrowLeft") dx = -step;
+    if (e.key === "ArrowRight") dx = step;
+    if (e.key === "ArrowUp") dy = -step;
+    if (e.key === "ArrowDown") dy = step;
+
+    if (!dx && !dy) return;
+    e.preventDefault();
+
+    const nextX = Math.max(0, Math.min(rect.width - selected.width, selected.x + dx));
+    const nextY = Math.max(0, Math.min(rect.height - selected.height, selected.y + dy));
+    recordHistory();
+    onChange(
+      elements.map((el) =>
+        el.id === selected.id ? { ...el, x: nextX, y: nextY } : el
+      )
+    );
+    finishAction();
+  };
+
+  useEffect(() => {
+    if (!selectedEditingText) return;
+    const textarea = editTextareaRef.current;
+    if (!textarea) return;
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+
+    // Autosize
+    textarea.style.height = "0px";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, [selectedEditingText]);
+
+  useEffect(() => {
+    const textarea = editTextareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = "0px";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, [textDraft]);
 
   return (
     <div className={cn("space-y-3", className)}>
       <div className="flex flex-wrap items-center gap-2">
+        <Button
+          type="button"
+          variant={snapToGrid ? "secondary" : "outline"}
+          size="sm"
+          onClick={() => setSnapToGrid((v) => !v)}>
+          <Grid3X3 className="h-4 w-4 mr-2" />
+          Snap
+        </Button>
         <Button type="button" variant="outline" size="sm" onClick={addText}>
           <TypeIcon className="h-4 w-4 mr-2" />
           Add Text
@@ -439,9 +633,12 @@ export default function CanvasStoryEditor({
       <div
         ref={containerRef}
         className="relative h-[560px] w-full overflow-hidden rounded-md border bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950"
+        tabIndex={0}
+        onClick={() => containerRef.current?.focus()}
+        onKeyDown={handleCanvasKeyDown}
         onPointerDown={() => {
           setSelectedId(null);
-          setEditingTextId(null);
+          if (!editingTextId) setEditingTextId(null);
         }}>
         <div
           className="pointer-events-none absolute inset-0 opacity-10"
@@ -480,8 +677,7 @@ export default function CanvasStoryEditor({
                 }}
                 onDoubleClick={() => {
                   if (el.kind === "text") {
-                    setSelectedId(el.id);
-                    setEditingTextId(el.id);
+                    beginEditSelectedText(el);
                   }
                 }}>
                 {el.kind === "image" ? (
@@ -499,24 +695,7 @@ export default function CanvasStoryEditor({
                       fontWeight: el.fontWeight,
                       color: el.color,
                     }}>
-                    {editingTextId === el.id ? (
-                      <textarea
-                        value={el.text}
-                        onChange={(e) => {
-                          onChange(
-                            elements.map((it) =>
-                              it.id === el.id && it.kind === "text"
-                                ? { ...it, text: e.target.value }
-                                : it
-                            )
-                          );
-                        }}
-                        onBlur={() => setEditingTextId(null)}
-                        className="h-full w-full resize-none bg-transparent p-1 outline-none"
-                      />
-                    ) : (
-                      <div className="p-1">{el.text}</div>
-                    )}
+                    <div className="p-1">{el.text}</div>
                   </div>
                 )}
 
@@ -550,6 +729,54 @@ export default function CanvasStoryEditor({
               </div>
             );
           })}
+
+        {selectedEditingText && (
+          <div
+            className="absolute"
+            style={{
+              left: selectedEditingText.x,
+              top: selectedEditingText.y,
+              width: selectedEditingText.width,
+              zIndex: 9999,
+              transform: `rotate(${selectedEditingText.rotationDeg}deg)`,
+              transformOrigin: "center",
+            }}
+            onPointerDown={(e) => e.stopPropagation()}>
+            <div className="rounded-md border bg-background/90 p-2 shadow">
+              <textarea
+                ref={editTextareaRef}
+                value={textDraft}
+                onChange={(e) => setTextDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    e.preventDefault();
+                    cancelTextEdit();
+                    return;
+                  }
+                  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    commitTextEdit();
+                  }
+                }}
+                className="w-full resize-none bg-transparent text-sm outline-none"
+                style={{
+                  fontSize: selectedEditingText.fontSize,
+                  fontWeight: selectedEditingText.fontWeight,
+                  color: selectedEditingText.color,
+                  minHeight: 32,
+                }}
+              />
+              <div className="mt-2 flex justify-end gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={cancelTextEdit}>
+                  Cancel
+                </Button>
+                <Button type="button" size="sm" onClick={commitTextEdit}>
+                  Save
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
