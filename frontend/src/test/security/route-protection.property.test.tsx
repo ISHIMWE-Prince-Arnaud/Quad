@@ -16,6 +16,7 @@ import * as fc from "fast-check";
 // Mock Clerk
 vi.mock("@clerk/clerk-react", () => ({
   useAuth: vi.fn(),
+  useUser: vi.fn(),
 }));
 
 // Mock auth audit
@@ -23,7 +24,7 @@ vi.mock("@/lib/authAudit", () => ({
   logAuthEvent: vi.fn(),
 }));
 
-const { useAuth } = await import("@clerk/clerk-react");
+const { useAuth, useUser } = await import("@clerk/clerk-react");
 
 // Test component that should be protected
 function ProtectedContent() {
@@ -42,12 +43,37 @@ function renderWithProviders(
   isLoaded: boolean
 ) {
   // Mock useAuth hook
-  vi.mocked(useAuth).mockReturnValue({
-    isSignedIn,
-    isLoaded,
-    // @ts-expect-error - mocking minimal required properties
-    getToken: vi.fn().mockResolvedValue("mock-token"),
-  });
+  vi.mocked(useAuth).mockReturnValue(
+    (
+      isLoaded
+        ? {
+            isSignedIn,
+            isLoaded: true as const,
+            getToken: vi.fn().mockResolvedValue("mock-token"),
+          }
+        : {
+            isSignedIn: false as const,
+            isLoaded: false as const,
+            getToken: vi.fn().mockResolvedValue("mock-token"),
+          }
+    ) as unknown as ReturnType<typeof useAuth>
+  );
+
+  vi.mocked(useUser).mockReturnValue(
+    (
+      isLoaded
+        ? {
+            user: null,
+            isLoaded: true as const,
+            isSignedIn,
+          }
+        : {
+            user: null,
+            isLoaded: false as const,
+            isSignedIn: false as const,
+          }
+    ) as unknown as ReturnType<typeof useUser>
+  );
 
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
