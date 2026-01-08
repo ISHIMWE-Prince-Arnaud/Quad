@@ -4,8 +4,13 @@ import type { NavigateFunction } from "react-router-dom";
 
 import type { ProfileTab } from "@/components/profile/ProfileTabs";
 import type { ContentItem } from "@/components/profile/ProfileContentGrid";
+import { BookmarkService } from "@/services/bookmarkService";
 import { FollowService } from "@/services/followService";
+import { PollService } from "@/services/pollService";
+import { PostService } from "@/services/postService";
 import { ProfileService } from "@/services/profileService";
+import { ReactionService } from "@/services/reactionService";
+import { StoryService } from "@/services/storyService";
 import type { ApiProfile } from "@/types/api";
 
 import { filterProfileContent, getProfileContentCounts } from "./filterProfileContent";
@@ -79,10 +84,263 @@ export function useProfilePageController({
           });
           break;
         case "saved":
+          if (!isOwnProfile) {
+            setContent([]);
+            setHasMore(false);
+            return;
+          }
+          {
+            const limit = 20;
+            const offset = (nextPage - 1) * limit;
+            const ids = BookmarkService.list();
+            const pageIds = ids.slice(offset, offset + limit);
+
+            const fetchedItems = (
+              await Promise.all(
+                pageIds.map(async (id): Promise<ContentItem | null> => {
+                  try {
+                    const postRes = await PostService.getPostById(id);
+                    if (postRes.success && postRes.data) {
+                      const images =
+                        postRes.data.media
+                          ?.filter((m) => m.type === "image")
+                          .map((m) => m.url);
+
+                      return {
+                        _id: postRes.data._id,
+                        type: "post",
+                        createdAt: postRes.data.createdAt,
+                        updatedAt: postRes.data.updatedAt,
+                        content: postRes.data.text ?? "",
+                        ...(images ? { images } : {}),
+                        author: {
+                          _id: postRes.data.author.clerkId,
+                          username: postRes.data.author.username,
+                          firstName: postRes.data.author.firstName,
+                          lastName: postRes.data.author.lastName,
+                          profileImage: postRes.data.author.profileImage,
+                        },
+                        likes: postRes.data.reactionsCount ?? 0,
+                        comments: postRes.data.commentsCount ?? 0,
+                      };
+                    }
+                  } catch {
+                    // ignore
+                  }
+
+                  try {
+                    const storyRes = await StoryService.getById(id);
+                    if (storyRes.success && storyRes.data) {
+                      return {
+                        _id: storyRes.data._id,
+                        type: "story",
+                        createdAt: storyRes.data.createdAt,
+                        updatedAt: storyRes.data.updatedAt,
+                        content: storyRes.data.content ?? "",
+                        title: storyRes.data.title,
+                        ...(storyRes.data.coverImage
+                          ? { coverImage: storyRes.data.coverImage }
+                          : {}),
+                        ...(storyRes.data.readTime !== undefined
+                          ? { readTime: storyRes.data.readTime }
+                          : {}),
+                        author: {
+                          _id: storyRes.data.author.clerkId,
+                          username: storyRes.data.author.username,
+                          profileImage: storyRes.data.author.profileImage,
+                        },
+                        likes: storyRes.data.reactionsCount ?? 0,
+                        comments: storyRes.data.commentsCount ?? 0,
+                      };
+                    }
+                  } catch {
+                    // ignore
+                  }
+
+                  try {
+                    const pollRes = await PollService.getById(id);
+                    if (pollRes.success && pollRes.data) {
+                      return {
+                        _id: pollRes.data.id,
+                        type: "poll",
+                        createdAt: pollRes.data.createdAt,
+                        updatedAt: pollRes.data.updatedAt,
+                        question: pollRes.data.question,
+                        options: pollRes.data.options.map((o) => ({
+                          id: String(o.index),
+                          text: o.text,
+                          votes: o.votesCount ?? 0,
+                        })),
+                        totalVotes: pollRes.data.totalVotes,
+                        ...(pollRes.data.expiresAt
+                          ? { endsAt: pollRes.data.expiresAt }
+                          : {}),
+                        ...(pollRes.data.userVote && pollRes.data.userVote.length > 0
+                          ? { hasVoted: true }
+                          : {}),
+                        author: {
+                          _id: pollRes.data.author._id,
+                          username: pollRes.data.author.username,
+                          firstName: pollRes.data.author.firstName,
+                          lastName: pollRes.data.author.lastName,
+                          profileImage: pollRes.data.author.profileImage,
+                        },
+                        likes: pollRes.data.reactionsCount ?? 0,
+                        comments: pollRes.data.commentsCount ?? 0,
+                      };
+                    }
+                  } catch {
+                    // ignore
+                  }
+
+                  return null;
+                })
+              )
+            ).filter((x): x is ContentItem => x !== null);
+
+            result = {
+              items: fetchedItems,
+              hasMore: offset + pageIds.length < ids.length,
+              total: ids.length,
+            };
+          }
+          break;
         case "liked":
-          setContent([]);
-          setHasMore(false);
-          return;
+          if (!isOwnProfile) {
+            setContent([]);
+            setHasMore(false);
+            return;
+          }
+          {
+            const limit = 20;
+            const skip = (nextPage - 1) * limit;
+
+            const reactionsRes = await ReactionService.getUserReactions({
+              limit,
+              skip,
+            });
+
+            const likedContentRefs = (reactionsRes.data || []).filter((r) => {
+              return (
+                r.type === "like" &&
+                (r.contentType === "post" || r.contentType === "story" || r.contentType === "poll")
+              );
+            });
+
+            const fetchedItems = (
+              await Promise.all(
+                likedContentRefs.map(async (r): Promise<ContentItem | null> => {
+                  try {
+                    if (r.contentType === "post") {
+                      const postRes = await PostService.getPostById(r.contentId);
+                      if (postRes.success && postRes.data) {
+                        const images =
+                          postRes.data.media
+                            ?.filter((m) => m.type === "image")
+                            .map((m) => m.url);
+
+                        return {
+                          _id: postRes.data._id,
+                          type: "post",
+                          createdAt: postRes.data.createdAt,
+                          updatedAt: postRes.data.updatedAt,
+                          content: postRes.data.text ?? "",
+                          ...(images ? { images } : {}),
+                          author: {
+                            _id: postRes.data.author.clerkId,
+                            username: postRes.data.author.username,
+                            firstName: postRes.data.author.firstName,
+                            lastName: postRes.data.author.lastName,
+                            profileImage: postRes.data.author.profileImage,
+                          },
+                          likes: postRes.data.reactionsCount ?? 0,
+                          comments: postRes.data.commentsCount ?? 0,
+                          isLiked: true,
+                        };
+                      }
+                      return null;
+                    }
+
+                    if (r.contentType === "story") {
+                      const storyRes = await StoryService.getById(r.contentId);
+                      if (storyRes.success && storyRes.data) {
+                        return {
+                          _id: storyRes.data._id,
+                          type: "story",
+                          createdAt: storyRes.data.createdAt,
+                          updatedAt: storyRes.data.updatedAt,
+                          content: storyRes.data.content ?? "",
+                          title: storyRes.data.title,
+                          isLiked: true,
+                          ...(storyRes.data.coverImage
+                            ? { coverImage: storyRes.data.coverImage }
+                            : {}),
+                          ...(storyRes.data.readTime !== undefined
+                            ? { readTime: storyRes.data.readTime }
+                            : {}),
+                          author: {
+                            _id: storyRes.data.author.clerkId,
+                            username: storyRes.data.author.username,
+                            profileImage: storyRes.data.author.profileImage,
+                          },
+                          likes: storyRes.data.reactionsCount ?? 0,
+                          comments: storyRes.data.commentsCount ?? 0,
+                        };
+                      }
+                      return null;
+                    }
+
+                    if (r.contentType === "poll") {
+                      const pollRes = await PollService.getById(r.contentId);
+                      if (pollRes.success && pollRes.data) {
+                        return {
+                          _id: pollRes.data.id,
+                          type: "poll",
+                          createdAt: pollRes.data.createdAt,
+                          updatedAt: pollRes.data.updatedAt,
+                          question: pollRes.data.question,
+                          options: pollRes.data.options.map((o) => ({
+                            id: String(o.index),
+                            text: o.text,
+                            votes: o.votesCount ?? 0,
+                          })),
+                          totalVotes: pollRes.data.totalVotes,
+                          isLiked: true,
+                          ...(pollRes.data.expiresAt
+                            ? { endsAt: pollRes.data.expiresAt }
+                            : {}),
+                          ...(pollRes.data.userVote && pollRes.data.userVote.length > 0
+                            ? { hasVoted: true }
+                            : {}),
+                          author: {
+                            _id: pollRes.data.author._id,
+                            username: pollRes.data.author.username,
+                            firstName: pollRes.data.author.firstName,
+                            lastName: pollRes.data.author.lastName,
+                            profileImage: pollRes.data.author.profileImage,
+                          },
+                          likes: pollRes.data.reactionsCount ?? 0,
+                          comments: pollRes.data.commentsCount ?? 0,
+                        };
+                      }
+                      return null;
+                    }
+                  } catch {
+                    return null;
+                  }
+
+                  return null;
+                })
+              )
+            ).filter((x): x is ContentItem => x !== null);
+
+            result = {
+              items: fetchedItems,
+              hasMore: reactionsRes.pagination?.hasMore || false,
+              total: reactionsRes.pagination?.total || fetchedItems.length,
+            };
+          }
+          break;
         default:
           setContent([]);
           setHasMore(false);
@@ -101,7 +359,7 @@ export function useProfilePageController({
       setContent([]);
       setHasMore(false);
     }
-  }, [username, activeTab]);
+  }, [username, activeTab, isOwnProfile]);
 
   const handleLoadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;

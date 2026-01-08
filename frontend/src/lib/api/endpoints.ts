@@ -70,7 +70,7 @@ export const endpoints = {
 
   reactions: {
     toggle: (data: unknown) => api.post("/reactions", data),
-    getUserReactions: () => api.get("/reactions/me"),
+    getUserReactions: (params?: unknown) => api.get("/reactions/me", { params }),
     getByContent: (contentType: string, contentId: string) =>
       api.get(`/reactions/${contentType}/${contentId}`),
     remove: (contentType: string, contentId: string) =>
