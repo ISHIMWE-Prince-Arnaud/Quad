@@ -6,6 +6,8 @@
  * - 3:1 for UI components and graphical objects
  */
 
+import { logError } from "./errorHandling";
+
 /**
  * Convert hex color to RGB
  */
@@ -165,7 +167,11 @@ export function auditColorContrast(): {
         failed.push({ name: combo.name, ratio, required: combo.required });
       }
     } catch (error) {
-      console.error(`Error checking contrast for ${combo.name}:`, error);
+      logError(error, {
+        component: "ColorContrast",
+        action: "auditColorContrast",
+        metadata: { name: combo.name },
+      });
     }
   }
 

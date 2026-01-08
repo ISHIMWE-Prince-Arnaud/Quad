@@ -2,6 +2,7 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { logError } from "@/lib/errorHandling";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -70,9 +71,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     if (asChild) {
       if (!React.isValidElement(children)) {
         if (import.meta.env.DEV) {
-          console.warn(
-            "Button with asChild expects a single React element child. Received:",
-            children
+          logError(
+            new Error("Button with asChild expects a single React element child."),
+            {
+              component: "Button",
+              action: "asChildInvalidChild",
+              metadata: { receivedType: typeof children },
+            }
           );
         }
         return (

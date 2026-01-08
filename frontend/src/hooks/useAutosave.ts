@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "./useDebounce";
+import { logError } from "@/lib/errorHandling";
 
 interface UseAutosaveOptions<T> {
   data: T;
@@ -36,7 +37,7 @@ export function useAutosave<T>({
         await onSave(debouncedData);
         setLastSaved(new Date());
       } catch (error) {
-        console.error("Autosave failed:", error);
+        logError(error, { component: "useAutosave", action: "save" });
       } finally {
         setIsSaving(false);
       }

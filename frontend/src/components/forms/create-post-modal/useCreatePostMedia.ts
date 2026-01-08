@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 import { UploadService } from "@/services/uploadService";
 import type { MediaData } from "@/schemas/post.schema";
+import { logError } from "@/lib/errorHandling";
 
 import type { UploadingFile } from "./types";
 
@@ -95,7 +96,11 @@ export function useCreatePostMedia() {
           if (localPreview) URL.revokeObjectURL(localPreview);
           toast.success("Media uploaded successfully");
         } catch (error) {
-          console.error("Upload error:", error);
+          logError(error, {
+            component: "useCreatePostMedia",
+            action: "uploadPostMedia",
+            metadata: { fileType: file.type, fileName: file.name },
+          });
           setUploadingFiles((prev) =>
             prev.map((uf, idx) => (idx === uploadingIndex ? { ...uf, error: "Upload failed" } : uf))
           );

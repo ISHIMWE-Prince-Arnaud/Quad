@@ -6,6 +6,7 @@ import { UserCard, type UserCardData } from "@/components/user/UserCard";
 import { FollowService } from "@/services/followService";
 import { SearchService } from "@/services/searchService";
 import type { ApiProfile } from "@/types/api";
+import { logError } from "@/lib/errorHandling";
 
 interface WhoToFollowProps {
   limit?: number;
@@ -67,7 +68,11 @@ export function WhoToFollow({
 
         setSuggestions(randomized);
       } catch (error) {
-        console.error("Failed to load user suggestions:", error);
+        logError(error, {
+          component: "WhoToFollow",
+          action: "fetchSuggestions",
+          metadata: { limit, showSkeleton },
+        });
       } finally {
         if (showSkeleton) {
           setIsLoading(false);
@@ -110,7 +115,11 @@ export function WhoToFollow({
         )
       );
     } catch (error) {
-      console.error("Failed to follow user:", error);
+      logError(error, {
+        component: "WhoToFollow",
+        action: "followUser",
+        metadata: { userId },
+      });
     }
   };
 
@@ -131,7 +140,11 @@ export function WhoToFollow({
         )
       );
     } catch (error) {
-      console.error("Failed to unfollow user:", error);
+      logError(error, {
+        component: "WhoToFollow",
+        action: "unfollowUser",
+        metadata: { userId },
+      });
     }
   };
 

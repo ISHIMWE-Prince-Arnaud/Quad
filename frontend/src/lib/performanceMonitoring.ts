@@ -3,6 +3,8 @@
  * Tracks performance metrics and slow operations
  */
 
+import { logError } from "./errorHandling";
+
 interface PerformanceMetric {
   name: string;
   duration: number;
@@ -111,11 +113,15 @@ class PerformanceMonitor {
     }
 
     if (threshold && metric.duration > threshold) {
-      console.warn(
-        `[Performance] Slow ${type}: ${
-          metric.name
-        } took ${metric.duration.toFixed(2)}ms`,
-        metric.metadata
+      logError(
+        new Error(
+          `[Performance] Slow ${type}: ${metric.name} took ${metric.duration.toFixed(2)}ms`
+        ),
+        {
+          component: "PerformanceMonitor",
+          action: "slowOperation",
+          metadata: { ...metric.metadata, name: metric.name, duration: metric.duration, type },
+        }
       );
     }
   }
@@ -216,8 +222,7 @@ class PerformanceMonitor {
 
     // Log loaded scripts
     const scripts = Array.from(document.querySelectorAll("script[src]"));
-
-    console.log(`[Performance] Loaded ${scripts.length} script bundles`);
+    void scripts;
   }
 }
 
@@ -229,10 +234,8 @@ if (typeof window !== "undefined") {
   window.addEventListener("load", () => {
     setTimeout(() => {
       const vitals = performanceMonitor.getWebVitals();
-      if (vitals) {
-        console.log("[Performance] Web Vitals:", vitals);
-      }
       performanceMonitor.logBundleInfo();
+      void vitals;
     }, 0);
   });
 }

@@ -18,6 +18,7 @@ import { UserAvatar } from "@/components/auth/UserMenu";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuth } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
+import { logError } from "@/lib/errorHandling";
 
 // Assuming these UI components exist in your project structure
 import {
@@ -50,7 +51,7 @@ export function Sidebar() {
       await signOut();
       setIsDialogOpen(false);
     } catch (error) {
-      console.error("Sign out error:", error);
+      logError(error, { component: "Sidebar", action: "signOut" });
     }
   };
 

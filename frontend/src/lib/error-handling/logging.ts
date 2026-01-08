@@ -1,5 +1,11 @@
 import { createAppError } from "./appError";
 
+declare global {
+  interface GlobalThis {
+    __quadErrorLog?: unknown[];
+  }
+}
+
 export function logError(
   error: unknown,
   context?: {
@@ -24,6 +30,7 @@ export function logError(
   };
 
   if (import.meta.env.DEV) {
-    console.error("Error logged:", logData);
+    globalThis.__quadErrorLog = globalThis.__quadErrorLog ?? [];
+    globalThis.__quadErrorLog.push(logData);
   }
 }
