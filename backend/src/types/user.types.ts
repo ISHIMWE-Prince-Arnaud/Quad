@@ -1,6 +1,7 @@
 export interface IUser {
   clerkId: string;             // Clerk user ID
   username: string;            // Unique username
+  previousUsernames?: string[]; // Old usernames for alias resolution
   email: string;               // Email address
   displayName?: string;        // Display name (legacy field)
   firstName?: string;          // User first name

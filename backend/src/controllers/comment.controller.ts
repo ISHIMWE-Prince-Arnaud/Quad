@@ -19,6 +19,7 @@ import {
 import { extractMentions } from "../utils/chat.util.js";
 import { DatabaseService } from "../services/database.service.js";
 import { logger } from "../utils/logger.util.js";
+import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
 
 const getContentEngagementCounts = async (
   contentType: "post" | "story" | "poll",
@@ -123,7 +124,7 @@ export const createComment = async (req: Request, res: Response) => {
     const mentions = extractMentions(text);
     if (mentions.length > 0) {
       for (const mentionedUsername of mentions) {
-        const mentionedUser = await User.findOne({ username: mentionedUsername });
+        const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
         if (mentionedUser && mentionedUser.clerkId !== userId) {
           await createNotification({
             userId: mentionedUser.clerkId,

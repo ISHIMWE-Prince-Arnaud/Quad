@@ -20,6 +20,7 @@ import {
   generateNotificationMessage,
 } from "../utils/notification.util.js";
 import { logger } from "../utils/logger.util.js";
+import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
 
 // =========================
 // SEND MESSAGE
@@ -66,9 +67,7 @@ export const sendMessage = async (req: Request, res: Response) => {
     if (mentions && mentions.length > 0) {
       for (const mentionedUsername of mentions) {
         // Find mentioned user
-        const mentionedUser = await User.findOne({
-          username: mentionedUsername,
-        });
+        const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
         if (mentionedUser && mentionedUser.clerkId !== userId) {
           await createNotification({
             userId: mentionedUser.clerkId,

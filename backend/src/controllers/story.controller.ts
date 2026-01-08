@@ -12,6 +12,7 @@ import { getSocketIO } from "../config/socket.config.js";
 import { emitContentDeleted, emitNewContent } from "../sockets/feed.socket.js";
 import { extractMentions } from "../utils/chat.util.js";
 import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
+import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
 import {
   calculateReadingTime,
   generateExcerpt,
@@ -82,7 +83,7 @@ export const createStory = async (req: Request, res: Response) => {
       const mentions = extractMentions(newStory.content);
       if (mentions.length > 0) {
         for (const mentionedUsername of mentions) {
-          const mentionedUser = await User.findOne({ username: mentionedUsername });
+          const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
           if (mentionedUser && mentionedUser.clerkId !== userId) {
             await createNotification({
               userId: mentionedUser.clerkId,
@@ -316,7 +317,7 @@ export const updateStory = async (req: Request, res: Response) => {
         const mentions = extractMentions(story.content);
         if (mentions.length > 0) {
           for (const mentionedUsername of mentions) {
-            const mentionedUser = await User.findOne({ username: mentionedUsername });
+            const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
             if (mentionedUser && mentionedUser.clerkId !== userId) {
               await createNotification({
                 userId: mentionedUser.clerkId,

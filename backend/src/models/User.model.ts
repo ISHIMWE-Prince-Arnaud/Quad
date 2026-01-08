@@ -11,6 +11,7 @@ const UserSchema = new Schema<IUserDocument>(
   {
     clerkId: { type: String, required: true, unique: true }, // Clerk user ID - AUTO INDEXED (unique)
     username: { type: String, required: true },
+    previousUsernames: { type: [String], default: [] },
     email: { type: String, required: true, unique: true }, // AUTO INDEXED (unique)
     displayName: { type: String },
     firstName: { type: String },
@@ -39,6 +40,9 @@ const UserSchema = new Schema<IUserDocument>(
 // Note: clerkId and email already have unique indexes (defined in schema)
 // Index for username search/lookup (case-insensitive future-ready)
 UserSchema.index({ username: 1 });
+
+// Index for resolving old usernames (aliases)
+UserSchema.index({ previousUsernames: 1 });
 
 // Index for searching users by creation date (e.g., newest users)
 UserSchema.index({ createdAt: -1 });

@@ -9,6 +9,7 @@ import { getSocketIO } from "../config/socket.config.js";
 import { emitContentDeleted, emitNewContent } from "../sockets/feed.socket.js";
 import { extractMentions } from "../utils/chat.util.js";
 import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
+import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
 
 // =========================
 // CREATE POST
@@ -55,7 +56,7 @@ export const createPost = async (req: Request, res: Response) => {
     const mentions = extractMentions(newPost.text);
     if (mentions.length > 0) {
       for (const mentionedUsername of mentions) {
-        const mentionedUser = await User.findOne({ username: mentionedUsername });
+        const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
         if (mentionedUser && mentionedUser.clerkId !== userId) {
           await createNotification({
             userId: mentionedUser.clerkId,
@@ -174,7 +175,7 @@ export const updatePost = async (req: Request, res: Response) => {
       const mentions = extractMentions(updatedPost.text);
       if (mentions.length > 0) {
         for (const mentionedUsername of mentions) {
-          const mentionedUser = await User.findOne({ username: mentionedUsername });
+          const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
           if (mentionedUser && mentionedUser.clerkId !== userId) {
             await createNotification({
               userId: mentionedUser.clerkId,

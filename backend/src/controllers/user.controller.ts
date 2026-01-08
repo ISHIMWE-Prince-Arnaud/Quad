@@ -96,7 +96,21 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     const updates = req.body as Partial<UpdateUserSchemaType>;
-    const updatedUser = await User.findOneAndUpdate({ clerkId }, updates, { new: true });
+    const { previousUsernames: _ignored, clerkId: _ignoredClerkId, ...safeUpdates } =
+      updates as any;
+
+    const existingUser = await User.findOne({ clerkId });
+    if (!existingUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const updateOps: Record<string, any> = { $set: safeUpdates };
+    if (safeUpdates.username && safeUpdates.username !== existingUser.username) {
+      updateOps.$addToSet = { previousUsernames: existingUser.username };
+      updateOps.$pull = { previousUsernames: safeUpdates.username };
+    }
+
+    const updatedUser = await User.findOneAndUpdate({ clerkId }, updateOps, { new: true });
 
     if (!updatedUser) {
       return res.status(404).json({ success: false, message: "User not found" });

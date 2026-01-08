@@ -15,6 +15,7 @@ import {
 import { clerkClient } from "@clerk/express";
 import { logger } from "../utils/logger.util.js";
 import { propagateUserSnapshotUpdates } from "../utils/userSnapshotPropagation.util.js";
+import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
 
 // Helper to ensure a user exists in MongoDB based on Clerk user ID
 const ensureUserByClerkId = async (clerkId: string | null) => {
@@ -104,7 +105,7 @@ export const getProfile = async (req: Request, res: Response) => {
     }
 
     // Find user by username (no auto-create by username)
-    const user = await User.findOne({ username });
+    const user = await findUserByUsernameOrAlias(username);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -150,12 +151,18 @@ export const updateProfile = async (req: Request, res: Response) => {
     const updates = req.body as UpdateProfileSchemaType;
 
     // Find the user to be updated
-    const userToUpdate = await User.findOne({ username });
+    const userToUpdate = await findUserByUsernameOrAlias(username);
     if (!userToUpdate) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
+    }
+
+    const updateOps: Record<string, any> = { $set: updates };
+    if (updates.username && updates.username !== userToUpdate.username) {
+      updateOps.$addToSet = { previousUsernames: userToUpdate.username };
+      updateOps.$pull = { previousUsernames: updates.username };
     }
 
     // Verify that user can only update their own profile
@@ -169,7 +176,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     // Update the user profile in MongoDB
     const user = await User.findOneAndUpdate(
       { clerkId: currentUserId },
-      { $set: updates },
+      updateOps,
       { new: true, runValidators: true }
     );
 
@@ -259,7 +266,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
     }
 
     // Find user by username
-    const user = await User.findOne({ username });
+    const user = await findUserByUsernameOrAlias(username);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -317,8 +324,8 @@ export const getUserStories = async (req: Request, res: Response) => {
       await ensureUserByClerkId(currentUserId);
     }
 
-    // Find user by username
-    const user = await User.findOne({ username });
+    // Find user by username or alias
+    const user = await findUserByUsernameOrAlias(username);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -377,7 +384,7 @@ export const getUserPolls = async (req: Request, res: Response) => {
     }
 
     // Find user by username
-    const user = await User.findOne({ username });
+    const user = await findUserByUsernameOrAlias(username);
     if (!user) {
       return res.status(404).json({
         success: false,
