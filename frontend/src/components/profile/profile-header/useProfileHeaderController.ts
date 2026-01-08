@@ -57,8 +57,8 @@ export function useProfileHeaderController({
     lastName: string;
     username: string;
     bio?: string;
-    profileImageUrl?: string;
-    coverImageUrl?: string;
+    profileImageUrl?: string | null;
+    coverImageUrl?: string | null;
   }) => {
     console.log("Saving profile data:", data);
 
