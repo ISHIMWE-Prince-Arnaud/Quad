@@ -5,6 +5,7 @@ import { SearchService } from "@/services/searchService";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { logError } from "@/lib/errorHandling";
 
 interface TrendingContentProps {
   searchType?: "users" | "posts" | "stories" | "polls";
@@ -36,7 +37,11 @@ export function TrendingContent({
         setTrending(trendingData);
         setPopular(popularData);
       } catch (error) {
-        console.error("Failed to load trending content:", error);
+        logError(error, {
+          component: "TrendingContent",
+          action: "loadTrendingData",
+          metadata: { searchType, limit },
+        });
         toast.error("Failed to load trending content");
       } finally {
         setLoading(false);

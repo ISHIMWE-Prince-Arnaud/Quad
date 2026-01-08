@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { logError } from "@/lib/errorHandling";
 
 interface SearchHistoryProps {
   onSearchSelect?: (query: string) => void;
@@ -31,7 +32,7 @@ export function SearchHistory({
       const items = await SearchService.getSearchHistory(20);
       setHistory(items);
     } catch (error) {
-      console.error("Failed to load search history:", error);
+      logError(error, { component: "SearchHistory", action: "loadHistory" });
       toast.error("Failed to load search history");
     } finally {
       setLoading(false);
@@ -58,7 +59,11 @@ export function SearchHistory({
       setHistory((prev) => prev.filter((item) => item._id !== id));
       toast.success("Search removed from history");
     } catch (error) {
-      console.error("Failed to delete search history item:", error);
+      logError(error, {
+        component: "SearchHistory",
+        action: "deleteHistoryItem",
+        metadata: { id },
+      });
       toast.error("Failed to delete search history item");
     }
   };
@@ -70,7 +75,7 @@ export function SearchHistory({
       setIsClearDialogOpen(false);
       toast.success("Search history cleared");
     } catch (error) {
-      console.error("Failed to clear search history:", error);
+      logError(error, { component: "SearchHistory", action: "clearAll" });
       toast.error("Failed to clear search history");
     }
   };

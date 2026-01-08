@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SearchService } from "@/services/searchService";
+import { logError } from "@/lib/errorHandling";
 
 export function GlobalSearchBar() {
   const navigate = useNavigate();
@@ -46,7 +47,11 @@ export function GlobalSearchBar() {
         const data = await SearchService.getSearchSuggestions(value, 8);
         setSuggestions(data);
       } catch (err) {
-        console.error("Failed to load suggestions", err);
+        logError(err, {
+          component: "GlobalSearchBar",
+          action: "loadSuggestions",
+          metadata: { query: value },
+        });
       } finally {
         setLoading(false);
       }

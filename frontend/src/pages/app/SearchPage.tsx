@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent, MouseEvent } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
+import { logError } from "@/lib/errorHandling";
 import { SearchControls } from "./search/SearchControls";
 import { SearchHeader } from "./search/SearchHeader";
 import { SearchResults } from "./search/SearchResults";
@@ -88,7 +89,7 @@ export default function SearchPage() {
           setTrending(t);
         }
       } catch (err) {
-        console.error("Failed to load search analytics", err);
+        logError(err, { component: "SearchPage", action: "loadSearchAnalytics" });
       }
     })();
     return () => {
@@ -184,7 +185,11 @@ export default function SearchPage() {
           setPolls(pollRes.results || []);
         }
       } catch (err) {
-        console.error("Search failed", err);
+        logError(err, {
+          component: "SearchPage",
+          action: "executeSearch",
+          metadata: { q, tab, sort: contentSortKey, dateFrom, dateTo },
+        });
         if (!cancelled) setError("We encountered an issue fetching results.");
       } finally {
         if (!cancelled) setLoading(false);
@@ -202,7 +207,7 @@ export default function SearchPage() {
       await SearchService.clearSearchHistory();
       setHistory([]);
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "SearchPage", action: "clearSearchHistory" });
     }
   };
 
@@ -212,7 +217,11 @@ export default function SearchPage() {
       await SearchService.deleteSearchHistoryItem(id);
       setHistory((prev) => prev.filter((h) => h._id !== id));
     } catch (err) {
-      console.error(err);
+      logError(err, {
+        component: "SearchPage",
+        action: "deleteSearchHistoryItem",
+        metadata: { id },
+      });
     }
   };
 

@@ -8,6 +8,7 @@ import { debounce } from "@/lib/utils";
 import { SearchService } from "@/services/searchService";
 import { FollowService } from "@/services/followService";
 import type { ApiProfile } from "@/types/api";
+import { logError } from "@/lib/errorHandling";
 
 interface UserSearchProps {
   onUserSelect?: (user: UserCardData) => void;
@@ -44,7 +45,11 @@ const searchUsers = async (query: string): Promise<UserCardData[]> => {
     const result = await SearchService.quickUserSearch(query);
     return result.map(convertApiProfileToUserCard);
   } catch (error) {
-    console.error("Search error:", error);
+    logError(error, {
+      component: "UserSearch",
+      action: "searchUsers",
+      metadata: { query },
+    });
     return [];
   }
 };
@@ -79,7 +84,11 @@ export function UserSearch({
         const searchResults = await searchUsers(searchQuery);
         setResults(searchResults);
       } catch (error) {
-        console.error("Search error:", error);
+        logError(error, {
+          component: "UserSearch",
+          action: "debouncedSearch",
+          metadata: { query: searchQuery },
+        });
         setResults([]);
       } finally {
         setIsLoading(false);
@@ -128,7 +137,11 @@ export function UserSearch({
         )
       );
     } catch (error) {
-      console.error("Failed to follow user:", error);
+      logError(error, {
+        component: "UserSearch",
+        action: "followUser",
+        metadata: { userId },
+      });
     }
   };
 
@@ -148,7 +161,11 @@ export function UserSearch({
         )
       );
     } catch (error) {
-      console.error("Failed to unfollow user:", error);
+      logError(error, {
+        component: "UserSearch",
+        action: "unfollowUser",
+        metadata: { userId },
+      });
     }
   };
 
