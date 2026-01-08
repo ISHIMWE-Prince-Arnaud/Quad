@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 import { ChatService } from "@/services/chatService";
 import type { ChatMessage } from "@/types/chat";
+import { logError } from "@/lib/errorHandling";
 
 export function useChatMessageActions({
   messages,
@@ -51,7 +52,11 @@ export function useChatMessageActions({
         if (!res.success) throw new Error(res.message || "Failed to react");
       }
     } catch (err) {
-      console.error(err);
+      logError(err, {
+        component: "ChatMessageActions",
+        action: "toggleReaction",
+        metadata: { messageId, emoji },
+      });
       toast.error("Failed to update reaction");
     }
   };
@@ -72,7 +77,11 @@ export function useChatMessageActions({
         toast.error(res.message || "Failed to edit message");
       }
     } catch (err) {
-      console.error(err);
+      logError(err, {
+        component: "ChatMessageActions",
+        action: "saveEdit",
+        metadata: { id },
+      });
       toast.error("Failed to edit message");
     }
   };
@@ -96,7 +105,11 @@ export function useChatMessageActions({
         toast.error(res.message || "Failed to delete message");
       }
     } catch (err) {
-      console.error(err);
+      logError(err, {
+        component: "ChatMessageActions",
+        action: "deleteMessage",
+        metadata: { messageId: messageToDelete },
+      });
       toast.error("Failed to delete message");
     } finally {
       setDeleting(false);

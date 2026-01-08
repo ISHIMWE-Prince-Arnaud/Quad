@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { UploadService } from "@/services/uploadService";
 import { ChatService } from "@/services/chatService";
 import type { ChatMedia, ChatMessage } from "@/types/chat";
+import { logError } from "@/lib/errorHandling";
 import { EMOJI_SHORTCODES } from "./constants";
 
 const replaceEmojiShortcodes = (input: string): string => {
@@ -64,7 +65,7 @@ export function useChatComposer({
       setMedia(chatMedia);
       toast.success("Media attached");
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "ChatComposer", action: "uploadMedia" });
       toast.error("Failed to upload media");
     } finally {
       setUploading(false);
@@ -91,7 +92,7 @@ export function useChatComposer({
         toast.error(res.message || "Failed to send");
       }
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "ChatComposer", action: "sendMessage" });
       toast.error("Failed to send message");
     } finally {
       setSending(false);

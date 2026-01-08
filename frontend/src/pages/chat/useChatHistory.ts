@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 import { ChatService } from "@/services/chatService";
 import type { ChatMessage } from "@/types/chat";
+import { logError } from "@/lib/errorHandling";
 
 export function useChatHistory({
   onInitialLoaded,
@@ -38,7 +39,7 @@ export function useChatHistory({
           setHasMoreOlder(res.pagination?.hasMore ?? false);
         }
       } catch (err) {
-        console.error(err);
+        logError(err, { component: "ChatHistory", action: "loadInitialMessages" });
         toast.error("Failed to load chat");
       } finally {
         if (!cancelled) setLoading(false);
@@ -68,7 +69,11 @@ export function useChatHistory({
         setHasMoreOlder(false);
       }
     } catch (err) {
-      console.error(err);
+      logError(err, {
+        component: "ChatHistory",
+        action: "loadOlderMessages",
+        metadata: { oldestMessageId },
+      });
       toast.error("Failed to load older messages");
     } finally {
       setLoadingOlder(false);
