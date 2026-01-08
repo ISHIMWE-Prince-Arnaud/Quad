@@ -8,6 +8,9 @@ import { getErrorMessage } from "./create-story/getErrorMessage";
 import { CreateStoryForm } from "./create-story/CreateStoryForm";
 import { MyStoriesSidebar } from "./create-story/MyStoriesSidebar";
 import { useStoryEditor } from "./create-story/useStoryEditor";
+import CanvasStoryEditor from "./create-story/CanvasStoryEditor";
+import type { CanvasElement } from "./create-story/canvasStory.types";
+import { canvasElementsToHtml } from "./create-story/canvasStoryHtml";
 import toast from "react-hot-toast";
 
 export default function CreateStoryPage() {
@@ -28,6 +31,8 @@ export default function CreateStoryPage() {
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [editorMode, setEditorMode] = useState<"rich" | "canvas">("rich");
+  const [canvasElements, setCanvasElements] = useState<CanvasElement[]>([]);
 
   const editor = useStoryEditor();
 
@@ -45,20 +50,28 @@ export default function CreateStoryPage() {
     };
   }, [editor]);
 
+  const canvasHtml = useMemo(() => {
+    return canvasElementsToHtml(canvasElements);
+  }, [canvasElements]);
+
+  const activeHtml = useMemo(() => {
+    return editorMode === "canvas" ? canvasHtml : editorHtml;
+  }, [canvasHtml, editorHtml, editorMode]);
+
   const canSubmit = useMemo(() => {
-    const textContent = editorHtml.replace(/<[^>]*>/g, "").trim();
-    return title.trim().length > 0 && textContent.length > 0;
-  }, [title, editorHtml]);
+    const textContent = activeHtml.replace(/<[^>]*>/g, "").trim();
+    const hasImage = /<(img)\b/i.test(activeHtml);
+    return title.trim().length > 0 && (textContent.length > 0 || hasImage);
+  }, [title, activeHtml]);
 
   useEffect(() => {
     if (!canSubmit || submitting || autoSaving) return;
 
     const autoSaveInterval = setInterval(() => {
       void (async () => {
-        if (!editor) return;
         try {
           setAutoSaving(true);
-          const content = editor.getHTML();
+          const content = editorMode === "canvas" ? canvasHtml : editor?.getHTML() || "";
           const payload: CreateStoryInput = {
             title: title.trim(),
             content,
@@ -77,7 +90,7 @@ export default function CreateStoryPage() {
     }, 30000); // 30 seconds
 
     return () => clearInterval(autoSaveInterval);
-  }, [canSubmit, submitting, autoSaving, title, excerpt, coverImage, editor]);
+  }, [canSubmit, submitting, autoSaving, title, excerpt, coverImage, editor, editorMode, canvasHtml]);
 
   useEffect(() => {
     let cancelled = false;
@@ -138,11 +151,29 @@ export default function CreateStoryPage() {
   };
 
   const handleInsertInlineImage = async (file: File | null) => {
-    if (!file || !editor) return;
+    if (!file) return;
     try {
       const res = await UploadService.uploadStoryMedia(file);
-      editor.chain().focus().setImage({ src: res.url }).run();
-      toast.success("Image inserted");
+      if (editorMode === "canvas") {
+        setCanvasElements((prev) => [
+          ...prev,
+          {
+            id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+            kind: "image",
+            src: res.url,
+            x: 24,
+            y: 24,
+            width: 260,
+            height: 180,
+            zIndex: prev.length + 1,
+          },
+        ]);
+        toast.success("Image added to canvas");
+      } else {
+        if (!editor) return;
+        editor.chain().focus().setImage({ src: res.url }).run();
+        toast.success("Image inserted");
+      }
     } catch (err) {
       console.error(err);
       toast.error(getErrorMessage(err));
@@ -150,12 +181,12 @@ export default function CreateStoryPage() {
   };
 
   const handleSubmit = async (status: StoryStatus) => {
-    if (!canSubmit || submitting || !editor) return;
+    if (!canSubmit || submitting) return;
 
     // Clear previous validation errors
     setValidationErrors({});
 
-    const content = editor.getHTML();
+    const content = editorMode === "canvas" ? canvasHtml : editor?.getHTML() || "";
 
     // Validate using Zod schema
     const validation = createStorySchema.safeParse({
@@ -202,7 +233,11 @@ export default function CreateStoryPage() {
       setTitle("");
       setExcerpt("");
       setCoverImage(undefined);
-      editor.commands.clearContent();
+      if (editorMode === "canvas") {
+        setCanvasElements([]);
+      } else {
+        editor?.commands.clearContent();
+      }
       setValidationErrors({});
       setLastSaved(null);
 
@@ -252,7 +287,7 @@ export default function CreateStoryPage() {
               )}
             </div>
             <div className="prose prose-invert max-w-none rounded-md border bg-background p-4">
-              <div dangerouslySetInnerHTML={{ __html: editorHtml }} />
+              <div dangerouslySetInnerHTML={{ __html: activeHtml }} />
             </div>
           </div>
         </DialogContent>
@@ -271,6 +306,24 @@ export default function CreateStoryPage() {
             autoSaving={autoSaving}
             lastSaved={lastSaved}
             editor={editor}
+            editorMode={editorMode}
+            onEditorModeChange={setEditorMode}
+            canvasEditor={
+              <CanvasStoryEditor
+                elements={canvasElements}
+                onChange={setCanvasElements}
+                onRequestAddImage={() => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = "image/*";
+                  input.onchange = () => {
+                    const file = input.files?.[0] || null;
+                    void handleInsertInlineImage(file);
+                  };
+                  input.click();
+                }}
+              />
+            }
             onTitleChange={(value) => {
               setTitle(value);
               if (validationErrors.title) {

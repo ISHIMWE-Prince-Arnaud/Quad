@@ -1,6 +1,7 @@
 import { EditorContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 import { Eye, Loader2, Save, Send } from "lucide-react";
+import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +21,9 @@ export function CreateStoryForm({
   autoSaving,
   lastSaved,
   editor,
+  editorMode,
+  onEditorModeChange,
+  canvasEditor,
   onTitleChange,
   onExcerptChange,
   onUploadCover,
@@ -41,6 +45,9 @@ export function CreateStoryForm({
   autoSaving: boolean;
   lastSaved: Date | null;
   editor: Editor | null;
+  editorMode: "rich" | "canvas";
+  onEditorModeChange: (mode: "rich" | "canvas") => void;
+  canvasEditor: ReactNode;
   onTitleChange: (value: string) => void;
   onExcerptChange: (value: string) => void;
   onUploadCover: (file: File | null) => void;
@@ -137,18 +144,48 @@ export function CreateStoryForm({
         </div>
 
         <div className="space-y-2">
-          <StoryEditorToolbar
-            editor={editor}
-            onInsertLink={onInsertLink}
-            onMention={onMention}
-          />
-
-          <div
-            className={`rounded-md border bg-background ${
-              validationErrors.content ? "border-red-500" : ""
-            }`}>
-            <EditorContent editor={editor} />
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant={editorMode === "rich" ? "secondary" : "outline"}
+              size="sm"
+              onClick={() => onEditorModeChange("rich")}
+              disabled={submitting}>
+              Rich text
+            </Button>
+            <Button
+              type="button"
+              variant={editorMode === "canvas" ? "secondary" : "outline"}
+              size="sm"
+              onClick={() => onEditorModeChange("canvas")}
+              disabled={submitting}>
+              Canvas
+            </Button>
           </div>
+
+          {editorMode === "rich" ? (
+            <>
+              <StoryEditorToolbar
+                editor={editor}
+                onInsertLink={onInsertLink}
+                onMention={onMention}
+              />
+
+              <div
+                className={`rounded-md border bg-background ${
+                  validationErrors.content ? "border-red-500" : ""
+                }`}>
+                <EditorContent editor={editor} />
+              </div>
+            </>
+          ) : (
+            <div
+              className={`rounded-md border bg-background p-3 ${
+                validationErrors.content ? "border-red-500" : ""
+              }`}>
+              {canvasEditor}
+            </div>
+          )}
           {validationErrors.content && (
             <p className="text-sm text-red-500">{validationErrors.content}</p>
           )}

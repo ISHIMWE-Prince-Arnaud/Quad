@@ -18,7 +18,8 @@ export const createStorySchema = z.object({
       (val) => {
         // Check if content has meaningful text (not just HTML tags)
         const textContent = val.replace(/<[^>]*>/g, "").trim();
-        return textContent.length > 0;
+        if (textContent.length > 0) return true;
+        return /<(img)\b/i.test(val);
       },
       {
         message: "Content cannot be empty",

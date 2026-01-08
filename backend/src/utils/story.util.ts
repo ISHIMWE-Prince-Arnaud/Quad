@@ -101,7 +101,7 @@ export const sanitizeHtmlContent = (content: string): string => {
       // Tables
       "table", "thead", "tbody", "tr", "th", "td",
       // Misc
-      "hr", "span", "div"
+      "hr", "span", "div", "img"
     ],
     
     // Allowed attributes
@@ -109,9 +109,10 @@ export const sanitizeHtmlContent = (content: string): string => {
       "a": ["href", "title", "target", "rel"],
       "code": ["class"],  // For syntax highlighting
       "pre": ["class"],
-      "span": ["class"],  // For editor styling
-      "div": ["class"],
-      "*": ["id"]  // Allow IDs for editor functionality
+      "span": ["class", "style"],
+      "div": ["class", "style"],
+      "img": ["src", "alt", "title", "width", "height", "style"],
+      "*": ["id"]
     },
     
     // URL schemes allowed in links
@@ -136,8 +137,42 @@ export const sanitizeHtmlContent = (content: string): string => {
       }
     },
     
-    // Remove any style attributes (prevent CSS injection)
-    allowedStyles: {},
+    allowedStyles: {
+      "*": {
+        "color": [/^#[0-9a-fA-F]{3,8}$/],
+        "background-color": [/^#[0-9a-fA-F]{3,8}$/],
+        "text-align": [/^(left|right|center|justify)$/],
+      },
+      "div": {
+        "position": [/^(absolute|relative)$/],
+        "left": [/^\d+(\.\d+)?(px|%)$/],
+        "top": [/^\d+(\.\d+)?(px|%)$/],
+        "width": [/^\d+(\.\d+)?(px|%)$/],
+        "height": [/^\d+(\.\d+)?(px|%)$/],
+        "transform": [/^translate\(-?\d+(\.\d+)?px,\s*-?\d+(\.\d+)?px\)(\s+rotate\(-?\d+(\.\d+)?deg\))?$/],
+        "z-index": [/^\d+$/],
+      },
+      "span": {
+        "position": [/^(absolute|relative)$/],
+        "left": [/^\d+(\.\d+)?(px|%)$/],
+        "top": [/^\d+(\.\d+)?(px|%)$/],
+        "width": [/^\d+(\.\d+)?(px|%)$/],
+        "height": [/^\d+(\.\d+)?(px|%)$/],
+        "font-size": [/^\d+(\.\d+)?px$/],
+        "font-weight": [/^(normal|bold|[1-9]00)$/],
+        "transform": [/^translate\(-?\d+(\.\d+)?px,\s*-?\d+(\.\d+)?px\)(\s+rotate\(-?\d+(\.\d+)?deg\))?$/],
+        "z-index": [/^\d+$/],
+      },
+      "img": {
+        "position": [/^(absolute|relative)$/],
+        "left": [/^\d+(\.\d+)?(px|%)$/],
+        "top": [/^\d+(\.\d+)?(px|%)$/],
+        "width": [/^\d+(\.\d+)?(px|%)$/],
+        "height": [/^\d+(\.\d+)?(px|%)$/],
+        "transform": [/^translate\(-?\d+(\.\d+)?px,\s*-?\d+(\.\d+)?px\)(\s+rotate\(-?\d+(\.\d+)?deg\))?$/],
+        "z-index": [/^\d+$/],
+      },
+    },
     
     // Remove all classes except for code highlighting
     allowedClasses: {
@@ -155,7 +190,8 @@ export const sanitizeHtmlContent = (content: string): string => {
 export const validateHtmlContent = (content: string): boolean => {
   const sanitized = sanitizeHtmlContent(content);
   const textOnly = stripHtml(sanitized).trim();
-  return textOnly.length > 0;
+  if (textOnly.length > 0) return true;
+  return /<(img)\b/i.test(sanitized);
 };
 
 /**
