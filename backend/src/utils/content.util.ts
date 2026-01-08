@@ -1,6 +1,7 @@
 import { Post } from "../models/Post.model.js";
 import { Story } from "../models/Story.model.js";
 import { Poll } from "../models/Poll.model.js";
+import { logger } from "./logger.util.js";
 
 import type { ReactableContentType } from "../types/reaction.types.js";
 import type { CommentableContentType } from "../types/comment.types.js";
@@ -40,7 +41,7 @@ export const verifyReactableContent = async (
 
     return { exists: !!content, content };
   } catch (error) {
-    console.error("Error verifying reactable content:", error);
+    logger.error("Error verifying reactable content", error);
     return { exists: false };
   }
 };
@@ -75,7 +76,7 @@ export const verifyCommentableContent = async (
 
     return { exists: !!content, content };
   } catch (error) {
-    console.error("Error verifying commentable content:", error);
+    logger.error("Error verifying commentable content", error);
     return { exists: false };
   }
 };
@@ -101,7 +102,35 @@ export const updateContentCommentsCount = async (
         break;
     }
   } catch (error) {
-    console.error("Error updating content comments count:", error);
+    logger.error("Error updating content comments count", error);
+  }
+};
+
+export const setContentReactionsCount = async (
+  contentType: ReactableContentType,
+  contentId: string,
+  reactionsCount: number
+): Promise<void> => {
+  try {
+    const safeCount = Math.max(0, reactionsCount);
+    switch (contentType) {
+      case "post":
+        await Post.findByIdAndUpdate(contentId, { $set: { reactionsCount: safeCount } });
+        break;
+      case "story":
+        await Story.findByIdAndUpdate(contentId, { $set: { reactionsCount: safeCount } });
+        break;
+      case "poll":
+        await Poll.findByIdAndUpdate(contentId, { $set: { reactionsCount: safeCount } });
+        break;
+      case "comment": {
+        const { Comment } = await import("../models/Comment.model.js");
+        await Comment.findByIdAndUpdate(contentId, { $set: { reactionsCount: safeCount } });
+        break;
+      }
+    }
+  } catch (error) {
+    logger.error("Error setting content reactions count", error);
   }
 };
 
@@ -114,23 +143,37 @@ export const updateContentReactionsCount = async (
   increment: number
 ): Promise<void> => {
   try {
+    const pipeline = [
+      {
+        $set: {
+          reactionsCount: {
+            $max: [
+              0,
+              {
+                $add: [{ $ifNull: ["$reactionsCount", 0] }, increment],
+              },
+            ],
+          },
+        },
+      },
+    ];
     switch (contentType) {
       case "post":
-        await Post.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
+        await Post.findByIdAndUpdate(contentId, pipeline);
         break;
       case "story":
-        await Story.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
+        await Story.findByIdAndUpdate(contentId, pipeline);
         break;
       case "poll":
-        await Poll.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
+        await Poll.findByIdAndUpdate(contentId, pipeline);
         break;
-      case "comment":
-        // Comments can have reactions too - update if Comment model has reactionsCount field
+      case "comment": {
         const { Comment } = await import("../models/Comment.model.js");
-        await Comment.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
+        await Comment.findByIdAndUpdate(contentId, pipeline);
         break;
+      }
     }
   } catch (error) {
-    console.error("Error updating content reactions count:", error);
+    logger.error("Error updating content reactions count", error);
   }
 };

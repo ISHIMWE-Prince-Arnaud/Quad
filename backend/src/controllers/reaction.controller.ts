@@ -9,6 +9,7 @@ import {
   verifyReactableContent,
   updateContentReactionsCount,
 } from "../utils/content.util.js";
+import { setContentReactionsCount } from "../utils/content.util.js";
 import {
   createNotification,
   generateNotificationMessage,
@@ -96,6 +97,9 @@ export const toggleReaction = async (req: Request, res: Response) => {
           contentId,
         });
 
+        // Ensure cached count is authoritative (prevents drift)
+        await setContentReactionsCount(contentType, contentId, reactionCount);
+
         // Emit real-time event
         const io = getSocketIO();
         io.emit("reactionRemoved", {
@@ -163,6 +167,9 @@ export const toggleReaction = async (req: Request, res: Response) => {
       contentType,
       contentId,
     });
+
+    // Ensure cached count is authoritative (prevents drift)
+    await setContentReactionsCount(contentType, contentId, reactionCount);
 
     // Create notification for content owner (if not reacting to own content)
     if (contentOwnerId && contentOwnerId !== userId) {
@@ -336,6 +343,9 @@ export const deleteReaction = async (req: Request, res: Response) => {
       contentType,
       contentId,
     });
+
+    // Ensure cached count is authoritative (prevents drift)
+    await setContentReactionsCount(contentType, contentId, reactionCount);
 
     // Emit real-time event
     getSocketIO().emit("reactionRemoved", {
