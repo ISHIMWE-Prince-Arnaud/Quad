@@ -6,6 +6,7 @@ import type { Poll, PollQueryParams, PollStatus } from "@/types/poll";
 import { SkeletonPost } from "@/components/ui/loading";
 import { getSocket } from "@/lib/socket";
 import type { FeedEngagementUpdatePayload } from "@/lib/socket";
+import { logError } from "@/lib/errorHandling";
 
 import { getErrorMessage } from "./polls/getErrorMessage";
 import type { SortKey, VotedFilter } from "./polls/types";
@@ -62,7 +63,7 @@ export default function PollsPage() {
           setHasMore(res.pagination?.hasMore ?? false);
         }
       } catch (err) {
-        console.error(err);
+        logError(err, { component: "PollsPage", action: "loadPolls", metadata: queryParams });
         if (!cancelled) setError(getErrorMessage(err));
       } finally {
         if (!cancelled) setLoading(false);

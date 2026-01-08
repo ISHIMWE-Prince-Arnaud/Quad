@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 import { PollService } from "@/services/pollService";
 import type { Poll } from "@/types/poll";
+import { logError } from "@/lib/errorHandling";
 
 import { getErrorMessage } from "./getErrorMessage";
 
@@ -59,7 +60,7 @@ export function usePollVoting({
       setSelectedIndices(res.data.userVote || []);
       toast.success("Vote recorded");
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "PollVoting", action: "vote", metadata: { id, selectedIndices } });
       toast.error(getErrorMessage(err));
     } finally {
       setVoting(false);

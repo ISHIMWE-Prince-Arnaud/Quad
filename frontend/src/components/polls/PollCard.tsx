@@ -14,6 +14,7 @@ import { PollCardFooter } from "./poll-card/PollCardFooter";
 import { usePollReactions } from "./poll-card/usePollReactions";
 import { usePollBookmark } from "./poll-card/usePollBookmark";
 import { usePollVoting } from "./poll-card/usePollVoting";
+import { logError } from "@/lib/errorHandling";
 
 export function PollCard({
   poll,
@@ -75,7 +76,7 @@ export function PollCard({
         toast.success("Poll link copied to clipboard");
       }
     } catch (e) {
-      console.error("Failed to copy link:", e);
+      logError(e, { component: "PollCard", action: "copyLink", metadata: { pollId: poll.id } });
       toast.error("Failed to copy link");
     }
   };

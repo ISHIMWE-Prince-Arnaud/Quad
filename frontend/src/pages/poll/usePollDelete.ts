@@ -3,6 +3,7 @@ import type { NavigateFunction } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { PollService } from "@/services/pollService";
+import { logError } from "@/lib/errorHandling";
 
 import { getErrorMessage } from "./getErrorMessage";
 
@@ -28,7 +29,7 @@ export function usePollDelete({
         toast.error(res.message || "Failed to delete poll");
       }
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "PollDelete", action: "deletePoll", metadata: { id } });
       toast.error(getErrorMessage(err));
     } finally {
       setDeleting(false);

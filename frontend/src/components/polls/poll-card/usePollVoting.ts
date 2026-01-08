@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 
 import { PollService } from "@/services/pollService";
 import type { Poll } from "@/types/poll";
+import { logError } from "@/lib/errorHandling";
 
 export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void) {
   // Local poll state for optimistic updates
@@ -112,7 +113,11 @@ export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void
 
       toast.success("Vote recorded!");
     } catch (err: unknown) {
-      console.error(err);
+      logError(err, {
+        component: "PollCardVoting",
+        action: "vote",
+        metadata: { pollId: poll.id },
+      });
       // Revert optimistic update
       setLocalPoll(poll);
       setSelectedIndices(poll.userVote || []);
@@ -193,7 +198,11 @@ export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void
 
       toast.success("Vote removed");
     } catch (err: unknown) {
-      console.error(err);
+      logError(err, {
+        component: "PollCardVoting",
+        action: "removeVote",
+        metadata: { pollId: poll.id },
+      });
       // Revert optimistic update
       setLocalPoll(poll);
       setSelectedIndices(poll.userVote || []);

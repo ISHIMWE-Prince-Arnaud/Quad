@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { PollService } from "@/services/pollService";
 import type { Poll } from "@/types/poll";
 import { cn } from "@/lib/utils";
+import { logError } from "@/lib/errorHandling";
 
 interface FeaturedPollProps {
   className?: string;
@@ -47,7 +48,7 @@ export function FeaturedPoll({ className }: FeaturedPollProps) {
         setError(null);
       }
     } catch (err) {
-      console.error("Failed to load featured poll", err);
+      logError(err, { component: "FeaturedPoll", action: "fetchPoll" });
       setError("Unable to load poll");
       setPoll(null);
     } finally {

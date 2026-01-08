@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
 import { ReactionService, type ReactionType } from "@/services/reactionService";
+import { logError } from "@/lib/errorHandling";
 
 import { EMPTY_REACTION_COUNTS } from "./constants";
 
@@ -27,7 +28,7 @@ export function usePollReactions({ id }: { id: string | undefined }) {
           setUserReaction((res.data.userReaction?.type as ReactionType) || null);
         }
       } catch (err) {
-        console.error(err);
+        logError(err, { component: "PollReactions", action: "loadReactions", metadata: { id } });
       }
     })();
 
@@ -68,7 +69,11 @@ export function usePollReactions({ id }: { id: string | undefined }) {
         if (!res.success) throw new Error(res.message || "Failed to react");
       }
     } catch (err) {
-      console.error(err);
+      logError(err, {
+        component: "PollReactions",
+        action: "toggleReaction",
+        metadata: { id, reactionType: type },
+      });
       toast.error("Failed to update reaction");
       setReactionCounts(prevCounts);
       setUserReaction(prevType);

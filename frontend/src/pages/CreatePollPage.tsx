@@ -16,6 +16,7 @@ import { MyRecentPollsSidebar } from "./create-poll/MyRecentPollsSidebar";
 import { getErrorMessage } from "./create-poll/getErrorMessage";
 import { mapFileToMedia } from "./create-poll/pollUtils";
 import type { LocalOption, PollSettingsState, ValidationErrors } from "./create-poll/types";
+import { logError } from "@/lib/errorHandling";
 
 export default function CreatePollPage() {
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ export default function CreatePollPage() {
           setMyPolls(res.data || []);
         }
       } catch (err) {
-        console.error(err);
+        logError(err, { component: "CreatePollPage", action: "loadMyPolls" });
       } finally {
         if (!cancelled) setLoadingMyPolls(false);
       }
@@ -104,7 +105,7 @@ export default function CreatePollPage() {
       setQuestionMedia(mapFileToMedia(file, res.url));
       toast.success("Question media attached");
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "CreatePollPage", action: "uploadQuestionMedia" });
       toast.error(getErrorMessage(err));
     } finally {
       setUploadingQuestionMedia(false);
@@ -122,7 +123,11 @@ export default function CreatePollPage() {
       );
       toast.success("Option media attached");
     } catch (err) {
-      console.error(err);
+      logError(err, {
+        component: "CreatePollPage",
+        action: "uploadOptionMedia",
+        metadata: { optionId: id },
+      });
       toast.error(getErrorMessage(err));
     } finally {
       setUploadingOptionId(null);
@@ -191,7 +196,7 @@ export default function CreatePollPage() {
       toast.success("Poll created successfully!");
       navigate(`/app/polls/${res.data.id}`);
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "CreatePollPage", action: "submitPoll" });
       toast.error(getErrorMessage(err));
     } finally {
       setSubmitting(false);

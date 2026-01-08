@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { PollService } from "@/services/pollService";
 import type { Poll } from "@/types/poll";
+import { logError } from "@/lib/errorHandling";
 
 import { getErrorMessage } from "./getErrorMessage";
 
@@ -26,7 +27,7 @@ export function usePollData({ id }: { id: string | undefined }) {
           setSelectedIndices(res.data.userVote || []);
         }
       } catch (err) {
-        console.error(err);
+        logError(err, { component: "PollData", action: "loadPoll", metadata: { id } });
         if (!cancelled) setError(getErrorMessage(err));
       } finally {
         if (!cancelled) setLoading(false);
