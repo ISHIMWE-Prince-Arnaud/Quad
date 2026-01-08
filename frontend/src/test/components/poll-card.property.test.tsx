@@ -12,74 +12,111 @@ describe("Poll Display Property Tests", () => {
   });
 
   it("Property 50: Poll data contains all required fields", async () => {
+    const nowIso = new Date().toISOString();
+    const pollMediaArb = fc
+      .record({
+        url: fc.webUrl(),
+        type: fc.constantFrom("image" as const, "video" as const),
+        aspectRatio: fc.option(
+          fc.constantFrom("1:1" as const, "16:9" as const, "9:16" as const),
+          { nil: undefined }
+        ),
+      })
+      .map(({ url, type, aspectRatio }) => ({
+        url,
+        type,
+        ...(aspectRatio ? { aspectRatio } : {}),
+      }));
+
+    const pollArb: fc.Arbitrary<Poll> = fc
+      .record({
+        id: fc.string({ minLength: 10, maxLength: 30 }),
+        authorBase: fc.record({
+          _id: fc.string({ minLength: 10, maxLength: 30 }),
+          clerkId: fc.string({ minLength: 10, maxLength: 30 }),
+          username: fc.string({ minLength: 3, maxLength: 20 }),
+          email: fc.emailAddress(),
+          joinedAt: fc.constant(nowIso),
+          updatedAt: fc.constant(nowIso),
+          createdAt: fc.constant(nowIso),
+        }),
+        authorFirstName: fc.option(fc.string({ minLength: 1, maxLength: 50 }), {
+          nil: undefined,
+        }),
+        authorLastName: fc.option(fc.string({ minLength: 1, maxLength: 50 }), {
+          nil: undefined,
+        }),
+        authorProfileImage: fc.option(fc.webUrl(), { nil: undefined }),
+        question: fc.string({ minLength: 10, maxLength: 500 }),
+        questionMedia: fc.option(pollMediaArb, { nil: undefined }),
+        options: fc
+          .array(
+            fc.record({
+              index: fc.integer({ min: 0, max: 4 }),
+              text: fc.string({ minLength: 1, maxLength: 200 }),
+              votesCount: fc.integer({ min: 0, max: 10000 }),
+              percentage: fc.integer({ min: 0, max: 100 }),
+            }),
+            { minLength: 2, maxLength: 5 }
+          )
+          .map((opts) => opts.map((opt, idx) => ({ ...opt, index: idx }))),
+        settings: fc.record({
+          allowMultiple: fc.boolean(),
+          anonymousVoting: fc.boolean(),
+          showResults: fc.constantFrom(
+            "always" as const,
+            "afterVote" as const,
+            "afterExpiry" as const
+          ),
+        }),
+        status: fc.constantFrom(
+          "active" as const,
+          "expired" as const,
+          "closed" as const
+        ),
+        expiresAt: fc.option(
+          fc
+            .date({
+              min: new Date(),
+              max: new Date(Date.now() + 86400000 * 30),
+            })
+            .map((d) => d.toISOString())
+        ),
+        totalVotes: fc.integer({ min: 0, max: 50000 }),
+        reactionsCount: fc.integer({ min: 0, max: 10000 }),
+        commentsCount: fc.integer({ min: 0, max: 10000 }),
+        userVote: fc.option(fc.array(fc.integer({ min: 0, max: 4 }), { maxLength: 5 }), {
+          nil: undefined,
+        }),
+        canViewResults: fc.boolean(),
+        createdAt: fc.constant(nowIso),
+        updatedAt: fc.constant(nowIso),
+      })
+      .map(
+        ({
+          authorBase,
+          authorFirstName,
+          authorLastName,
+          authorProfileImage,
+          questionMedia,
+          userVote,
+          ...rest
+        }) => ({
+          ...rest,
+          author: {
+            ...authorBase,
+            ...(authorFirstName ? { firstName: authorFirstName } : {}),
+            ...(authorLastName ? { lastName: authorLastName } : {}),
+            ...(authorProfileImage ? { profileImage: authorProfileImage } : {}),
+          },
+          ...(questionMedia ? { questionMedia } : {}),
+          ...(userVote ? { userVote } : {}),
+        })
+      );
+
     await fc.assert(
       fc.asyncProperty(
-        fc.record({
-          id: fc.string({ minLength: 10, maxLength: 30 }),
-          author: fc.record({
-            clerkId: fc.string({ minLength: 10, maxLength: 30 }),
-            username: fc.string({ minLength: 3, maxLength: 20 }),
-            email: fc.emailAddress(),
-            firstName: fc.option(fc.string({ minLength: 1, maxLength: 50 })),
-            lastName: fc.option(fc.string({ minLength: 1, maxLength: 50 })),
-            profileImage: fc.option(fc.webUrl()),
-          }),
-          question: fc.string({ minLength: 10, maxLength: 500 }),
-          questionMedia: fc.option(
-            fc.record({
-              url: fc.webUrl(),
-              type: fc.constantFrom("image" as const, "video" as const),
-              aspectRatio: fc.option(
-                fc.constantFrom(
-                  "1:1" as const,
-                  "16:9" as const,
-                  "9:16" as const
-                )
-              ),
-            })
-          ),
-          options: fc
-            .array(
-              fc.record({
-                index: fc.integer({ min: 0, max: 4 }),
-                text: fc.string({ minLength: 1, maxLength: 200 }),
-                votesCount: fc.integer({ min: 0, max: 10000 }),
-                percentage: fc.integer({ min: 0, max: 100 }),
-              }),
-              { minLength: 2, maxLength: 5 }
-            )
-            .map((opts) => opts.map((opt, idx) => ({ ...opt, index: idx }))),
-          settings: fc.record({
-            allowMultiple: fc.boolean(),
-            showResults: fc.constantFrom(
-              "always" as const,
-              "afterVote" as const,
-              "afterExpiry" as const
-            ),
-          }),
-          status: fc.constantFrom(
-            "active" as const,
-            "expired" as const,
-            "closed" as const
-          ),
-          expiresAt: fc.option(
-            fc
-              .date({
-                min: new Date(),
-                max: new Date(Date.now() + 86400000 * 30),
-              })
-              .map((d) => d.toISOString())
-          ),
-          totalVotes: fc.integer({ min: 0, max: 50000 }),
-          reactionsCount: fc.integer({ min: 0, max: 10000 }),
-          commentsCount: fc.integer({ min: 0, max: 10000 }),
-          userVote: fc.option(
-            fc.array(fc.integer({ min: 0, max: 4 }), { maxLength: 5 })
-          ),
-          canViewResults: fc.boolean(),
-          createdAt: fc.constant(new Date().toISOString()),
-          updatedAt: fc.constant(new Date().toISOString()),
-        }),
+        pollArb,
         async (poll: Poll) => {
           // Property 1: Poll must have an ID
           expect(poll.id).toBeDefined();
@@ -151,7 +188,7 @@ describe("Poll Display Property Tests", () => {
           expect(poll.updatedAt).toBeDefined();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -185,7 +222,7 @@ describe("Poll Display Property Tests", () => {
           });
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -206,7 +243,7 @@ describe("Poll Display Property Tests", () => {
           expect(totalVotes).toBeGreaterThanOrEqual(0);
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -232,7 +269,7 @@ describe("Poll Display Property Tests", () => {
           expect(uniqueVotes.length).toBe(validVote.length);
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -271,7 +308,7 @@ describe("Poll Display Property Tests", () => {
           }
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 });

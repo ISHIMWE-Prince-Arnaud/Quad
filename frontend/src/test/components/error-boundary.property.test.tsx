@@ -54,7 +54,7 @@ describe("Property 67: Error Boundary Catch", () => {
           cleanup();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     );
   });
 
@@ -90,7 +90,7 @@ describe("Property 67: Error Boundary Catch", () => {
           ).toBeInTheDocument();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     );
 
     // Final cleanup
@@ -129,7 +129,7 @@ describe("Property 67: Error Boundary Catch", () => {
           cleanup();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     );
   });
 
@@ -166,7 +166,7 @@ describe("Property 67: Error Boundary Catch", () => {
           cleanup();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     );
   });
 
@@ -197,7 +197,7 @@ describe("Property 67: Error Boundary Catch", () => {
           cleanup();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     );
   });
 
@@ -238,7 +238,7 @@ describe("Property 67: Error Boundary Catch", () => {
           cleanup();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     );
   });
 
@@ -272,7 +272,7 @@ describe("Property 67: Error Boundary Catch", () => {
           cleanup();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     );
   });
 

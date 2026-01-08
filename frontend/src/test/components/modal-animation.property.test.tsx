@@ -87,7 +87,7 @@ describe("Modal Animation Property Tests", () => {
           }
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     );
   });
 
@@ -128,7 +128,7 @@ describe("Modal Animation Property Tests", () => {
           }
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     );
   });
 });

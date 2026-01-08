@@ -180,7 +180,10 @@ describe("Property 7: Request Payload Schema Validation", () => {
                 .filter((s) => s.trim().length > 0),
             }),
             { minLength: 2, maxLength: 5 }
-          ),
+          ).filter((options) => {
+            const texts = options.map((o) => o.text.trim().toLowerCase());
+            return new Set(texts).size === texts.length;
+          }),
           (question, options) => {
             const result = createPollSchema.safeParse({ question, options });
             expect(result.success).toBe(true);
