@@ -9,6 +9,7 @@ This guide covers everything you need to set up a local development environment 
 ## 🚀 **Quick Start (5 Minutes)**
 
 ### **Prerequisites Check**
+
 ```bash
 # Check Node.js version (requires 18+)
 node --version
@@ -21,6 +22,7 @@ git --version
 ```
 
 ### **Rapid Setup**
+
 ```bash
 # Clone the repository
 git clone https://github.com/ISHIMWE-Prince-Arnaud/Quad.git
@@ -44,6 +46,7 @@ npm run dev
 ### **1. System Requirements**
 
 #### **Minimum Requirements**
+
 - **Node.js**: 18.0+ (LTS recommended)
 - **npm**: 8.0+ or **yarn**: 1.22+
 - **Git**: 2.30+
@@ -51,6 +54,7 @@ npm run dev
 - **Storage**: 2GB free space
 
 #### **Recommended Development Tools**
+
 - **Visual Studio Code** with extensions:
   - TypeScript and JavaScript Language Features
   - Prettier - Code formatter
@@ -63,6 +67,7 @@ npm run dev
 ### **2. Node.js Installation**
 
 #### **Using Node Version Manager (Recommended)**
+
 ```bash
 # Install nvm (Linux/macOS)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
@@ -77,6 +82,7 @@ nvm alias default 18
 ```
 
 #### **Direct Installation**
+
 - Download from [nodejs.org](https://nodejs.org/)
 - Choose LTS version (18.x)
 - Follow installation wizard
@@ -84,6 +90,7 @@ nvm alias default 18
 ### **3. Project Setup**
 
 #### **Clone Repository**
+
 ```bash
 # Using HTTPS
 git clone https://github.com/ISHIMWE-Prince-Arnaud/Quad.git
@@ -96,6 +103,7 @@ cd Quad/backend
 ```
 
 #### **Install Dependencies**
+
 ```bash
 # Using npm
 npm install
@@ -114,12 +122,15 @@ npm list --depth=0
 ### **Environment Variables Setup**
 
 #### **Copy Template**
+
 ```bash
 cp .env.example .env
 ```
 
 #### **Development Environment Variables**
+
 Edit `.env` file:
+
 ```bash
 # ================================
 # SERVER CONFIGURATION
@@ -160,6 +171,7 @@ FRONTEND_URL=http://localhost:5173
 ### **Development Services Setup**
 
 #### **Option 1: MongoDB Atlas (Recommended)**
+
 1. Go to [MongoDB Atlas](https://cloud.mongodb.com/)
 2. Create free account
 3. Create new cluster
@@ -168,6 +180,7 @@ FRONTEND_URL=http://localhost:5173
 6. Get connection string
 
 #### **Option 2: Local MongoDB**
+
 ```bash
 # Install MongoDB (Ubuntu/Debian)
 wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
@@ -186,12 +199,14 @@ brew services start mongodb-community
 ```
 
 #### **Clerk Development Setup**
+
 1. Sign up at [Clerk.com](https://clerk.com)
 2. Create new application
 3. Get development keys from dashboard
 4. Configure allowed domains (localhost:3000)
 
 #### **Cloudinary Development Setup**
+
 1. Sign up at [Cloudinary.com](https://cloudinary.com)
 2. Get account details from dashboard
 3. Create upload presets for development
@@ -203,6 +218,7 @@ brew services start mongodb-community
 ### **Available Scripts**
 
 #### **Development Scripts**
+
 ```bash
 # Start development server with hot reload
 npm run dev
@@ -233,6 +249,7 @@ npm run test:coverage
 ```
 
 #### **Database Scripts**
+
 ```bash
 # Seed development data
 npm run seed
@@ -250,7 +267,9 @@ npm run indexes
 ### **Development Server Features**
 
 #### **Hot Reload Configuration**
+
 The development server uses `nodemon` for automatic restarts:
+
 ```json
 // nodemon.json
 {
@@ -262,6 +281,7 @@ The development server uses `nodemon` for automatic restarts:
 ```
 
 #### **TypeScript Compilation**
+
 ```json
 // tsconfig.json (development settings)
 {
@@ -288,31 +308,33 @@ The development server uses `nodemon` for automatic restarts:
 ### **Test Configuration**
 
 #### **Jest Configuration**
+
 ```javascript
 // jest.config.js
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  preset: "ts-jest",
+  testEnvironment: "node",
+  roots: ["<rootDir>/src"],
+  testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    "^.+\\.ts$": "ts-jest",
   },
   collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.test.ts',
-    '!src/**/*.spec.ts',
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.spec.ts",
   ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html'],
+  coverageDirectory: "coverage",
+  coverageReporters: ["text", "lcov", "html"],
 };
 ```
 
 #### **Test Database Setup**
+
 ```typescript
 // src/tests/setup.ts
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import mongoose from "mongoose";
+import { MongoMemoryServer } from "mongodb-memory-server";
 
 let mongoServer: MongoMemoryServer;
 
@@ -339,59 +361,61 @@ afterEach(async () => {
 ### **Writing Tests**
 
 #### **Unit Test Example**
+
 ```typescript
 // src/utils/__tests__/validation.test.ts
-import { validateEmail, validatePassword } from '../validation.util';
+import { validateEmail, validatePassword } from "../validation.util";
 
-describe('Validation Utilities', () => {
-  describe('validateEmail', () => {
-    it('should validate correct email formats', () => {
-      expect(validateEmail('test@example.com')).toBe(true);
-      expect(validateEmail('user.name+tag@domain.co.uk')).toBe(true);
+describe("Validation Utilities", () => {
+  describe("validateEmail", () => {
+    it("should validate correct email formats", () => {
+      expect(validateEmail("test@example.com")).toBe(true);
+      expect(validateEmail("user.name+tag@domain.co.uk")).toBe(true);
     });
 
-    it('should reject invalid email formats', () => {
-      expect(validateEmail('invalid-email')).toBe(false);
-      expect(validateEmail('test@')).toBe(false);
-      expect(validateEmail('@domain.com')).toBe(false);
+    it("should reject invalid email formats", () => {
+      expect(validateEmail("invalid-email")).toBe(false);
+      expect(validateEmail("test@")).toBe(false);
+      expect(validateEmail("@domain.com")).toBe(false);
     });
   });
 
-  describe('validatePassword', () => {
-    it('should validate strong passwords', () => {
-      expect(validatePassword('StrongPass123!')).toBe(true);
+  describe("validatePassword", () => {
+    it("should validate strong passwords", () => {
+      expect(validatePassword("StrongPass123!")).toBe(true);
     });
 
-    it('should reject weak passwords', () => {
-      expect(validatePassword('weak')).toBe(false);
-      expect(validatePassword('123456')).toBe(false);
+    it("should reject weak passwords", () => {
+      expect(validatePassword("weak")).toBe(false);
+      expect(validatePassword("123456")).toBe(false);
     });
   });
 });
 ```
 
 #### **Integration Test Example**
+
 ```typescript
 // src/controllers/__tests__/user.controller.test.ts
-import request from 'supertest';
-import { app } from '../../server';
-import { User } from '../../models/User.model';
+import request from "supertest";
+import { app } from "../../server";
+import { User } from "../../models/User.model";
 
-describe('User Controller', () => {
+describe("User Controller", () => {
   beforeEach(async () => {
     await User.deleteMany({});
   });
 
-  describe('POST /api/users', () => {
-    it('should create a new user', async () => {
+  describe("POST /api/users", () => {
+    it("should create a new user", async () => {
       const userData = {
-        username: 'testuser',
-        email: 'test@example.com',
-        displayName: 'Test User'
+        username: "testuser",
+        email: "test@example.com",
+        displayName: "Test User",
       };
 
       const response = await request(app)
-        .post('/api/users')
+        .post("/api/users")
         .send(userData)
         .expect(201);
 
@@ -399,14 +423,14 @@ describe('User Controller', () => {
       expect(response.body.data.username).toBe(userData.username);
     });
 
-    it('should return 400 for invalid data', async () => {
+    it("should return 400 for invalid data", async () => {
       const invalidData = {
-        username: '', // Invalid: empty username
-        email: 'invalid-email' // Invalid: malformed email
+        username: "", // Invalid: empty username
+        email: "invalid-email", // Invalid: malformed email
       };
 
       const response = await request(app)
-        .post('/api/users')
+        .post("/api/users")
         .send(invalidData)
         .expect(400);
 
@@ -421,7 +445,9 @@ describe('User Controller', () => {
 ## 🔍 **Debugging**
 
 ### **VS Code Debug Configuration**
+
 Create `.vscode/launch.json`:
+
 ```json
 {
   "version": "0.2.0",
@@ -460,27 +486,31 @@ Create `.vscode/launch.json`:
 ### **Debugging Tools**
 
 #### **Console Debugging**
+
 ```typescript
 // Use the logger utility instead of console.log
-import { logger } from '../utils/logger.util';
+import { logger } from "../utils/logger.util";
 
 // Development logging
-logger.debug('Debugging user creation', { userId, userData });
-logger.info('User created successfully', { userId });
-logger.warn('Potential issue detected', { issue });
-logger.error('Error creating user', error);
+logger.debug("Debugging user creation", { userId, userData });
+logger.info("User created successfully", { userId });
+logger.warn("Potential issue detected", { issue });
+logger.error("Error creating user", error);
 ```
 
 #### **Database Debugging**
+
 ```typescript
+import { logger } from "../utils/logger.util";
+
 // Enable Mongoose debugging
-if (process.env.NODE_ENV === 'development') {
-  mongoose.set('debug', true);
+if (process.env.NODE_ENV === "development") {
+  mongoose.set("debug", true);
 }
 
 // Query debugging
-const users = await User.find().explain('executionStats');
-console.log('Query execution stats:', users);
+const users = await User.find().explain("executionStats");
+logger.debug("Query execution stats", users);
 ```
 
 ---
@@ -490,6 +520,7 @@ console.log('Query execution stats:', users);
 ### **Adding Dependencies**
 
 #### **Production Dependencies**
+
 ```bash
 # Add new dependency
 npm install package-name
@@ -502,6 +533,7 @@ npm install user/repo#branch
 ```
 
 #### **Development Dependencies**
+
 ```bash
 # Add dev dependency
 npm install --save-dev package-name
@@ -513,6 +545,7 @@ npm install --save-dev @types/package-name
 ### **Dependency Management**
 
 #### **Update Dependencies**
+
 ```bash
 # Check outdated packages
 npm outdated
@@ -529,6 +562,7 @@ npm install
 ```
 
 #### **Security Auditing**
+
 ```bash
 # Check for vulnerabilities
 npm audit
@@ -545,13 +579,11 @@ npm audit fix --force
 ## 🔧 **Code Quality Tools**
 
 ### **ESLint Configuration**
+
 ```json
 // .eslintrc.json
 {
-  "extends": [
-    "@typescript-eslint/recommended",
-    "prettier"
-  ],
+  "extends": ["@typescript-eslint/recommended", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2022,
@@ -573,6 +605,7 @@ npm audit fix --force
 ```
 
 ### **Prettier Configuration**
+
 ```json
 // .prettierrc
 {
@@ -586,6 +619,7 @@ npm audit fix --force
 ```
 
 ### **Pre-commit Hooks**
+
 ```json
 // package.json
 {
@@ -595,11 +629,7 @@ npm audit fix --force
     }
   },
   "lint-staged": {
-    "*.{ts,js}": [
-      "eslint --fix",
-      "prettier --write",
-      "git add"
-    ]
+    "*.{ts,js}": ["eslint --fix", "prettier --write", "git add"]
   }
 }
 ```
@@ -609,14 +639,17 @@ npm audit fix --force
 ## 📊 **Development Monitoring**
 
 ### **Performance Monitoring**
+
 ```typescript
 // Add to server.ts for development
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   app.use((req, res, next) => {
     const start = Date.now();
-    res.on('finish', () => {
+    res.on("finish", () => {
       const duration = Date.now() - start;
-      logger.debug(`${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`);
+      logger.debug(
+        `${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`,
+      );
     });
     next();
   });
@@ -624,15 +657,16 @@ if (process.env.NODE_ENV === 'development') {
 ```
 
 ### **Memory Usage Monitoring**
+
 ```typescript
 // Monitor memory usage in development
 setInterval(() => {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     const used = process.memoryUsage();
-    logger.debug('Memory usage:', {
-      rss: `${Math.round(used.rss / 1024 / 1024 * 100) / 100} MB`,
-      heapTotal: `${Math.round(used.heapTotal / 1024 / 1024 * 100) / 100} MB`,
-      heapUsed: `${Math.round(used.heapUsed / 1024 / 1024 * 100) / 100} MB`,
+    logger.debug("Memory usage:", {
+      rss: `${Math.round((used.rss / 1024 / 1024) * 100) / 100} MB`,
+      heapTotal: `${Math.round((used.heapTotal / 1024 / 1024) * 100) / 100} MB`,
+      heapUsed: `${Math.round((used.heapUsed / 1024 / 1024) * 100) / 100} MB`,
     });
   }
 }, 60000); // Every minute
@@ -645,54 +679,56 @@ setInterval(() => {
 ### **Database Operations**
 
 #### **Seeding Development Data**
+
 ```typescript
 // scripts/seed.ts
-import mongoose from 'mongoose';
-import { User } from '../src/models/User.model';
-import { Post } from '../src/models/Post.model';
+import mongoose from "mongoose";
+import { User } from "../src/models/User.model";
+import { Post } from "../src/models/Post.model";
+import { logger } from "../src/utils/logger.util";
 
 const seedData = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI!);
-    
+
     // Clear existing data
     await User.deleteMany({});
     await Post.deleteMany({});
-    
+
     // Create test users
     const users = await User.create([
       {
-        clerkId: 'test_user_1',
-        username: 'john_doe',
-        email: 'john@example.com',
-        displayName: 'John Doe'
+        clerkId: "test_user_1",
+        username: "john_doe",
+        email: "john@example.com",
+        displayName: "John Doe",
       },
       {
-        clerkId: 'test_user_2',
-        username: 'jane_smith',
-        email: 'jane@example.com',
-        displayName: 'Jane Smith'
-      }
+        clerkId: "test_user_2",
+        username: "jane_smith",
+        email: "jane@example.com",
+        displayName: "Jane Smith",
+      },
     ]);
-    
+
     // Create test posts
     await Post.create([
       {
         userId: users[0].clerkId,
-        content: 'Hello from the development environment!',
-        tags: ['development', 'testing']
+        content: "Hello from the development environment!",
+        tags: ["development", "testing"],
       },
       {
         userId: users[1].clerkId,
-        content: 'Another test post with some content',
-        tags: ['test', 'content']
-      }
+        content: "Another test post with some content",
+        tags: ["test", "content"],
+      },
     ]);
-    
-    console.log('Database seeded successfully!');
+
+    logger.success("Database seeded successfully!");
     process.exit(0);
   } catch (error) {
-    console.error('Seeding failed:', error);
+    logger.error("Seeding failed", error);
     process.exit(1);
   }
 };
@@ -701,6 +737,7 @@ seedData();
 ```
 
 #### **Running Seed Script**
+
 ```bash
 # Add to package.json scripts
 "seed": "ts-node scripts/seed.ts"
@@ -712,6 +749,7 @@ npm run seed
 ### **API Testing**
 
 #### **Using Thunder Client (VS Code)**
+
 Create test collections in `.vscode/thunder-tests/`:
 
 ```json
@@ -749,6 +787,7 @@ Create test collections in `.vscode/thunder-tests/`:
 ### **Common Issues**
 
 #### **Port Already in Use**
+
 ```bash
 # Find process using port 3001
 lsof -i :3001
@@ -761,6 +800,7 @@ PORT=3002 npm run dev
 ```
 
 #### **MongoDB Connection Issues**
+
 ```bash
 # Check MongoDB status (local)
 sudo systemctl status mongod
@@ -769,10 +809,11 @@ sudo systemctl status mongod
 mongosh mongodb://localhost:27017/quad-dev
 
 # Check connection string format
-node -e "console.log(process.env.MONGODB_URI)"
+node -p "process.env.MONGODB_URI"
 ```
 
 #### **TypeScript Compilation Errors**
+
 ```bash
 # Clear TypeScript cache
 rm -rf node_modules/.cache
@@ -786,12 +827,13 @@ npx tsc --showConfig
 ```
 
 #### **Environment Variables Not Loading**
+
 ```bash
 # Check if .env file exists
 ls -la .env
 
 # Verify environment variables
-node -e "require('dotenv').config(); console.log(process.env.NODE_ENV)"
+node -p "require('dotenv').config(); process.env.NODE_ENV"
 
 # Check for syntax errors in .env
 cat .env | grep -E '^[^#].*='
@@ -802,6 +844,7 @@ cat .env | grep -E '^[^#].*='
 ## 📝 **Development Best Practices**
 
 ### **Code Organization**
+
 1. **Follow TypeScript conventions** and use strict mode
 2. **Use meaningful variable and function names**
 3. **Write self-documenting code** with clear comments
@@ -809,6 +852,7 @@ cat .env | grep -E '^[^#].*='
 5. **Use consistent formatting** with Prettier
 
 ### **Git Workflow**
+
 1. **Create feature branches** for new development
 2. **Write descriptive commit messages**
 3. **Keep commits small and focused**
@@ -816,6 +860,7 @@ cat .env | grep -E '^[^#].*='
 5. **Use pull requests** for code review
 
 ### **Performance Tips**
+
 1. **Use database indexes** for query optimization
 2. **Implement caching** for frequently accessed data
 3. **Monitor memory usage** and fix leaks
