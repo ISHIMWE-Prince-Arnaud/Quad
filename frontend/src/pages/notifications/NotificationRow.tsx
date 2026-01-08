@@ -17,9 +17,9 @@ export function NotificationRow({
   onMarkAsRead: (notification: ApiNotification) => void;
   onDelete: (notification: ApiNotification) => void;
 }) {
-  const displayName =
-    notification.actor?.displayName || notification.actor?.username || "Someone";
-  const avatarInitial = displayName.charAt(0).toUpperCase();
+  const hasActor = !!notification.actor;
+  const displayName = notification.actor?.displayName || notification.actor?.username || "";
+  const avatarInitial = hasActor ? displayName.charAt(0).toUpperCase() : "Q";
 
   return (
     <div
@@ -47,7 +47,9 @@ export function NotificationRow({
       <div className="flex-1 min-w-0 flex flex-col justify-center">
         <div className="flex justify-between items-start gap-2">
           <div className="text-sm leading-snug">
-            <span className="font-semibold text-foreground mr-1">{displayName}</span>
+            {hasActor && (
+              <span className="font-semibold text-foreground mr-1">{displayName}</span>
+            )}
             <span className="text-foreground/80">{notification.message}</span>
           </div>
 

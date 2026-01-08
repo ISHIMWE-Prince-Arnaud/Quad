@@ -91,40 +91,40 @@ export const generateNotificationMessage = (
 ): string => {
   switch (type) {
     case "follow":
-      return `${actorUsername || "Someone"} started following you`;
+      return "started following you";
     
     case "reaction_post":
-      return `${actorUsername || "Someone"} reacted to your post`;
+      return "reacted to your post";
     
     case "reaction_story":
-      return `${actorUsername || "Someone"} reacted to your story`;
+      return "reacted to your story";
     
     case "reaction_poll":
-      return `${actorUsername || "Someone"} reacted to your poll`;
+      return "reacted to your poll";
     
     case "comment_post":
-      return `${actorUsername || "Someone"} commented on your post`;
+      return "commented on your post";
     
     case "comment_story":
-      return `${actorUsername || "Someone"} commented on your story`;
+      return "commented on your story";
     
     case "comment_poll":
-      return `${actorUsername || "Someone"} commented on your poll`;
+      return "commented on your poll";
     
     case "comment_reply":
-      return `${actorUsername || "Someone"} replied to your comment`;
+      return "replied to your comment";
 
     case "mention_post":
-      return `${actorUsername || "Someone"} mentioned you in a post`;
+      return "mentioned you in a post";
 
     case "mention_story":
-      return `${actorUsername || "Someone"} mentioned you in a story`;
+      return "mentioned you in a story";
 
     case "mention_comment":
-      return `${actorUsername || "Someone"} mentioned you in a comment`;
+      return "mentioned you in a comment";
     
     case "chat_mention":
-      return `${actorUsername || "Someone"} mentioned you in chat`;
+      return "mentioned you in chat";
     
     case "poll_expired":
       return "Your poll has expired";
