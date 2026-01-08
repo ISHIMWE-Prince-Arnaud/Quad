@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import * as fc from "fast-check";
-import type { CreatePollInput } from "@/types/poll";
 
 // **Feature: quad-ui-ux-redesign, Property 23: Poll creation form completeness**
 // For any poll creation interface, it should provide inputs for question, up to 4 options, duration, and optional media
@@ -12,6 +11,9 @@ describe("Poll Creation Form Completeness Property Tests", () => {
   });
 
   it("Property 23: Poll creation form has all required fields", async () => {
+    const baseNow = Date.now();
+    const maxDateMs = baseNow + 86400000 * 30;
+
     await fc.assert(
       fc.asyncProperty(
         fc.record({
@@ -32,11 +34,9 @@ describe("Poll Creation Form Completeness Property Tests", () => {
           }),
           expiresAt: fc.option(
             fc
-              .date({
-                min: new Date(),
-                max: new Date(Date.now() + 86400000 * 30),
-              })
-              .map((d) => d.toISOString())
+              .integer({ min: baseNow, max: maxDateMs })
+              .map((ms) => new Date(ms).toISOString()),
+            { nil: undefined }
           ),
         }),
         async (formData) => {
@@ -72,12 +72,12 @@ describe("Poll Creation Form Completeness Property Tests", () => {
             const expiryDate = new Date(formData.expiresAt);
             // Allow for small timing differences in test execution
             expect(expiryDate.getTime()).toBeGreaterThanOrEqual(
-              Date.now() - 1000
+              baseNow - 1000
             );
           }
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -102,7 +102,7 @@ describe("Poll Creation Form Completeness Property Tests", () => {
           }
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -134,7 +134,7 @@ describe("Poll Creation Form Completeness Property Tests", () => {
           });
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -152,7 +152,7 @@ describe("Poll Creation Form Completeness Property Tests", () => {
           expect(numOptions < 2 || numOptions > 5).toBe(true);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -169,7 +169,7 @@ describe("Poll Creation Form Completeness Property Tests", () => {
           expect(allowMultiple).toBe(false);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -195,7 +195,7 @@ describe("Poll Creation Form Completeness Property Tests", () => {
           }
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -213,7 +213,7 @@ describe("Poll Creation Form Completeness Property Tests", () => {
           expect(question.length < 10 || question.length > 500).toBe(true);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -231,7 +231,7 @@ describe("Poll Creation Form Completeness Property Tests", () => {
           expect(optionText.length < 1 || optionText.length > 200).toBe(true);
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 });

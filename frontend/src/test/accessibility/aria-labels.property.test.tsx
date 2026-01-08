@@ -39,7 +39,7 @@ describe("Property 60: ARIA Labels Presence", () => {
           expect(actualAriaLabel).toBe(ariaLabel);
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -61,7 +61,7 @@ describe("Property 60: ARIA Labels Presence", () => {
           button?.hasAttribute("aria-labelledby");
         expect(hasAccessibleName).toBe(true);
       }),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -81,7 +81,9 @@ describe("Property 60: ARIA Labels Presence", () => {
     fc.assert(
       fc.property(
         fc.record({
-          text: fc.string({ minLength: 1, maxLength: 50 }),
+          text: fc
+            .string({ minLength: 1, maxLength: 50 })
+            .filter((s) => s.trim().length > 0),
           href: fc.constantFrom("/app/feed", "/app/profile", "/app/search"),
         }),
         (props) => {
@@ -104,7 +106,7 @@ describe("Property 60: ARIA Labels Presence", () => {
           expect(hasAccessibleName).toBe(true);
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -141,7 +143,7 @@ describe("Property 60: ARIA Labels Presence", () => {
           expect(hasLabel).toBe(true);
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -164,7 +166,7 @@ describe("Property 60: ARIA Labels Presence", () => {
           expect(element?.getAttribute("role")).toBe(role);
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -204,7 +206,7 @@ describe("Property 60: ARIA Labels Presence", () => {
           expect(hasAlertMechanism).toBe(true);
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 });

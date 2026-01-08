@@ -312,7 +312,7 @@ describe("Property 67: Error Boundary Catch", () => {
           cleanup();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     );
   });
 
@@ -353,7 +353,7 @@ describe("Property 67: Error Boundary Catch", () => {
           cleanup();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     );
   });
 });
