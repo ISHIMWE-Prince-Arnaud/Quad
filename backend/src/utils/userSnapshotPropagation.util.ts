@@ -1,4 +1,4 @@
-import type { UpdateResult } from "mongoose";
+import type { ClientSession, UpdateResult } from "mongoose";
 
 import { ChatMessage } from "../models/ChatMessage.model.js";
 import { Comment } from "../models/Comment.model.js";
@@ -48,7 +48,12 @@ function getModifiedCount(result: UpdateResult | { modifiedCount?: number } | un
   return 0;
 }
 
-export async function propagateUserSnapshotUpdates(user: UserSnapshotSource): Promise<{
+export async function propagateUserSnapshotUpdates(
+  user: UserSnapshotSource,
+  options?: {
+    session?: ClientSession;
+  }
+): Promise<{
   postsModified: number;
   storiesModified: number;
   pollsModified: number;
@@ -57,6 +62,8 @@ export async function propagateUserSnapshotUpdates(user: UserSnapshotSource): Pr
   reactionsModified: number;
   commentLikesModified: number;
 }> {
+  const session = options?.session;
+  const updateOptions = session ? { session } : {};
   const setAuthorOps: Record<string, unknown> = {};
   const unsetAuthorOps: Record<string, ""> = {};
 
@@ -124,13 +131,21 @@ export async function propagateUserSnapshotUpdates(user: UserSnapshotSource): Pr
       reactionsResult,
       commentLikesResult,
     ] = await Promise.all([
-      Post.updateMany({ $or: [{ userId: user.clerkId }, { "author.clerkId": user.clerkId }] }, authorUpdate),
-      Story.updateMany({ $or: [{ userId: user.clerkId }, { "author.clerkId": user.clerkId }] }, authorUpdate),
-      Poll.updateMany({ "author.clerkId": user.clerkId }, authorUpdate),
-      ChatMessage.updateMany({ "author.clerkId": user.clerkId }, authorUpdate),
-      Comment.updateMany({ "author.clerkId": user.clerkId }, commentAuthorUpdate),
-      Reaction.updateMany({ userId: user.clerkId }, reactionUpdate),
-      CommentLike.updateMany({ userId: user.clerkId }, commentLikeUpdate),
+      Post.updateMany(
+        { $or: [{ userId: user.clerkId }, { "author.clerkId": user.clerkId }] },
+        authorUpdate,
+        updateOptions
+      ),
+      Story.updateMany(
+        { $or: [{ userId: user.clerkId }, { "author.clerkId": user.clerkId }] },
+        authorUpdate,
+        updateOptions
+      ),
+      Poll.updateMany({ "author.clerkId": user.clerkId }, authorUpdate, updateOptions),
+      ChatMessage.updateMany({ "author.clerkId": user.clerkId }, authorUpdate, updateOptions),
+      Comment.updateMany({ "author.clerkId": user.clerkId }, commentAuthorUpdate, updateOptions),
+      Reaction.updateMany({ userId: user.clerkId }, reactionUpdate, updateOptions),
+      CommentLike.updateMany({ userId: user.clerkId }, commentLikeUpdate, updateOptions),
     ]);
 
     return {

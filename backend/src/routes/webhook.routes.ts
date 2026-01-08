@@ -1,8 +1,11 @@
 import express, { type Request, type Response } from "express";
+import mongoose from "mongoose";
 import { Webhook } from "svix";
 import type { WebhookEvent } from "@clerk/express";
 import { env } from "../config/env.config.js";
 import { User } from "../models/User.model.js";
+import { propagateUserSnapshotUpdates } from "../utils/userSnapshotPropagation.util.js";
+import { logger } from "../utils/logger.util.js";
 
 const router = express.Router();
 const webhookSecret = env.CLERK_WEBHOOK_SECRET as string;
@@ -53,13 +56,104 @@ router.post(
           const email = evt.data.email_addresses?.[0]?.email_address;
           const username = evt.data.username || email?.split("@")[0] || "user";
 
-          await User.findOneAndUpdate(
-            { clerkId: evt.data.id },
-            { username, email },
-            { new: true }
-          );
+          const profileImage = evt.data.image_url;
+          const firstName = (evt.data as any).first_name;
+          const lastName = (evt.data as any).last_name;
 
-          console.log("✅ User updated in MongoDB (identity fields only)");
+          const existingUser = await User.findOne({ clerkId: evt.data.id });
+
+          const updateOps: Record<string, any> = {
+            $set: {
+              username,
+              email,
+              profileImage,
+              firstName,
+              lastName,
+            },
+          };
+
+          if (existingUser && username && username !== existingUser.username) {
+            updateOps.$addToSet = { previousUsernames: existingUser.username };
+            updateOps.$pull = { previousUsernames: username };
+          }
+
+          const session = await mongoose.startSession();
+          try {
+            session.startTransaction();
+
+            const updatedUser = await User.findOneAndUpdate(
+              { clerkId: evt.data.id },
+              updateOps,
+              { new: true, upsert: true, session }
+            );
+
+            if (updatedUser) {
+              await propagateUserSnapshotUpdates(
+                {
+                  clerkId: updatedUser.clerkId,
+                  username: updatedUser.username,
+                  email: updatedUser.email,
+                  displayName: updatedUser.displayName,
+                  firstName: updatedUser.firstName,
+                  lastName: updatedUser.lastName,
+                  profileImage: updatedUser.profileImage,
+                  coverImage: updatedUser.coverImage,
+                  bio: updatedUser.bio,
+                },
+                { session }
+              );
+            }
+
+            await session.commitTransaction();
+          } catch (propagationError: any) {
+            try {
+              await session.abortTransaction();
+            } catch {
+              // ignore
+            }
+
+            const msg =
+              typeof propagationError?.message === "string" ? propagationError.message : "";
+            const isTxnUnsupported =
+              msg.includes("Transaction") &&
+              (msg.includes("replica set") ||
+                msg.includes("mongos") ||
+                msg.includes("not supported"));
+
+            if (!isTxnUnsupported) {
+              logger.error("Clerk user.updated webhook failed", propagationError);
+              return res.status(500).json({ success: false });
+            }
+
+            logger.warn(
+              "Transactions not supported; falling back to awaited non-transactional propagation for Clerk webhook",
+              { clerkId: evt.data.id }
+            );
+
+            const updatedUser = await User.findOneAndUpdate(
+              { clerkId: evt.data.id },
+              updateOps,
+              { new: true, upsert: true }
+            );
+
+            if (updatedUser) {
+              await propagateUserSnapshotUpdates({
+                clerkId: updatedUser.clerkId,
+                username: updatedUser.username,
+                email: updatedUser.email,
+                displayName: updatedUser.displayName,
+                firstName: updatedUser.firstName,
+                lastName: updatedUser.lastName,
+                profileImage: updatedUser.profileImage,
+                coverImage: updatedUser.coverImage,
+                bio: updatedUser.bio,
+              });
+            }
+          } finally {
+            session.endSession();
+          }
+
+          console.log("✅ User updated in MongoDB + snapshots propagated");
           break;
         }
 

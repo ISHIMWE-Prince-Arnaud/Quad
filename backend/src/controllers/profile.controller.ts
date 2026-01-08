@@ -1,5 +1,6 @@
 /// <reference path="../types/global.d.ts" />
 import type { Request, Response } from "express";
+import mongoose from "mongoose";
 import { User } from "../models/User.model.js";
 import { Post } from "../models/Post.model.js";
 import { Story } from "../models/Story.model.js";
@@ -173,45 +174,108 @@ export const updateProfile = async (req: Request, res: Response) => {
       });
     }
 
-    // Update the user profile in MongoDB
-    const user = await User.findOneAndUpdate(
-      { clerkId: currentUserId },
-      updateOps,
-      { new: true, runValidators: true }
-    );
+    let user = null;
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
+      // Update the user profile in MongoDB
+      user = await User.findOneAndUpdate({ clerkId: currentUserId }, updateOps, {
+        new: true,
+        runValidators: true,
+        session,
       });
-    }
 
-    void propagateUserSnapshotUpdates({
-      clerkId: user.clerkId,
-      username: user.username,
-      email: user.email,
-      displayName: user.displayName,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      profileImage: user.profileImage,
-      coverImage: user.coverImage,
-      bio: user.bio,
-    })
-      .then((result) => {
-        logger.info("Propagated user snapshot updates after updateProfile", {
-          clerkId: user.clerkId,
-          ...result,
+      if (!user) {
+        await session.abortTransaction();
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
         });
-      })
-      .catch((propagationError) => {
+      }
+
+      const propagationResult = await propagateUserSnapshotUpdates(
+        {
+          clerkId: user.clerkId,
+          username: user.username,
+          email: user.email,
+          displayName: user.displayName,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          profileImage: user.profileImage,
+          coverImage: user.coverImage,
+          bio: user.bio,
+        },
+        { session }
+      );
+
+      await session.commitTransaction();
+
+      logger.info("Propagated user snapshot updates after updateProfile", {
+        clerkId: user.clerkId,
+        ...propagationResult,
+      });
+    } catch (propagationError: any) {
+      try {
+        await session.abortTransaction();
+      } catch {
+        // ignore
+      }
+
+      const msg = typeof propagationError?.message === "string" ? propagationError.message : "";
+      const isTxnUnsupported =
+        msg.includes("Transaction") &&
+        (msg.includes("replica set") || msg.includes("mongos") || msg.includes("not supported"));
+
+      if (!isTxnUnsupported) {
         logger.error(
           "Failed to propagate user snapshot updates after updateProfile",
           propagationError
         );
+        return res.status(500).json({
+          success: false,
+          message: "Failed to update user snapshots",
+        });
+      }
+
+      logger.warn(
+        "Transactions not supported; falling back to awaited non-transactional snapshot propagation",
+        { clerkId: currentUserId }
+      );
+
+      user = await User.findOneAndUpdate({ clerkId: currentUserId }, updateOps, {
+        new: true,
+        runValidators: true,
       });
 
-    // Sync relevant fields back to Clerk so names/usernames stay consistent
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      const propagationResult = await propagateUserSnapshotUpdates({
+        clerkId: user.clerkId,
+        username: user.username,
+        email: user.email,
+        displayName: user.displayName,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profileImage: user.profileImage,
+        coverImage: user.coverImage,
+        bio: user.bio,
+      });
+
+      logger.info("Propagated user snapshot updates after updateProfile (no transaction)", {
+        clerkId: user.clerkId,
+        ...propagationResult,
+      });
+    } finally {
+      session.endSession();
+    }
+
+    // Sync relevant fields back to Clerk so names/usernames stay consistent (best-effort)
     try {
       await clerkClient.users.updateUser(currentUserId, {
         firstName: updates.firstName ?? undefined,
