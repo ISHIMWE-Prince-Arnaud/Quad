@@ -15,10 +15,10 @@ export const calculateProfileStats = async (
   const [postsCount, storiesCount, pollsCount, reactionsReceived] =
     await Promise.all([
       // Count posts by user
-      Post.countDocuments({ "author.clerkId": clerkId }),
+      Post.countDocuments({ userId: clerkId }),
 
       // Count stories by user
-      Story.countDocuments({ "author.clerkId": clerkId }),
+      Story.countDocuments({ userId: clerkId }),
 
       // Count polls by user
       Poll.countDocuments({ "author.clerkId": clerkId }),
@@ -29,9 +29,9 @@ export const calculateProfileStats = async (
         const [postReactions, storyReactions, pollReactions] =
           await Promise.all([
             // Get user's posts
-            Post.find({ "author.clerkId": clerkId }).select("_id"),
+            Post.find({ userId: clerkId }).select("_id"),
             // Get user's stories
-            Story.find({ "author.clerkId": clerkId }).select("_id"),
+            Story.find({ userId: clerkId }).select("_id"),
             // Get user's polls
             Poll.find({ "author.clerkId": clerkId }).select("_id"),
           ]);

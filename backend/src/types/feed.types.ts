@@ -37,6 +37,7 @@ export interface IFeedItem {
   score: number;
   priority: ContentPriority;
   createdAt: Date;
+  authorId: string;
   engagementMetrics: {
     reactions: number;
     comments: number;
