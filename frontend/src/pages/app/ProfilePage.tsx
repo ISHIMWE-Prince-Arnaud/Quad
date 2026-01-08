@@ -123,9 +123,8 @@ export default function ProfilePage() {
             <ProfileContentGrid
               items={controller.filteredContent}
               loading={controller.loading || controller.loadingMore}
-              hasMore={controller.hasMore} // TODO: Implement pagination
+              hasMore={controller.hasMore}
               onLoadMore={() => {
-                // TODO: Load more content
                 void controller.handleLoadMore();
               }}
             />
