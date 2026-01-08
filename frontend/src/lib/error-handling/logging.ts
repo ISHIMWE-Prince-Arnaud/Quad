@@ -12,7 +12,7 @@ export function logError(
     component?: string;
     action?: string;
     userId?: string;
-    metadata?: Record<string, unknown>;
+    metadata?: unknown;
   }
 ): void {
   const appError = createAppError(error);
@@ -30,7 +30,11 @@ export function logError(
   };
 
   if (import.meta.env.DEV) {
-    globalThis.__quadErrorLog = globalThis.__quadErrorLog ?? [];
-    globalThis.__quadErrorLog.push(logData);
+    const globalWithErrorLog = globalThis as typeof globalThis & {
+      __quadErrorLog?: unknown[];
+    };
+
+    globalWithErrorLog.__quadErrorLog = globalWithErrorLog.__quadErrorLog ?? [];
+    globalWithErrorLog.__quadErrorLog.push(logData);
   }
 }

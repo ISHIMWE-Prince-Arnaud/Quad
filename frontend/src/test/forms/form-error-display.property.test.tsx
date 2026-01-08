@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import fc from "fast-check";
 import { useForm } from "react-hook-form";
@@ -162,7 +162,7 @@ describe("Property 12: Form Validation Error Display", () => {
 
       const textInput = screen.getByTestId("text-input");
       // Type a long string
-      await user.type(textInput, "a".repeat(101));
+      fireEvent.change(textInput, { target: { value: "a".repeat(101) } });
 
       const submitButton = screen.getByTestId("submit-button");
       await user.click(submitButton);
@@ -258,7 +258,7 @@ describe("Property 12: Form Validation Error Display", () => {
       await user.type(usernameInput, "validuser");
 
       const bioInput = screen.getByTestId("bio-input");
-      await user.type(bioInput, "a".repeat(501));
+      fireEvent.change(bioInput, { target: { value: "a".repeat(501) } });
 
       const submitButton = screen.getByTestId("submit-button");
       await user.click(submitButton);
@@ -287,10 +287,8 @@ describe("Property 12: Form Validation Error Display", () => {
 
       // Should not have any error messages
       await waitFor(() => {
-        expect(screen.queryByTestId("username-error")).not.toHaveTextContent(
-          /.+/
-        );
-        expect(screen.queryByTestId("bio-error")).not.toHaveTextContent(/.+/);
+        expect(screen.queryByTestId("username-error")).not.toBeInTheDocument();
+        expect(screen.queryByTestId("bio-error")).not.toBeInTheDocument();
       });
     });
   });
@@ -302,15 +300,15 @@ describe("Property 12: Form Validation Error Display", () => {
 
       render(<TestPostForm onSubmit={onSubmit} />);
 
+      const textInput = screen.getByTestId("text-input");
+      fireEvent.change(textInput, { target: { value: "" } });
+
       const submitButton = screen.getByTestId("submit-button");
       await user.click(submitButton);
 
-      await waitFor(() => {
-        const errorMessage = screen.queryByText("Text is required");
-        expect(errorMessage).toBeInTheDocument();
-        expect(errorMessage).toHaveAttribute("role", "alert");
-        expect(errorMessage).toHaveAttribute("aria-live", "polite");
-      });
+      const errorMessage = await screen.findByText("Text is required");
+      expect(errorMessage).toHaveAttribute("role", "alert");
+      expect(errorMessage).toHaveAttribute("aria-live", "polite");
     });
   });
 
@@ -321,14 +319,14 @@ describe("Property 12: Form Validation Error Display", () => {
 
       render(<TestPostForm onSubmit={onSubmit} />);
 
+      const textInput = screen.getByTestId("text-input");
+      fireEvent.change(textInput, { target: { value: "" } });
+
       const submitButton = screen.getByTestId("submit-button");
       await user.click(submitButton);
 
-      await waitFor(() => {
-        const errorMessage = screen.queryByText("Text is required");
-        expect(errorMessage).toBeInTheDocument();
-        expect(errorMessage).toHaveClass("animate-slide-in-from-top");
-      });
+      const errorMessage = await screen.findByText("Text is required");
+      expect(errorMessage).toHaveClass("animate-slide-in-from-top");
     });
   });
 

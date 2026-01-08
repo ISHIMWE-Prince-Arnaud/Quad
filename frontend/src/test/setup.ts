@@ -2,6 +2,39 @@
 import { vi, beforeEach } from "vitest";
 import "@testing-library/jest-dom/vitest";
 
+vi.mock("@clerk/clerk-react", () => ({
+  useAuth: vi.fn(() => ({
+    isLoaded: true,
+    isSignedIn: true,
+    getToken: vi.fn(async () => "mock-test-jwt-token"),
+    signOut: vi.fn(async () => undefined),
+  })),
+  useUser: vi.fn(() => ({
+    isLoaded: true,
+    isSignedIn: true,
+    user: {
+      id: "test-user-id",
+      username: "testuser",
+      firstName: "Test",
+      lastName: "User",
+      publicMetadata: {},
+      unsafeMetadata: {},
+    },
+  })),
+  ClerkProvider: ({ children }: { children: any }) => children,
+  SignedIn: ({ children }: { children: any }) => children,
+  SignedOut: () => null,
+  RedirectToSignIn: () => null,
+}));
+
+// JSDOM provides its own Event implementations. Node also provides WHATWG Event
+// implementations, which can be incompatible with JSDOM's dispatchEvent.
+// Ensure global constructors point at the JSDOM versions.
+global.Event = window.Event;
+global.CustomEvent = window.CustomEvent;
+global.MouseEvent = window.MouseEvent;
+global.FocusEvent = (window as any).FocusEvent ?? window.Event;
+
 // Mock localStorage with actual storage
 const storage: Record<string, string> = {};
 
@@ -29,9 +62,30 @@ global.localStorage = localStorageMock as any;
 global.sessionStorage = localStorageMock as any;
 
 // Set up a mock auth token for all tests
-beforeEach(() => {
+beforeEach(async () => {
   // Set a mock JWT token for authenticated requests
   localStorage.setItem("clerk-db-jwt", "mock-test-jwt-token");
+
+  // Reset Clerk hook defaults for each test to avoid cross-test leakage from mockReturnValue
+  const clerk = vi.mocked(await import("@clerk/clerk-react"));
+  clerk.useAuth.mockImplementation(() => ({
+    isLoaded: true,
+    isSignedIn: true,
+    getToken: vi.fn(async () => "mock-test-jwt-token"),
+    signOut: vi.fn(async () => undefined),
+  }));
+  clerk.useUser.mockImplementation(() => ({
+    isLoaded: true,
+    isSignedIn: true,
+    user: {
+      id: "test-user-id",
+      username: "testuser",
+      firstName: "Test",
+      lastName: "User",
+      publicMetadata: {},
+      unsafeMetadata: {},
+    },
+  }));
 });
 
 // Mock CSRF protection module

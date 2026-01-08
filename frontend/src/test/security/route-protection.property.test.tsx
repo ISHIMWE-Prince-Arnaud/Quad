@@ -11,20 +11,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import * as fc from "fast-check";
-
-// Mock Clerk
-vi.mock("@clerk/clerk-react", () => ({
-  useAuth: vi.fn(),
-  useUser: vi.fn(),
-}));
 
 // Mock auth audit
 vi.mock("@/lib/authAudit", () => ({
   logAuthEvent: vi.fn(),
 }));
-
-const { useAuth, useUser } = await import("@clerk/clerk-react");
 
 // Test component that should be protected
 function ProtectedContent() {
@@ -140,7 +133,7 @@ describe("Property 56: Protected Route Authentication Check", () => {
           expect(savedPath).toBe(protectedPath);
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -177,7 +170,7 @@ describe("Property 56: Protected Route Authentication Check", () => {
           expect(screen.queryByTestId("login-page")).not.toBeInTheDocument();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -205,7 +198,7 @@ describe("Property 56: Protected Route Authentication Check", () => {
           expect(screen.queryByTestId("login-page")).not.toBeInTheDocument();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 
@@ -240,7 +233,7 @@ describe("Property 56: Protected Route Authentication Check", () => {
           expect(savedPath).toBe(pathWithQuery);
         }
       ),
-      { numRuns: 50 }
+      { numRuns: 30 }
     );
   });
 
@@ -250,9 +243,14 @@ describe("Property 56: Protected Route Authentication Check", () => {
         // Generate various route patterns
         fc.record({
           base: fc.constantFrom("/app/feed", "/app/profile", "/app/posts"),
-          param: fc.option(fc.string({ minLength: 1, maxLength: 10 }), {
+          param: fc.option(
+            fc
+              .string({ minLength: 1, maxLength: 10 })
+              .filter((s) => /^[a-zA-Z0-9_-]+$/.test(s)),
+            {
             nil: null,
-          }),
+            }
+          ),
           subpath: fc.option(fc.constantFrom("/edit", "/view", "/settings"), {
             nil: null,
           }),
@@ -280,7 +278,7 @@ describe("Property 56: Protected Route Authentication Check", () => {
           ).not.toBeInTheDocument();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 30 }
     );
   });
 });

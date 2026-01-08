@@ -23,10 +23,15 @@ describe("Property 7: Request Payload Schema Validation", () => {
   describe("Post Creation Schema", () => {
     it("should validate valid post data with text", () => {
       fc.assert(
-        fc.property(fc.string({ minLength: 1, maxLength: 1000 }), (text) => {
+        fc.property(
+          fc
+            .string({ minLength: 1, maxLength: 1000 })
+            .filter((s) => s.trim().length > 0),
+          (text) => {
           const result = createPostSchema.safeParse({ text });
           expect(result.success).toBe(true);
-        }),
+          }
+        ),
         { numRuns: 100 }
       );
     });
