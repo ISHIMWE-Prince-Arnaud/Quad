@@ -10,6 +10,7 @@
     "recount:reactions": "tsx src/scripts/recountReactionsCount.ts",
     "recount:reactions:write": "tsx src/scripts/recountReactionsCount.ts --write",
     "verify:reactions": "tsx src/scripts/verifyReactionsCount.ts",
+    "verify:aliases": "tsx src/scripts/verifyUserAliases.ts",
     "build": "tsc",
     "build:production": "NODE_ENV=production tsc",
     "start": "node dist/server.js",
