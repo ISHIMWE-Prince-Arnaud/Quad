@@ -8,6 +8,7 @@ import {
   markNotificationsAsRead,
   deleteReadNotifications,
 } from "../utils/notification.util.js";
+import { logger } from "../utils/logger.util.js";
 
 // =========================
 // GET NOTIFICATIONS
@@ -76,7 +77,7 @@ export const getNotifications = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching notifications:", error);
+    logger.error("Error fetching notifications", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -95,7 +96,7 @@ export const getUnreadCountController = async (req: Request, res: Response) => {
       data: { unreadCount: count },
     });
   } catch (error: any) {
-    console.error("Error fetching unread count:", error);
+    logger.error("Error fetching unread count", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -127,7 +128,7 @@ export const markAsRead = async (req: Request, res: Response) => {
       message: "Notification marked as read",
     });
   } catch (error: any) {
-    console.error("Error marking notification as read:", error);
+    logger.error("Error marking notification as read", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -147,7 +148,7 @@ export const markAllAsRead = async (req: Request, res: Response) => {
       data: { count },
     });
   } catch (error: any) {
-    console.error("Error marking all notifications as read:", error);
+    logger.error("Error marking all notifications as read", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -178,7 +179,7 @@ export const deleteNotification = async (req: Request, res: Response) => {
       message: "Notification deleted",
     });
   } catch (error: any) {
-    console.error("Error deleting notification:", error);
+    logger.error("Error deleting notification", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -198,7 +199,7 @@ export const deleteAllRead = async (req: Request, res: Response) => {
       data: { count },
     });
   } catch (error: any) {
-    console.error("Error deleting read notifications:", error);
+    logger.error("Error deleting read notifications", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };

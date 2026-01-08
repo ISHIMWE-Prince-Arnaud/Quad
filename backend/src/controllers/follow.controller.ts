@@ -15,6 +15,7 @@ import {
   createNotification,
   generateNotificationMessage,
 } from "../utils/notification.util.js";
+import { logger } from "../utils/logger.util.js";
 
 // =========================
 // FOLLOW USER
@@ -81,7 +82,7 @@ export const followUser = async (req: Request, res: Response) => {
       message: "Successfully followed user",
     });
   } catch (error: any) {
-    console.error("Error following user:", error);
+    logger.error("Error following user", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -129,7 +130,7 @@ export const unfollowUser = async (req: Request, res: Response) => {
       message: "Successfully unfollowed user",
     });
   } catch (error: any) {
-    console.error("Error unfollowing user:", error);
+    logger.error("Error unfollowing user", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -180,7 +181,7 @@ export const getFollowers = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching followers:", error);
+    logger.error("Error fetching followers", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -231,7 +232,7 @@ export const getFollowing = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching following:", error);
+    logger.error("Error fetching following", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -271,7 +272,7 @@ export const checkFollowing = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error checking follow status:", error);
+    logger.error("Error checking follow status", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -304,7 +305,7 @@ export const getMutualFollows = async (req: Request, res: Response) => {
       count: mutualUsers.length,
     });
   } catch (error: any) {
-    console.error("Error fetching mutual follows:", error);
+    logger.error("Error fetching mutual follows", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -325,7 +326,7 @@ export const getFollowStatsController = async (req: Request, res: Response) => {
       data: stats,
     });
   } catch (error: any) {
-    console.error("Error fetching follow stats:", error);
+    logger.error("Error fetching follow stats", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };

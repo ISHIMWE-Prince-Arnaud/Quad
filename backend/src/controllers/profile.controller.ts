@@ -13,6 +13,7 @@ import {
   formatProfileResponse,
 } from "../utils/profile.util.js";
 import { clerkClient } from "@clerk/express";
+import { logger } from "../utils/logger.util.js";
 
 // Helper to ensure a user exists in MongoDB based on Clerk user ID
 const ensureUserByClerkId = async (clerkId: string | null) => {
@@ -38,7 +39,7 @@ const ensureUserByClerkId = async (clerkId: string | null) => {
 
     return user;
   } catch (error) {
-    console.error("Failed to ensure user by Clerk ID", error);
+    logger.error("Failed to ensure user by Clerk ID", error);
     return null;
   }
 };
@@ -73,7 +74,7 @@ export const getProfileById = async (req: Request, res: Response) => {
       data: profileData,
     });
   } catch (error: any) {
-    console.error("Error getting profile by ID:", error);
+    logger.error("Error getting profile by ID", error);
     return res.status(500).json({
       success: false,
       message: "Failed to get profile",
@@ -127,7 +128,7 @@ export const getProfile = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching profile:", error);
+    logger.error("Error fetching profile", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -190,7 +191,7 @@ export const updateProfile = async (req: Request, res: Response) => {
             : updates.profileImage ?? undefined,
       } as any);
     } catch (clerkError) {
-      console.error("Failed to sync profile updates to Clerk", clerkError);
+      logger.error("Failed to sync profile updates to Clerk", clerkError);
       // Do not fail the request just because Clerk sync failed
     }
 
@@ -206,7 +207,7 @@ export const updateProfile = async (req: Request, res: Response) => {
       data: profile,
     });
   } catch (error: any) {
-    console.error("Error updating profile:", error);
+    logger.error("Error updating profile", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -265,7 +266,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching user posts:", error);
+    logger.error("Error fetching user posts", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -324,7 +325,7 @@ export const getUserStories = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching user stories:", error);
+    logger.error("Error fetching user stories", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -383,7 +384,7 @@ export const getUserPolls = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching user polls:", error);
+    logger.error("Error fetching user polls", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };

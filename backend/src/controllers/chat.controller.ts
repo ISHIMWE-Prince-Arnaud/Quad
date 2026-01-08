@@ -19,6 +19,7 @@ import {
   createNotification,
   generateNotificationMessage,
 } from "../utils/notification.util.js";
+import { logger } from "../utils/logger.util.js";
 
 // =========================
 // SEND MESSAGE
@@ -90,7 +91,7 @@ export const sendMessage = async (req: Request, res: Response) => {
       data: formattedMessage,
     });
   } catch (error: any) {
-    console.error("Error sending message:", error);
+    logger.error("Error sending message", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -155,7 +156,7 @@ export const getMessages = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching messages:", error);
+    logger.error("Error fetching messages", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -243,7 +244,7 @@ export const editMessage = async (req: Request, res: Response) => {
       data: formatMessageResponse(message),
     });
   } catch (error: any) {
-    console.error("Error editing message:", error);
+    logger.error("Error editing message", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -286,7 +287,7 @@ export const deleteMessage = async (req: Request, res: Response) => {
       message: "Message deleted successfully",
     });
   } catch (error: any) {
-    console.error("Error deleting message:", error);
+    logger.error("Error deleting message", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -355,7 +356,7 @@ export const addReaction = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error adding reaction:", error);
+    logger.error("Error adding reaction", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -410,7 +411,7 @@ export const removeReaction = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error removing reaction:", error);
+    logger.error("Error removing reaction", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -444,7 +445,7 @@ export const markAsRead = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error marking as read:", error);
+    logger.error("Error marking as read", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };

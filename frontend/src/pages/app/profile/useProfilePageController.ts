@@ -12,6 +12,7 @@ import { ProfileService } from "@/services/profileService";
 import { ReactionService } from "@/services/reactionService";
 import { StoryService } from "@/services/storyService";
 import type { ApiProfile } from "@/types/api";
+import { logError } from "@/lib/errorHandling";
 
 import { filterProfileContent, getProfileContentCounts } from "./filterProfileContent";
 
@@ -355,7 +356,11 @@ export function useProfilePageController({
       setPage(nextPage);
       setHasMore(result.hasMore);
     } catch (err) {
-      console.error(`Failed to load ${activeTab}:`, err);
+      logError(err, {
+        component: "ProfilePage",
+        action: "loadUserContent",
+        metadata: { activeTab },
+      });
       setContent([]);
       setHasMore(false);
     }
@@ -423,7 +428,11 @@ export function useProfilePageController({
             mutualFollows: followStats.mutualFollows,
           };
         } catch (statsError) {
-          console.error("Failed to load follow stats:", statsError);
+          logError(statsError, {
+            component: "ProfilePage",
+            action: "getFollowStats",
+            metadata: { profileClerkId: profileData.clerkId },
+          });
         }
 
         setUser(profileData);
@@ -459,13 +468,6 @@ export function useProfilePageController({
         setLoading(false);
       }
     };
-
-    console.log("ProfilePage load", {
-      urlUsername: username,
-      storeUsername: currentUser?.username,
-      clerkId: currentUser?.clerkId,
-      isOwnProfile,
-    });
 
     if (username && !authLoading) {
       void fetchProfileData();
@@ -514,7 +516,11 @@ export function useProfilePageController({
           : prev
       );
     } catch (err) {
-      console.error("Failed to follow user:", err);
+      logError(err, {
+        component: "ProfilePage",
+        action: "followUser",
+        metadata: { targetClerkId: user.clerkId },
+      });
     }
   }, [user]);
 
@@ -533,12 +539,16 @@ export function useProfilePageController({
           : prev
       );
     } catch (err) {
-      console.error("Failed to unfollow user:", err);
+      logError(err, {
+        component: "ProfilePage",
+        action: "unfollowUser",
+        metadata: { targetClerkId: user.clerkId },
+      });
     }
   }, [user]);
 
   const handleEditProfile = useCallback(() => {
-    console.log("Edit profile clicked");
+    // no-op
   }, []);
 
   const handleUserUpdate = useCallback(
