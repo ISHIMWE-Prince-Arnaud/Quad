@@ -15,21 +15,25 @@ router.post(
   "/clerk",
   express.raw({ type: "application/json" }),
   async (req: Request, res: Response) => {
-    console.log("🔔 Webhook endpoint hit!");
-    console.log("📋 Headers:", req.headers);
-    console.log("📦 Body length:", req.body?.length);
+    logger.info("Clerk webhook endpoint hit", {
+      path: req.path,
+      bodyLength: (req.body as Buffer | undefined)?.length ?? 0,
+    });
 
     try {
       const payload = req.body;
       const headers = req.headers as Record<string, string>;
 
-      console.log("🔐 Webhook secret:", webhookSecret ? "Present" : "Missing");
+      if (!webhookSecret) {
+        logger.error("CLERK_WEBHOOK_SECRET is missing", {});
+        return res.status(500).json({ success: false });
+      }
 
       const wh = new Webhook(webhookSecret);
       const evt = wh.verify(payload, headers) as WebhookEvent;
       const eventType = evt.type;
 
-      console.log(`✅ Clerk Webhook Received: ${eventType}`);
+      logger.info("Clerk webhook received", { eventType });
 
       switch (eventType) {
         case "user.created": {
@@ -48,7 +52,7 @@ router.post(
             profileImage,
           });
 
-          console.log("✅ User created in MongoDB");
+          logger.info("User created via Clerk webhook", { clerkId: evt.data.id });
           break;
         }
 
@@ -153,27 +157,27 @@ router.post(
             session.endSession();
           }
 
-          console.log("✅ User updated in MongoDB + snapshots propagated");
+          logger.info("User updated via Clerk webhook + snapshots propagated", {
+            clerkId: evt.data.id,
+          });
           break;
         }
 
         case "user.deleted": {
           await User.findOneAndDelete({ clerkId: evt.data.id });
-          console.log("🗑️ User deleted from MongoDB");
+          logger.info("User deleted via Clerk webhook", { clerkId: evt.data.id });
           break;
         }
 
         default:
-          console.log("ℹ️ Unhandled event:", eventType);
+          logger.info("Unhandled Clerk webhook event", { eventType });
       }
 
       return res.status(200).json({ success: true });
     } catch (err: any) {
-      console.error("❌ Webhook verification failed:", err);
-      console.error("❌ Error details:", {
-        message: err.message,
-        stack: err.stack,
-        name: err.name,
+      logger.error("Clerk webhook verification failed", {
+        message: err?.message,
+        name: err?.name,
       });
       return res
         .status(400)
