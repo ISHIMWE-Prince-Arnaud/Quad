@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export type { ContentItem } from "./profile-content-grid/types";
@@ -23,6 +22,7 @@ export function ProfileContentGrid({
   className,
 }: ProfileContentGridProps) {
   const [columns, setColumns] = useState(1);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   // Responsive column calculation
   useEffect(() => {
@@ -54,6 +54,29 @@ export function ProfileContentGrid({
   };
 
   const itemColumns = distributeItems(items, columns);
+
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el) return;
+    if (!hasMore || loading || !onLoadMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first?.isIntersecting) {
+          onLoadMore();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "400px 0px",
+        threshold: 0,
+      }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loading, onLoadMore]);
 
   if (loading && items.length === 0) {
     return (
@@ -103,13 +126,10 @@ export function ProfileContentGrid({
       {/* Load More Button */}
       {hasMore && (
         <div className="flex justify-center mt-8">
-          <Button
-            onClick={onLoadMore}
-            disabled={loading}
-            variant="outline"
-            className="min-w-[120px]">
-            {loading ? "Loading..." : "Load More"}
-          </Button>
+          <div ref={loadMoreRef} className="h-10 w-full" />
+          <div className="text-sm text-muted-foreground">
+            {loading ? "Loading..." : ""}
+          </div>
         </div>
       )}
     </div>

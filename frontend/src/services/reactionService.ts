@@ -63,27 +63,50 @@ export class ReactionService {
     return response.data as ToggleReactionResponse;
   }
 
-  static async getUserReactions(): Promise<{
+  static async getUserReactions(params?: {
+    limit?: number;
+    skip?: number;
+  }): Promise<{
     success: boolean;
     data: Array<{
       _id: string;
       contentType: ReactableContentType;
       contentId: string;
+      userId: string;
+      username: string;
+      profileImage?: string;
       type: ReactionType;
       createdAt: string;
+      updatedAt?: string;
     }>;
+    pagination?: {
+      total: number;
+      limit: number;
+      skip: number;
+      hasMore: boolean;
+    };
     message?: string;
   }> {
-    const response = await endpoints.reactions.getUserReactions();
+    const response = await endpoints.reactions.getUserReactions(params);
     return response.data as {
       success: boolean;
       data: Array<{
         _id: string;
         contentType: ReactableContentType;
         contentId: string;
+        userId: string;
+        username: string;
+        profileImage?: string;
         type: ReactionType;
         createdAt: string;
+        updatedAt?: string;
       }>;
+      pagination?: {
+        total: number;
+        limit: number;
+        skip: number;
+        hasMore: boolean;
+      };
       message?: string;
     };
   }

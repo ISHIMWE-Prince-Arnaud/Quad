@@ -25,6 +25,10 @@ const DEFAULT_WEIGHTS: IScoringWeights = {
   popularity: 0.1,
 };
 
+const getContentAuthorId = (content: any): string => {
+  return (content?.author?.clerkId as string | undefined) || (content?.userId as string | undefined) || "";
+};
+
 /**
  * Calculate time decay score (newer = higher)
  */
@@ -125,7 +129,7 @@ export const fetchPosts = async (
       type: "post" as FeedItemType,
       content: post,
       createdAt: post.createdAt || new Date(),
-      authorId: post.userId,
+      authorId: getContentAuthorId(post),
       reactionsCount: post.reactionsCount || 0,
       commentsCount: post.commentsCount || 0,
     }));
@@ -169,7 +173,7 @@ export const fetchPolls = async (
     type: "poll" as FeedItemType,
     content: poll,
     createdAt: poll.createdAt,
-    authorId: poll.author.clerkId,
+    authorId: getContentAuthorId(poll),
     reactionsCount: poll.reactionsCount || 0,
     commentsCount: poll.commentsCount || 0,
     totalVotes: poll.totalVotes || 0,
@@ -207,7 +211,7 @@ export const fetchStories = async (
     type: "story" as FeedItemType,
     content: story,
     createdAt: story.createdAt || new Date(),
-    authorId: story.userId,
+    authorId: getContentAuthorId(story),
     reactionsCount: story.reactionsCount || 0,
     commentsCount: story.commentsCount || 0,
   }));
@@ -326,6 +330,7 @@ export const scoreAndRankContent = async (
       score,
       priority: isFollowing ? ("following" as ContentPriority) : ("discover" as ContentPriority),
       createdAt: item.createdAt,
+      authorId: item.authorId,
       engagementMetrics: {
         reactions: item.reactionsCount,
         comments: item.commentsCount,

@@ -24,6 +24,10 @@ export function storeCSRFToken(token: string): void {
   sessionStorage.setItem("csrf-token", token);
 }
 
+export function setCSRFToken(token: string): void {
+  storeCSRFToken(token);
+}
+
 /**
  * Retrieve CSRF token from session storage
  */
@@ -44,13 +48,7 @@ export function clearCSRFToken(): void {
  */
 export async function fetchCSRFToken(): Promise<string | null> {
   try {
-    // In a real implementation, this would call a backend endpoint
-    // For now, we'll generate one client-side
-    // TODO: Replace with actual backend call when CSRF is implemented on backend
-
-    const token = generateCSRFToken();
-    storeCSRFToken(token);
-    return token;
+    return null;
   } catch (error) {
     console.error("Failed to fetch CSRF token:", error);
     return null;

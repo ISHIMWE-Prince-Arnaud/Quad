@@ -19,6 +19,10 @@ import { Post } from "../models/Post.model.js";
 import { Poll } from "../models/Poll.model.js";
 import { Story } from "../models/Story.model.js";
 
+const getContentAuthorId = (content: any): string => {
+  return (content?.author?.clerkId as string | undefined) || (content?.userId as string | undefined) || "";
+};
+
 // =========================
 // GET FOLLOWING FEED
 // =========================
@@ -75,7 +79,7 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
             type: "post" as const,
             content: post,
             createdAt: post.createdAt || new Date(),
-            authorId: post.userId,
+            authorId: getContentAuthorId(post),
             reactionsCount: post.reactionsCount || 0,
             commentsCount: post.commentsCount || 0,
           }));
@@ -98,7 +102,7 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
             type: "poll" as const,
             content: poll,
             createdAt: poll.createdAt,
-            authorId: poll.author.clerkId,
+            authorId: getContentAuthorId(poll),
             reactionsCount: poll.reactionsCount || 0,
             commentsCount: poll.commentsCount || 0,
             totalVotes: poll.totalVotes || 0,
@@ -124,7 +128,7 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
             type: "story" as const,
             content: story,
             createdAt: story.createdAt || new Date(),
-            authorId: story.userId,
+            authorId: getContentAuthorId(story),
             reactionsCount: story.reactionsCount || 0,
             commentsCount: story.commentsCount || 0,
           }));
@@ -170,7 +174,7 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
               type: "post" as const,
               content: post,
               createdAt: post.createdAt || new Date(),
-              authorId: post.userId,
+              authorId: getContentAuthorId(post),
               reactionsCount: post.reactionsCount || 0,
               commentsCount: post.commentsCount || 0,
             })),
@@ -179,7 +183,7 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
               type: "poll" as const,
               content: poll,
               createdAt: poll.createdAt,
-              authorId: poll.author.clerkId,
+              authorId: getContentAuthorId(poll),
               reactionsCount: poll.reactionsCount || 0,
               commentsCount: poll.commentsCount || 0,
               totalVotes: poll.totalVotes || 0,
@@ -189,7 +193,7 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
               type: "story" as const,
               content: story,
               createdAt: story.createdAt || new Date(),
-              authorId: story.userId,
+              authorId: getContentAuthorId(story),
               reactionsCount: story.reactionsCount || 0,
               commentsCount: story.commentsCount || 0,
             })),
@@ -291,7 +295,7 @@ export const getForYouFeed = async (req: Request, res: Response) => {
             type: "post" as const,
             content: post,
             createdAt: post.createdAt || new Date(),
-            authorId: post.userId,
+            authorId: getContentAuthorId(post),
             reactionsCount: post.reactionsCount || 0,
             commentsCount: post.commentsCount || 0,
           }));
@@ -329,7 +333,7 @@ export const getForYouFeed = async (req: Request, res: Response) => {
             type: "poll" as const,
             content: poll,
             createdAt: poll.createdAt,
-            authorId: poll.author.clerkId,
+            authorId: getContentAuthorId(poll),
             reactionsCount: poll.reactionsCount || 0,
             commentsCount: poll.commentsCount || 0,
             totalVotes: poll.totalVotes || 0,
@@ -371,7 +375,7 @@ export const getForYouFeed = async (req: Request, res: Response) => {
             type: "story" as const,
             content: story,
             createdAt: story.createdAt || new Date(),
-            authorId: story.userId,
+            authorId: getContentAuthorId(story),
             reactionsCount: story.reactionsCount || 0,
             commentsCount: story.commentsCount || 0,
           }));

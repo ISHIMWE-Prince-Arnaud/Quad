@@ -11,9 +11,9 @@ export function filterProfileContent(content: ContentItem[], activeTab: ProfileT
       case "polls":
         return item.type === "poll";
       case "saved":
-        return false;
+        return true;
       case "liked":
-        return false;
+        return true;
       default:
         return false;
     }
