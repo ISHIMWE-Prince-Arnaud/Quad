@@ -35,10 +35,23 @@ export default function CanvasStoryEditor({
   className?: string;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [textDraft, setTextDraft] = useState<string>("");
   const [snapToGrid, setSnapToGrid] = useState(true);
+  const [marquee, setMarquee] = useState<
+    | null
+    | {
+        startX: number;
+        startY: number;
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+        shift: boolean;
+      }
+  >(null);
+  const [guides, setGuides] = useState<{ x: number[]; y: number[] }>({ x: [], y: [] });
 
   const historyRef = useRef<{ past: CanvasElement[][]; future: CanvasElement[][] }>({
     past: [],
@@ -47,9 +60,14 @@ export default function CanvasStoryEditor({
   const actionRecordedRef = useRef(false);
   const editTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
+  const primarySelectedId = useMemo(() => {
+    return selectedIds.length ? selectedIds[selectedIds.length - 1] : null;
+  }, [selectedIds]);
+
   const selected = useMemo(() => {
-    return elements.find((e) => e.id === selectedId) || null;
-  }, [elements, selectedId]);
+    if (!primarySelectedId) return null;
+    return elements.find((e) => e.id === primarySelectedId) || null;
+  }, [elements, primarySelectedId]);
 
   const selectedEditingText = useMemo(() => {
     const el = elements.find((e) => e.id === editingTextId);
@@ -61,6 +79,67 @@ export default function CanvasStoryEditor({
     if (!snapToGrid) return value;
     return Math.round(value / gridSize) * gridSize;
   };
+
+  useEffect(() => {
+    if (!marquee) return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+
+    const onMove = (ev: PointerEvent) => {
+      const x2 = ev.clientX - rect.left;
+      const y2 = ev.clientY - rect.top;
+      const x = Math.min(marquee.startX, x2);
+      const y = Math.min(marquee.startY, y2);
+      const w = Math.abs(x2 - marquee.startX);
+      const h = Math.abs(y2 - marquee.startY);
+      setMarquee((prev) => (prev ? { ...prev, x, y, w, h } : prev));
+    };
+
+    const onUp = () => {
+      setMarquee((prev) => {
+        if (!prev) return prev;
+        const x1 = prev.x;
+        const y1 = prev.y;
+        const x2 = prev.x + prev.w;
+        const y2 = prev.y + prev.h;
+
+        const hit = elements
+          .filter((el) => {
+            // axis-aligned hit test (ignores rotation)
+            const ex1 = el.x;
+            const ey1 = el.y;
+            const ex2 = el.x + el.width;
+            const ey2 = el.y + el.height;
+            const intersects = ex1 <= x2 && ex2 >= x1 && ey1 <= y2 && ey2 >= y1;
+            return intersects;
+          })
+          .map((el) => el.id);
+
+        setSelectedIds((current) => {
+          if (prev.shift) {
+            const set = new Set(current);
+            for (const id of hit) set.add(id);
+            return Array.from(set);
+          }
+          return hit;
+        });
+
+        return null;
+      });
+
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, [elements, marquee]);
 
   const cloneElements = (els: CanvasElement[]) => {
     return els.map((el) => ({ ...el }));
@@ -76,6 +155,29 @@ export default function CanvasStoryEditor({
   const finishAction = () => {
     actionRecordedRef.current = false;
   };
+
+  const clearGuides = () => setGuides({ x: [], y: [] });
+
+  const selectedIdSet = useMemo(() => {
+    return new Set(selectedIds);
+  }, [selectedIds]);
+
+  const selectionBounds = useMemo(() => {
+    if (!selectedIds.length) return null;
+    const picked = elements.filter((el) => selectedIdSet.has(el.id));
+    if (!picked.length) return null;
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const el of picked) {
+      minX = Math.min(minX, el.x);
+      minY = Math.min(minY, el.y);
+      maxX = Math.max(maxX, el.x + el.width);
+      maxY = Math.max(maxY, el.y + el.height);
+    }
+    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+  }, [elements, selectedIdSet, selectedIds.length]);
 
   const normalizeZIndexes = (els: CanvasElement[]) => {
     const sorted = [...els].sort((a, b) => a.zIndex - b.zIndex);
@@ -108,7 +210,7 @@ export default function CanvasStoryEditor({
 
     const updated = [...elements, next];
     onChange(updated);
-    setSelectedId(id);
+    setSelectedIds([id]);
     setEditingTextId(id);
     setTextDraft(text);
     finishAction();
@@ -124,7 +226,10 @@ export default function CanvasStoryEditor({
     addTextElement(`@${username}`);
   };
 
-  const startDrag = (e: ReactPointerEvent, elementId: string) => {
+  const startDrag = (
+    e: ReactPointerEvent,
+    activeSelectedIds: string[]
+  ) => {
     if (editingTextId) return;
     const container = containerRef.current;
     if (!container) return;
@@ -133,30 +238,118 @@ export default function CanvasStoryEditor({
     const startX = e.clientX;
     const startY = e.clientY;
 
-    const start = elements.find((el) => el.id === elementId);
-    if (!start) return;
+    const activeSet = new Set(activeSelectedIds);
+    const startMap = new Map(
+      elements
+        .filter((el) => activeSet.has(el.id))
+        .map((el) => [el.id, { x: el.x, y: el.y, width: el.width, height: el.height }])
+    );
+
+    if (startMap.size === 0) return;
 
     recordHistory();
-
-    setSelectedId(elementId);
 
     const onMove = (ev: PointerEvent) => {
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
 
-      const nextX = Math.max(0, Math.min(rect.width - start.width, snap(start.x + dx)));
-      const nextY = Math.max(0, Math.min(rect.height - start.height, snap(start.y + dy)));
+      // Base positions (grid-snap first)
+      const basePositions = new Map<string, { x: number; y: number }>();
+      for (const [id, pos] of startMap.entries()) {
+        const bx = pos.x + dx;
+        const by = pos.y + dy;
+        basePositions.set(id, {
+          x: snapToGrid ? snap(bx) : bx,
+          y: snapToGrid ? snap(by) : by,
+        });
+      }
+
+      const group = (() => {
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+        for (const [id, pos] of startMap.entries()) {
+          const next = basePositions.get(id);
+          if (!next) continue;
+          minX = Math.min(minX, next.x);
+          minY = Math.min(minY, next.y);
+          maxX = Math.max(maxX, next.x + pos.width);
+          maxY = Math.max(maxY, next.y + pos.height);
+        }
+        return { minX, minY, maxX, maxY };
+      })();
+
+      const groupLinesX = [group.minX, (group.minX + group.maxX) / 2, group.maxX];
+      const groupLinesY = [group.minY, (group.minY + group.maxY) / 2, group.maxY];
+
+      const other = elements.filter((el) => !activeSet.has(el.id));
+      const candidateX = [rect.width / 2];
+      const candidateY = [rect.height / 2];
+      for (const el of other) {
+        candidateX.push(el.x, el.x + el.width / 2, el.x + el.width);
+        candidateY.push(el.y, el.y + el.height / 2, el.y + el.height);
+      }
+
+      const threshold = 6;
+      let snapDx = 0;
+      let snapDy = 0;
+      let guideX: number | null = null;
+      let guideY: number | null = null;
+
+      let bestX = threshold + 1;
+      for (const gl of groupLinesX) {
+        for (const c of candidateX) {
+          const diff = c - gl;
+          const ad = Math.abs(diff);
+          if (ad < bestX) {
+            bestX = ad;
+            if (ad <= threshold) {
+              snapDx = diff;
+              guideX = c;
+            }
+          }
+        }
+      }
+
+      let bestY = threshold + 1;
+      for (const gl of groupLinesY) {
+        for (const c of candidateY) {
+          const diff = c - gl;
+          const ad = Math.abs(diff);
+          if (ad < bestY) {
+            bestY = ad;
+            if (ad <= threshold) {
+              snapDy = diff;
+              guideY = c;
+            }
+          }
+        }
+      }
+
+      if (guideX || guideY) {
+        setGuides({ x: guideX ? [guideX] : [], y: guideY ? [guideY] : [] });
+      } else {
+        clearGuides();
+      }
 
       onChange(
-        elements.map((el) =>
-          el.id === elementId ? { ...el, x: nextX, y: nextY } : el
-        )
+        elements.map((el) => {
+          if (!activeSet.has(el.id)) return el;
+          const pos = startMap.get(el.id);
+          const base = basePositions.get(el.id);
+          if (!pos || !base) return el;
+          const nextX = Math.max(0, Math.min(rect.width - pos.width, base.x + snapDx));
+          const nextY = Math.max(0, Math.min(rect.height - pos.height, base.y + snapDy));
+          return { ...el, x: nextX, y: nextY };
+        })
       );
     };
 
     const onUp = () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      clearGuides();
       finishAction();
     };
 
@@ -183,7 +376,7 @@ export default function CanvasStoryEditor({
 
     recordHistory();
 
-    setSelectedId(elementId);
+    setSelectedIds([elementId]);
 
     const minW = 40;
     const minH = 24;
@@ -266,45 +459,43 @@ export default function CanvasStoryEditor({
   };
 
   const bringForward = () => {
-    if (!selected) return;
+    if (!selectedIds.length) return;
     const ordered = [...elements].sort((a, b) => a.zIndex - b.zIndex);
-    const idx = ordered.findIndex((e) => e.id === selected.id);
-    if (idx < 0 || idx === ordered.length - 1) return;
     const next = [...ordered];
-    [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+    for (let i = next.length - 2; i >= 0; i--) {
+      if (!selectedIdSet.has(next[i].id)) continue;
+      if (selectedIdSet.has(next[i + 1].id)) continue;
+      [next[i], next[i + 1]] = [next[i + 1], next[i]];
+    }
     setZOrder(next);
   };
 
   const sendBackward = () => {
-    if (!selected) return;
+    if (!selectedIds.length) return;
     const ordered = [...elements].sort((a, b) => a.zIndex - b.zIndex);
-    const idx = ordered.findIndex((e) => e.id === selected.id);
-    if (idx <= 0) return;
     const next = [...ordered];
-    [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+    for (let i = 1; i < next.length; i++) {
+      if (!selectedIdSet.has(next[i].id)) continue;
+      if (selectedIdSet.has(next[i - 1].id)) continue;
+      [next[i - 1], next[i]] = [next[i], next[i - 1]];
+    }
     setZOrder(next);
   };
 
   const bringToFront = () => {
-    if (!selected) return;
+    if (!selectedIds.length) return;
     const ordered = [...elements].sort((a, b) => a.zIndex - b.zIndex);
-    const idx = ordered.findIndex((e) => e.id === selected.id);
-    if (idx < 0 || idx === ordered.length - 1) return;
-    const next = [...ordered];
-    const [item] = next.splice(idx, 1);
-    next.push(item);
-    setZOrder(next);
+    const keep = ordered.filter((el) => !selectedIdSet.has(el.id));
+    const picked = ordered.filter((el) => selectedIdSet.has(el.id));
+    setZOrder([...keep, ...picked]);
   };
 
   const sendToBack = () => {
-    if (!selected) return;
+    if (!selectedIds.length) return;
     const ordered = [...elements].sort((a, b) => a.zIndex - b.zIndex);
-    const idx = ordered.findIndex((e) => e.id === selected.id);
-    if (idx <= 0) return;
-    const next = [...ordered];
-    const [item] = next.splice(idx, 1);
-    next.unshift(item);
-    setZOrder(next);
+    const keep = ordered.filter((el) => !selectedIdSet.has(el.id));
+    const picked = ordered.filter((el) => selectedIdSet.has(el.id));
+    setZOrder([...picked, ...keep]);
   };
 
   const autoFitSelectedText = () => {
@@ -375,7 +566,7 @@ export default function CanvasStoryEditor({
 
     recordHistory();
 
-    setSelectedId(elementId);
+    setSelectedIds([elementId]);
 
     const centerX = rect.left + start.x + start.width / 2;
     const centerY = rect.top + start.y + start.height / 2;
@@ -413,16 +604,16 @@ export default function CanvasStoryEditor({
   };
 
   const deleteSelected = () => {
-    if (!selected) return;
+    if (!selectedIds.length) return;
     recordHistory();
-    onChange(elements.filter((el) => el.id !== selected.id));
-    setSelectedId(null);
+    onChange(elements.filter((el) => !selectedIdSet.has(el.id)));
+    setSelectedIds([]);
     setEditingTextId(null);
     finishAction();
   };
 
   const beginEditSelectedText = (textEl: CanvasTextElement) => {
-    setSelectedId(textEl.id);
+    setSelectedIds([textEl.id]);
     setEditingTextId(textEl.id);
     setTextDraft(textEl.text);
   };
@@ -467,7 +658,13 @@ export default function CanvasStoryEditor({
 
   const handleCanvasKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
     if (editingTextId) return;
-    if (!selected) return;
+    if (!selectedIds.length) return;
+
+    const selectedNow = elements.filter((el) => selectedIdSet.has(el.id));
+    const primary = primarySelectedId
+      ? elements.find((el) => el.id === primarySelectedId) || null
+      : null;
+    if (!primary) return;
 
     const isMac = navigator.platform.toLowerCase().includes("mac");
     const mod = isMac ? e.metaKey : e.ctrlKey;
@@ -485,6 +682,24 @@ export default function CanvasStoryEditor({
     if (mod && e.key.toLowerCase() === "y") {
       e.preventDefault();
       redo();
+      return;
+    }
+
+    if (mod && e.key.toLowerCase() === "d") {
+      e.preventDefault();
+      const maxZ = elements.reduce((m, el) => Math.max(m, el.zIndex), 0);
+      const offset = snapToGrid ? gridSize : 10;
+      recordHistory();
+      const clones = selectedNow.map((el, idx) => ({
+        ...el,
+        id: createId(),
+        x: el.x + offset,
+        y: el.y + offset,
+        zIndex: maxZ + idx + 1,
+      }));
+      onChange([...elements, ...clones]);
+      setSelectedIds(clones.map((c) => c.id));
+      finishAction();
       return;
     }
 
@@ -509,12 +724,17 @@ export default function CanvasStoryEditor({
     if (!dx && !dy) return;
     e.preventDefault();
 
-    const nextX = Math.max(0, Math.min(rect.width - selected.width, selected.x + dx));
-    const nextY = Math.max(0, Math.min(rect.height - selected.height, selected.y + dy));
     recordHistory();
+
+    const nextById = new Map<string, { x: number; y: number }>();
+    for (const el of selectedNow) {
+      const nextX = Math.max(0, Math.min(rect.width - el.width, el.x + dx));
+      const nextY = Math.max(0, Math.min(rect.height - el.height, el.y + dy));
+      nextById.set(el.id, { x: nextX, y: nextY });
+    }
     onChange(
       elements.map((el) =>
-        el.id === selected.id ? { ...el, x: nextX, y: nextY } : el
+        selectedIdSet.has(el.id) ? { ...el, ...nextById.get(el.id) } : el
       )
     );
     finishAction();
@@ -566,7 +786,7 @@ export default function CanvasStoryEditor({
           type="button"
           variant="outline"
           size="sm"
-          disabled={!selected}
+          disabled={!selectedIds.length}
           onClick={deleteSelected}
           className="text-destructive hover:text-destructive">
           Delete
@@ -576,25 +796,25 @@ export default function CanvasStoryEditor({
           type="button"
           variant="outline"
           size="sm"
-          disabled={!selected}
+          disabled={!selectedIds.length}
           onClick={() => updateSelected({ rotationDeg: 0 })}>
           <RotateCw className="h-4 w-4 mr-2" />
           Reset Rotation
         </Button>
 
-        <Button type="button" variant="outline" size="sm" disabled={!selected} onClick={sendToBack}>
+        <Button type="button" variant="outline" size="sm" disabled={!selectedIds.length} onClick={sendToBack}>
           <ChevronsDown className="h-4 w-4 mr-2" />
           To Back
         </Button>
-        <Button type="button" variant="outline" size="sm" disabled={!selected} onClick={sendBackward}>
+        <Button type="button" variant="outline" size="sm" disabled={!selectedIds.length} onClick={sendBackward}>
           <ArrowDown className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <Button type="button" variant="outline" size="sm" disabled={!selected} onClick={bringForward}>
+        <Button type="button" variant="outline" size="sm" disabled={!selectedIds.length} onClick={bringForward}>
           <ArrowUp className="h-4 w-4 mr-2" />
           Forward
         </Button>
-        <Button type="button" variant="outline" size="sm" disabled={!selected} onClick={bringToFront}>
+        <Button type="button" variant="outline" size="sm" disabled={!selectedIds.length} onClick={bringToFront}>
           <ChevronsUp className="h-4 w-4 mr-2" />
           To Front
         </Button>
@@ -636,8 +856,27 @@ export default function CanvasStoryEditor({
         tabIndex={0}
         onClick={() => containerRef.current?.focus()}
         onKeyDown={handleCanvasKeyDown}
-        onPointerDown={() => {
-          setSelectedId(null);
+        onPointerDown={(e) => {
+          // only start marquee when clicking empty canvas
+          if (e.target !== e.currentTarget) return;
+          if (editingTextId) return;
+
+          const rect = e.currentTarget.getBoundingClientRect();
+          const startX = e.clientX - rect.left;
+          const startY = e.clientY - rect.top;
+          setMarquee({
+            startX,
+            startY,
+            x: startX,
+            y: startY,
+            w: 0,
+            h: 0,
+            shift: e.shiftKey,
+          });
+
+          if (!e.shiftKey) {
+            setSelectedIds([]);
+          }
           if (!editingTextId) setEditingTextId(null);
         }}>
         <div
@@ -649,11 +888,51 @@ export default function CanvasStoryEditor({
           }}
         />
 
+        {guides.x.map((x) => (
+          <div
+            key={`gx-${x}`}
+            className="pointer-events-none absolute top-0 bottom-0 w-px bg-primary/70"
+            style={{ left: x }}
+          />
+        ))}
+        {guides.y.map((y) => (
+          <div
+            key={`gy-${y}`}
+            className="pointer-events-none absolute left-0 right-0 h-px bg-primary/70"
+            style={{ top: y }}
+          />
+        ))}
+
+        {selectionBounds && selectedIds.length > 1 && (
+          <div
+            className="pointer-events-none absolute border border-primary/70"
+            style={{
+              left: selectionBounds.x,
+              top: selectionBounds.y,
+              width: selectionBounds.w,
+              height: selectionBounds.h,
+            }}
+          />
+        )}
+
+        {marquee && (
+          <div
+            className="pointer-events-none absolute border border-primary/80 bg-primary/10"
+            style={{
+              left: marquee.x,
+              top: marquee.y,
+              width: marquee.w,
+              height: marquee.h,
+            }}
+          />
+        )}
+
         {elements
           .slice()
           .sort((a, b) => a.zIndex - b.zIndex)
           .map((el) => {
-            const isSelected = el.id === selectedId;
+            const isSelected = selectedIdSet.has(el.id);
+            const isPrimary = primarySelectedId === el.id;
 
             return (
               <div
@@ -673,7 +952,21 @@ export default function CanvasStoryEditor({
                 }}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  startDrag(e, el.id);
+                  if (editingTextId) return;
+
+                  let nextSelected: string[];
+                  if (e.shiftKey) {
+                    nextSelected = isSelected
+                      ? selectedIds.filter((id) => id !== el.id)
+                      : [...selectedIds, el.id];
+                  } else {
+                    nextSelected = isSelected ? selectedIds : [el.id];
+                  }
+
+                  // only force non-empty selection on non-shift clicks
+                  if (!e.shiftKey && !nextSelected.length) nextSelected = [el.id];
+                  setSelectedIds(nextSelected);
+                  startDrag(e, nextSelected);
                 }}
                 onDoubleClick={() => {
                   if (el.kind === "text") {
@@ -699,7 +992,7 @@ export default function CanvasStoryEditor({
                   </div>
                 )}
 
-                {isSelected && (
+                {isPrimary && (
                   <>
                     <button
                       type="button"
