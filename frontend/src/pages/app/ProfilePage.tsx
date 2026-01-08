@@ -122,11 +122,11 @@ export default function ProfilePage() {
           <TabContent>
             <ProfileContentGrid
               items={controller.filteredContent}
-              loading={controller.loading}
-              hasMore={false} // TODO: Implement pagination
+              loading={controller.loading || controller.loadingMore}
+              hasMore={controller.hasMore} // TODO: Implement pagination
               onLoadMore={() => {
                 // TODO: Load more content
-                console.log("Load more content");
+                void controller.handleLoadMore();
               }}
             />
           </TabContent>

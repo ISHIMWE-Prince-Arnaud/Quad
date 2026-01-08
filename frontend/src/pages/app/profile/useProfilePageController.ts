@@ -40,35 +40,52 @@ export function useProfilePageController({
   const [user, setUser] = useState<ApiProfile | null>(null);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isNotFound, setIsNotFound] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
 
   // Check if this is the current user's profile
   const isOwnProfile = currentUser?.username === username;
 
   // Load user's content based on active tab
-  const loadUserContent = useCallback(async () => {
+  const loadUserContent = useCallback(async (
+    nextPage: number,
+    mode: "replace" | "append"
+  ) => {
     if (!username) return;
 
     try {
       let result;
       switch (activeTab) {
         case "posts":
-          result = await ProfileService.getUserContent(username, "posts");
+          result = await ProfileService.getUserContent(username, "posts", {
+            page: nextPage,
+            limit: 20,
+          });
           break;
         case "stories":
-          result = await ProfileService.getUserContent(username, "stories");
+          result = await ProfileService.getUserContent(username, "stories", {
+            page: nextPage,
+            limit: 20,
+          });
           break;
         case "polls":
-          result = await ProfileService.getUserContent(username, "polls");
+          result = await ProfileService.getUserContent(username, "polls", {
+            page: nextPage,
+            limit: 20,
+          });
           break;
         case "saved":
         case "liked":
           setContent([]);
+          setHasMore(false);
           return;
         default:
           setContent([]);
+          setHasMore(false);
           return;
       }
 
@@ -76,12 +93,25 @@ export function useProfilePageController({
         ...item,
         updatedAt: item.createdAt,
       })) as ContentItem[];
-      setContent(convertedItems);
+      setContent((prev) => (mode === "append" ? [...prev, ...convertedItems] : convertedItems));
+      setPage(nextPage);
+      setHasMore(result.hasMore);
     } catch (err) {
       console.error(`Failed to load ${activeTab}:`, err);
       setContent([]);
+      setHasMore(false);
     }
   }, [username, activeTab]);
+
+  const handleLoadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      await loadUserContent(page + 1, "append");
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [hasMore, loadUserContent, loadingMore, page]);
 
   // Real API calls to fetch profile data
   useEffect(() => {
@@ -145,7 +175,9 @@ export function useProfilePageController({
           setIsFollowing(followStatus.isFollowing);
         }
 
-        await loadUserContent();
+        setPage(1);
+        setHasMore(false);
+        await loadUserContent(1, "replace");
       } catch (err: unknown) {
         let status: number | undefined;
 
@@ -189,6 +221,14 @@ export function useProfilePageController({
     isOwnProfile,
     navigate,
   ]);
+
+  useEffect(() => {
+    if (!username) return;
+    setPage(1);
+    setHasMore(false);
+    setContent([]);
+    void loadUserContent(1, "replace");
+  }, [activeTab, loadUserContent, username]);
 
   // Filter content based on active tab
   const filteredContent = useMemo(() => {
@@ -271,11 +311,13 @@ export function useProfilePageController({
     user,
     content,
     loading,
+    loadingMore,
     error,
     isNotFound,
     isFollowing,
     isOwnProfile,
     filteredContent,
+    hasMore,
     postCount,
     storyCount,
     pollCount,
@@ -283,5 +325,6 @@ export function useProfilePageController({
     handleUnfollow,
     handleEditProfile,
     handleUserUpdate,
+    handleLoadMore,
   };
 }
