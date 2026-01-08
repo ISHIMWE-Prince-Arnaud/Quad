@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import toast from "react-hot-toast";
+import { logError } from "@/lib/errorHandling";
 
 export function useStoryShare({ storyId, title }: { storyId: string; title: string }) {
   return useCallback(async () => {
@@ -19,7 +20,7 @@ export function useStoryShare({ storyId, title }: { storyId: string; title: stri
         toast.success("Story link copied to clipboard");
       }
     } catch (e) {
-      console.error("Failed to copy link:", e);
+      logError(e, { component: "useStoryShare", action: "copyLink", metadata: { storyId } });
       toast.error("Failed to copy link");
     }
   }, [storyId, title]);

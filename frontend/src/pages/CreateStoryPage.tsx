@@ -12,6 +12,7 @@ import CanvasStoryEditor from "./create-story/CanvasStoryEditor";
 import type { CanvasElement } from "./create-story/canvasStory.types";
 import { canvasElementsToHtml } from "./create-story/canvasStoryHtml";
 import toast from "react-hot-toast";
+import { logError } from "@/lib/errorHandling";
 
 export default function CreateStoryPage() {
   const [title, setTitle] = useState("");
@@ -82,7 +83,7 @@ export default function CreateStoryPage() {
           await StoryService.create(payload);
           setLastSaved(new Date());
         } catch (err) {
-          console.error("Auto-save failed:", err);
+          logError(err, { component: "CreateStoryPage", action: "autoSaveStory" });
         } finally {
           setAutoSaving(false);
         }
@@ -112,7 +113,7 @@ export default function CreateStoryPage() {
           setMyPublished(Array.isArray(published.data) ? published.data : []);
         }
       } catch (err) {
-        console.error(err);
+        logError(err, { component: "CreateStoryPage", action: "loadMyStories" });
       } finally {
         if (!cancelled) setLoadingMine(false);
       }
@@ -143,7 +144,7 @@ export default function CreateStoryPage() {
       setCoverImage(res.url);
       toast.success("Cover image set");
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "CreateStoryPage", action: "uploadCoverImage" });
       toast.error(getErrorMessage(err));
     } finally {
       setUploadingCover(false);
@@ -176,7 +177,7 @@ export default function CreateStoryPage() {
         toast.success("Image inserted");
       }
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "CreateStoryPage", action: "insertInlineImage" });
       toast.error(getErrorMessage(err));
     }
   };
@@ -258,10 +259,10 @@ export default function CreateStoryPage() {
         setMyPublished(Array.isArray(published.data) ? published.data : []);
       } catch (e) {
         // ignore refresh errors
-        console.debug("refresh my stories failed", e);
+        logError(e, { component: "CreateStoryPage", action: "refreshStoryLists" });
       }
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "CreateStoryPage", action: "submitStory" });
       toast.error(getErrorMessage(err));
     } finally {
       setSubmitting(false);

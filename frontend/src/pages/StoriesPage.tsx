@@ -6,6 +6,7 @@ import type { Story } from "@/types/story";
 import { SkeletonPost } from "@/components/ui/loading";
 import { X } from "lucide-react";
 import { StoryCard } from "@/components/stories/StoryCard";
+import { logError } from "@/lib/errorHandling";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -64,7 +65,7 @@ export default function StoriesPage() {
           setHasMore(res.pagination?.hasMore ?? false);
         }
       } catch (err) {
-        console.error(err);
+        logError(err, { component: "StoriesPage", action: "loadStories", metadata: queryParams });
         if (!cancelled) setError(getErrorMessage(err));
       } finally {
         if (!cancelled) setLoading(false);
@@ -85,7 +86,7 @@ export default function StoriesPage() {
         setHasMore(res.pagination?.hasMore ?? false);
       }
     } catch (err) {
-      console.error(err);
+      logError(err, { component: "StoriesPage", action: "loadMoreStories", metadata: queryParams });
     }
   };
 
