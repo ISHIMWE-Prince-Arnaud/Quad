@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ReactionPicker } from "@/components/reactions/ReactionPicker";
+import { QuickReactionPicker } from "@/components/reactions/QuickReactionPicker";
 import type { ReactionType } from "@/services/reactionService";
 
 import { reactionEmojiMap } from "./constants";
@@ -37,8 +37,10 @@ export function PostCardFooter({
   return (
     <>
       <div className="flex items-center gap-1 flex-1">
-        <ReactionPicker
+        <QuickReactionPicker
           onSelect={onSelectReaction}
+          onQuickSelect={(type) => onSelectReaction(type)}
+          quickType="love"
           trigger={
             <Button
               type="button"

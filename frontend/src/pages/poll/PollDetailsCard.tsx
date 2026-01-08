@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ReactionPicker } from "@/components/reactions/ReactionPicker";
+import { QuickReactionPicker } from "@/components/reactions/QuickReactionPicker";
 import type { Poll } from "@/types/poll";
 import type { ReactionType } from "@/services/reactionService";
 
@@ -178,8 +178,10 @@ export function PollDetailsCard({
 
         <div className="mt-4 space-y-2">
           <div className="flex items-center gap-2">
-            <ReactionPicker
+            <QuickReactionPicker
               onSelect={onSelectReaction}
+              onQuickSelect={() => onSelectReaction("love")}
+              quickType="love"
               trigger={
                 <Button variant={userReaction ? "secondary" : "outline"} size="sm">
                   {userReaction

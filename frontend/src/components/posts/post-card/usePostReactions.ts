@@ -50,7 +50,7 @@ export function usePostReactions(postId: string) {
   }, [postId]);
 
   const selectedEmoji = useMemo(
-    () => (userReaction ? reactionEmojiMap[userReaction] : "👍"),
+    () => (userReaction ? reactionEmojiMap[userReaction] : "❤️"),
     [userReaction]
   );
 

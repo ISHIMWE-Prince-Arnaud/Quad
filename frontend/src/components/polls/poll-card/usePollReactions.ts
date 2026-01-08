@@ -69,7 +69,7 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
     };
   }, [pollId]);
 
-  const selectedEmoji = userReaction ? reactionEmojiMap[userReaction] : "👍";
+  const selectedEmoji = userReaction ? reactionEmojiMap[userReaction] : "❤️";
 
   const handleSelectReaction = async (type: ReactionType) => {
     if (reactionPending) return;

@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ReactionPicker } from "@/components/reactions/ReactionPicker";
+import { QuickReactionPicker } from "@/components/reactions/QuickReactionPicker";
 import type { ReactionType } from "@/services/reactionService";
 
 import { reactionEmojiMap } from "./constants";
@@ -51,8 +51,10 @@ export function StoryPageBody({
 
           <div className="mt-8 space-y-2">
             <div className="flex items-center gap-2">
-              <ReactionPicker
+              <QuickReactionPicker
                 onSelect={onSelectReaction}
+                onQuickSelect={() => onSelectReaction("love")}
+                quickType="love"
                 trigger={
                   <Button variant={userReaction ? "secondary" : "outline"} size="sm">
                     {userReaction ? `Reacted ${reactionEmojiMap[userReaction]}` : "React"}

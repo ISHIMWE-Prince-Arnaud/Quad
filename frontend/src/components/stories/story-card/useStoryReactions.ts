@@ -54,7 +54,7 @@ export function useStoryReactions({
   }, [storyId]);
 
   const selectedEmoji = useMemo(() => {
-    return userReaction ? reactionEmojiMap[userReaction] : "👍";
+    return userReaction ? reactionEmojiMap[userReaction] : "❤️";
   }, [userReaction]);
 
   const handleSelectReaction = useCallback(

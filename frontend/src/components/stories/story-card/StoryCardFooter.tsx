@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Bookmark, MessageCircle, Share2 } from "lucide-react";
 
-import { ReactionPicker } from "@/components/reactions/ReactionPicker";
+import { QuickReactionPicker } from "@/components/reactions/QuickReactionPicker";
 import { cn } from "@/lib/utils";
 
 import type { ReactionType } from "@/services/reactionService";
@@ -32,8 +32,10 @@ export function StoryCardFooter({
   return (
     <div className="px-4 pb-3 pt-2 flex items-center justify-between text-xs text-muted-foreground border-t">
       <div className="flex items-center gap-3">
-        <ReactionPicker
+        <QuickReactionPicker
           onSelect={onSelectReaction}
+          onQuickSelect={(type) => onSelectReaction(type)}
+          quickType="love"
           trigger={
             <button
               type="button"

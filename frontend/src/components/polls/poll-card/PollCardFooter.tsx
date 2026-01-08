@@ -3,7 +3,7 @@ import { Bookmark, MessageCircle, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
-import { ReactionPicker } from "@/components/reactions/ReactionPicker";
+import { QuickReactionPicker } from "@/components/reactions/QuickReactionPicker";
 import { cn } from "@/lib/utils";
 import type { ReactionType } from "@/services/reactionService";
 import { reactionEmojiMap } from "./usePollReactions";
@@ -36,8 +36,10 @@ export function PollCardFooter({
   return (
     <CardFooter className="pt-0 pb-3 flex items-center justify-between border-t">
       <div className="flex items-center gap-1">
-        <ReactionPicker
+        <QuickReactionPicker
           onSelect={onSelectReaction}
+          onQuickSelect={(type) => onSelectReaction(type)}
+          quickType="love"
           trigger={
             <Button
               type="button"

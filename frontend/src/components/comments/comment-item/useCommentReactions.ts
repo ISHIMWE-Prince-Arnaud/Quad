@@ -52,7 +52,7 @@ export function useCommentReactions({
   }, [commentId]);
 
   const selectedEmoji = useMemo(
-    () => (userReaction ? reactionEmojiMap[userReaction] : "👍"),
+    () => (userReaction ? reactionEmojiMap[userReaction] : "❤️"),
     [userReaction]
   );
 

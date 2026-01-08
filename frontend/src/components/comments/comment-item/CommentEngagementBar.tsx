@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ReactionPicker } from "@/components/reactions/ReactionPicker";
+import { QuickReactionPicker } from "@/components/reactions/QuickReactionPicker";
 import { cn } from "@/lib/utils";
 import type { ReactionType } from "@/services/reactionService";
 
@@ -39,8 +39,10 @@ export function CommentEngagementBar({
         <span>{likesCount}</span>
       </Button>
 
-      <ReactionPicker
+      <QuickReactionPicker
         onSelect={onSelectReaction}
+        onQuickSelect={(type) => onSelectReaction(type)}
+        quickType="love"
         trigger={
           <Button
             type="button"
