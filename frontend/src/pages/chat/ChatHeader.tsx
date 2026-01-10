@@ -1,20 +1,18 @@
-import { cn } from "@/lib/utils";
-import type { ConnectionStatus } from "./types";
+import { Search, MoreVertical } from "lucide-react";
 
-export function ChatHeader({ connection }: { connection: ConnectionStatus }) {
-  const connectionDot =
-    connection === "connected"
-      ? "bg-green-500"
-      : connection === "connecting"
-      ? "bg-amber-500"
-      : "bg-red-500";
-
+export function ChatHeader() {
   return (
-    <div className="mb-3 flex items-center justify-between">
-      <h1 className="text-xl font-semibold">Global Chat</h1>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span className={cn("h-2 w-2 rounded-full", connectionDot)} />
-        <span className="capitalize">{connection}</span>
+    <div className="flex items-center justify-between px-6 py-4 border-b border-border/10 bg-[#0f121a]/50 backdrop-blur-md sticky top-0 z-10">
+      <h1 className="text-lg font-bold text-white tracking-tight">
+        General Chat
+      </h1>
+      <div className="flex items-center gap-4 text-[#64748b]">
+        <button className="hover:text-white transition-colors">
+          <Search className="w-5 h-5" />
+        </button>
+        <button className="hover:text-white transition-colors">
+          <MoreVertical className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );

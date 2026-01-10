@@ -117,51 +117,50 @@ export default function ChatPage() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mx-auto max-w-3xl">
-        <ChatHeader connection={connection} />
+    <div className="flex flex-col h-[calc(100vh-80px)] max-w-4xl mx-auto overflow-hidden bg-[#0a0c10] rounded-3xl border border-white/5 shadow-2xl">
+      <ChatHeader />
 
-        <Card>
-          <CardContent className="p-0">
-            <ChatMessageList
-              listRef={listRef}
-              loading={loading}
-              loadingOlder={loadingOlder}
-              hasMoreOlder={hasMoreOlder}
-              onLoadOlder={() => void loadOlder()}
-              messages={messages}
-              user={user}
-              virtualizer={virtualizer}
-              editingId={editingId}
-              editText={editText}
-              onEditTextChange={setEditText}
-              onStartEdit={handleEdit}
-              onCancelEdit={() => {
-                setEditingId(null);
-                setEditText("");
-              }}
-              onSaveEdit={(id) => void handleSaveEdit(id)}
-              onToggleReaction={(messageId, emoji) =>
-                void toggleReaction(messageId, emoji)
-              }
-              onDeleteMessage={handleDeleteClick}
-            />
+      <div className="flex-1 flex flex-col min-h-0 relative">
+        <ChatMessageList
+          listRef={listRef}
+          loading={loading}
+          loadingOlder={loadingOlder}
+          hasMoreOlder={hasMoreOlder}
+          onLoadOlder={() => void loadOlder()}
+          messages={messages}
+          user={user}
+          virtualizer={virtualizer}
+          editingId={editingId}
+          editText={editText}
+          onEditTextChange={setEditText}
+          onStartEdit={handleEdit}
+          onCancelEdit={() => {
+            setEditingId(null);
+            setEditText("");
+          }}
+          onSaveEdit={(id) => void handleSaveEdit(id)}
+          onToggleReaction={(messageId, emoji) =>
+            void toggleReaction(messageId, emoji)
+          }
+          onDeleteMessage={handleDeleteClick}
+        />
 
-            <ChatTypingIndicator typingUsers={typingUsers} />
+        <div className="absolute bottom-24 left-0 right-0 px-6">
+          <ChatTypingIndicator typingUsers={typingUsers} />
+        </div>
+      </div>
 
-            <ChatComposer
-              text={text}
-              media={media}
-              uploading={uploading}
-              sending={sending}
-              onTextChange={handleTextChange}
-              onRemoveMedia={() => setMedia(null)}
-              onFileSelected={(file) => void handleFileSelected(file)}
-              onInsertEmoji={insertEmoji}
-              onSend={() => void handleSend()}
-            />
-          </CardContent>
-        </Card>
+      <ChatComposer
+        text={text}
+        media={media}
+        uploading={uploading}
+        sending={sending}
+        onTextChange={handleTextChange}
+        onRemoveMedia={() => setMedia(null)}
+        onFileSelected={(file) => void handleFileSelected(file)}
+        onInsertEmoji={insertEmoji}
+        onSend={() => void handleSend()}
+      />
 
         {/* Delete confirmation dialog */}
         <ConfirmDialog

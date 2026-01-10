@@ -3,17 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { ChatMedia } from "@/types/chat";
-import {
-  Image as ImageIcon,
-  Loader2,
-  Send,
-  Smile,
-  X,
-} from "lucide-react";
-import {
-  COMPOSER_EMOJIS,
-  MAX_MESSAGE_LENGTH,
-} from "./constants";
+import { Image as ImageIcon, Loader2, Send, Smile, X } from "lucide-react";
+import { COMPOSER_EMOJIS, MAX_MESSAGE_LENGTH } from "./constants";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,42 +38,42 @@ export function ChatComposer({
   const handleAttachClick = () => fileInputRef.current?.click();
 
   return (
-    <div className="border-t px-4 py-3">
+    <div className="p-4 bg-[#0a0c10] border-t border-border/5">
       {media && (
-        <div className="mb-2 inline-flex items-center gap-2 rounded-lg border p-2 bg-muted">
-          {media.type === "image" ? (
-            <img
-              src={media.url}
-              alt="Attached media"
-              className="h-14 w-14 object-cover rounded"
-            />
-          ) : (
-            <video src={media.url} className="h-14 w-14 rounded" />
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
+        <div className="mb-4 relative inline-block group">
+          <div className="h-20 w-20 rounded-2xl overflow-hidden border border-white/10 shadow-xl">
+            {media.type === "image" ? (
+              <img
+                src={media.url}
+                alt="Attached media"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <video src={media.url} className="h-full w-full object-cover" />
+            )}
+          </div>
+          <button
             onClick={onRemoveMedia}
+            className="absolute -top-2 -right-2 p-1 bg-destructive text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
             aria-label="Remove media">
-            <X className="h-4 w-4" />
-          </Button>
+            <X className="h-3 w-3" />
+          </button>
         </div>
       )}
 
-      <div className="flex items-end gap-2">
-        <Button
+      <div className="flex items-center gap-4 bg-[#1e293b]/50 rounded-2xl p-2 pl-4 border border-white/5 shadow-inner">
+        <button
           type="button"
-          variant="ghost"
-          size="icon"
           onClick={handleAttachClick}
           disabled={uploading}
+          className="text-[#64748b] hover:text-white transition-colors"
           aria-label="Attach media">
           {uploading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
             <ImageIcon className="h-5 w-5" />
           )}
-        </Button>
+        </button>
         <input
           ref={fileInputRef}
           type="file"
@@ -91,62 +82,38 @@ export function ChatComposer({
           onChange={(e) => onFileSelected(e.target.files?.[0] || null)}
         />
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="Insert emoji">
-              <Smile className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="min-w-[180px]">
-            {COMPOSER_EMOJIS.map((emoji) => (
-              <DropdownMenuItem key={emoji} onClick={() => onInsertEmoji(emoji)}>
-                <span className="text-lg">{emoji}</span>
-                <span className="sr-only">Insert emoji</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => onTextChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              onSend();
+            }
+          }}
+          placeholder="Type a message..."
+          className="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder-[#64748b] text-sm"
+          aria-label="Message input"
+        />
 
-        <div className="flex-1 relative">
-          <Textarea
-            value={text}
-            onChange={(e) => onTextChange(e.target.value)}
-            placeholder="Write a message"
-            rows={1}
-            maxLength={MAX_MESSAGE_LENGTH}
-            className="min-h-[44px] resize-none pr-16"
-            aria-label="Message input"
-          />
-          <div
-            className={cn(
-              "absolute bottom-2 right-2 text-xs",
-              text.length > MAX_MESSAGE_LENGTH * 0.9
-                ? "text-destructive"
-                : "text-muted-foreground"
-            )}>
-            {text.length}/{MAX_MESSAGE_LENGTH}
-          </div>
-        </div>
-
-        <Button
+        <button
           type="button"
           onClick={onSend}
-          disabled={
-            sending ||
-            (!text.trim() && !media) ||
-            text.length > MAX_MESSAGE_LENGTH
-          }
+          disabled={sending || (!text.trim() && !media)}
+          className={cn(
+            "h-10 w-10 flex items-center justify-center rounded-full transition-all shadow-lg",
+            sending || (!text.trim() && !media)
+              ? "bg-[#2563eb]/50 text-white/50 cursor-not-allowed"
+              : "bg-[#2563eb] text-white hover:scale-105 active:scale-95"
+          )}
           aria-label="Send message">
           {sending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
-            <Send className="h-4 w-4" />
+            <Send className="h-5 w-5 fill-current" />
           )}
-        </Button>
+        </button>
       </div>
     </div>
   );

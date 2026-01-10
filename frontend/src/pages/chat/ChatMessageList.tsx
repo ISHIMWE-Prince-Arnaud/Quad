@@ -14,8 +14,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/types/chat";
-import { Loader2, MoreVertical } from "lucide-react";
 import { REACTION_EMOJIS } from "./constants";
+ */
+// Removed unused REACTION_EMOJIS import
+import { Loader2, MoreVertical } from "lucide-react";
 
 type MinimalUser = {
   clerkId: string;
@@ -110,7 +112,7 @@ export function ChatMessageList({
         </DialogContent>
       </Dialog>
 
-      <div ref={listRef} className="h-[calc(100vh-260px)] overflow-y-auto p-4">
+      <div ref={listRef} className="h-[calc(100vh-220px)] overflow-y-auto px-6 py-4 space-y-6 scrollbar-hide">
       {loading && (
         <div className="flex items-center justify-center py-8 text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading
@@ -156,29 +158,35 @@ export function ChatMessageList({
                 className="pb-4">
                 <div
                   className={cn(
-                    "flex items-end gap-2",
-                    isSelf ? "justify-end" : "justify-start"
+                    "flex items-start gap-4",
+                    isSelf ? "flex-row-reverse" : "flex-row"
                   )}>
                   {!isSelf && (
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-10 w-10 border-2 border-border/10">
                       <AvatarImage
                         src={m.author.profileImage}
                         alt={m.author.username}
                       />
-                      <AvatarFallback>
+                      <AvatarFallback className="bg-secondary text-white">
                         {m.author.username?.[0]?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                   )}
 
-                  <div
-                    className={cn(
-                      "max-w-[78%] rounded-2xl px-3 py-2",
-                      isSelf ? "bg-primary text-primary-foreground" : "bg-muted"
-                    )}>
-                    <div className="text-xs mb-1 opacity-80">
-                      {!isSelf && m.author.username}
-                    </div>
+                  <div className={cn("flex flex-col gap-1", isSelf ? "items-end" : "items-start")}>
+                    {!isSelf && (
+                      <span className="text-xs font-semibold text-[#64748b] ml-1">
+                        {m.author.username}
+                      </span>
+                    )}
+                    
+                    <div
+                      className={cn(
+                        "max-w-[85%] rounded-2xl px-4 py-3 shadow-sm",
+                        isSelf 
+                          ? "bg-[#2563eb] text-white rounded-tr-none" 
+                          : "bg-[#1e293b] text-[#f1f5f9] rounded-tl-none"
+                      )}>
 
                     {editingId === m.id ? (
                       <div className="space-y-2">
@@ -211,68 +219,30 @@ export function ChatMessageList({
                           </div>
                         )}
                         {m.media && (
-                          <div className="mt-2 overflow-hidden rounded-lg">
+                          <div className="mt-3 overflow-hidden rounded-xl border border-white/5">
                             {m.media.type === "image" ? (
                               <img
                                 src={m.media.url}
                                 alt="attachment"
-                                className="max-h-96 rounded-lg cursor-pointer"
+                                className="max-h-[300px] w-full object-cover cursor-pointer hover:opacity-95 transition"
                                 onClick={() => openLightbox(m.media!)}
                               />
                             ) : (
                               <video
                                 src={m.media.url}
                                 controls
-                                className="max-h-96 rounded-lg cursor-pointer"
+                                className="max-h-[300px] w-full object-cover cursor-pointer"
                                 onClick={() => openLightbox(m.media!)}
                               />
                             )}
                           </div>
                         )}
-                        <div className="mt-1 flex items-center justify-between gap-3 text-[11px] opacity-80">
-                          <div className="flex items-center gap-2">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button
-                                  className={cn(
-                                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5",
-                                    isSelf
-                                      ? "bg-primary-foreground/20"
-                                      : "bg-background/60"
-                                  )}>
-                                  <span>{m.userReaction || "😍"}</span>
-                                  <span>{m.reactionsCount || 0}</span>
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent
-                                align={isSelf ? "end" : "start"}>
-                                {REACTION_EMOJIS.map((emoji) => (
-                                  <DropdownMenuItem
-                                    key={emoji}
-                                    onClick={() =>
-                                      onToggleReaction(m.id, emoji)
-                                    }>
-                                    {emoji}
-                                  </DropdownMenuItem>
-                                ))}
-                                {m.userReaction && (
-                                  <DropdownMenuItem
-                                    onClick={() =>
-                                      onToggleReaction(m.id, m.userReaction!)
-                                    }>
-                                    <span className="text-red-500">
-                                      Remove my reaction
-                                    </span>
-                                  </DropdownMenuItem>
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span>
-                              {m.timestamp}
-                              {m.isEdited ? " • edited" : ""}
-                            </span>
+                        <div className="mt-2 flex items-center gap-3 text-[10px] opacity-60">
+                          <span>
+                            {m.timestamp}
+                            {m.isEdited ? " • edited" : ""}
+                          </span>
+                        </div>
                             {isSelf && (
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -292,19 +262,18 @@ export function ChatMessageList({
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             )}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
 
                   {isSelf && (
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-10 w-10 border-2 border-[#2563eb]/20">
                       <AvatarImage
                         src={user?.profileImage}
                         alt={user?.username}
                       />
-                      <AvatarFallback>
+                      <AvatarFallback className="bg-[#2563eb] text-white">
                         {user?.username?.[0]?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
