@@ -39,6 +39,10 @@ router.post(
         case "user.created": {
           const email = evt.data.email_addresses?.[0]?.email_address;
           const username = evt.data.username || email?.split("@")[0] || "user";
+          const firstName = (evt.data as any).first_name;
+          const lastName = (evt.data as any).last_name;
+          const displayName =
+            [firstName, lastName].filter(Boolean).join(" ").trim() || username;
           const profileImage =
             evt.data.image_url ||
             `https://avatar.iran.liara.run/public/${
@@ -49,6 +53,9 @@ router.post(
             clerkId: evt.data.id,
             username,
             email,
+            displayName,
+            firstName,
+            lastName,
             profileImage,
           });
 

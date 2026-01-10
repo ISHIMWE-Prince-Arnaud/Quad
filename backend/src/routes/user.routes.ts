@@ -9,7 +9,7 @@ import {
 
 import {
   createUserSchema,
-  updateUserSchema,
+  updateUserProfileSchema,
   getUserSchema,
   deleteUserSchema,
 } from "../schemas/user.schema.js";
@@ -57,7 +57,7 @@ router.get(
 router.put(
   "/:clerkId",
   requireApiAuth,
-  validateSchema(updateUserSchema),
+  validateSchema(updateUserProfileSchema),
   updateUser
 );
 

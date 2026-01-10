@@ -1,7 +1,10 @@
 import type { Request, Response } from "express";
 import mongoose from "mongoose";
 import { User } from "../models/User.model.js";
-import type { CreateUserSchemaType, UpdateUserSchemaType } from "../schemas/user.schema.js";
+import type {
+  CreateUserSchemaType,
+  UpdateUserProfileSchemaType,
+} from "../schemas/user.schema.js";
 import { logger } from "../utils/logger.util.js";
 import { getAuth, clerkClient } from "@clerk/express";
 import { propagateUserSnapshotUpdates } from "../utils/userSnapshotPropagation.util.js";
@@ -30,12 +33,21 @@ export const createUser = async (req: Request, res: Response) => {
 
     const body = req.body as Partial<CreateUserSchemaType>;
 
+    const displayName =
+      body.displayName ||
+      [body.firstName, body.lastName].filter(Boolean).join(" ").trim() ||
+      undefined;
+
     // ✅ Create new user in MongoDB
     const newUser = await User.create({
       clerkId: userId,
       username: clerkUser.username ?? body.username ?? "Anonymous",
       email: clerkUser.emailAddresses[0]?.emailAddress ?? body.email ?? "",
+      displayName,
+      firstName: body.firstName,
+      lastName: body.lastName,
       profileImage: body.profileImage, // will use default avatar in model if not provided
+      coverImage: body.coverImage,
       bio: body.bio,
     });
 
@@ -96,7 +108,7 @@ export const updateUser = async (req: Request, res: Response) => {
       return res.status(403).json({ success: false, message: "Forbidden" });
     }
 
-    const updates = req.body as Partial<UpdateUserSchemaType>;
+    const updates = req.body as Partial<UpdateUserProfileSchemaType>;
     const { previousUsernames: _ignored, clerkId: _ignoredClerkId, ...safeUpdates } =
       updates as any;
 
