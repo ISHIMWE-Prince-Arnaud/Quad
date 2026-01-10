@@ -2,11 +2,13 @@ import { useState, useEffect, useCallback } from "react";
 import { RefreshCw, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserCard, type UserCardData } from "@/components/user/UserCard";
 import { FollowService } from "@/services/followService";
 import { SearchService } from "@/services/searchService";
 import type { ApiProfile } from "@/types/api";
 import { logError } from "@/lib/errorHandling";
+import { cn } from "@/lib/utils";
 
 interface WhoToFollowProps {
   limit?: number;
@@ -205,6 +207,7 @@ export function WhoToFollow({
     );
   }
 
+  return (
     <Card className={cn("bg-[#0f121a] border border-white/5 rounded-3xl overflow-hidden shadow-xl", className)}>
       <CardHeader className="pb-3 px-6 pt-6">
         <div className="flex items-center justify-between">

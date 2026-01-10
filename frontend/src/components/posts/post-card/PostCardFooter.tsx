@@ -2,12 +2,9 @@ import { Link } from "react-router-dom";
 import { Bookmark, MessageCircle, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { QuickReactionPicker } from "@/components/reactions/QuickReactionPicker";
 import type { ReactionType } from "@/services/reactionService";
-
-import { reactionEmojiMap } from "./constants";
 
 export function PostCardFooter({
   postId,
@@ -19,7 +16,6 @@ export function PostCardFooter({
   reactionPending,
   selectedEmoji,
   reactionCount,
-  reactionCounts,
   onSelectReaction,
 }: {
   postId: string;

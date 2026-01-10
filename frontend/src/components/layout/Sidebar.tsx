@@ -132,7 +132,7 @@ export function Sidebar() {
             />
             <Switch
               checked={isDarkMode}
-              onCheckedChange={toggleDarkMode}
+              onChange={() => toggleDarkMode()}
               className="bg-[#2563eb]"
             />
             <Moon

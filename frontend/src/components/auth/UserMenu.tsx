@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 export function UserMenu() {
   const { signOut } = useAuth();
@@ -69,7 +70,7 @@ export function UserMenu() {
 }
 
 // Simplified version for navigation
-export function UserAvatar() {
+export function UserAvatar({ className }: { className?: string }) {
   const { user } = useAuthStore();
 
   const displayName =
@@ -78,7 +79,7 @@ export function UserAvatar() {
       : user?.firstName || user?.username || "User";
 
   return (
-    <Avatar className="h-10 w-10">
+    <Avatar className={cn("h-10 w-10", className)}>
       <AvatarImage
         src={user?.profileImage}
         alt={displayName}
