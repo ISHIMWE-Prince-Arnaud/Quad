@@ -7,13 +7,28 @@ export function usePollBookmark(pollId: string) {
   const [bookmarked, setBookmarked] = useState(false);
 
   useEffect(() => {
-    setBookmarked(BookmarkService.isBookmarked(pollId));
+    let cancelled = false;
+    void (async () => {
+      try {
+        const next = await BookmarkService.isBookmarked("poll", pollId);
+        if (!cancelled) setBookmarked(next);
+      } catch {
+        if (!cancelled) setBookmarked(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [pollId]);
 
-  const toggleBookmark = () => {
-    const next = BookmarkService.toggle(pollId);
-    setBookmarked(next);
-    toast.success(next ? "Saved to bookmarks" : "Removed from bookmarks");
+  const toggleBookmark = async () => {
+    try {
+      const next = await BookmarkService.toggle("poll", pollId);
+      setBookmarked(next);
+      toast.success(next ? "Saved to bookmarks" : "Removed from bookmarks");
+    } catch {
+      toast.error("Failed to update bookmark");
+    }
   };
 
   return { bookmarked, toggleBookmark };
