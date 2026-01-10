@@ -44,7 +44,11 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/pages/ChatPage.tsx', 'src/pages/app/FeedPage.tsx'],
+    files: [
+      'src/pages/ChatPage.tsx',
+      'src/pages/app/FeedPage.tsx',
+      'src/pages/EditProfilePage.tsx',
+    ],
     rules: {
       'react-hooks/incompatible-library': 'off',
     },
