@@ -1,4 +1,3 @@
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import type { ResultsVisibility } from "@/types/poll";
@@ -22,61 +21,69 @@ export function PollSettingsAndDuration({
   setValidationErrors: Dispatch<SetStateAction<ValidationErrors>>;
 }) {
   return (
-    <div className="grid gap-6 md:grid-cols-2">
-      <div className="space-y-3">
-        <Label className="text-sm font-medium">Poll Settings</Label>
-        <div className="space-y-3 rounded-lg border border-border p-4 bg-card">
-          <label className="flex items-center gap-3 cursor-pointer group">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-input accent-primary"
-              checked={settings.allowMultiple}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  allowMultiple: e.target.checked,
-                }))
-              }
-            />
+    <div className="grid gap-10 md:grid-cols-2">
+      <div className="space-y-4">
+        <h3 className="text-sm font-bold text-[#64748b] uppercase tracking-wider">
+          Poll Settings
+        </h3>
+        <div className="space-y-6 rounded-[2rem] bg-white/[0.02] border border-white/5 p-6 shadow-inner">
+          <label className="flex items-center gap-4 cursor-pointer group">
+            <div className="relative flex items-center">
+              <input
+                type="checkbox"
+                className="peer h-5 w-5 rounded-md border-white/10 bg-white/5 accent-[#2563eb] transition-all"
+                checked={settings.allowMultiple}
+                onChange={(e) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    allowMultiple: e.target.checked,
+                  }))
+                }
+              />
+            </div>
             <div className="flex-1">
-              <span className="text-sm font-medium group-hover:text-primary transition-colors">
+              <span className="text-sm font-bold text-white group-hover:text-[#2563eb] transition-colors">
                 Allow multiple selections
               </span>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[11px] font-medium text-[#64748b]">
                 Users can select more than one option
               </p>
             </div>
           </label>
 
-          <label className="flex items-center gap-3 cursor-pointer group">
-            <input
-              type="checkbox"
-              className="h-4 w-4 rounded border-input accent-primary"
-              checked={settings.anonymousVoting}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  anonymousVoting: e.target.checked,
-                }))
-              }
-            />
+          <label className="flex items-center gap-4 cursor-pointer group">
+            <div className="relative flex items-center">
+              <input
+                type="checkbox"
+                className="peer h-5 w-5 rounded-md border-white/10 bg-white/5 accent-[#2563eb] transition-all"
+                checked={settings.anonymousVoting}
+                onChange={(e) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    anonymousVoting: e.target.checked,
+                  }))
+                }
+              />
+            </div>
             <div className="flex-1">
-              <span className="text-sm font-medium group-hover:text-primary transition-colors">
+              <span className="text-sm font-bold text-white group-hover:text-[#2563eb] transition-colors">
                 Anonymous voting
               </span>
-              <p className="text-xs text-muted-foreground">
-                Hide voter identities (vote counts are still shown)
+              <p className="text-[11px] font-medium text-[#64748b]">
+                Hide voter identities from results
               </p>
             </div>
           </label>
 
-          <div className="space-y-2">
-            <Label htmlFor="results-visibility" className="text-sm font-medium">
+          <div className="space-y-3 pt-2 border-t border-white/5">
+            <Label
+              htmlFor="results-visibility"
+              className="text-[11px] font-bold text-[#64748b] uppercase tracking-wide">
               Results visibility
             </Label>
             <select
               id="results-visibility"
-              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+              className="h-11 w-full rounded-xl border border-white/10 bg-[#0f121a] px-4 text-sm font-bold text-white focus:outline-none focus:ring-1 focus:ring-[#2563eb]/50 transition-all appearance-none cursor-pointer"
               value={settings.showResults}
               onChange={(e) =>
                 setSettings((prev) => ({
@@ -88,46 +95,52 @@ export function PollSettingsAndDuration({
               <option value="afterVote">After user votes</option>
               <option value="afterExpiry">After poll expires</option>
             </select>
-            <p className="text-xs text-muted-foreground">
-              Control when voters can see results
-            </p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-3">
-        <Label htmlFor="poll-expiry" className="text-sm font-medium">
+      <div className="space-y-4">
+        <h3 className="text-sm font-bold text-[#64748b] uppercase tracking-wider">
           Poll Duration
-        </Label>
-        <div className="space-y-2">
-          <Input
-            id="poll-expiry"
-            type="datetime-local"
-            value={expiresAt}
-            onChange={(e) => {
-              setExpiresAt(e.target.value);
-              if (validationErrors.expiresAt) {
-                setValidationErrors((prev) => ({
-                  ...prev,
-                  expiresAt: undefined,
-                }));
-              }
-            }}
-            className={cn("h-10", validationErrors.expiresAt && "border-red-500")}
-            aria-invalid={!!validationErrors.expiresAt}
-            aria-describedby={
-              validationErrors.expiresAt ? "expiry-error" : "expiry-help"
-            }
-          />
-          {validationErrors.expiresAt ? (
-            <p id="expiry-error" className="text-xs text-red-500" role="alert">
-              {validationErrors.expiresAt}
-            </p>
-          ) : (
-            <p id="expiry-help" className="text-xs text-muted-foreground">
-              Set when voting should close. Leave empty for no expiry.
-            </p>
-          )}
+        </h3>
+        <div className="space-y-4 rounded-[2rem] bg-white/[0.02] border border-white/5 p-6 shadow-inner">
+          <div className="space-y-3">
+            <Label
+              htmlFor="poll-expiry"
+              className="text-[11px] font-bold text-[#64748b] uppercase tracking-wide">
+              Closing Date & Time (Optional)
+            </Label>
+            <div className="relative">
+              <input
+                id="poll-expiry"
+                type="datetime-local"
+                value={expiresAt}
+                onChange={(e) => {
+                  setExpiresAt(e.target.value);
+                  if (validationErrors.expiresAt) {
+                    setValidationErrors((prev) => ({
+                      ...prev,
+                      expiresAt: undefined,
+                    }));
+                  }
+                }}
+                className={cn(
+                  "h-12 w-full rounded-xl border border-white/10 bg-[#0f121a] px-4 text-sm font-bold text-white focus:outline-none focus:ring-1 focus:ring-[#2563eb]/50 transition-all cursor-pointer",
+                  validationErrors.expiresAt && "border-destructive/50"
+                )}
+              />
+            </div>
+            <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wide">
+              <span
+                className={
+                  validationErrors.expiresAt
+                    ? "text-destructive"
+                    : "text-[#64748b]"
+                }>
+                {validationErrors.expiresAt || "Leave empty for no expiry"}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

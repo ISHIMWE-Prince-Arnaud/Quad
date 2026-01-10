@@ -11,29 +11,41 @@ export function MyRecentPollsSidebar({
   onSelectPoll: (pollId: string) => void;
 }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-sm">My Recent Polls</CardTitle>
+    <Card className="bg-[#0f121a] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
+      <CardHeader className="p-6 pb-4">
+        <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+          My Recent Polls
+        </h2>
       </CardHeader>
-      <CardContent className="space-y-2 text-sm">
-        {loading && (
-          <div className="text-xs text-muted-foreground">Loading polls...</div>
-        )}
-        {!loading && polls.length === 0 && (
-          <div className="text-xs text-muted-foreground">
-            You have not created any polls yet.
+      <CardContent className="p-6 pt-0 space-y-4">
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-4 bg-white/5 rounded animate-pulse" />
+            ))}
+          </div>
+        ) : polls.length === 0 ? (
+          <div className="py-8 text-center border border-dashed border-white/5 rounded-2xl">
+            <p className="text-[11px] font-medium text-[#64748b]">
+              No polls created yet
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {polls.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => onSelectPoll(p.id)}
+                className="block w-full text-left p-2 rounded-xl text-[13px] font-medium text-[#f1f5f9] hover:bg-white/5 hover:text-[#2563eb] transition-all truncate group">
+                <span className="opacity-50 group-hover:opacity-100 transition-opacity">
+                  #{" "}
+                </span>
+                {p.question}
+              </button>
+            ))}
           </div>
         )}
-        {!loading &&
-          polls.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => onSelectPoll(p.id)}
-              className="block w-full truncate text-left hover:underline">
-              {p.question}
-            </button>
-          ))}
       </CardContent>
     </Card>
   );

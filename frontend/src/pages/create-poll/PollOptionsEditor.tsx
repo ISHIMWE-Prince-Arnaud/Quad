@@ -28,52 +28,53 @@ export function PollOptionsEditor({
   setValidationErrors: Dispatch<SetStateAction<ValidationErrors>>;
 }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Label className="text-sm font-medium">Poll Options *</Label>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
+        <h3 className="text-sm font-bold text-[#64748b] uppercase tracking-wider">
+          Poll Options
+        </h3>
+        <button
           onClick={onAddOption}
           disabled={options.length >= 5}
-          aria-label="Add poll option"
-          className="gap-1">
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all",
+            options.length >= 5
+              ? "text-[#64748b] cursor-not-allowed opacity-50"
+              : "text-[#2563eb] hover:bg-[#2563eb]/10"
+          )}>
           <Plus className="h-4 w-4" />
-          Add option
-        </Button>
+          Add Option
+        </button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {options.map((opt, index) => (
           <div
             key={opt.id}
-            className="flex flex-col gap-2 rounded-lg border border-border p-4 bg-card hover:border-primary/50 transition-colors md:flex-row md:items-start">
-            <div className="flex-1 space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
-                  {index + 1}
-                </span>
-                <Input
-                  value={opt.text}
-                  onChange={(e) => {
-                    onOptionChange(opt.id, e.target.value);
-                    if (validationErrors.options) {
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        options: undefined,
-                      }));
-                    }
-                  }}
-                  placeholder={`Enter option ${index + 1}`}
-                  maxLength={200}
-                  aria-label={`Poll option ${index + 1}`}
-                  className="flex-1"
-                />
-              </div>
+            className="group flex items-start gap-4 p-4 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-[#2563eb]/30 transition-all duration-300">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#0f121a] border border-white/5 text-xs font-bold text-[#2563eb] shadow-inner">
+              {index + 1}
+            </div>
 
-              <div className="flex items-center gap-2 pl-8">
-                <label className="inline-flex items-center gap-1 cursor-pointer">
+            <div className="flex-1 space-y-4">
+              <input
+                value={opt.text}
+                onChange={(e) => {
+                  onOptionChange(opt.id, e.target.value);
+                  if (validationErrors.options) {
+                    setValidationErrors((prev) => ({
+                      ...prev,
+                      options: undefined,
+                    }));
+                  }
+                }}
+                placeholder={`Option ${index + 1}`}
+                maxLength={200}
+                className="w-full bg-transparent border-none focus:ring-0 text-lg font-bold text-white placeholder-white/10 p-0"
+              />
+
+              <div className="flex items-center gap-3">
+                <label className="cursor-pointer group/upload">
                   <input
                     type="file"
                     accept="image/*,video/*"
@@ -83,30 +84,30 @@ export function PollOptionsEditor({
                     }
                     disabled={uploadingOptionId === opt.id}
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    disabled={uploadingOptionId === opt.id}
-                    asChild>
-                    <span className="text-xs">
-                      {uploadingOptionId === opt.id ? (
-                        <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                      ) : (
-                        <ImageIcon className="mr-1 h-3 w-3" />
-                      )}
-                      {opt.media ? "Change" : "Add media"}
+                  <div
+                    className={cn(
+                      "flex items-center gap-2 py-1.5 px-3 rounded-lg border transition-all",
+                      uploadingOptionId === opt.id
+                        ? "border-[#2563eb] bg-[#2563eb]/5"
+                        : "border-white/5 bg-white/5 hover:border-white/20"
+                    )}>
+                    {uploadingOptionId === opt.id ? (
+                      <Loader2 className="h-3 w-3 animate-spin text-[#2563eb]" />
+                    ) : (
+                      <ImageIcon className="h-3.3 w-3.5 text-[#64748b] group-hover/upload:text-white transition-colors" />
+                    )}
+                    <span className="text-[11px] font-bold text-[#64748b] group-hover/upload:text-white">
+                      {opt.media ? "Change" : "Media"}
                     </span>
-                  </Button>
+                  </div>
                 </label>
 
                 {opt.media && (
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <span>{opt.media.type === "video" ? "Video" : "Image"}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
+                  <div className="flex items-center gap-2 bg-[#2563eb]/10 px-3 py-1.5 rounded-lg border border-[#2563eb]/20 animate-in zoom-in-95 duration-200">
+                    <span className="text-[10px] font-bold text-[#2563eb] uppercase">
+                      {opt.media.type}
+                    </span>
+                    <button
                       onClick={() =>
                         setOptions((prev) =>
                           prev.map((o) =>
@@ -114,40 +115,37 @@ export function PollOptionsEditor({
                           )
                         )
                       }
-                      className="h-5 w-5 p-0"
-                      aria-label={`Remove media from option ${index + 1}`}>
+                      className="p-1 hover:bg-[#2563eb]/20 rounded-md text-[#2563eb] transition-all">
                       <X className="h-3 w-3" />
-                    </Button>
+                    </button>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="flex justify-end md:w-auto">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => onRemoveOption(opt.id)}
-                disabled={options.length <= 2}
-                aria-label={`Remove option ${index + 1}`}
-                className="text-destructive hover:text-destructive">
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+            <button
+              onClick={() => onRemoveOption(opt.id)}
+              disabled={options.length <= 2}
+              className={cn(
+                "p-2 rounded-xl transition-all",
+                options.length <= 2
+                  ? "opacity-0 cursor-default"
+                  : "text-[#64748b] hover:text-destructive hover:bg-destructive/10"
+              )}>
+              <X className="h-5 w-5" />
+            </button>
           </div>
         ))}
       </div>
 
-      {validationErrors.options ? (
-        <p className="text-xs text-red-500" role="alert">
-          {validationErrors.options}
-        </p>
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          Provide between 2 and 5 unique options. Each option can have optional media.
-        </p>
-      )}
+      <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wide">
+        <span
+          className={
+            validationErrors.options ? "text-destructive" : "text-[#64748b]"
+          }>
+          {validationErrors.options || "2 to 5 options required"}
+        </span>
+      </div>
     </div>
   );
 }

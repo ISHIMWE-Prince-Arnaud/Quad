@@ -28,11 +28,11 @@ export function PollQuestionSection({
 }) {
   return (
     <>
-      <div className="space-y-2">
-        <Label htmlFor="poll-question" className="text-sm font-medium">
-          Question *
-        </Label>
-        <Textarea
+      <div className="space-y-4">
+        <h3 className="text-sm font-bold text-[#64748b] uppercase tracking-wider">
+          Poll Question
+        </h3>
+        <textarea
           id="poll-question"
           value={question}
           onChange={(e) => {
@@ -46,65 +46,69 @@ export function PollQuestionSection({
           }}
           rows={3}
           maxLength={500}
-          placeholder="Ask something engaging..."
-          className={validationErrors.question ? "border-red-500" : ""}
+          placeholder="What's your question?"
+          className={cn(
+            "w-full bg-transparent border-none focus:ring-0 text-3xl font-black text-white placeholder-white/10 p-0 resize-none",
+            validationErrors.question && "text-destructive"
+          )}
           aria-invalid={!!validationErrors.question}
-          aria-describedby={
-            validationErrors.question ? "question-error" : "question-help"
-          }
         />
-        {validationErrors.question ? (
-          <p id="question-error" className="text-xs text-red-500" role="alert">
-            {validationErrors.question}
-          </p>
-        ) : (
-          <p id="question-help" className="text-xs text-muted-foreground">
-            Between 10 and 500 characters. ({question.length}/500)
-          </p>
-        )}
+        <div className="flex justify-between items-center text-[11px] font-bold text-[#64748b]">
+          <span>{question.length}/500 characters</span>
+          {validationErrors.question && (
+            <span className="text-destructive uppercase">
+              {validationErrors.question}
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Question media (optional)</Label>
-        <div className="flex items-center gap-2">
-          <label className="inline-flex items-center gap-2 cursor-pointer">
+      <div className="space-y-4">
+        <h3 className="text-sm font-bold text-[#64748b] uppercase tracking-wider">
+          Question Media (Optional)
+        </h3>
+        <div className="flex items-center gap-4">
+          <label className="cursor-pointer group">
             <input
               type="file"
               accept="image/*,video/*"
               className="hidden"
-              onChange={(e) => onUploadQuestionMedia(e.target.files?.[0] || null)}
+              onChange={(e) =>
+                onUploadQuestionMedia(e.target.files?.[0] || null)
+              }
               disabled={uploadingQuestionMedia}
             />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={uploadingQuestionMedia}
-              asChild>
-              <span>
-                {uploadingQuestionMedia ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <ImageIcon className="mr-2 h-4 w-4" />
-                )}
-                {questionMedia ? "Change media" : "Add media"}
+            <div
+              className={cn(
+                "flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all",
+                uploadingQuestionMedia
+                  ? "border-[#2563eb] bg-[#2563eb]/5"
+                  : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10"
+              )}>
+              {uploadingQuestionMedia ? (
+                <Loader2 className="h-5 w-5 animate-spin text-[#2563eb]" />
+              ) : (
+                <ImageIcon className="h-5 w-5 text-[#64748b] group-hover:text-white transition-colors" />
+              )}
+              <span className="text-sm font-bold text-[#f1f5f9]">
+                {questionMedia ? "Change Media" : "Add Image or Video"}
               </span>
-            </Button>
+            </div>
           </label>
+
           {questionMedia && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground truncate max-w-[160px]">
-                {questionMedia.type === "video" ? "Video attached" : "Image attached"}
+            <div className="flex items-center gap-3 bg-white/5 px-4 py-2.5 rounded-2xl border border-white/5 animate-in fade-in slide-in-from-left-2">
+              <span className="text-xs font-bold text-[#64748b]">
+                {questionMedia.type === "video"
+                  ? "Video attached"
+                  : "Image attached"}
               </span>
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="sm"
                 onClick={() => setQuestionMedia(undefined)}
-                className="h-6 w-6 p-0"
-                aria-label="Remove question media">
+                className="p-1.5 hover:bg-white/10 rounded-lg text-[#64748b] hover:text-white transition-all">
                 <X className="h-4 w-4" />
-              </Button>
+              </button>
             </div>
           )}
         </div>

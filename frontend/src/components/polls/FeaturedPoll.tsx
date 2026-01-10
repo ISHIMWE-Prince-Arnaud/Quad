@@ -179,37 +179,84 @@ export function FeaturedPoll({ className }: FeaturedPollProps) {
     );
   };
 
-  return (
-    <Card className={className}>
-      <CardHeader className="pb-3">
+    <Card className={cn("bg-[#0f121a] border border-white/5 rounded-3xl overflow-hidden shadow-xl", className)}>
+      <CardHeader className="pb-3 px-6 pt-6">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            Featured Poll
+          <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-[#2563eb]" />
+            Trending Poll
           </CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0"
+          <button
             onClick={() => fetchPoll(false)}
             disabled={isLoading || isRefreshing}
-            aria-label="Refresh featured poll">
+            className="p-2 text-[#64748b] hover:text-white transition-colors"
+            aria-label="Refresh poll">
             <RefreshCw
               className={cn("h-4 w-4", isRefreshing && "animate-spin")}
             />
-          </Button>
+          </button>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4 pt-0">{renderBody()}</CardContent>
+      <CardContent className="space-y-6 px-6 pb-6">
+        {isLoading ? (
+          <div className="space-y-4">
+            <div className="h-4 w-3/4 rounded bg-white/5 animate-pulse" />
+            <div className="space-y-3">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-2 w-full rounded bg-white/5 animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : error || !poll ? (
+          <div className="py-4 text-center">
+            <p className="text-sm text-[#64748b] mb-4">{error || "No trending polls"}</p>
+            <Button variant="outline" size="sm" onClick={() => fetchPoll(true)} className="rounded-full border-white/10 text-white">
+              Retry
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-2">
+              <Link
+                to={`/app/polls/${poll.id}`}
+                className="text-lg font-bold text-white hover:text-[#2563eb] transition-colors leading-tight">
+                {poll.question}
+              </Link>
+              <div className="flex items-center gap-2 text-[11px] font-medium text-[#64748b]">
+                <span>{poll.totalVotes} votes</span>
+                <span>·</span>
+                <span>{poll.expiresAt ? `Ends ${new Date(poll.expiresAt).toLocaleDateString()}` : "Ongoing"}</span>
+              </div>
+            </div>
 
-      {poll && (
-        <CardFooter className="pt-0">
-          <Button className="w-full" asChild>
-            <Link to={`/app/polls/${poll.id}`}>Vote now</Link>
-          </Button>
-        </CardFooter>
-      )}
+            <div className="space-y-4">
+              {poll.options.slice(0, 3).map((option) => {
+                const percentage = getPercentage(option.votesCount);
+                return (
+                  <div key={option.index} className="space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold">
+                      <span className="text-white/90 truncate mr-2">{option.text}</span>
+                      <span className="text-[#2563eb]">{percentage}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${percentage}%` }}
+                        className="h-full rounded-full bg-gradient-to-r from-[#2563eb] to-[#9333ea]"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <Button className="w-full rounded-2xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold h-11 shadow-lg shadow-[#2563eb]/20" asChild>
+              <Link to={`/app/polls/${poll.id}`}>Vote now</Link>
+            </Button>
+          </>
+        )}
+      </CardContent>
     </Card>
-  );
-}
