@@ -119,8 +119,16 @@ export const updateUser = async (req: Request, res: Response) => {
 
     const updateOps: Record<string, any> = { $set: safeUpdates };
     if (safeUpdates.username && safeUpdates.username !== existingUser.username) {
-      updateOps.$addToSet = { previousUsernames: existingUser.username };
-      updateOps.$pull = { previousUsernames: safeUpdates.username };
+      const current = Array.isArray(existingUser.previousUsernames)
+        ? existingUser.previousUsernames
+        : [];
+
+      const next = current.filter((u) => u !== safeUpdates.username);
+      if (!next.includes(existingUser.username)) {
+        next.push(existingUser.username);
+      }
+
+      updateOps.$set.previousUsernames = next;
     }
 
     let updatedUser = null;
