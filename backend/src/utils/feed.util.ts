@@ -185,17 +185,11 @@ export const fetchPolls = async (
  */
 export const fetchStories = async (
   cursor?: string,
-  limit: number = 20,
-  excludeExpired: boolean = true
+  limit: number = 20
 ): Promise<IRawContentItem[]> => {
-  const now = new Date();
   const query: any = {
     status: "published",
   };
-
-  if (excludeExpired) {
-    query.expiresAt = { $gt: now };
-  }
 
   if (cursor) {
     query._id = { $lt: cursor };

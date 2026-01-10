@@ -18,6 +18,7 @@ import {
 import { Post } from "../models/Post.model.js";
 import { Poll } from "../models/Poll.model.js";
 import { Story } from "../models/Story.model.js";
+import { logger } from "../utils/logger.util.js";
 
 const getContentAuthorId = (content: any): string => {
   return (content?.author?.clerkId as string | undefined) || (content?.userId as string | undefined) || "";
@@ -112,12 +113,10 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
 
       case "stories":
         {
-          const now = new Date();
           const stories = await Story.find({
             ...baseQuery,
             userId: { $in: followingIds },
             status: "published",
-            expiresAt: { $gt: now },
           })
             .sort({ createdAt: -1 })
             .limit(limit)
@@ -161,7 +160,6 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
               ...baseQuery,
               userId: { $in: followingIds },
               status: "published",
-              expiresAt: { $gt: new Date() },
             })
               .sort({ createdAt: -1 })
               .limit(Math.ceil(limit * 0.2))
@@ -240,7 +238,7 @@ export const getFollowingFeed = async (req: Request, res: Response) => {
       data: response,
     });
   } catch (error: any) {
-    console.error("Error fetching following feed:", error);
+    logger.error("Error fetching following feed", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -343,7 +341,6 @@ export const getForYouFeed = async (req: Request, res: Response) => {
 
       case "stories":
         {
-          const now = new Date();
           const [followingStories, discoverStories] = await Promise.all([
             Story.find({
               ...(cursor ? { _id: { $lt: cursor } } : {}),
@@ -351,7 +348,6 @@ export const getForYouFeed = async (req: Request, res: Response) => {
                 ? { userId: { $in: followingIds } }
                 : {}),
               status: "published",
-              expiresAt: { $gt: now },
             })
               .sort({ createdAt: -1 })
               .limit(followingLimit)
@@ -363,7 +359,6 @@ export const getForYouFeed = async (req: Request, res: Response) => {
                 ? { userId: { $nin: followingIds } }
                 : {}),
               status: "published",
-              expiresAt: { $gt: now },
             })
               .sort({ createdAt: -1 })
               .limit(discoverLimit)
@@ -439,7 +434,7 @@ export const getForYouFeed = async (req: Request, res: Response) => {
       data: response,
     });
   } catch (error: any) {
-    console.error("Error fetching for you feed:", error);
+    logger.error("Error fetching for you feed", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -504,19 +499,16 @@ export const getNewContentCount = async (req: Request, res: Response) => {
 
       case "stories":
         {
-          const now = new Date();
           if (feedType === "following") {
             count = await Story.countDocuments({
               ...baseQuery,
               userId: { $in: followingIds },
               status: "published",
-              expiresAt: { $gt: now },
             });
           } else {
             count = await Story.countDocuments({
               ...baseQuery,
               status: "published",
-              expiresAt: { $gt: now },
             });
           }
         }
@@ -526,7 +518,6 @@ export const getNewContentCount = async (req: Request, res: Response) => {
       default:
         {
           // Count all content types
-          const now = new Date();
           let postCount, pollCount, storyCount;
 
           if (feedType === "following") {
@@ -544,7 +535,6 @@ export const getNewContentCount = async (req: Request, res: Response) => {
                 ...baseQuery,
                 userId: { $in: followingIds },
                 status: "published",
-                expiresAt: { $gt: now },
               }),
             ]);
           } else {
@@ -557,7 +547,6 @@ export const getNewContentCount = async (req: Request, res: Response) => {
               Story.countDocuments({
                 ...baseQuery,
                 status: "published",
-                expiresAt: { $gt: now },
               }),
             ]);
           }
@@ -572,7 +561,7 @@ export const getNewContentCount = async (req: Request, res: Response) => {
       data: { count },
     });
   } catch (error: any) {
-    console.error("Error fetching new content count:", error);
+    logger.error("Error fetching new content count", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };

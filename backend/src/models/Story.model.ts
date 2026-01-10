@@ -19,7 +19,6 @@ export interface IStoryDocument extends Document {
   viewsCount?: number;
   reactionsCount?: number;
   commentsCount?: number;
-  expiresAt?: Date;
   publishedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
@@ -105,9 +104,6 @@ StorySchema.index({ tags: 1, status: 1, publishedAt: -1 });
 
 // Index for sorting by views/popularity
 StorySchema.index({ viewsCount: -1, publishedAt: -1 });
-
-// Feed-specific index for active stories with expiry check
-StorySchema.index({ status: 1, expiresAt: 1, createdAt: -1, reactionsCount: -1, commentsCount: -1 });
 
 // ===========================
 // METHODS
