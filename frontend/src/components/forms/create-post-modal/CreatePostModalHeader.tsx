@@ -1,6 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -23,7 +22,7 @@ export function CreatePostModalHeader({ user }: { user: HeaderUser }) {
         </Avatar>
         <div>
           <DialogTitle>Create Post</DialogTitle>
-          <DialogDescription>Share what's on your mind</DialogDescription>
+          <p className="text-sm text-muted-foreground">Share what's on your mind</p>
         </div>
       </div>
     </DialogHeader>

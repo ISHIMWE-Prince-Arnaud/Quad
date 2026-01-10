@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -89,6 +90,9 @@ export function CreatePostModal({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogDescription className="sr-only">
+          Create a new post and optionally attach media.
+        </DialogDescription>
         <CreatePostModalHeader user={user} />
 
         <Form {...form}>
