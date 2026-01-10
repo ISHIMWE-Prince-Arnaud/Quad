@@ -32,19 +32,25 @@ export function PostCardHeader({
       <Link
         to={`/app/profile/${post.author.username}`}
         className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-        <Avatar className="h-10 w-10 ring-2 ring-background">
+        <Avatar className="h-10 w-10 border-2 border-white/5 shadow-inner">
           <AvatarImage src={post.author.profileImage} />
-          <AvatarFallback className="bg-primary/10 text-primary font-medium">
+          <AvatarFallback className="bg-[#1e293b] text-white font-semibold">
             {displayName.charAt(0).toUpperCase() || "U"}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm truncate">{displayName}</p>
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
-            <span className="truncate">@{post.author.username}</span>
-            <span>·</span>
-            <span className="whitespace-nowrap">{timeAgo(post.createdAt)}</span>
+          <p className="font-bold text-white text-[15px] leading-tight truncate">
+            {displayName}
           </p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="text-[11px] font-medium text-[#64748b]">
+              @{post.author.username}
+            </span>
+            <span className="text-[#334155] text-[10px]">·</span>
+            <span className="text-[11px] font-medium text-[#64748b] whitespace-nowrap">
+              {timeAgo(post.createdAt)}
+            </span>
+          </div>
         </div>
       </Link>
 

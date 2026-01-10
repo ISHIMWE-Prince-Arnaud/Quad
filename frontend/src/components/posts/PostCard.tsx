@@ -111,8 +111,8 @@ export function PostCard({
         transition={{ type: "spring", stiffness: 300, damping: 25 }}>
         <Card
           className={cn(
-            "w-full transition-shadow duration-200",
-            "hover:shadow-lg",
+            "w-full bg-[#0f121a] border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-300",
+            "hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:border-white/10",
             className
           )}>
           <CardHeader className="pb-4">
@@ -129,7 +129,7 @@ export function PostCard({
           </CardHeader>
 
           {/* Post content */}
-          <CardContent className="pb-4 space-y-4">
+          <CardContent className="px-6 pb-6 space-y-4">
             {/* Text content */}
             {/* Media gallery */}
             <PostCardBody
@@ -144,7 +144,7 @@ export function PostCard({
 
           {/* Interaction buttons */}
           <CardFooter
-            className="pt-3 pb-4 flex items-center gap-2 border-t"
+            className="px-6 py-4 flex items-center gap-2 border-t border-white/5 bg-white/[0.02]"
             role="group"
             aria-label="Post actions">
             <PostCardFooter

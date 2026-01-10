@@ -11,6 +11,8 @@ import { FeedStatusCards } from "./feed/FeedStatusCards";
 import { useFeedController } from "./feed/useFeedController";
 import { RecentStoriesBar } from "@/components/stories/RecentStoriesBar";
 
+import { FeedPostComposer } from "./feed/FeedPostComposer";
+
 export default function FeedPage() {
   const [feedType, setFeedType] = useState<FeedType>("foryou");
   const [tab, setTab] = useState<FeedTab>("home");
@@ -28,58 +30,63 @@ export default function FeedPage() {
   } = useFeedController({ feedType, tab });
 
   const currentEmptyState = emptyStateCopy[tab];
-
   const parentRef = useRef<HTMLDivElement>(null!);
-
-  // Virtual scrolling setup - only enable for lists with 100+ items
   const shouldUseVirtualization = items.length >= 100;
 
   const virtualizer = useVirtualizer({
     count: items.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 400, // Estimated feed item height
-    overscan: 3, // Render 3 extra items above and below viewport
+    estimateSize: () => 500,
+    overscan: 3,
     enabled: shouldUseVirtualization,
   });
 
   return (
     <ComponentErrorBoundary>
       <PageTransition>
-        <div className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
+        <div className="max-w-4xl mx-auto px-6 py-8 space-y-10">
           <RecentStoriesBar />
 
-          <FeedHeaderTabs
-            feedType={feedType}
-            tab={tab}
-            onFeedTypeChange={setFeedType}
-            onTabChange={setTab}
-          />
+          <div className="space-y-6">
+            <h1 className="text-3xl font-black text-white tracking-tight">
+              Feed
+            </h1>
 
-          <FeedNewContentBanner
-            newCount={newCount}
-            loading={loading}
-            onRefresh={handleRefreshFeed}
-          />
-
-          <FeedStatusCards
-            loading={loading}
-            error={error}
-            itemsLength={items.length}
-            emptyState={currentEmptyState}
-          />
-
-          {!loading && !error && items.length > 0 && (
-            <FeedList
-              items={items}
-              shouldUseVirtualization={shouldUseVirtualization}
-              parentRef={parentRef}
-              virtualizer={virtualizer}
-              onDeletePost={handleDeletePost}
-              hasMore={hasMore}
-              loadingMore={loadingMore}
-              onLoadMore={() => void handleLoadMore()}
+            <FeedHeaderTabs
+              feedType={feedType}
+              tab={tab}
+              onFeedTypeChange={setFeedType}
+              onTabChange={setTab}
             />
-          )}
+
+            <FeedPostComposer />
+
+            <FeedNewContentBanner
+              newCount={newCount}
+              loading={loading}
+              onRefresh={handleRefreshFeed}
+            />
+
+            <FeedStatusCards
+              loading={loading}
+              error={error}
+              itemsLength={items.length}
+              emptyState={currentEmptyState}
+            />
+
+            {!loading && !error && items.length > 0 && (
+              <FeedList
+                items={items}
+                shouldUseVirtualization={shouldUseVirtualization}
+                parentRef={parentRef}
+                virtualizer={virtualizer}
+                onDeletePost={handleDeletePost}
+                hasMore={hasMore}
+                loadingMore={loadingMore}
+                onLoadMore={() => void handleLoadMore()}
+              />
+            )}
+          </div>
         </div>
       </PageTransition>
     </ComponentErrorBoundary>
