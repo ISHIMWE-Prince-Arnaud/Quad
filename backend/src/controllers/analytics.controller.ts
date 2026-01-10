@@ -7,6 +7,7 @@ import { Poll } from "../models/Poll.model.js";
 import { User } from "../models/User.model.js";
 import { logger } from "../utils/logger.util.js";
 import { getAnalyticsQuerySchema } from "../schemas/analytics.schema.js";
+import { getContentAnalyticsQuerySchema } from "../schemas/analytics.schema.js";
 
 const parseDateRange = (query: any): { from?: Date; to?: Date } => {
   const dateFrom =
@@ -14,13 +15,95 @@ const parseDateRange = (query: any): { from?: Date; to?: Date } => {
   const dateTo =
     typeof query?.dateTo === "string" ? new Date(query.dateTo) : undefined;
 
-  const from = dateFrom && !Number.isNaN(dateFrom.getTime()) ? dateFrom : undefined;
-  const to = dateTo && !Number.isNaN(dateTo.getTime()) ? dateTo : undefined;
+  const fromDate =
+    dateFrom && !Number.isNaN(dateFrom.getTime()) ? dateFrom : undefined;
+  const toDate = dateTo && !Number.isNaN(dateTo.getTime()) ? dateTo : undefined;
 
   const range: { from?: Date; to?: Date } = {};
-  if (from) range.from = from;
-  if (to) range.to = to;
+  if (fromDate) range.from = fromDate;
+  if (toDate) range.to = toDate;
   return range;
+};
+
+export const getContentAnalytics = async (req: Request, res: Response) => {
+  try {
+    const userId = req.auth.userId;
+    const parsed = getContentAnalyticsQuerySchema.parse(req.query);
+
+    const wantPosts = !parsed.contentType || parsed.contentType === "post";
+    const wantStories = !parsed.contentType || parsed.contentType === "story";
+    const wantPolls = !parsed.contentType || parsed.contentType === "poll";
+
+    const [posts, stories, polls] = await Promise.all([
+      wantPosts
+        ? Post.find({ userId }).select("reactionsCount commentsCount").lean()
+        : Promise.resolve([]),
+      wantStories
+        ? Story.find({ userId }).select("viewsCount reactionsCount commentsCount").lean()
+        : Promise.resolve([]),
+      wantPolls
+        ? Poll.find({ "author.clerkId": userId })
+            .select("totalVotes reactionsCount commentsCount")
+            .lean()
+        : Promise.resolve([]),
+    ]);
+
+    const postEngagement = (posts as any[]).map((p) => ({
+      reactions: p.reactionsCount || 0,
+      comments: p.commentsCount || 0,
+    }));
+    const storyEngagement = (stories as any[]).map((s) => ({
+      views: s.viewsCount || 0,
+      reactions: s.reactionsCount || 0,
+      comments: s.commentsCount || 0,
+    }));
+    const pollEngagement = (polls as any[]).map((p) => ({
+      votes: p.totalVotes || 0,
+      reactions: p.reactionsCount || 0,
+      comments: p.commentsCount || 0,
+    }));
+
+    return res.json({
+      success: true,
+      data: {
+        posts: {
+          count: (posts as any[]).length,
+          totals: postEngagement.reduce(
+            (acc, e) => ({
+              reactions: acc.reactions + e.reactions,
+              comments: acc.comments + e.comments,
+            }),
+            { reactions: 0, comments: 0 }
+          ),
+        },
+        stories: {
+          count: (stories as any[]).length,
+          totals: storyEngagement.reduce(
+            (acc, e) => ({
+              views: acc.views + e.views,
+              reactions: acc.reactions + e.reactions,
+              comments: acc.comments + e.comments,
+            }),
+            { views: 0, reactions: 0, comments: 0 }
+          ),
+        },
+        polls: {
+          count: (polls as any[]).length,
+          totals: pollEngagement.reduce(
+            (acc, e) => ({
+              votes: acc.votes + e.votes,
+              reactions: acc.reactions + e.reactions,
+              comments: acc.comments + e.comments,
+            }),
+            { votes: 0, reactions: 0, comments: 0 }
+          ),
+        },
+      },
+    });
+  } catch (error: any) {
+    logger.error("Error fetching content analytics", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 };
 
 export const recordProfileView = async (req: Request, res: Response) => {

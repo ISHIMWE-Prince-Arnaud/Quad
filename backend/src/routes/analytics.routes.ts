@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { requireApiAuth } from "../middlewares/auth.middleware.js";
 import { validateSchema } from "../utils/validation.util.js";
-import { getAnalyticsQuerySchema } from "../schemas/analytics.schema.js";
+import { getAnalyticsQuerySchema, getContentAnalyticsQuerySchema } from "../schemas/analytics.schema.js";
 import {
+  getContentAnalytics,
   getEngagementSummary,
   getFollowerGrowth,
   getProfileAnalytics,
@@ -23,6 +24,13 @@ router.get(
   requireApiAuth,
   validateSchema(getAnalyticsQuerySchema, "query"),
   getFollowerGrowth
+);
+
+router.get(
+  "/content",
+  requireApiAuth,
+  validateSchema(getContentAnalyticsQuerySchema, "query"),
+  getContentAnalytics
 );
 
 router.get("/summary", requireApiAuth, getEngagementSummary);

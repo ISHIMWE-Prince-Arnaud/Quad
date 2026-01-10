@@ -8,6 +8,9 @@ import { AnalyticsPostingActivityCard } from "./analytics/AnalyticsPostingActivi
 import { AnalyticsSearchTrendsCard } from "./analytics/AnalyticsSearchTrendsCard";
 import { AnalyticsTopPollsCard } from "./analytics/AnalyticsTopPollsCard";
 import { AnalyticsTopPostsCard } from "./analytics/AnalyticsTopPostsCard";
+import { ProfileViewsCard } from "./analytics/ProfileViewsCard";
+import { FollowerGrowthChart } from "./analytics/FollowerGrowthChart";
+import { EngagementSummaryCard } from "./analytics/EngagementSummaryCard";
 import {
   computeEngagement,
   getTopByEngagement,
@@ -24,6 +27,9 @@ export default function AnalyticsPage() {
     polls,
     popularSearches,
     trendingSearches,
+    profileViews,
+    followerHistory,
+    engagementSummary,
     loading,
     error,
   } = useAnalyticsData({ username: user?.username });
@@ -59,6 +65,13 @@ export default function AnalyticsPage() {
               engagement={engagement}
             />
 
+            <ProfileViewsCard
+              loading={loading}
+              error={error}
+              totalViews={profileViews?.totalViews ?? 0}
+              uniqueViewers={profileViews?.uniqueViewers ?? 0}
+            />
+
             <AnalyticsPostingActivityCard postsByMonth={postsByMonth} />
 
             <AnalyticsTopPostsCard topPosts={topPosts} />
@@ -71,6 +84,18 @@ export default function AnalyticsPage() {
             <AnalyticsSearchTrendsCard
               popularSearches={popularSearches}
               trendingSearches={trendingSearches}
+            />
+
+            <FollowerGrowthChart
+              loading={loading}
+              error={error}
+              history={followerHistory}
+            />
+
+            <EngagementSummaryCard
+              loading={loading}
+              error={error}
+              summary={engagementSummary}
             />
 
             <AnalyticsContentMixCard engagement={engagement} />
