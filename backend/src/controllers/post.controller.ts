@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { Post } from "../models/Post.model.js";
 import { User } from "../models/User.model.js";
+import { logger } from "../utils/logger.util.js";
 import type {
   CreatePostSchemaType,
   UpdatePostSchemaType,
@@ -72,7 +73,7 @@ export const createPost = async (req: Request, res: Response) => {
 
     return res.status(201).json({ success: true, data: newPost });
   } catch (error: any) {
-    console.error("Error creating post:", error);
+    logger.error("Error creating post", error);
     return res
       .status(500)
       .json({ success: false, message: "Server error", error: error.message });
@@ -104,7 +105,7 @@ export const getAllPosts = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching posts:", error);
+    logger.error("Error fetching posts", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -125,7 +126,7 @@ export const getPost = async (req: Request, res: Response) => {
 
     return res.status(200).json({ success: true, data: post });
   } catch (error: any) {
-    console.error("Error fetching post:", error);
+    logger.error("Error fetching post", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -192,7 +193,7 @@ export const updatePost = async (req: Request, res: Response) => {
 
     return res.status(200).json({ success: true, data: updatedPost });
   } catch (error: any) {
-    console.error("Error updating post:", error);
+    logger.error("Error updating post", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -232,7 +233,7 @@ export const deletePost = async (req: Request, res: Response) => {
       .status(200)
       .json({ success: true, message: "Post deleted successfully" });
   } catch (error: any) {
-    console.error("Error deleting post:", error);
+    logger.error("Error deleting post", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };

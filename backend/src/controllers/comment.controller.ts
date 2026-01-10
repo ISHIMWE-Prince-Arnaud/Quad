@@ -314,7 +314,7 @@ export const getReplies = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("Error fetching replies:", error);
+    logger.error("Error fetching replies", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -357,7 +357,7 @@ export const updateComment = async (req: Request, res: Response) => {
       data: comment,
     });
   } catch (error: any) {
-    console.error("Error updating comment:", error);
+    logger.error("Error updating comment", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -445,7 +445,7 @@ export const deleteComment = async (req: Request, res: Response) => {
       message: "Comment deleted successfully",
     });
   } catch (error: any) {
-    console.error("Error deleting comment:", error);
+    logger.error("Error deleting comment", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -521,7 +521,7 @@ export const toggleCommentLike = async (req: Request, res: Response) => {
       data: newLike,
     });
   } catch (error: any) {
-    console.error("Error toggling comment like:", error);
+    logger.error("Error toggling comment like", error);
     return res
       .status(500)
       .json({ success: false, message: "Server error", error: error.message });
@@ -545,7 +545,7 @@ export const getCommentLikes = async (req: Request, res: Response) => {
       count: likes.length,
     });
   } catch (error: any) {
-    console.error("Error fetching comment likes:", error);
+    logger.error("Error fetching comment likes", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
