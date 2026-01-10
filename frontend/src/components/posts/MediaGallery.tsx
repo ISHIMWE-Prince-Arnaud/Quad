@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 interface MediaItem {
@@ -243,6 +248,10 @@ function MediaLightbox({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl h-[90vh] p-0 bg-black/95">
+        <DialogTitle className="sr-only">Media viewer</DialogTitle>
+        <DialogDescription className="sr-only">
+          View post media in full screen and navigate between items.
+        </DialogDescription>
         <div className="relative w-full h-full flex items-center justify-center">
           {/* Close button */}
           <Button
