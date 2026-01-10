@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { StoryCoverSection } from "./StoryCoverSection";
 import { StoryEditorToolbar } from "./StoryEditorToolbar";
 
