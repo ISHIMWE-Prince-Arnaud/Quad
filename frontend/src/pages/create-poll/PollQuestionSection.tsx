@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import type { PollMedia } from "@/types/poll";
 import { Image as ImageIcon, Loader2, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";

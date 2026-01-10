@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { ChatMedia } from "@/types/chat";
 import { Image as ImageIcon, Loader2, Send, Smile, X } from "lucide-react";

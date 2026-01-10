@@ -1,7 +1,5 @@
 import { WhoToFollow } from "@/components/discovery/WhoToFollow";
 import { FeaturedPoll } from "@/components/polls/FeaturedPoll";
-import { ThemeSelector } from "@/components/theme/ThemeSelector";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function RightPanel() {
   return (

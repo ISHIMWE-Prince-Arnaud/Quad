@@ -84,8 +84,9 @@ export default function EditProfilePage() {
       const processed = await processProfileImage(file);
       const res = await UploadService.uploadProfileImage(processed.file);
       setProfileImage({ preview: res.url, processing: false });
-    } catch (err: any) {
-      setUploadError(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Upload failed";
+      setUploadError(message);
       setProfileImage((prev) => ({ ...prev, processing: false }));
     }
   };
@@ -101,8 +102,9 @@ export default function EditProfilePage() {
       const processed = await processCoverImage(file);
       const res = await UploadService.uploadCoverImage(processed.file);
       setCoverImage({ preview: res.url, processing: false });
-    } catch (err: any) {
-      setUploadError(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Upload failed";
+      setUploadError(message);
       setCoverImage((prev) => ({ ...prev, processing: false }));
     }
   };
@@ -117,8 +119,9 @@ export default function EditProfilePage() {
       });
       setUser({ ...user, ...updated });
       navigate(`/profile/${updated.username}`);
-    } catch (err: any) {
-      setUploadError(err.response?.data?.message || err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Update failed";
+      setUploadError(message);
     }
   };
 
