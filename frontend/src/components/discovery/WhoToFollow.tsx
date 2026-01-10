@@ -205,68 +205,75 @@ export function WhoToFollow({
     );
   }
 
-  return (
-    <Card className={className}>
-      <CardHeader className="pb-3">
+    <Card className={cn("bg-[#0f121a] border border-white/5 rounded-3xl overflow-hidden shadow-xl", className)}>
+      <CardHeader className="pb-3 px-6 pt-6">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Who to follow</CardTitle>
+          <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
+            <Users className="h-5 w-5 text-[#2563eb]" />
+            Active Users
+          </CardTitle>
           {showRefresh && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={refreshSuggestions}
               disabled={isRefreshing}
-              className="h-8 w-8 p-0">
+              className="p-2 text-[#64748b] hover:text-white transition-colors">
               <RefreshCw
-                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+                className={cn("h-4 w-4", isRefreshing && "animate-spin")}
               />
-            </Button>
+            </button>
           )}
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0">
+      <CardContent className="px-6 pb-6 pt-2">
         {isLoading ? (
           <div className="space-y-4">
             {Array.from({ length: limit }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 p-3">
-                <div className="h-10 w-10 bg-muted rounded-full animate-pulse" />
+              <div key={i} className="flex items-center gap-3">
+                <div className="h-10 w-10 bg-white/5 rounded-full animate-pulse" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-muted rounded animate-pulse" />
-                  <div className="h-3 bg-muted rounded w-3/4 animate-pulse" />
+                  <div className="h-3 bg-white/5 rounded w-1/2 animate-pulse" />
+                  <div className="h-2 bg-white/5 rounded w-1/3 animate-pulse" />
                 </div>
-                <div className="h-8 w-16 bg-muted rounded animate-pulse" />
               </div>
             ))}
           </div>
         ) : suggestions.length > 0 ? (
-          <div className="space-y-3">
-            {suggestions.map((user, index) => (
-              <div key={user._id}>
-                <UserCard
-                  user={user}
-                  onFollow={handleFollow}
-                  onUnfollow={handleUnfollow}
-                  compact={true}
-                  showBio={true}
-                  showStats={false}
-                  className="border-0 shadow-none hover:bg-accent/50 transition-colors"
-                />
-                {index < suggestions.length - 1 && (
-                  <div className="border-t mt-3" />
-                )}
+          <div className="space-y-4">
+            {suggestions.map((user) => (
+              <div key={user._id} className="flex items-center justify-between group">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <Avatar className="h-11 w-11 border-2 border-white/5">
+                      <AvatarImage src={user.profileImage} />
+                      <AvatarFallback className="bg-[#1e293b] text-white font-bold">
+                        {user.username[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-[#0a0c10] rounded-full" />
+                  </div>
+                  <div>
+                    <h4 className="text-[14px] font-bold text-white leading-tight">{user.firstName} {user.lastName}</h4>
+                    <p className="text-[11px] font-medium text-[#64748b]">@{user.username}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => user.isFollowing ? handleUnfollow(user._id) : handleFollow(user._id)}
+                  className={cn(
+                    "px-4 py-1.5 rounded-xl text-[12px] font-bold transition-all",
+                    user.isFollowing
+                      ? "bg-white/5 text-white hover:bg-white/10"
+                      : "bg-[#2563eb] text-white hover:bg-[#1d4ed8] shadow-lg shadow-[#2563eb]/20"
+                  )}>
+                  {user.isFollowing ? "Following" : "Follow"}
+                </button>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-3 py-8 text-muted-foreground">
-            <Users className="h-8 w-8" />
-            <div className="text-center">
-              <p className="font-medium">No suggestions available</p>
-              <p className="text-sm">
-                Check back later for new recommendations
-              </p>
-            </div>
+          <div className="py-8 text-center text-[#64748b]">
+            <Users className="h-8 w-8 mx-auto mb-2 opacity-20" />
+            <p className="text-sm">No active users found</p>
           </div>
         )}
       </CardContent>

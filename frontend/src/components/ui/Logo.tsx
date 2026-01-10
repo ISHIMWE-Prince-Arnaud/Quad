@@ -28,9 +28,12 @@ export function Logo({ className, size = 'lg' }: LogoProps) {
 // Logo with text for branding
 export function LogoWithText({ className, size = 'lg' }: LogoProps) {
   return (
-    <div className={cn('flex items-center gap-3', className)}>
-      <Logo size={size} />
-      <span className="text-2xl font-bold text-foreground">Quad</span>
+    <div className={cn('flex items-center gap-4', className)}>
+      <Logo size={size} className="rounded-xl shadow-sm" />
+      <div className="flex flex-col">
+        <span className="text-xl font-bold text-foreground leading-tight tracking-tight">Quad</span>
+        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.05em]">Connect. Share. Grow.</span>
+      </div>
     </div>
   )
 }

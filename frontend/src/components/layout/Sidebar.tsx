@@ -2,16 +2,14 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import {
-  Home,
-  Search,
-  Bell,
-  MessageCircle,
+  Rss,
+  MessageSquare,
+  BookOpen,
   BarChart3,
-  Calendar,
   User,
-  Plus,
-  TrendingUp,
   LogOut,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { LogoWithText } from "@/components/ui/Logo";
 import { UserAvatar } from "@/components/auth/UserMenu";
@@ -19,6 +17,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { useAuth } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
 import { logError } from "@/lib/errorHandling";
+import { useThemeStore } from "@/stores/themeStore";
+import { Switch } from "@/components/ui/switch";
 
 // Assuming these UI components exist in your project structure
 import {
@@ -55,14 +55,13 @@ export function Sidebar() {
     }
   };
 
+  const { isDarkMode, toggleDarkMode } = useThemeStore();
+
   const navigationItems: NavItem[] = [
-    { name: "Home", href: "/app/feed", icon: Home },
-    { name: "Search", href: "/app/search", icon: Search },
-    { name: "Notifications", href: "/app/notifications", icon: Bell },
-    { name: "Messages", href: "/app/chat", icon: MessageCircle },
-    { name: "Stories", href: "/app/stories", icon: Calendar },
+    { name: "Feed", href: "/app/feed", icon: Rss },
+    { name: "Chat", href: "/app/chat", icon: MessageSquare },
+    { name: "Stories", href: "/app/stories", icon: BookOpen },
     { name: "Polls", href: "/app/polls", icon: BarChart3 },
-    { name: "Analytics", href: "/app/analytics", icon: TrendingUp },
     ...(user?.username
       ? [
           {
@@ -74,27 +73,21 @@ export function Sidebar() {
       : []),
   ];
 
-  const currentUsername = user?.username || "Guest";
-
   return (
     <div
       className={cn(
-        "flex flex-col h-full border-r border-border bg-background"
+        "flex flex-col h-full bg-[#0a0c10] border-r border-border/10"
       )}>
-      {/* 1. Logo - Improved border and padding */}
-      <div className="px-6 pt-5 pb-4 border-b border-border/80">
+      {/* 1. Logo - Improved branding */}
+      <div className="px-8 pt-8 pb-10">
         <Link to="/app/feed" aria-label="Go to Home">
-          {/* Ensure LogoWithText has a consistent size */}
-          <LogoWithText className="w-auto h-8 hover:opacity-90 transition" />
+          <LogoWithText className="hover:opacity-90 transition" />
         </Link>
       </div>
 
-      {/* 2. Navigation - Improved spacing and active state */}
-      <nav
-        className="flex-1 px-3 pt-5 space-y-1"
-        aria-label="Sidebar navigation">
+      {/* 2. Navigation - Refined styling matching design */}
+      <nav className="flex-1 px-4 space-y-2" aria-label="Sidebar navigation">
         {navigationItems.map((item) => {
-          // Use location.pathname.startsWith for partial matching (e.g., /app/profile/user-x)
           const isActive = location.pathname.startsWith(item.href);
           const Icon = item.icon;
 
@@ -104,101 +97,99 @@ export function Sidebar() {
               to={item.href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-base font-semibold transition-all group",
-                "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-base font-medium transition-all group",
                 isActive
-                  ? "bg-primary text-white shadow-md"
-                  : "text-foreground/80 hover:bg-muted/60 hover:text-foreground"
+                  ? "bg-[#2563eb] text-white shadow-[0_8px_16px_rgba(37,99,235,0.2)]"
+                  : "text-[#94a3b8] hover:bg-white/5 hover:text-white"
               )}>
               <Icon
                 className={cn(
                   "w-5 h-5 shrink-0 transition-colors",
                   isActive
                     ? "text-white"
-                    : "text-muted-foreground group-hover:text-foreground"
+                    : "text-[#64748b] group-hover:text-white"
                 )}
               />
-              <span className="truncate">{item.name}</span>
+              <span>{item.name}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* 3. Create Post - Elevated Button for Primary CTA */}
-      <div className="px-3 mt-4 mb-6">
-        <Button
-          asChild
-          className="flex items-center justify-center gap-2 w-full h-11 text-base shadow-lg hover:shadow-xl transition-all">
-          <Link to="/app/create">
-            <Plus className="w-5 h-5" />
-            Create Post
-          </Link>
-        </Button>
-      </div>
-
-      {/* 4. Profile & Logout - Improved separation and logout style */}
-      <div className="border-t border-border/70 px-3 py-4 space-y-2">
-        {/* Profile Link */}
-        <Link
-          to={user?.username ? `/app/profile/${user.username}` : "#"}
-          className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition -mx-1">
-          <UserAvatar />
-          <div className="min-w-0">
-            <p className="text-sm font-semibold truncate">
-              {[user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-                user?.username ||
-                "User"}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">
-              @{currentUsername}
-            </p>
+      {/* Footer Section: Theme Toggle & Profile */}
+      <div className="px-4 pb-8 space-y-6">
+        {/* Theme Toggle Switch */}
+        <div className="flex items-center justify-between px-4 py-3 bg-white/5 rounded-2xl border border-white/5">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-medium text-[#64748b]">Theme</span>
           </div>
-        </Link>
-
-        {/* 5. Log Out Button & Dialog - Applied previous UI improvement */}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <button
+          <div className="flex items-center gap-2">
+            <Sun
               className={cn(
-                "flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md transition",
-                "mt-2", // Add top margin for separation from profile link
-                "text-muted-foreground hover:text-destructive hover:bg-destructive/10 focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-background"
-              )}>
-              <LogOut className="h-5 w-5 shrink-0" />
-              Log Out
-            </button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader className="flex flex-col items-center pt-2">
-              <div className="p-3 mb-2 rounded-full bg-destructive/10 text-destructive">
-                <LogOut className="h-8 w-8" />
-              </div>
-              <DialogTitle className="text-xl font-bold">
-                Log Out of Account
-              </DialogTitle>
-              <DialogDescription className="text-center">
-                You are about to log out **@{currentUsername}**. Are you sure
-                you want to proceed?
-              </DialogDescription>
-            </DialogHeader>
+                "w-3.5 h-3.5",
+                !isDarkMode ? "text-white" : "text-[#64748b]"
+              )}
+            />
+            <Switch
+              checked={isDarkMode}
+              onCheckedChange={toggleDarkMode}
+              className="bg-[#2563eb]"
+            />
+            <Moon
+              className={cn(
+                "w-3.5 h-3.5",
+                isDarkMode ? "text-white" : "text-[#64748b]"
+              )}
+            />
+          </div>
+        </div>
 
-            <DialogFooter className="sm:justify-between gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}
-                className="w-full sm:w-auto order-2 sm:order-1">
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleLogout}
-                className="w-full sm:w-auto order-1 sm:order-2">
-                <LogOut className="h-4 w-4 mr-2" />
-                Yes, Log Out
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {/* Profile & Logout */}
+        <div className="flex items-center justify-between">
+          <Link
+            to={user?.username ? `/app/profile/${user.username}` : "#"}
+            className="flex items-center gap-3 group">
+            <UserAvatar className="w-10 h-10 border-2 border-transparent group-hover:border-[#2563eb] transition-all" />
+            <div className="hidden lg:block">
+              <p className="text-sm font-semibold text-white truncate">
+                {user?.username || "Guest"}
+              </p>
+              <p className="text-[10px] text-[#64748b] font-medium">
+                View Profile
+              </p>
+            </div>
+          </Link>
+
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <button className="p-2 text-[#64748b] hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all">
+                <LogOut className="h-5 w-5" />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="bg-[#0f121a] border-border/10 text-white">
+              <DialogHeader>
+                <DialogTitle>Log Out</DialogTitle>
+                <DialogDescription className="text-[#64748b]">
+                  Are you sure you want to log out of Quad?
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsDialogOpen(false)}
+                  className="text-[#64748b] hover:text-white hover:bg-white/5">
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleLogout}
+                  className="bg-destructive hover:bg-destructive/90">
+                  Log Out
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </div>
   );
