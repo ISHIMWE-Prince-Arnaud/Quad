@@ -20,10 +20,10 @@ export function StoryCoverSection({
     <div className="space-y-3">
       <div
         className={cn(
-          "border-2 border-dashed rounded-lg p-6 text-center transition-colors",
+          "relative border-2 border-dashed rounded-[2rem] p-12 text-center transition-all duration-300 group",
           uploadingCover
-            ? "border-primary bg-primary/5"
-            : "border-muted-foreground/25 hover:border-primary/50"
+            ? "border-[#2563eb] bg-[#2563eb]/5"
+            : "border-white/10 hover:border-[#2563eb]/50 hover:bg-white/[0.02]"
         )}
         onDragOver={(e) => {
           e.preventDefault();
@@ -44,23 +44,27 @@ export function StoryCoverSection({
             className="hidden"
             onChange={(e) => onUploadCover(e.target.files?.[0] || null)}
           />
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-4">
             {uploadingCover ? (
               <>
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">
+                <Loader2 className="h-10 w-10 animate-spin text-[#2563eb]" />
+                <p className="text-sm font-semibold text-[#64748b]">
                   Uploading cover image...
                 </p>
               </>
             ) : (
               <>
-                <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                <p className="text-sm font-medium">
-                  {coverImage ? "Change Cover Image" : "Add Cover Image"}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Drag and drop or click to upload
-                </p>
+                <div className="p-4 bg-[#2563eb]/10 rounded-2xl group-hover:bg-[#2563eb]/20 transition-colors">
+                  <ImageIcon className="h-8 w-8 text-[#2563eb]" />
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-white mb-1">
+                    {coverImage ? "Change Cover Image" : "Upload Image"}
+                  </p>
+                  <p className="text-xs font-medium text-[#64748b]">
+                    PNG, JPG or GIF (max. 800x400px)
+                  </p>
+                </div>
               </>
             )}
           </div>
@@ -82,7 +86,11 @@ export function StoryCoverSection({
 
       {coverImage && (
         <div className="relative overflow-hidden rounded-lg">
-          <img src={coverImage} alt="cover" className="w-full max-h-80 object-cover" />
+          <img
+            src={coverImage}
+            alt="cover"
+            className="w-full max-h-80 object-cover"
+          />
           <Button
             type="button"
             variant="destructive"

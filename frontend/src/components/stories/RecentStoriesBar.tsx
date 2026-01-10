@@ -5,7 +5,6 @@ import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card } from "@/components/ui/card";
 
 export function RecentStoriesBar({ className }: { className?: string }) {
   const [stories, setStories] = useState<Story[]>([]);
@@ -35,54 +34,50 @@ export function RecentStoriesBar({ className }: { className?: string }) {
   if (!loading && stories.length === 0) return null;
 
   return (
-    <Card
-      className={cn(
-        "sticky top-0 z-20 border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/70",
-        className
-      )}>
-      <div className="px-3 py-3">
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-foreground">Recent Stories</h2>
-          <Link to="/app/stories" className="text-xs text-muted-foreground hover:underline">
-            View all
-          </Link>
-        </div>
-
-        <div className="flex gap-3 overflow-x-auto pb-1">
-          {loading
-            ? Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="flex w-[84px] flex-col items-center gap-2">
-                  <div className="h-12 w-12 animate-pulse rounded-full bg-muted" />
-                  <div className="h-3 w-16 animate-pulse rounded bg-muted" />
-                </div>
-              ))
-            : stories.map((story) => (
-                <Link
-                  key={story._id}
-                  to={`/app/stories/${story._id}`}
-                  className="flex w-[84px] flex-col items-center gap-2">
-                  <div className="relative">
-                    <div className="rounded-full p-[2px] bg-gradient-to-br from-primary to-pink-500">
-                      <div className="rounded-full bg-background p-[2px]">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage
-                            src={story.author.profileImage}
-                            alt={story.author.username}
-                          />
-                          <AvatarFallback>
-                            {story.author.username?.[0]?.toUpperCase() || "U"}
-                          </AvatarFallback>
-                        </Avatar>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w-full truncate text-center text-xs text-muted-foreground">
-                    {story.author.username}
-                  </div>
-                </Link>
-              ))}
-        </div>
+    <div className={cn("py-4", className)}>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-white tracking-tight">Stories</h2>
+        <Link
+          to="/app/stories"
+          className="text-xs font-semibold text-[#64748b] hover:text-white transition-colors">
+          View all
+        </Link>
       </div>
-    </Card>
+
+      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+        {loading
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center gap-2 shrink-0">
+                <div className="h-16 w-16 animate-pulse rounded-full bg-white/5 border border-white/10" />
+                <div className="h-3 w-12 animate-pulse rounded bg-white/5" />
+              </div>
+            ))
+          : stories.map((story) => (
+              <Link
+                key={story._id}
+                to={`/app/stories/${story._id}`}
+                className="flex flex-col items-center gap-2 shrink-0 group">
+                <div className="relative p-[3px] rounded-full bg-gradient-to-tr from-[#2563eb] to-[#9333ea] transition-transform group-hover:scale-105 active:scale-95">
+                  <div className="rounded-full bg-[#0a0c10] p-[2px]">
+                    <Avatar className="h-14 w-14 border border-white/5">
+                      <AvatarImage
+                        src={story.author.profileImage}
+                        alt={story.author.username}
+                      />
+                      <AvatarFallback className="bg-[#1e293b] text-white">
+                        {story.author.username?.[0]?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                </div>
+                <span className="text-[11px] font-medium text-[#64748b] group-hover:text-white transition-colors truncate w-16 text-center">
+                  {story.author.username}
+                </span>
+              </Link>
+            ))}
+      </div>
+    </div>
   );
 }

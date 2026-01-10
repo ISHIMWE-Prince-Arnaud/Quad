@@ -24,81 +24,134 @@ export function StoryEditorToolbar({
   onMention: () => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2 border rounded-md p-2">
+    <div className="flex flex-wrap gap-1 bg-white/[0.02] border border-white/5 rounded-2xl p-2 mb-4">
       <Button
         type="button"
         variant="ghost"
         size="sm"
-        onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
-        className={editor?.isActive("heading", { level: 2 }) ? "bg-accent" : ""}>
-        <Heading2 className="h-4 w-4 mr-1" /> H2
+        onClick={() =>
+          editor?.chain().focus().toggleHeading({ level: 2 }).run()
+        }
+        className={cn(
+          "h-10 px-3 rounded-xl transition-all",
+          editor?.isActive("heading", { level: 2 })
+            ? "bg-[#2563eb] text-white"
+            : "text-[#64748b] hover:text-white hover:bg-white/5"
+        )}>
+        <Heading2 className="h-4 w-4 mr-2" /> H2
       </Button>
       <Button
         type="button"
         variant="ghost"
         size="sm"
-        onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
-        className={editor?.isActive("heading", { level: 3 }) ? "bg-accent" : ""}>
-        <Heading3 className="h-4 w-4 mr-1" /> H3
+        onClick={() =>
+          editor?.chain().focus().toggleHeading({ level: 3 }).run()
+        }
+        className={cn(
+          "h-10 px-3 rounded-xl transition-all",
+          editor?.isActive("heading", { level: 3 })
+            ? "bg-[#2563eb] text-white"
+            : "text-[#64748b] hover:text-white hover:bg-white/5"
+        )}>
+        <Heading3 className="h-4 w-4 mr-2" /> H3
       </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={() => editor?.chain().focus().toggleBlockquote().run()}
-        className={editor?.isActive("blockquote") ? "bg-accent" : ""}>
-        <Quote className="h-4 w-4 mr-1" /> Quote
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={() => editor?.chain().focus().toggleBulletList().run()}
-        className={editor?.isActive("bulletList") ? "bg-accent" : ""}>
-        <List className="h-4 w-4 mr-1" /> Bullets
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-        className={editor?.isActive("orderedList") ? "bg-accent" : ""}>
-        <ListOrdered className="h-4 w-4 mr-1" /> Numbers
-      </Button>
+      <div className="w-[1px] h-6 bg-white/5 mx-1 self-center" />
       <Button
         type="button"
         variant="ghost"
         size="sm"
         onClick={() => editor?.chain().focus().toggleBold().run()}
-        className={editor?.isActive("bold") ? "bg-accent" : ""}>
-        <Bold className="h-4 w-4 mr-1" /> Bold
+        className={cn(
+          "h-10 w-10 p-0 rounded-xl transition-all",
+          editor?.isActive("bold")
+            ? "bg-[#2563eb] text-white"
+            : "text-[#64748b] hover:text-white hover:bg-white/5"
+        )}>
+        <Bold className="h-4 w-4" />
       </Button>
       <Button
         type="button"
         variant="ghost"
         size="sm"
         onClick={() => editor?.chain().focus().toggleItalic().run()}
-        className={editor?.isActive("italic") ? "bg-accent" : ""}>
-        <Italic className="h-4 w-4 mr-1" /> Italic
+        className={cn(
+          "h-10 w-10 p-0 rounded-xl transition-all",
+          editor?.isActive("italic")
+            ? "bg-[#2563eb] text-white"
+            : "text-[#64748b] hover:text-white hover:bg-white/5"
+        )}>
+        <Italic className="h-4 w-4" />
       </Button>
       <Button
         type="button"
         variant="ghost"
         size="sm"
         onClick={() => editor?.chain().focus().toggleUnderline().run()}
-        className={editor?.isActive("underline") ? "bg-accent" : ""}>
-        <UnderlineIcon className="h-4 w-4 mr-1" /> Underline
+        className={cn(
+          "h-10 w-10 p-0 rounded-xl transition-all",
+          editor?.isActive("underline")
+            ? "bg-[#2563eb] text-white"
+            : "text-[#64748b] hover:text-white hover:bg-white/5"
+        )}>
+        <UnderlineIcon className="h-4 w-4" />
       </Button>
-      <Button type="button" variant="ghost" size="sm" onClick={onInsertLink}>
-        <LinkIcon className="h-4 w-4 mr-1" /> Link
+      <div className="w-[1px] h-6 bg-white/5 mx-1 self-center" />
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => editor?.chain().focus().toggleBulletList().run()}
+        className={cn(
+          "h-10 w-10 p-0 rounded-xl transition-all",
+          editor?.isActive("bulletList")
+            ? "bg-[#2563eb] text-white"
+            : "text-[#64748b] hover:text-white hover:bg-white/5"
+        )}>
+        <List className="h-4 w-4" />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+        className={cn(
+          "h-10 w-10 p-0 rounded-xl transition-all",
+          editor?.isActive("orderedList")
+            ? "bg-[#2563eb] text-white"
+            : "text-[#64748b] hover:text-white hover:bg-white/5"
+        )}>
+        <ListOrdered className="h-4 w-4" />
+      </Button>
+      <div className="w-[1px] h-6 bg-white/5 mx-1 self-center" />
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+        className={cn(
+          "h-10 w-10 p-0 rounded-xl transition-all",
+          editor?.isActive("blockquote")
+            ? "bg-[#2563eb] text-white"
+            : "text-[#64748b] hover:text-white hover:bg-white/5"
+        )}>
+        <Quote className="h-4 w-4" />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={onInsertLink}
+        className="h-10 w-10 p-0 rounded-xl text-[#64748b] hover:text-white hover:bg-white/5 transition-all">
+        <LinkIcon className="h-4 w-4" />
       </Button>
       <Button
         type="button"
         variant="ghost"
         size="sm"
         onClick={onMention}
+        className="h-10 w-10 p-0 rounded-xl text-[#64748b] hover:text-white hover:bg-white/5 transition-all"
         title="Mention user">
-        <AtSign className="h-4 w-4 mr-1" /> Mention
+        <AtSign className="h-4 w-4" />
       </Button>
     </div>
   );

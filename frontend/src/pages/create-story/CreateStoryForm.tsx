@@ -60,80 +60,81 @@ export function CreateStoryForm({
   onMention: () => void;
 }) {
   return (
-    <Card>
-      <CardContent className="p-4 md:p-6 space-y-4">
+    <Card className="bg-[#0f121a] border border-white/5 rounded-[2rem] overflow-hidden shadow-xl">
+      <CardContent className="p-8 space-y-10">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold">Create Story</h1>
+            <h1 className="text-3xl font-black text-white tracking-tight">
+              Create Story
+            </h1>
             {autoSaving && (
-              <p className="text-xs text-muted-foreground mt-1">Auto-saving...</p>
+              <p className="text-[11px] font-bold text-[#64748b] mt-1 flex items-center gap-2">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Auto-saving...
+              </p>
             )}
             {!autoSaving && lastSaved && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Last saved: {lastSaved.toLocaleTimeString()}
+              <p className="text-[11px] font-bold text-[#64748b] mt-1">
+                Saved at{" "}
+                {lastSaved.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </p>
             )}
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
+          <div className="flex gap-4">
+            <button
               disabled={!canSubmit || submitting}
-              onClick={onPreview}>
-              <Eye className="h-4 w-4 mr-2" />
-              Preview
-            </Button>
+              onClick={onPreview}
+              className="p-3 text-[#64748b] hover:text-white transition-colors"
+              title="Preview Story">
+              <Eye className="h-6 w-6" />
+            </button>
             <Button
               variant="secondary"
               disabled={!canSubmit || submitting}
-              onClick={onSaveDraft}>
+              onClick={onSaveDraft}
+              className="rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold px-6">
               {submitting ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : (
                 <Save className="h-4 w-4 mr-2" />
               )}
-              Save Draft
+              Draft
             </Button>
-            <Button disabled={!canSubmit || submitting} onClick={onPublish}>
+            <Button
+              disabled={!canSubmit || submitting}
+              onClick={onPublish}
+              className="rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-8 shadow-lg shadow-[#2563eb]/20">
               {submitting ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : (
-                <Send className="h-4 w-4 mr-2" />
+                <Send className="h-4 w-4 mr-2 fill-current" />
               )}
               Publish
             </Button>
           </div>
         </div>
 
-        <div className="space-y-1">
-          <Input
+        <div className="space-y-3">
+          <input
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
-            placeholder="Story title"
-            className={validationErrors.title ? "border-red-500" : ""}
+            placeholder="Add your story title"
+            className={cn(
+              "w-full bg-transparent border-none focus:ring-0 text-4xl font-black text-white placeholder-white/10 p-0",
+              validationErrors.title && "text-destructive"
+            )}
           />
           {validationErrors.title && (
-            <p className="text-sm text-red-500">{validationErrors.title}</p>
+            <p className="text-sm font-bold text-destructive">
+              {validationErrors.title}
+            </p>
           )}
         </div>
 
-        <div className="space-y-1">
-          <Textarea
-            value={excerpt}
-            onChange={(e) => onExcerptChange(e.target.value)}
-            placeholder="Brief excerpt or summary (optional)"
-            className={validationErrors.excerpt ? "border-red-500" : ""}
-            rows={3}
-            maxLength={500}
-          />
-          {validationErrors.excerpt && (
-            <p className="text-sm text-red-500">{validationErrors.excerpt}</p>
-          )}
-          <p className="text-xs text-muted-foreground">
-            {excerpt.length}/500 characters
-          </p>
-        </div>
-
-        <div className="space-y-3">
+        <div className="space-y-6">
           <StoryCoverSection
             coverImage={coverImage}
             uploadingCover={uploadingCover}
@@ -141,6 +142,32 @@ export function CreateStoryForm({
             onRemoveCover={onRemoveCover}
             onInsertInlineImage={onInsertInlineImage}
           />
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h3 className="text-sm font-bold text-[#64748b] uppercase tracking-wider">
+              Description
+            </h3>
+            <textarea
+              value={excerpt}
+              onChange={(e) => onExcerptChange(e.target.value)}
+              placeholder="Add your story description..."
+              className={cn(
+                "w-full bg-white/5 border border-white/5 focus:border-[#2563eb]/50 focus:ring-0 rounded-2xl text-[#f1f5f9] placeholder-[#64748b] p-4 min-h-[120px] resize-none transition-all",
+                validationErrors.excerpt && "border-destructive/50"
+              )}
+              maxLength={500}
+            />
+            <div className="flex justify-between items-center text-[10px] font-bold text-[#64748b]">
+              <span>{excerpt.length}/500 characters</span>
+              {validationErrors.excerpt && (
+                <span className="text-destructive uppercase">
+                  {validationErrors.excerpt}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-2">
