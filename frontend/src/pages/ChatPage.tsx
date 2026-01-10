@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Card, CardContent } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAuthStore } from "@/stores/authStore";
 import { ChatComposer } from "./chat/ChatComposer";
@@ -70,7 +69,7 @@ export default function ChatPage() {
     setPendingScrollIndex(null);
   }, [pendingScrollIndex, virtualizer]);
 
-  const { connection, typingUsers, emitTypingStart, emitTypingStop } = useChatSocket({
+  const { typingUsers, emitTypingStart, emitTypingStop } = useChatSocket({
     user,
     nearBottom,
     scrollToBottom,
@@ -162,19 +161,18 @@ export default function ChatPage() {
         onSend={() => void handleSend()}
       />
 
-        {/* Delete confirmation dialog */}
-        <ConfirmDialog
-          open={deleteConfirmOpen}
-          onOpenChange={setDeleteConfirmOpen}
-          title="Delete Message"
-          description="Are you sure you want to delete this message? This action cannot be undone."
-          confirmLabel="Delete"
-          cancelLabel="Cancel"
-          variant="destructive"
-          onConfirm={handleDeleteConfirm}
-          loading={deleting}
-        />
-      </div>
+      {/* Delete confirmation dialog */}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title="Delete Message"
+        description="Are you sure you want to delete this message? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={handleDeleteConfirm}
+        loading={deleting}
+      />
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ChatMedia } from "@/types/chat";
 import { Image as ImageIcon, Loader2, Send, Smile, X } from "lucide-react";
@@ -85,6 +84,7 @@ export function ChatComposer({
           type="text"
           value={text}
           onChange={(e) => onTextChange(e.target.value)}
+          maxLength={MAX_MESSAGE_LENGTH}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -95,6 +95,27 @@ export function ChatComposer({
           className="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder-[#64748b] text-sm"
           aria-label="Message input"
         />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="text-[#64748b] hover:text-white transition-colors"
+              aria-label="Insert emoji">
+              <Smile className="h-5 w-5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[180px]">
+            {COMPOSER_EMOJIS.map((emoji) => (
+              <DropdownMenuItem
+                key={emoji}
+                onClick={() => onInsertEmoji(emoji)}>
+                <span className="text-base leading-none">{emoji}</span>
+                <span className="ml-2 text-xs text-muted-foreground">{emoji}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <button
           type="button"

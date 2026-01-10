@@ -36,7 +36,6 @@ export function ChatMessageList({
   onStartEdit,
   onCancelEdit,
   onSaveEdit,
-  onToggleReaction: _onToggleReaction,
   onDeleteMessage,
 }: {
   listRef: RefObject<HTMLDivElement | null>;
@@ -192,12 +191,12 @@ export function ChatMessageList({
                         )}>
                         {editingId === m.id ? (
                           <div className="space-y-2">
-                            <Textarea
+                            <textarea
                               value={editText}
                               onChange={(e) => onEditTextChange(e.target.value)}
                               rows={2}
                               className={cn(
-                                "text-sm",
+                                "text-sm w-full rounded-md bg-background/60 border border-white/10 p-2",
                                 isSelf ? "text-primary-foreground" : undefined
                               )}
                             />
