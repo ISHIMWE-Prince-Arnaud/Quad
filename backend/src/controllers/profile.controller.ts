@@ -17,6 +17,7 @@ import { clerkClient } from "@clerk/express";
 import { logger } from "../utils/logger.util.js";
 import { propagateUserSnapshotUpdates } from "../utils/userSnapshotPropagation.util.js";
 import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
+import { ProfileView } from "../models/ProfileView.model.js";
 
 // Helper to ensure a user exists in MongoDB based on Clerk user ID
 const ensureUserByClerkId = async (clerkId: string | null) => {
@@ -116,6 +117,21 @@ export const getProfile = async (req: Request, res: Response) => {
 
     // Check if user is viewing their own profile
     const isOwnProfile = user.clerkId === currentUserId;
+
+    if (currentUserId && !isOwnProfile) {
+      const cutoff = new Date(Date.now() - 60 * 60 * 1000);
+      const recent = await ProfileView.findOne({
+        profileId: user.clerkId,
+        viewerId: currentUserId,
+        createdAt: { $gte: cutoff },
+      })
+        .select("_id")
+        .lean();
+
+      if (!recent) {
+        await ProfileView.create({ profileId: user.clerkId, viewerId: currentUserId });
+      }
+    }
 
     // Calculate profile statistics
     const stats = await calculateProfileStats(user.clerkId);
