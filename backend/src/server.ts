@@ -12,6 +12,7 @@ import { connectDB } from "./config/db.config.js";
 import { setSocketIO } from "./config/socket.config.js";
 import { ensureIndexes } from "./utils/indexes.util.js";
 import { startPollExpiryJob } from "./jobs/poll.cron.js";
+import { startAnalyticsCronJob } from "./jobs/analytics.cron.js";
 import { logger } from "./utils/logger.util.js";
 import {
   generalRateLimiter,
@@ -38,6 +39,8 @@ import reactionRoutes from "./routes/reaction.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import searchRoutes from "./routes/search.routes.js";
+import bookmarkRoutes from "./routes/bookmark.routes.js";
+import analyticsRoutes from "./routes/analytics.routes.js";
 
 // --- Initialize Express ---
 const app = express();
@@ -72,6 +75,8 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/feed", feedRoutes);
 app.use("/api/reactions", writeRateLimiter, reactionRoutes);
 app.use("/api/comments", writeRateLimiter, commentRoutes);
+app.use("/api/bookmarks", writeRateLimiter, bookmarkRoutes);
+app.use("/api/analytics", analyticsRoutes);
 app.use("/api/upload", uploadRateLimiter, uploadRoutes);
 app.use("/api/search", searchRateLimiter, searchRoutes);
 
@@ -118,6 +123,7 @@ const startServer = async () => {
     await connectDB(); // Connect to MongoDB first
     await ensureIndexes(); // Create database indexes
     startPollExpiryJob(); // Start poll expiry cron job
+    startAnalyticsCronJob();
     logCorsConfig(); // Log CORS configuration
     server.listen(env.PORT, () => {
       logger.server(`Server running on port ${env.PORT}`);

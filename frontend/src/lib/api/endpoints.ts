@@ -89,6 +89,15 @@ export const endpoints = {
     getLikes: (id: string) => api.get(`/comments/${id}/likes`),
   },
 
+  bookmarks: {
+    toggle: (data: unknown) => api.post("/bookmarks", data),
+    list: (params?: unknown) => api.get("/bookmarks", { params }),
+    remove: (contentType: string, contentId: string) =>
+      api.delete(`/bookmarks/${contentType}/${contentId}`),
+    check: (contentType: string, contentId: string) =>
+      api.get(`/bookmarks/${contentType}/${contentId}/check`),
+  },
+
   chat: {
     sendMessage: (data: unknown) => api.post("/chat/messages", data),
     getMessages: (params?: unknown) => api.get("/chat/messages", { params }),

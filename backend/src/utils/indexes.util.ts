@@ -12,6 +12,9 @@ import { SearchHistory } from "../models/SearchHistory.model.js";
 import { SearchAnalytics } from "../models/SearchAnalytics.model.js";
 import { Comment } from "../models/Comment.model.js";
 import { CommentLike } from "../models/CommentLike.model.js";
+import { Bookmark } from "../models/Bookmark.model.js";
+import { ProfileView } from "../models/ProfileView.model.js";
+import { FollowerHistory } from "../models/FollowerHistory.model.js";
 
 /**
  * Ensures all database indexes are created.
@@ -65,6 +68,16 @@ export const ensureIndexes = async (): Promise<void> => {
     // Create indexes for Reaction model
     await Reaction.createIndexes();
     logger.info("Reaction model indexes created");
+
+    // Create indexes for Bookmark model
+    await Bookmark.createIndexes();
+    logger.info("Bookmark model indexes created");
+
+    await ProfileView.createIndexes();
+    logger.info("ProfileView model indexes created");
+
+    await FollowerHistory.createIndexes();
+    logger.info("FollowerHistory model indexes created");
     
     // Create indexes for SearchHistory model
     await SearchHistory.createIndexes();

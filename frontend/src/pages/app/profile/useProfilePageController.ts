@@ -92,106 +92,110 @@ export function useProfilePageController({
           }
           {
             const limit = 20;
-            const offset = (nextPage - 1) * limit;
-            const ids = BookmarkService.list();
-            const pageIds = ids.slice(offset, offset + limit);
+            const bookmarksRes = await BookmarkService.list({
+              page: nextPage,
+              limit,
+            });
+
+            const items = bookmarksRes.data || [];
 
             const fetchedItems = (
               await Promise.all(
-                pageIds.map(async (id): Promise<ContentItem | null> => {
+                items.map(async (b): Promise<ContentItem | null> => {
                   try {
-                    const postRes = await PostService.getPostById(id);
-                    if (postRes.success && postRes.data) {
-                      const images =
-                        postRes.data.media
-                          ?.filter((m) => m.type === "image")
-                          .map((m) => m.url);
+                    if (b.contentType === "post") {
+                      const postRes = await PostService.getPostById(b.contentId);
+                      if (postRes.success && postRes.data) {
+                        const images =
+                          postRes.data.media
+                            ?.filter((m) => m.type === "image")
+                            .map((m) => m.url);
 
-                      return {
-                        _id: postRes.data._id,
-                        type: "post",
-                        createdAt: postRes.data.createdAt,
-                        updatedAt: postRes.data.updatedAt,
-                        content: postRes.data.text ?? "",
-                        ...(images ? { images } : {}),
-                        author: {
-                          _id: postRes.data.author.clerkId,
-                          username: postRes.data.author.username,
-                          firstName: postRes.data.author.firstName,
-                          lastName: postRes.data.author.lastName,
-                          profileImage: postRes.data.author.profileImage,
-                        },
-                        likes: postRes.data.reactionsCount ?? 0,
-                        comments: postRes.data.commentsCount ?? 0,
-                      };
+                        return {
+                          _id: postRes.data._id,
+                          type: "post",
+                          createdAt: postRes.data.createdAt,
+                          updatedAt: postRes.data.updatedAt,
+                          content: postRes.data.text ?? "",
+                          ...(images ? { images } : {}),
+                          author: {
+                            _id: postRes.data.author.clerkId,
+                            username: postRes.data.author.username,
+                            firstName: postRes.data.author.firstName,
+                            lastName: postRes.data.author.lastName,
+                            profileImage: postRes.data.author.profileImage,
+                          },
+                          likes: postRes.data.reactionsCount ?? 0,
+                          comments: postRes.data.commentsCount ?? 0,
+                        };
+                      }
+                      return null;
+                    }
+
+                    if (b.contentType === "story") {
+                      const storyRes = await StoryService.getById(b.contentId);
+                      if (storyRes.success && storyRes.data) {
+                        return {
+                          _id: storyRes.data._id,
+                          type: "story",
+                          createdAt: storyRes.data.createdAt,
+                          updatedAt: storyRes.data.updatedAt,
+                          content: storyRes.data.content ?? "",
+                          title: storyRes.data.title,
+                          ...(storyRes.data.coverImage
+                            ? { coverImage: storyRes.data.coverImage }
+                            : {}),
+                          ...(storyRes.data.readTime !== undefined
+                            ? { readTime: storyRes.data.readTime }
+                            : {}),
+                          author: {
+                            _id: storyRes.data.author.clerkId,
+                            username: storyRes.data.author.username,
+                            profileImage: storyRes.data.author.profileImage,
+                          },
+                          likes: storyRes.data.reactionsCount ?? 0,
+                          comments: storyRes.data.commentsCount ?? 0,
+                        };
+                      }
+                      return null;
+                    }
+
+                    if (b.contentType === "poll") {
+                      const pollRes = await PollService.getById(b.contentId);
+                      if (pollRes.success && pollRes.data) {
+                        return {
+                          _id: pollRes.data.id,
+                          type: "poll",
+                          createdAt: pollRes.data.createdAt,
+                          updatedAt: pollRes.data.updatedAt,
+                          question: pollRes.data.question,
+                          options: pollRes.data.options.map((o) => ({
+                            id: String(o.index),
+                            text: o.text,
+                            votes: o.votesCount ?? 0,
+                          })),
+                          totalVotes: pollRes.data.totalVotes,
+                          ...(pollRes.data.expiresAt
+                            ? { endsAt: pollRes.data.expiresAt }
+                            : {}),
+                          ...(pollRes.data.userVote && pollRes.data.userVote.length > 0
+                            ? { hasVoted: true }
+                            : {}),
+                          author: {
+                            _id: pollRes.data.author._id,
+                            username: pollRes.data.author.username,
+                            firstName: pollRes.data.author.firstName,
+                            lastName: pollRes.data.author.lastName,
+                            profileImage: pollRes.data.author.profileImage,
+                          },
+                          likes: pollRes.data.reactionsCount ?? 0,
+                          comments: pollRes.data.commentsCount ?? 0,
+                        };
+                      }
+                      return null;
                     }
                   } catch {
-                    // ignore
-                  }
-
-                  try {
-                    const storyRes = await StoryService.getById(id);
-                    if (storyRes.success && storyRes.data) {
-                      return {
-                        _id: storyRes.data._id,
-                        type: "story",
-                        createdAt: storyRes.data.createdAt,
-                        updatedAt: storyRes.data.updatedAt,
-                        content: storyRes.data.content ?? "",
-                        title: storyRes.data.title,
-                        ...(storyRes.data.coverImage
-                          ? { coverImage: storyRes.data.coverImage }
-                          : {}),
-                        ...(storyRes.data.readTime !== undefined
-                          ? { readTime: storyRes.data.readTime }
-                          : {}),
-                        author: {
-                          _id: storyRes.data.author.clerkId,
-                          username: storyRes.data.author.username,
-                          profileImage: storyRes.data.author.profileImage,
-                        },
-                        likes: storyRes.data.reactionsCount ?? 0,
-                        comments: storyRes.data.commentsCount ?? 0,
-                      };
-                    }
-                  } catch {
-                    // ignore
-                  }
-
-                  try {
-                    const pollRes = await PollService.getById(id);
-                    if (pollRes.success && pollRes.data) {
-                      return {
-                        _id: pollRes.data.id,
-                        type: "poll",
-                        createdAt: pollRes.data.createdAt,
-                        updatedAt: pollRes.data.updatedAt,
-                        question: pollRes.data.question,
-                        options: pollRes.data.options.map((o) => ({
-                          id: String(o.index),
-                          text: o.text,
-                          votes: o.votesCount ?? 0,
-                        })),
-                        totalVotes: pollRes.data.totalVotes,
-                        ...(pollRes.data.expiresAt
-                          ? { endsAt: pollRes.data.expiresAt }
-                          : {}),
-                        ...(pollRes.data.userVote && pollRes.data.userVote.length > 0
-                          ? { hasVoted: true }
-                          : {}),
-                        author: {
-                          _id: pollRes.data.author._id,
-                          username: pollRes.data.author.username,
-                          firstName: pollRes.data.author.firstName,
-                          lastName: pollRes.data.author.lastName,
-                          profileImage: pollRes.data.author.profileImage,
-                        },
-                        likes: pollRes.data.reactionsCount ?? 0,
-                        comments: pollRes.data.commentsCount ?? 0,
-                      };
-                    }
-                  } catch {
-                    // ignore
+                    return null;
                   }
 
                   return null;
@@ -201,8 +205,8 @@ export function useProfilePageController({
 
             result = {
               items: fetchedItems,
-              hasMore: offset + pageIds.length < ids.length,
-              total: ids.length,
+              hasMore: bookmarksRes.pagination?.hasMore || false,
+              total: bookmarksRes.pagination?.total || fetchedItems.length,
             };
           }
           break;
