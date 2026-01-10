@@ -100,7 +100,7 @@ describe("Modal Animation Property Tests", () => {
             .filter((s) => s.trim().length > 0),
         }),
         (modalProps) => {
-          const { unmount, baseElement } = render(
+          const { unmount } = render(
             <Dialog open={true}>
               <DialogContent aria-describedby="dialog-description">
                 <DialogHeader>

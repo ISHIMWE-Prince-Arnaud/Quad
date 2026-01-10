@@ -70,8 +70,8 @@ describe("Active Navigation Highlighting Property Tests", () => {
           );
 
           // Property 1: Active link should have primary background class
-          const navLinks = container.querySelectorAll("nav a");
-          let activeLink: Element | null = null;
+          const navLinks = container.querySelectorAll<HTMLAnchorElement>("nav a");
+          let activeLink: HTMLAnchorElement | null = null;
 
           navLinks.forEach((link) => {
             if (link.getAttribute("href") === activePath) {
@@ -80,7 +80,11 @@ describe("Active Navigation Highlighting Property Tests", () => {
           });
 
           expect(activeLink).not.toBeNull();
-          const activeLinkClasses = activeLink?.className ?? "";
+          if (!activeLink) {
+            throw new Error("Active navigation link not found");
+          }
+          const activeLinkEl: HTMLAnchorElement = activeLink;
+          const activeLinkClasses = activeLinkEl.className ?? "";
           expect(activeLinkClasses).toContain("bg-primary");
           expect(
             activeLinkClasses.includes("text-primary-foreground") ||
@@ -88,7 +92,7 @@ describe("Active Navigation Highlighting Property Tests", () => {
           ).toBe(true);
 
           // Property 2: Active link should have aria-current attribute
-          expect(activeLink?.getAttribute("aria-current")).toBe("page");
+          expect(activeLinkEl.getAttribute("aria-current")).toBe("page");
 
           // Property 3: Inactive links should NOT have primary background
           navLinks.forEach((link) => {
@@ -142,8 +146,8 @@ describe("Active Navigation Highlighting Property Tests", () => {
           );
 
           // Property: Active link's icon should have primary foreground color class or inherit from parent
-          const navLinks = container.querySelectorAll("nav a");
-          let activeLink: Element | null = null;
+          const navLinks = container.querySelectorAll<HTMLAnchorElement>("nav a");
+          let activeLink: HTMLAnchorElement | null = null;
 
           navLinks.forEach((link) => {
             if (link.getAttribute("href") === activePath) {
@@ -152,15 +156,19 @@ describe("Active Navigation Highlighting Property Tests", () => {
           });
 
           expect(activeLink).not.toBeNull();
+          if (!activeLink) {
+            throw new Error("Active navigation link not found");
+          }
+          const activeLinkEl: HTMLAnchorElement = activeLink;
 
           // Check that the icon within the active link exists
-          const icon = activeLink?.querySelector("svg");
+          const icon = activeLinkEl.querySelector<SVGElement>("svg");
           expect(icon).not.toBeNull();
 
           // The icon should either have text-primary-foreground class directly
           // or inherit it from the parent link which has text-primary-foreground
           const iconClasses = icon?.getAttribute("class") || "";
-          const linkClasses = activeLink?.getAttribute("class") || "";
+          const linkClasses = activeLinkEl.getAttribute("class") || "";
 
           const hasCorrectColor =
             iconClasses.includes("text-primary-foreground") ||
@@ -211,7 +219,7 @@ describe("Active Navigation Highlighting Property Tests", () => {
           );
 
           // Property: Exactly one link should have aria-current="page"
-          const navLinks = container.querySelectorAll("nav a");
+          const navLinks = container.querySelectorAll<HTMLAnchorElement>("nav a");
           let activeCount = 0;
 
           navLinks.forEach((link) => {
@@ -271,8 +279,8 @@ describe("Active Navigation Highlighting Property Tests", () => {
             </MemoryRouter>
           );
 
-          const navLinks1 = container1.querySelectorAll("nav a");
-          let activeLink1: Element | null = null;
+          const navLinks1 = container1.querySelectorAll<HTMLAnchorElement>("nav a");
+          let activeLink1: HTMLAnchorElement | null = null;
 
           navLinks1.forEach((link) => {
             if (link.getAttribute("href") === firstPath) {
@@ -280,7 +288,12 @@ describe("Active Navigation Highlighting Property Tests", () => {
             }
           });
 
-          expect(activeLink1?.className).toContain("bg-primary");
+          expect(activeLink1).not.toBeNull();
+          if (!activeLink1) {
+            throw new Error("Active navigation link not found");
+          }
+          const activeLink1El: HTMLAnchorElement = activeLink1;
+          expect(activeLink1El.className).toContain("bg-primary");
 
           cleanup();
 
@@ -291,8 +304,8 @@ describe("Active Navigation Highlighting Property Tests", () => {
             </MemoryRouter>
           );
 
-          const navLinks2 = container2.querySelectorAll("nav a");
-          let activeLink2: Element | null = null;
+          const navLinks2 = container2.querySelectorAll<HTMLAnchorElement>("nav a");
+          let activeLink2: HTMLAnchorElement | null = null;
 
           navLinks2.forEach((link) => {
             if (link.getAttribute("href") === secondPath) {
@@ -300,12 +313,17 @@ describe("Active Navigation Highlighting Property Tests", () => {
             }
           });
 
-          expect(activeLink2?.className).toContain("bg-primary");
+          expect(activeLink2).not.toBeNull();
+          if (!activeLink2) {
+            throw new Error("Active navigation link not found");
+          }
+          const activeLink2El: HTMLAnchorElement = activeLink2;
+          expect(activeLink2El.className).toContain("bg-primary");
 
           // Property: Different paths should highlight different links
           if (firstPath !== secondPath) {
-            const firstHref = activeLink1?.getAttribute("href");
-            const secondHref = activeLink2?.getAttribute("href");
+            const firstHref = activeLink1El.getAttribute("href");
+            const secondHref = activeLink2El.getAttribute("href");
             expect(firstHref).not.toBe(secondHref);
           }
         }
