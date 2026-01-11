@@ -1,4 +1,3 @@
-/// <reference path="../types/global.d.ts" />
 import type { Request, Response } from "express";
 import type {
   UpdateProfileSchemaType,
@@ -12,7 +11,10 @@ import { ProfileService } from "../services/profile.service.js";
 // GET USER PROFILE BY ID (Convenience endpoint)
 // =========================
 export const getProfileById = asyncHandler(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const { userId } = req.params as { userId?: string };
+  if (!userId) {
+    throw new AppError("User ID is required", 400);
+  }
   const currentUserId = req.auth?.userId ?? null;
 
   const profileData = await ProfileService.getProfileById(userId, currentUserId);
