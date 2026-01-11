@@ -88,7 +88,7 @@ export function SkeletonAvatar({ className }: { className?: string }) {
 
 export function SkeletonPost() {
   return (
-    <div className="p-6 border border-border rounded-lg bg-card space-y-4">
+    <div className="p-6 bg-[#0f121a] border border-white/5 rounded-[2rem] space-y-4">
       {/* Header */}
       <div className="flex items-center gap-3">
         <SkeletonAvatar />

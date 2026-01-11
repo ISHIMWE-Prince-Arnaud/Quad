@@ -72,6 +72,7 @@ export default function FeedPage() {
               error={error}
               itemsLength={items.length}
               emptyState={currentEmptyState}
+              onRetry={() => void handleRefreshFeed()}
             />
 
             {!loading && !error && items.length > 0 && (
