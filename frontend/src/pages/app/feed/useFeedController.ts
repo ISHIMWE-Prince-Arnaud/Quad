@@ -11,6 +11,8 @@ import { PostService } from "@/services/postService";
 import type { FeedItem, FeedTab, FeedType } from "@/types/feed";
 import type { Post } from "@/types/post";
 import { logError } from "@/lib/errorHandling";
+import { useAuthStore } from "@/stores/authStore";
+import type { CreatePostData } from "@/schemas/post.schema";
 
 import { getErrorMessage } from "./feedError";
 import { dedupeFeedItems } from "./feedUtils";
@@ -30,6 +32,7 @@ export function useFeedController({
   const [error, setError] = useState<string | null>(null);
   const [newCount, setNewCount] = useState(0);
   const [lastSeenId, setLastSeenId] = useState<string | null>(null);
+  const [creatingPost, setCreatingPost] = useState(false);
 
   const handleRefreshFeed = useCallback(async () => {
     if (loading) return;
@@ -297,15 +300,124 @@ export function useFeedController({
     }
   }, []);
 
+  const handleCreatePost = useCallback(
+    async (payload: { text: string; media?: CreatePostData["media"] }) => {
+      const canShowPost = tab === "home" || tab === "posts";
+
+      if (!payload.text.trim()) {
+        toast.error("Post text is required");
+        return;
+      }
+
+      const authUser = useAuthStore.getState().user;
+      const optimisticId = `optimistic:${Date.now()}`;
+
+      const optimisticPost: Post = {
+        _id: optimisticId,
+        userId: authUser?._id || authUser?.clerkId || "",
+        author: {
+          clerkId: authUser?.clerkId || "",
+          username: authUser?.username || "user",
+          email: authUser?.email || "",
+          firstName: authUser?.firstName,
+          lastName: authUser?.lastName,
+          profileImage: authUser?.profileImage,
+        },
+        text: payload.text,
+        media: payload.media,
+        reactionsCount: 0,
+        commentsCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      const optimisticItem: FeedItem = {
+        _id: optimisticId,
+        type: "post",
+        content: optimisticPost,
+        score: 0,
+        priority: feedType === "following" ? "following" : "discover",
+        createdAt: new Date().toISOString(),
+        engagementMetrics: { reactions: 0, comments: 0, votes: 0 },
+        author: {
+          clerkId: optimisticPost.author.clerkId,
+          username: optimisticPost.author.username,
+          profileImage: optimisticPost.author.profileImage,
+        },
+      };
+
+      try {
+        setCreatingPost(true);
+
+        if (canShowPost) {
+          setItems((prev) => [optimisticItem, ...prev]);
+        }
+
+        const res = await PostService.createPost({
+          text: payload.text,
+          media: payload.media,
+        });
+
+        if (!res.success) {
+          throw new Error(res.message || "Failed to create post");
+        }
+
+        const created = res.data;
+        const createdItem: FeedItem = {
+          _id: created._id,
+          type: "post",
+          content: created,
+          score: 0,
+          priority: feedType === "following" ? "following" : "discover",
+          createdAt: created.createdAt,
+          engagementMetrics: {
+            reactions: created.reactionsCount ?? 0,
+            comments: created.commentsCount ?? 0,
+            votes: 0,
+          },
+          author: {
+            clerkId: created.author.clerkId,
+            username: created.author.username,
+            profileImage: created.author.profileImage,
+          },
+        };
+
+        if (canShowPost) {
+          setItems((prev) =>
+            prev.map((it) => (it._id === optimisticId ? createdItem : it))
+          );
+        }
+
+        toast.success("Posted");
+      } catch (err: unknown) {
+        logError(err, {
+          component: "FeedController",
+          action: "createPost",
+          metadata: { feedType, tab },
+        });
+
+        if (canShowPost) {
+          setItems((prev) => prev.filter((it) => it._id !== optimisticId));
+        }
+        toast.error(getErrorMessage(err));
+      } finally {
+        setCreatingPost(false);
+      }
+    },
+    [feedType, tab]
+  );
+
   return {
     items,
     hasMore,
     loading,
     loadingMore,
+    creatingPost,
     error,
     newCount,
     handleRefreshFeed,
     handleLoadMore,
     handleDeletePost,
+    handleCreatePost,
   };
 }

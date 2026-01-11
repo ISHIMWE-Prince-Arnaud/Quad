@@ -22,11 +22,13 @@ export default function FeedPage() {
     hasMore,
     loading,
     loadingMore,
+    creatingPost,
     error,
     newCount,
     handleRefreshFeed,
     handleLoadMore,
     handleDeletePost,
+    handleCreatePost,
   } = useFeedController({ feedType, tab });
 
   const currentEmptyState = emptyStateCopy[tab];
@@ -59,7 +61,10 @@ export default function FeedPage() {
               onTabChange={setTab}
             />
 
-            <FeedPostComposer />
+            <FeedPostComposer
+              disabled={loading || creatingPost}
+              onCreatePost={handleCreatePost}
+            />
 
             <FeedNewContentBanner
               newCount={newCount}
