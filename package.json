@@ -5,6 +5,7 @@
     "lint": "npm --prefix frontend run lint",
     "typecheck": "npm --prefix frontend run typecheck && npm --prefix backend run typecheck",
     "test": "npm --prefix frontend run test",
-    "build": "npm --prefix backend run build && npm --prefix frontend run build"
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "install": "npm --prefix backend install && npm --prefix frontend install"
   }
 }

@@ -8,8 +8,6 @@ import {
   BarChart3,
   User,
   LogOut,
-  Sun,
-  Moon,
 } from "lucide-react";
 import { LogoWithText } from "@/components/ui/Logo";
 import { UserAvatar } from "@/components/auth/UserMenu";
@@ -17,8 +15,6 @@ import { useAuthStore } from "@/stores/authStore";
 import { useAuth } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
 import { logError } from "@/lib/errorHandling";
-import { useThemeStore } from "@/stores/themeStore";
-import { Switch } from "@/components/ui/switch";
 
 // Assuming these UI components exist in your project structure
 import {
@@ -54,8 +50,6 @@ export function Sidebar() {
       logError(error, { component: "Sidebar", action: "signOut" });
     }
   };
-
-  const { isDarkMode, toggleDarkMode } = useThemeStore();
 
   const navigationItems: NavItem[] = [
     { name: "Feed", href: "/app/feed", icon: Rss },
@@ -118,32 +112,6 @@ export function Sidebar() {
 
       {/* Footer Section: Theme Toggle & Profile */}
       <div className="px-4 pb-8 space-y-6">
-        {/* Theme Toggle Switch */}
-        <div className="flex items-center justify-between px-4 py-3 bg-white/5 rounded-2xl border border-white/5">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-medium text-[#64748b]">Theme</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Sun
-              className={cn(
-                "w-3.5 h-3.5",
-                !isDarkMode ? "text-white" : "text-[#64748b]"
-              )}
-            />
-            <Switch
-              checked={isDarkMode}
-              onChange={() => toggleDarkMode()}
-              className="bg-[#2563eb]"
-            />
-            <Moon
-              className={cn(
-                "w-3.5 h-3.5",
-                isDarkMode ? "text-white" : "text-[#64748b]"
-              )}
-            />
-          </div>
-        </div>
-
         {/* Profile & Logout */}
         <div className="flex items-center justify-between">
           <Link
