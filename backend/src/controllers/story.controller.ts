@@ -55,6 +55,7 @@ export const createStory = async (req: Request, res: Response) => {
 
     // Create story with sanitized content
     const newStory = await Story.create({
+      userId,
       author: {
         clerkId: user.clerkId,
         username: user.username,
