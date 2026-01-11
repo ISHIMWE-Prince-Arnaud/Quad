@@ -1,4 +1,4 @@
-import { Plus, FileText, Camera, BarChart3 } from "lucide-react";
+import { FileText, Camera, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
@@ -14,7 +14,6 @@ export default function CreatePage() {
           <header className="space-y-2 text-center">
             <h1 className="text-3xl font-bold tracking-tight flex items-center justify-center gap-3">
               <span className="rounded-lg bg-primary/10 p-2 text-primary">
-                <Plus className="h-5 w-5" />
               </span>
               Create Something New
             </h1>
