@@ -8,7 +8,7 @@ export const requireApiAuth = (
   res: Response,
   next: NextFunction
 ) => {
-  const userId = (req as any).auth?.userId as string | null | undefined;
+  const userId = req.auth?.userId;
 
   if (!userId) {
     return res.status(401).json({

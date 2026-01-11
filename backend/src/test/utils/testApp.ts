@@ -25,7 +25,9 @@ export const createTestApp = () => {
 
   app.use((req, _res, next) => {
     const headerUserId = req.header("x-test-user-id");
-    (req as any).auth = headerUserId ? { userId: headerUserId } : undefined;
+    req.auth = headerUserId
+      ? { userId: headerUserId, sessionId: "test-session" }
+      : { userId: "", sessionId: "" };
     next();
   });
 

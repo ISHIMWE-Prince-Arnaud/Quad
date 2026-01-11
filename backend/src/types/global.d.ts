@@ -11,6 +11,7 @@ declare global {
         orgRole?: string;
         orgSlug?: string;
       };
+      requestId?: string;
     }
   }
 }

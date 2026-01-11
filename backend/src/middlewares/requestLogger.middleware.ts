@@ -17,13 +17,13 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
         ? incomingRequestId[0]
         : undefined) ?? randomUUID();
 
-  (req as any).requestId = requestId;
+  req.requestId = requestId;
   res.setHeader("x-request-id", requestId);
 
   res.on("finish", () => {
     const durationMs = Number(process.hrtime.bigint() - start) / 1_000_000;
 
-    const userId = (req as any)?.auth?.userId;
+    const userId = req.auth?.userId;
 
     const logData = {
       requestId,

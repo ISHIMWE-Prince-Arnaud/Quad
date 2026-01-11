@@ -14,12 +14,16 @@ export const errorHandler = (
   const statusCode = isAppError ? err.statusCode : 500;
   const message = isAppError ? err.message : "Internal server error";
 
-  const userId = (req as any)?.auth?.userId;
+  const userId = req.auth?.userId;
+  const requestId =
+    req.requestId ||
+    (typeof req.headers["x-request-id"] === "string" ? req.headers["x-request-id"] : undefined);
 
   logger.error(`[${req.method}] ${req.path} - ${err.message}`, {
     stack: err.stack,
     statusCode,
     userId,
+    requestId,
   });
 
   if (!isAppError || statusCode >= 500) {
@@ -28,12 +32,14 @@ export const errorHandler = (
       method: req.method,
       userId,
       statusCode,
+      requestId,
     });
   }
 
   res.status(statusCode).json({
     success: false,
     message,
+    ...(requestId && { requestId }),
     ...(env.NODE_ENV === "development" && { stack: err.stack }),
   });
 };
