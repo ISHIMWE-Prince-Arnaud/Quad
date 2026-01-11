@@ -42,12 +42,16 @@ import searchRoutes from "./routes/search.routes.js";
 import bookmarkRoutes from "./routes/bookmark.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
+import { requestLogger } from "./middlewares/requestLogger.middleware.js";
 
 // --- Initialize Express ---
 const app = express();
 
 // Configure CORS (imported from cors.config.ts)
 app.use(cors(corsOptions));
+
+// Request logging
+app.use(requestLogger);
 
 // Health check routes (no auth required, before body parsing)
 app.use("/health", healthRoutes);
