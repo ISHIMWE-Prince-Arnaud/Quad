@@ -54,6 +54,7 @@ const ensureUserByClerkId = async (clerkId: string | null) => {
 export const getProfileById = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
+    const currentUserId = req.auth?.userId ?? null;
 
     // Find or auto-create user by clerkId
     let user = await User.findOne({ clerkId: userId });
@@ -65,6 +66,21 @@ export const getProfileById = async (req: Request, res: Response) => {
         success: false,
         message: "User not found",
       });
+    }
+
+    if (currentUserId && user.clerkId !== currentUserId) {
+      const cutoff = new Date(Date.now() - 60 * 60 * 1000);
+      const recent = await ProfileView.findOne({
+        profileId: user.clerkId,
+        viewerId: currentUserId,
+        createdAt: { $gte: cutoff },
+      })
+        .select("_id")
+        .lean();
+
+      if (!recent) {
+        await ProfileView.create({ profileId: user.clerkId, viewerId: currentUserId });
+      }
     }
 
     // Calculate profile statistics
