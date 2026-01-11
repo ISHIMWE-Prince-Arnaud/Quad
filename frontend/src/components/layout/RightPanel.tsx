@@ -4,44 +4,55 @@ import { Moon, Sun } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useThemeStore } from "@/stores/themeStore";
-import { Switch } from "@/components/ui/switch";
 
 export function RightPanel() {
-  const { isDarkMode, toggleDarkMode } = useThemeStore();
+  const { effectiveTheme, setTheme } = useThemeStore();
 
   return (
-    <div className="h-full overflow-y-auto bg-[#0a0c10] border-l border-white/5">
-      <div className="min-h-full p-6 flex flex-col">
+    <div className="h-full bg-[#0a0c10] border-l border-white/5 flex flex-col">
+      <div className="flex-1 overflow-y-auto overscroll-contain p-6">
         <div className="space-y-8">
           <FeaturedPoll />
           <WhoToFollow limit={5} />
         </div>
+      </div>
 
-        <div className="mt-auto pt-8">
-          <div className="flex items-center justify-between px-4 py-3 bg-white/5 rounded-2xl border border-white/5">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-medium text-[#64748b]">Theme</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Sun
-                className={cn(
-                  "w-3.5 h-3.5",
-                  !isDarkMode ? "text-white" : "text-[#64748b]"
-                )}
-              />
-              <Switch
-                checked={isDarkMode}
-                onChange={() => toggleDarkMode()}
-                className="bg-[#2563eb]"
-              />
-              <Moon
-                className={cn(
-                  "w-3.5 h-3.5",
-                  isDarkMode ? "text-white" : "text-[#64748b]"
-                )}
-              />
-            </div>
-          </div>
+      <div className="p-6 pt-4 border-t border-white/5 bg-[#0a0c10]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0a0c10]/70">
+          <div
+            role="group"
+            aria-label="Theme"
+            className="flex items-center justify-between rounded-full bg-white/[0.04] border border-white/5 p-1">
+            <button
+              type="button"
+              onClick={() => setTheme("light")}
+              aria-pressed={effectiveTheme === "light"}
+              className={cn(
+                "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0c10]",
+                effectiveTheme === "light"
+                  ? "bg-[#2563eb] text-white shadow-[0_10px_20px_rgba(37,99,235,0.25)]"
+                  : "text-[#94a3b8] hover:text-white"
+              )}
+              title="Light">
+              <Sun className="h-4 w-4" />
+              Light
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setTheme("dark")}
+              aria-pressed={effectiveTheme === "dark"}
+              className={cn(
+                "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0c10]",
+                effectiveTheme === "dark"
+                  ? "bg-[#2563eb] text-white shadow-[0_10px_20px_rgba(37,99,235,0.25)]"
+                  : "text-[#94a3b8] hover:text-white"
+              )}
+              title="Dark">
+              <Moon className="h-4 w-4" />
+              Dark
+            </button>
         </div>
       </div>
     </div>

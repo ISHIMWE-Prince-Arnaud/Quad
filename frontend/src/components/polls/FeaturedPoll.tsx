@@ -136,9 +136,6 @@ export function FeaturedPoll({ className }: FeaturedPollProps) {
       return (
         <div className="space-y-3 text-sm text-muted-foreground">
           <p>No poll to feature right now.</p>
-          <Button asChild variant="outline" size="sm">
-            <Link to="/app/polls">Explore Polls</Link>
-          </Button>
         </div>
       );
     }
