@@ -85,7 +85,7 @@ describe("Active Navigation Highlighting Property Tests", () => {
           }
           const activeLinkEl: HTMLAnchorElement = activeLink;
           const activeLinkClasses = activeLinkEl.className ?? "";
-          expect(activeLinkClasses).toContain("bg-primary");
+          expect(activeLinkClasses).toContain("bg-[#2563eb]");
           expect(
             activeLinkClasses.includes("text-primary-foreground") ||
               activeLinkClasses.includes("text-white")
@@ -97,10 +97,10 @@ describe("Active Navigation Highlighting Property Tests", () => {
           // Property 3: Inactive links should NOT have primary background
           navLinks.forEach((link) => {
             if (link.getAttribute("href") !== activePath) {
-              expect(link.className).not.toContain("bg-primary");
+              expect(link.className).not.toContain("bg-[#2563eb]");
               expect(
-                link.className.includes("text-muted-foreground") ||
-                  link.className.includes("text-foreground/80")
+                link.className.includes("text-[#94a3b8]") ||
+                  link.className.includes("text-muted-foreground")
               ).toBe(true);
             }
           });
@@ -293,7 +293,7 @@ describe("Active Navigation Highlighting Property Tests", () => {
             throw new Error("Active navigation link not found");
           }
           const activeLink1El: HTMLAnchorElement = activeLink1;
-          expect(activeLink1El.className).toContain("bg-primary");
+          expect(activeLink1El.className).toContain("bg-[#2563eb]");
 
           cleanup();
 
@@ -318,7 +318,7 @@ describe("Active Navigation Highlighting Property Tests", () => {
             throw new Error("Active navigation link not found");
           }
           const activeLink2El: HTMLAnchorElement = activeLink2;
-          expect(activeLink2El.className).toContain("bg-primary");
+          expect(activeLink2El.className).toContain("bg-[#2563eb]");
 
           // Property: Different paths should highlight different links
           if (firstPath !== secondPath) {

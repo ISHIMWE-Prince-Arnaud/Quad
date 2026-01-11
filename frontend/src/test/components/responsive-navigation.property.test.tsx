@@ -4,7 +4,6 @@ import { BrowserRouter } from "react-router-dom";
 import * as fc from "fast-check";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Navbar } from "@/components/layout/Navbar";
-import { RightPanel } from "@/components/layout/RightPanel";
 
 // Feature: quad-ui-ux-redesign, Property 43: Responsive navigation
 // For any mobile viewport (< 640px), the sidebar should collapse and a hamburger menu toggle should be provided
@@ -174,14 +173,14 @@ describe("Responsive Navigation Property Tests", () => {
         fireEvent.click(screen.getByLabelText("Toggle mobile menu"));
 
         await waitFor(() => {
-          const mobileNav = container.querySelector(
+          const mobileNavEl = container.querySelector(
             'nav[aria-label="Mobile navigation"]'
           );
-          expect(mobileNav).toBeInTheDocument();
+          expect(mobileNavEl).toBeInTheDocument();
         });
 
         // Property: Mobile menu should have navigation with aria-label
-        const mobileNav = container.querySelector(
+        container.querySelector(
           'nav[aria-label="Mobile navigation"]'
         );
 
@@ -229,7 +228,7 @@ describe("Responsive Navigation Property Tests", () => {
         cleanup();
 
         // Render the navbar (mobile)
-        const { container: navbarContainer } = render(
+        render(
           <BrowserRouter>
             <Navbar />
           </BrowserRouter>
@@ -322,23 +321,20 @@ describe("Responsive Navigation Property Tests", () => {
           unreadCount: 0,
         } as any);
 
-        // Render the desktop panel (Theme selector lives in the right panel)
-        const { container: desktopContainer } = render(
+        // Render the sidebar (Theme selector lives in the sidebar footer)
+        render(
           <BrowserRouter>
-            <RightPanel />
+            <Sidebar />
           </BrowserRouter>
         );
 
-        // Property: Theme selector buttons should be present on desktop
-        const desktopThemeButtons = desktopContainer.querySelectorAll(
-          'button[aria-label*="theme"]'
-        );
-        expect(desktopThemeButtons.length).toBeGreaterThan(0);
+        // Property: Theme control should be present on desktop
+        expect(screen.getAllByText("Theme").length).toBeGreaterThan(0);
 
         cleanup();
 
         // Render the navbar (mobile)
-        const { container: navbarContainer } = render(
+        const { container } = render(
           <BrowserRouter>
             <Navbar />
           </BrowserRouter>
@@ -347,17 +343,16 @@ describe("Responsive Navigation Property Tests", () => {
         fireEvent.click(screen.getByLabelText("Toggle mobile menu"));
 
         await waitFor(() => {
-          const mobileNav = navbarContainer.querySelector(
+          const mobileNavEl = container.querySelector(
             'nav[aria-label="Mobile navigation"]'
           );
-          expect(mobileNav).toBeInTheDocument();
+          expect(mobileNavEl).toBeInTheDocument();
         });
 
         // Property: Theme selector should be present in navbar
-        const navbarThemeButtons = navbarContainer.querySelectorAll(
-          'button[aria-label*="theme"]'
+        expect(screen.getAllByLabelText("Theme selector").length).toBeGreaterThan(
+          0
         );
-        expect(navbarThemeButtons.length).toBeGreaterThan(0);
       }),
       { numRuns: 10 }
     );

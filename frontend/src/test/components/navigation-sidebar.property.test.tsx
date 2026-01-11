@@ -72,13 +72,10 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
 
           // Property 1: All required navigation items must be present
           const requiredItems = [
-            "Home",
-            "Search",
-            "Notifications",
-            "Messages",
+            "Feed",
+            "Chat",
             "Stories",
             "Polls",
-            "Analytics",
             "Profile",
           ];
 
@@ -89,7 +86,7 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
 
           // Property 2: Each navigation item must have an icon (check for parent link)
           const navLinks = container.querySelectorAll("nav a");
-          expect(navLinks.length).toBe(8); // Includes Profile when username exists
+          expect(navLinks.length).toBe(5); // Includes Profile when username exists
 
           navLinks.forEach((link) => {
             // Check that each link has an svg icon (lucide icons render as svg)
@@ -138,13 +135,10 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
 
           // Property: Each navigation item must have the correct href
           const expectedHrefs: Record<string, string> = {
-            Home: "/app/feed",
-            Search: "/app/search",
-            Notifications: "/app/notifications",
-            Messages: "/app/chat",
+            Feed: "/app/feed",
+            Chat: "/app/chat",
             Stories: "/app/stories",
             Polls: "/app/polls",
-            Analytics: "/app/analytics",
             Profile: `/app/profile/${username}`,
           };
 
@@ -195,7 +189,7 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
           // Property: Sidebar should still render and include Notifications navigation
           const navLinks = container.querySelectorAll("nav a");
           expect(navLinks.length).toBeGreaterThan(0);
-          expect(screen.getAllByText("Notifications").length).toBeGreaterThan(0);
+          expect(screen.getAllByText("Chat").length).toBeGreaterThan(0);
         }
       ),
       { numRuns: 10 }

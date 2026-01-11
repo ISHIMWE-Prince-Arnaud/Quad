@@ -76,11 +76,8 @@ describe("Poll Display Property Tests", () => {
         ),
         expiresAt: fc.option(
           fc
-            .date({
-              min: new Date(),
-              max: new Date(Date.now() + 86400000 * 30),
-            })
-            .map((d) => d.toISOString())
+            .integer({ min: Date.now(), max: Date.now() + 86400000 * 30 })
+            .map((ts) => new Date(ts).toISOString())
         ),
         totalVotes: fc.integer({ min: 0, max: 50000 }),
         reactionsCount: fc.integer({ min: 0, max: 10000 }),
