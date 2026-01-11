@@ -25,6 +25,21 @@ export type EngagementSummaryResponse = {
   avgEngagementPerItem: number;
 };
 
+export type ContentAnalyticsResponse = {
+  posts?: {
+    count: number;
+    totals: { reactions: number; comments: number };
+  };
+  stories?: {
+    count: number;
+    totals: { views: number; reactions: number; comments: number };
+  };
+  polls?: {
+    count: number;
+    totals: { votes: number; reactions: number; comments: number };
+  };
+};
+
 export class AnalyticsService {
   static async getProfileAnalytics(params?: { dateFrom?: string; dateTo?: string }) {
     const res = await endpoints.analytics.profile(params);
@@ -39,5 +54,17 @@ export class AnalyticsService {
   static async getEngagementSummary() {
     const res = await endpoints.analytics.summary();
     return res.data as { success: boolean; data: EngagementSummaryResponse };
+  }
+
+  static async getContentAnalytics(params?: {
+    contentType?: "post" | "story" | "poll";
+  }) {
+    const res = await endpoints.analytics.content(params);
+    return res.data as { success: boolean; data: ContentAnalyticsResponse };
+  }
+
+  static async recordProfileView(profileId: string) {
+    const res = await endpoints.analytics.recordProfileView({ profileId });
+    return res.data as { success: boolean; data: { recorded: boolean } };
   }
 }
