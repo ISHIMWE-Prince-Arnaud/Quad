@@ -5,7 +5,7 @@ import { createTestApp } from "../utils/testApp.js";
 
 const sendWebhook = async (payload: any, headers?: Record<string, string>) => {
   const app = createTestApp();
-  const body = Buffer.from(JSON.stringify(payload));
+  const body = JSON.stringify(payload);
 
   const req = request(app)
     .post("/api/webhooks/clerk")

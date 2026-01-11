@@ -85,7 +85,6 @@ router.post(
 
           if (existingUser && username && username !== existingUser.username) {
             updateOps.$addToSet = { previousUsernames: existingUser.username };
-            updateOps.$pull = { previousUsernames: username };
           }
 
           const session = await mongoose.startSession();
@@ -97,6 +96,14 @@ router.post(
               updateOps,
               { new: true, upsert: true, session }
             );
+
+            if (existingUser && username && username !== existingUser.username) {
+              await User.updateOne(
+                { clerkId: evt.data.id },
+                { $pull: { previousUsernames: username } },
+                { session }
+              );
+            }
 
             if (updatedUser) {
               await propagateUserSnapshotUpdates(
@@ -146,6 +153,13 @@ router.post(
               updateOps,
               { new: true, upsert: true }
             );
+
+            if (existingUser && username && username !== existingUser.username) {
+              await User.updateOne(
+                { clerkId: evt.data.id },
+                { $pull: { previousUsernames: username } }
+              );
+            }
 
             if (updatedUser) {
               await propagateUserSnapshotUpdates({
