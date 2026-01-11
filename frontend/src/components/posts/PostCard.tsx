@@ -48,7 +48,7 @@ export function PostCard({
     selectReaction,
   } = usePostReactions(post._id);
 
-  const { bookmarked, toggleBookmark } = usePostBookmark(post._id);
+  const { bookmarked, bookmarkPending, toggleBookmark } = usePostBookmark(post._id);
 
   const { firstName, lastName, username } = post.author;
 
@@ -151,6 +151,7 @@ export function PostCard({
               postId={post._id}
               commentsCount={post.commentsCount || 0}
               bookmarked={bookmarked}
+              bookmarkPending={bookmarkPending}
               onToggleBookmark={toggleBookmark}
               onCopyLink={() => void handleCopyLink()}
               userReaction={userReaction}
