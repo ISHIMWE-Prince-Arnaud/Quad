@@ -116,7 +116,7 @@ export function FeedPostComposer({
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="What's on your mind?"
-            className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-[#64748b] text-lg resize-none min-h-[48px] py-2"
+            className="w-full bg-transparent border-none outline-none text-white placeholder-[#64748b] text-lg resize-none min-h-[48px] py-2"
             rows={1}
             disabled={disabled || isSubmitting}
             onFocus={() => {

@@ -31,7 +31,8 @@ export function SkeletonBlock({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "relative overflow-hidden bg-muted rounded",
+        "relative overflow-hidden rounded",
+        "bg-muted dark:bg-white/5",
         "before:absolute before:inset-0 before:-translate-x-full",
         "before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
         "before:animate-shimmer",
@@ -102,7 +103,14 @@ export function SkeletonAvatar({ className }: { className?: string }) {
   );
 }
 
-export function SkeletonPost({ withMedia = true }: { withMedia?: boolean }) {
+export function SkeletonPost({
+  mediaVariant = "wide",
+}: {
+  mediaVariant?: "none" | "wide" | "tall";
+}) {
+  const showMedia = mediaVariant !== "none";
+  const mediaClass = mediaVariant === "tall" ? "h-72" : "h-52";
+
   return (
     <div className="p-6 bg-[#0f121a] border border-white/5 rounded-[2rem] space-y-4">
       {/* Header */}
@@ -127,7 +135,7 @@ export function SkeletonPost({ withMedia = true }: { withMedia?: boolean }) {
         <SkeletonLine className="w-9/12" />
       </div>
 
-      {withMedia && <SkeletonBlock className="h-52 rounded-2xl" />}
+      {showMedia && <SkeletonBlock className={cn(mediaClass, "rounded-2xl")} />}
 
       {/* Actions */}
       <div className="flex items-center justify-between pt-3 border-t border-white/5">
@@ -147,7 +155,10 @@ export function FeedSkeleton() {
   return (
     <div className="space-y-6">
       {Array.from({ length: 5 }).map((_, i) => (
-        <SkeletonPost key={i} withMedia={i % 3 !== 1} />
+        <SkeletonPost
+          key={i}
+          mediaVariant={i % 3 === 1 ? "none" : i % 4 === 0 ? "tall" : "wide"}
+        />
       ))}
     </div>
   );
