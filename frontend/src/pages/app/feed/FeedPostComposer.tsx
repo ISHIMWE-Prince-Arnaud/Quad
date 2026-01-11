@@ -89,7 +89,8 @@ export function FeedPostComposer({
       )}
       onClick={() => {
         if (!disabled) setIsExpanded(true);
-      }}>
+      }}
+    >
       <input
         ref={fileInputRef}
         type="file"
@@ -116,7 +117,6 @@ export function FeedPostComposer({
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="What's on your mind?"
-            className="w-full bg-transparent border-none outline-none text-white placeholder-[#64748b] text-lg resize-none min-h-[48px] py-2"
             rows={1}
             disabled={disabled || isSubmitting}
             onFocus={() => {
@@ -127,6 +127,29 @@ export function FeedPostComposer({
               target.style.height = "auto";
               target.style.height = `${target.scrollHeight}px`;
             }}
+            className="
+              w-full
+              bg-transparent
+              border-none
+              outline-none
+              ring-0
+              ring-offset-0
+              focus:outline-none
+              focus:ring-0
+              focus:ring-offset-0
+              focus-visible:outline-none
+              focus-visible:ring-0
+              focus-visible:ring-offset-0
+              active:outline-none
+              active:ring-0
+              active:ring-offset-0
+              text-white
+              placeholder-[#64748b]
+              text-lg
+              resize-none
+              min-h-[48px]
+              py-2
+            "
           />
 
           {isExpanded && (
@@ -159,7 +182,8 @@ export function FeedPostComposer({
                 }}
                 className="p-2 text-[#64748b] hover:text-white hover:bg-white/5 rounded-xl transition-all"
                 aria-label="Add media"
-                title="Add media">
+                title="Add media"
+              >
                 <Image className="w-5 h-5" />
               </button>
               <button
@@ -171,7 +195,8 @@ export function FeedPostComposer({
                 }}
                 className="p-2 text-[#64748b] hover:text-white hover:bg-white/5 rounded-xl transition-all"
                 aria-label="Add video"
-                title="Add video">
+                title="Add video"
+              >
                 <Video className="w-5 h-5" />
               </button>
             </div>
@@ -186,7 +211,8 @@ export function FeedPostComposer({
                   onClick={(e) => {
                     e.stopPropagation();
                     resetComposer();
-                  }}>
+                  }}
+                >
                   Cancel
                 </Button>
               )}
@@ -203,7 +229,8 @@ export function FeedPostComposer({
                 onClick={(e) => {
                   e.stopPropagation();
                   void submit();
-                }}>
+                }}
+              >
                 {isSubmitting ? (
                   <span className="inline-flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />

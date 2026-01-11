@@ -9,7 +9,6 @@ import { FeedList } from "./feed/FeedList";
 import { FeedNewContentBanner } from "./feed/FeedNewContentBanner";
 import { FeedStatusCards } from "./feed/FeedStatusCards";
 import { useFeedController } from "./feed/useFeedController";
-import { RecentStoriesBar } from "@/components/stories/RecentStoriesBar";
 
 import { FeedPostComposer } from "./feed/FeedPostComposer";
 
@@ -47,8 +46,6 @@ export default function FeedPage() {
     <ComponentErrorBoundary>
       <PageTransition>
         <div className="max-w-4xl mx-auto px-6 py-8 space-y-10">
-          <RecentStoriesBar />
-
           <div className="space-y-6">
             <div className="space-y-2">
               <h1 className="text-3xl font-black text-white tracking-tight">
