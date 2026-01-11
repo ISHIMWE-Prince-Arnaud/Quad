@@ -3,11 +3,13 @@ import { z } from "zod";
 // ===========================
 // MEDIA SCHEMA (reusable)
 // ===========================
-const mediaSchema = z.object({
-  url: z.string().url("Invalid media URL"),
-  type: z.enum(["image", "video"]),
-  aspectRatio: z.enum(["1:1", "16:9", "9:16"]).optional(),
-});
+const mediaSchema = z
+  .object({
+    url: z.string().url("Invalid media URL"),
+    type: z.enum(["image", "video"]),
+    aspectRatio: z.enum(["1:1", "16:9", "9:16"]).optional(),
+  })
+  .strict();
 
 // ===========================
 // CREATE MESSAGE SCHEMA
@@ -17,6 +19,7 @@ export const createMessageSchema = z
     text: z.string().optional(),
     media: mediaSchema.optional(),
   })
+  .strict()
   .refine((data) => data.text || data.media, {
     message: "Message must have text or media",
   });
@@ -31,6 +34,7 @@ export const updateMessageSchema = z
     text: z.string().optional(),
     media: mediaSchema.nullable().optional(), // null = remove media
   })
+  .strict()
   .refine((data) => data.text !== undefined || data.media !== undefined, {
     message: "Must provide text or media to update",
   });
@@ -40,25 +44,30 @@ export type UpdateMessageSchemaType = z.infer<typeof updateMessageSchema>;
 // ===========================
 // ADD REACTION SCHEMA
 // ===========================
-export const addReactionSchema = z.object({
-  emoji: z.string().min(1, "Emoji is required").max(10, "Emoji too long"),
-});
+export const addReactionSchema = z
+  .object({
+    emoji: z.string().min(1, "Emoji is required").max(10, "Emoji too long"),
+  })
+  .strict();
 
 export type AddReactionSchemaType = z.infer<typeof addReactionSchema>;
 
 // ===========================
 // MESSAGE ID SCHEMA
 // ===========================
-export const messageIdSchema = z.object({
-  id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid message ID format"),
-});
+export const messageIdSchema = z
+  .object({
+    id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid message ID format"),
+  })
+  .strict();
 
 export type MessageIdSchemaType = z.infer<typeof messageIdSchema>;
 
 // ===========================
 // GET MESSAGES QUERY SCHEMA
 // ===========================
-export const getMessagesQuerySchema = z.object({
+export const getMessagesQuerySchema = z
+  .object({
   // Pagination
   page: z
     .string()
@@ -79,17 +88,20 @@ export const getMessagesQuerySchema = z.object({
     .string()
     .regex(/^[0-9a-fA-F]{24}$/, "Invalid message ID format")
     .optional(),
-});
+  })
+  .strict();
 
 export type GetMessagesQuerySchemaType = z.infer<typeof getMessagesQuerySchema>;
 
 // ===========================
 // MARK AS READ SCHEMA
 // ===========================
-export const markAsReadSchema = z.object({
-  lastReadMessageId: z
-    .string()
-    .regex(/^[0-9a-fA-F]{24}$/, "Invalid message ID format"),
-});
+export const markAsReadSchema = z
+  .object({
+    lastReadMessageId: z
+      .string()
+      .regex(/^[0-9a-fA-F]{24}$/, "Invalid message ID format"),
+  })
+  .strict();
 
 export type MarkAsReadSchemaType = z.infer<typeof markAsReadSchema>;

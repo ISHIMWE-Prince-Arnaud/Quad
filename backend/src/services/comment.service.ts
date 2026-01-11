@@ -1,0 +1,411 @@
+import { Comment } from "../models/Comment.model.js";
+import { CommentLike } from "../models/CommentLike.model.js";
+import { User } from "../models/User.model.js";
+import type { CommentableContentType } from "../types/comment.types.js";
+import { getSocketIO } from "../config/socket.config.js";
+import { emitEngagementUpdate } from "../sockets/feed.socket.js";
+import {
+  verifyCommentableContent,
+  updateContentCommentsCount,
+} from "../utils/content.util.js";
+import {
+  createNotification,
+  generateNotificationMessage,
+} from "../utils/notification.util.js";
+import { extractMentions } from "../utils/chat.util.js";
+import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
+import { AppError } from "../utils/appError.util.js";
+
+export interface CreateCommentInput {
+  contentType: CommentableContentType;
+  contentId: string;
+  text: string;
+  parentId?: string;
+}
+
+export class CommentService {
+  private static async getContentEngagementCounts(
+    contentType: "post" | "story" | "poll",
+    contentId: string
+  ): Promise<{ reactionsCount: number; commentsCount: number; votes?: number }> {
+    if (contentType === "poll") {
+      const { Poll } = await import("../models/Poll.model.js");
+      const poll = await Poll.findById(contentId).select(
+        "reactionsCount commentsCount totalVotes"
+      );
+      return {
+        reactionsCount: poll?.reactionsCount ?? 0,
+        commentsCount: poll?.commentsCount ?? 0,
+        votes: poll?.totalVotes ?? 0,
+      };
+    }
+
+    if (contentType === "post") {
+      const { Post } = await import("../models/Post.model.js");
+      const post = await Post.findById(contentId).select(
+        "reactionsCount commentsCount"
+      );
+      return {
+        reactionsCount: post?.reactionsCount ?? 0,
+        commentsCount: post?.commentsCount ?? 0,
+      };
+    }
+
+    const { Story } = await import("../models/Story.model.js");
+    const story = await Story.findById(contentId).select(
+      "reactionsCount commentsCount"
+    );
+    return {
+      reactionsCount: story?.reactionsCount ?? 0,
+      commentsCount: story?.commentsCount ?? 0,
+    };
+  }
+
+  static async createComment(userId: string, data: CreateCommentInput) {
+    const { contentType, contentId, text, parentId } = data;
+
+    const { exists, content } = await verifyCommentableContent(
+      contentType,
+      contentId
+    );
+    if (!exists || !content) {
+      throw new AppError(`${contentType} not found`, 404);
+    }
+
+    const user = await User.findOne({ clerkId: userId });
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    const contentOwnerId = (content as any).userId || (content as any).clerkId;
+
+    let parentComment: any = null;
+    if (parentId) {
+      parentComment = await Comment.findById(parentId);
+      if (!parentComment) {
+        throw new AppError("Parent comment not found", 404);
+      }
+
+      await Comment.findByIdAndUpdate(parentId, { $inc: { repliesCount: 1 } });
+    }
+
+    const newComment = await Comment.create({
+      contentType,
+      contentId,
+      author: {
+        clerkId: user.clerkId,
+        username: user.username,
+        email: user.email,
+        ...(user.profileImage !== undefined
+          ? { profileImage: user.profileImage }
+          : {}),
+      },
+      text,
+      ...(parentId ? { parentId } : {}),
+      reactionsCount: 0,
+      likesCount: 0,
+      repliesCount: 0,
+    });
+
+    const mentions = extractMentions(text);
+    if (mentions.length > 0) {
+      for (const mentionedUsername of mentions) {
+        const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
+        if (mentionedUser && mentionedUser.clerkId !== userId) {
+          await createNotification({
+            userId: mentionedUser.clerkId,
+            type: "mention_comment",
+            actorId: userId,
+            contentId,
+            contentType:
+              contentType === "post"
+                ? "Post"
+                : contentType === "story"
+                  ? "Story"
+                  : "Poll",
+            message: generateNotificationMessage(
+              "mention_comment",
+              user.username
+            ),
+          });
+        }
+      }
+    }
+
+    await updateContentCommentsCount(contentType, contentId, 1);
+
+    if (parentId && parentComment) {
+      const parentAuthorId = parentComment.author.clerkId;
+      if (parentAuthorId !== userId) {
+        await createNotification({
+          userId: parentAuthorId,
+          type: "comment_reply",
+          actorId: userId,
+          contentId: parentId,
+          contentType: "Comment",
+          message: generateNotificationMessage("comment_reply", user.username),
+        });
+      }
+    } else {
+      if (contentOwnerId && contentOwnerId !== userId) {
+        const notificationType =
+          contentType === "post"
+            ? "comment_post"
+            : contentType === "story"
+              ? "comment_story"
+              : "comment_poll";
+
+        await createNotification({
+          userId: contentOwnerId,
+          type: notificationType as any,
+          actorId: userId,
+          contentId,
+          contentType:
+            contentType === "post"
+              ? "Post"
+              : contentType === "story"
+                ? "Story"
+                : "Poll",
+          message: generateNotificationMessage(
+            notificationType,
+            user.username,
+            contentType
+          ),
+        });
+      }
+    }
+
+    const io = getSocketIO();
+    io.emit("commentAdded", {
+      contentType,
+      contentId,
+      parentId,
+      comment: newComment,
+    });
+
+    try {
+      const counts = await this.getContentEngagementCounts(contentType, contentId);
+      emitEngagementUpdate(
+        io,
+        contentType,
+        contentId,
+        counts.reactionsCount,
+        counts.commentsCount,
+        counts.votes
+      );
+    } catch {
+      // best-effort
+    }
+
+    return newComment;
+  }
+
+  static async getCommentsByContent(
+    contentType: string,
+    contentId: string,
+    opts: { limit?: string; skip?: string; parentId?: any }
+  ) {
+    const { limit = "20", skip = "0", parentId } = opts;
+
+    const query: any = { contentType, contentId };
+    if (parentId === "null" || !parentId) {
+      query.parentId = { $exists: false };
+    } else {
+      query.parentId = parentId;
+    }
+
+    const comments = await Comment.find(query)
+      .populate("author", "username displayName profileImage")
+      .sort({ createdAt: -1 })
+      .limit(Number(limit))
+      .skip(Number(skip));
+
+    const total = await Comment.countDocuments(query);
+
+    return {
+      comments,
+      pagination: {
+        total,
+        limit: Number(limit),
+        skip: Number(skip),
+        hasMore: Number(skip) + comments.length < total,
+      },
+    };
+  }
+
+  static async getComment(id: string) {
+    const comment = await Comment.findById(id);
+    if (!comment) {
+      throw new AppError("Comment not found", 404);
+    }
+    return comment;
+  }
+
+  static async getReplies(id: string, limit = "10", skip = "0") {
+    const replies = await Comment.find({ parentId: id })
+      .sort({ createdAt: 1 })
+      .limit(Number(limit))
+      .skip(Number(skip));
+
+    const total = await Comment.countDocuments({ parentId: id });
+
+    return {
+      replies,
+      pagination: {
+        total,
+        limit: Number(limit),
+        skip: Number(skip),
+        hasMore: Number(skip) + replies.length < total,
+      },
+    };
+  }
+
+  static async updateComment(userId: string, id: string, text: string) {
+    const comment = await Comment.findById(id);
+    if (!comment) {
+      throw new AppError("Comment not found", 404);
+    }
+
+    if (comment.author.clerkId !== userId) {
+      throw new AppError("Unauthorized", 403);
+    }
+
+    comment.text = text;
+    await comment.save();
+
+    getSocketIO().emit("commentUpdated", {
+      contentType: comment.contentType,
+      contentId: comment.contentId,
+      commentId: id,
+      comment,
+    });
+
+    return comment;
+  }
+
+  static async deleteComment(userId: string, id: string) {
+    const comment = await Comment.findById(id);
+    if (!comment) {
+      throw new AppError("Comment not found", 404);
+    }
+
+    if (comment.author.clerkId !== userId) {
+      throw new AppError("Unauthorized", 403);
+    }
+
+    if (!comment.parentId) {
+      await updateContentCommentsCount(
+        comment.contentType,
+        comment.contentId,
+        -1
+      );
+    } else {
+      await Comment.findByIdAndUpdate(comment.parentId, {
+        $inc: { repliesCount: -1 },
+      });
+    }
+
+    const deletedReplies = await Comment.deleteMany({ parentId: id });
+
+    if (deletedReplies.deletedCount && deletedReplies.deletedCount > 0) {
+      await updateContentCommentsCount(
+        comment.contentType,
+        comment.contentId,
+        -deletedReplies.deletedCount
+      );
+    }
+
+    await CommentLike.deleteMany({ commentId: id });
+    await Comment.findByIdAndDelete(id);
+
+    const io = getSocketIO();
+    io.emit("commentDeleted", {
+      contentType: comment.contentType,
+      contentId: comment.contentId,
+      commentId: id,
+      parentId: comment.parentId,
+    });
+
+    try {
+      const counts = await this.getContentEngagementCounts(
+        comment.contentType,
+        comment.contentId
+      );
+      emitEngagementUpdate(
+        io,
+        comment.contentType,
+        comment.contentId,
+        counts.reactionsCount,
+        counts.commentsCount,
+        counts.votes
+      );
+    } catch {
+      // best-effort
+    }
+  }
+
+  static async toggleCommentLike(userId: string, commentId: string) {
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      throw new AppError("Comment not found", 404);
+    }
+
+    const user = await User.findOne({ clerkId: userId });
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    const existingLike = await CommentLike.findOne({ commentId, userId });
+
+    if (existingLike) {
+      await CommentLike.deleteOne({ _id: existingLike._id });
+      await Comment.findByIdAndUpdate(commentId, { $inc: { likesCount: -1 } });
+
+      getSocketIO().emit("commentLikeRemoved", {
+        commentId,
+        userId,
+        likesCount: comment.likesCount - 1,
+      });
+
+      return {
+        statusCode: 200,
+        body: {
+          success: true,
+          message: "Like removed",
+          liked: false,
+          likesCount: comment.likesCount - 1,
+        },
+      };
+    }
+
+    const newLike = await CommentLike.create({
+      commentId,
+      userId,
+      username: user.username,
+    });
+
+    await Comment.findByIdAndUpdate(commentId, { $inc: { likesCount: 1 } });
+
+    getSocketIO().emit("commentLikeAdded", {
+      commentId,
+      userId,
+      likesCount: comment.likesCount + 1,
+    });
+
+    return {
+      statusCode: 201,
+      body: {
+        success: true,
+        message: "Like added",
+        liked: true,
+        likesCount: comment.likesCount + 1,
+        data: newLike,
+      },
+    };
+  }
+
+  static async getCommentLikes(commentId: string) {
+    const likes = await CommentLike.find({ commentId }).sort({ createdAt: -1 });
+    return likes;
+  }
+}

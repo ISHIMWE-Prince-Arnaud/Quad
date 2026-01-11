@@ -1,6 +1,7 @@
 import { afterAll, afterEach, beforeAll, vi } from "vitest";
 import { setSocketIO } from "../config/socket.config.js";
 import { clearTestDb, startTestDb, stopTestDb } from "./utils/testDb.js";
+import { logger } from "../utils/logger.util.js";
 
 process.env.NODE_ENV = "test";
 process.env.MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/quad_test";
@@ -11,6 +12,8 @@ process.env.CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || "cloud"
 process.env.CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || "key";
 process.env.CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || "secret";
 process.env.SKIP_INDEX_CREATION = "true";
+
+vi.spyOn(logger, "error").mockImplementation(() => {});
 
 vi.mock("@clerk/express", () => {
   return {

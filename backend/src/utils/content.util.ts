@@ -2,6 +2,7 @@ import { Post } from "../models/Post.model.js";
 import { Story } from "../models/Story.model.js";
 import { Poll } from "../models/Poll.model.js";
 import { logger } from "./logger.util.js";
+import sanitizeHtml from "sanitize-html";
 
 import type { ReactableContentType } from "../types/reaction.types.js";
 import type { CommentableContentType } from "../types/comment.types.js";
@@ -176,4 +177,12 @@ export const updateContentReactionsCount = async (
   } catch (error) {
     logger.error("Error updating content reactions count", error);
   }
+};
+
+export const sanitizePostText = (text: string): string => {
+  return sanitizeHtml(text, {
+    allowedTags: [],
+    allowedAttributes: {},
+    disallowedTagsMode: "recursiveEscape",
+  });
 };
