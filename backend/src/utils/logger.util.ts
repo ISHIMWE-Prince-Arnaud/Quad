@@ -19,6 +19,18 @@ class Logger {
   private databaseLogger: pino.Logger;
   private socketLogger: pino.Logger;
 
+  private toLogObject(data: unknown): Record<string, unknown> {
+    if (data && typeof data === "object") {
+      return data as Record<string, unknown>;
+    }
+
+    if (data === undefined) {
+      return {};
+    }
+
+    return { data };
+  }
+
   constructor() {
     this.isProduction = process.env.NODE_ENV === "production";
 
@@ -75,43 +87,43 @@ class Logger {
   /**
    * Log debug messages (development only)
    */
-  debug(message: string, data?: any): void {
+  debug(message: string, data?: unknown): void {
     if (this.isProduction) return;
-    this.baseLogger.debug(data ?? {}, message);
+    this.baseLogger.debug(this.toLogObject(data), message);
   }
 
   /**
    * Log info messages 
    */
-  info(message: string, data?: any): void {
-    this.baseLogger.info(data ?? {}, message);
+  info(message: string, data?: unknown): void {
+    this.baseLogger.info(this.toLogObject(data), message);
   }
 
   /**
    * Log warning messages
    */
-  warn(message: string, data?: any): void {
-    this.baseLogger.warn(data ?? {}, message);
+  warn(message: string, data?: unknown): void {
+    this.baseLogger.warn(this.toLogObject(data), message);
   }
 
   /**
    * Log error messages (always logged)
    */
-  error(message: string, error?: any): void {
+  error(message: string, error?: unknown): void {
     if (error instanceof Error) {
       this.baseLogger.error({ err: error }, message);
       return;
     }
 
-    this.baseLogger.error(error ?? {}, message);
+    this.baseLogger.error(this.toLogObject(error), message);
   }
 
   /**
    * Log successful operations (production safe)
    */
-  success(message: string, data?: any): void {
+  success(message: string, data?: unknown): void {
     if (this.isProduction) return;
-    this.baseLogger.info({ ...(data ?? {}), event: "success" }, message);
+    this.baseLogger.info({ ...this.toLogObject(data), event: "success" }, message);
   }
 
   /**
@@ -124,17 +136,17 @@ class Logger {
   /**
    * Log database operations
    */
-  database(message: string, data?: any): void {
+  database(message: string, data?: unknown): void {
     if (this.isProduction) return;
-    this.databaseLogger.debug(data ?? {}, message);
+    this.databaseLogger.debug(this.toLogObject(data), message);
   }
 
   /**
    * Log socket events (development only)
    */
-  socket(message: string, data?: any): void {
+  socket(message: string, data?: unknown): void {
     if (this.isProduction) return;
-    this.socketLogger.debug(data ?? {}, message);
+    this.socketLogger.debug(this.toLogObject(data), message);
   }
 }
 
