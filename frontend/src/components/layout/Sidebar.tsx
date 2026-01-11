@@ -7,10 +7,10 @@ import {
   BookOpen,
   BarChart3,
   User,
+  Plus,
   LogOut,
 } from "lucide-react";
 import { LogoWithText } from "@/components/ui/Logo";
-import { UserAvatar } from "@/components/auth/UserMenu";
 import { useAuthStore } from "@/stores/authStore";
 import { useAuth } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
@@ -112,52 +112,48 @@ export function Sidebar() {
 
       {/* Footer Section: Theme Toggle & Profile */}
       <div className="px-4 pb-8 space-y-6">
-        {/* Profile & Logout */}
-        <div className="flex items-center justify-between">
-          <Link
-            to={user?.username ? `/app/profile/${user.username}` : "#"}
-            className="flex items-center gap-3 group">
-            <UserAvatar className="w-10 h-10 border-2 border-transparent group-hover:border-[#2563eb] transition-all" />
-            <div className="hidden lg:block">
-              <p className="text-sm font-semibold text-white truncate">
-                {user?.username || "Guest"}
-              </p>
-              <p className="text-[10px] text-[#64748b] font-medium">
-                View Profile
-              </p>
-            </div>
+        <Button
+          asChild
+          className="w-full rounded-2xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-[0_10px_20px_rgba(37,99,235,0.25)]">
+          <Link to="/app/create" aria-label="Create">
+            <Plus className="h-5 w-5" />
+            Create
           </Link>
+        </Button>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <button className="p-2 text-[#64748b] hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all">
-                <LogOut className="h-5 w-5" />
-              </button>
-            </DialogTrigger>
-            <DialogContent className="bg-[#0f121a] border-border/10 text-white">
-              <DialogHeader>
-                <DialogTitle>Log Out</DialogTitle>
-                <DialogDescription className="text-[#64748b]">
-                  Are you sure you want to log out of Quad?
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="gap-2 sm:gap-0">
-                <Button
-                  variant="ghost"
-                  onClick={() => setIsDialogOpen(false)}
-                  className="text-[#64748b] hover:text-white hover:bg-white/5">
-                  Cancel
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleLogout}
-                  className="bg-destructive hover:bg-destructive/90">
-                  Log Out
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full rounded-2xl justify-start text-[#94a3b8] hover:text-white hover:bg-white/5">
+              <LogOut className="h-5 w-5" />
+              Log Out
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-[#0f121a] border-border/10 text-white">
+            <DialogHeader>
+              <DialogTitle>Log Out</DialogTitle>
+              <DialogDescription className="text-[#64748b]">
+                Are you sure you want to log out of Quad?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="ghost"
+                onClick={() => setIsDialogOpen(false)}
+                className="text-[#64748b] hover:text-white hover:bg-white/5">
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleLogout}
+                className="bg-destructive hover:bg-destructive/90">
+                Log Out
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
