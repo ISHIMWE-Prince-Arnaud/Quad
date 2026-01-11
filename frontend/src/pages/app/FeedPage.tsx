@@ -50,9 +50,14 @@ export default function FeedPage() {
           <RecentStoriesBar />
 
           <div className="space-y-6">
-            <h1 className="text-3xl font-black text-white tracking-tight">
-              Feed
-            </h1>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-black text-white tracking-tight">
+                Feed
+              </h1>
+              <p className="text-sm text-[#94a3b8]">
+                See what’s happening right now.
+              </p>
+            </div>
 
             <FeedHeaderTabs
               feedType={feedType}
