@@ -26,6 +26,17 @@ export function FeedPostComposer({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const openFilePicker = (accept: string) => {
+    if (disabled) return;
+    setIsExpanded(true);
+
+    const input = fileInputRef.current;
+    if (!input) return;
+
+    input.accept = accept;
+    input.click();
+  };
+
   const {
     uploadedMedia,
     uploadingFiles,
@@ -176,22 +187,18 @@ export function FeedPostComposer({
               <button
                 type="button"
                 onClick={() => {
-                  if (disabled) return;
-                  setIsExpanded(true);
-                  fileInputRef.current?.click();
+                  openFilePicker("image/*");
                 }}
                 className="p-2 text-[#64748b] hover:text-white hover:bg-white/5 rounded-xl transition-all"
-                aria-label="Add media"
-                title="Add media"
+                aria-label="Add image"
+                title="Add image"
               >
                 <Image className="w-5 h-5" />
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  if (disabled) return;
-                  setIsExpanded(true);
-                  fileInputRef.current?.click();
+                  openFilePicker("video/*");
                 }}
                 className="p-2 text-[#64748b] hover:text-white hover:bg-white/5 rounded-xl transition-all"
                 aria-label="Add video"
