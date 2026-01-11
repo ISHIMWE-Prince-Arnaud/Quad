@@ -41,6 +41,7 @@ import uploadRoutes from "./routes/upload.routes.js";
 import searchRoutes from "./routes/search.routes.js";
 import bookmarkRoutes from "./routes/bookmark.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
 
 // --- Initialize Express ---
 const app = express();
@@ -84,6 +85,8 @@ app.use("/api/search", searchRateLimiter, searchRoutes);
 app.get("/", (_, res) => {
   res.send("Quad API is running 🚀");
 });
+
+app.use(errorHandler);
 
 // --- Initialize HTTP server and Socket.IO ---
 const server = createServer(app);
