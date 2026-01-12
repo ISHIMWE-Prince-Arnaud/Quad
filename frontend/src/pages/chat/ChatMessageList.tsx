@@ -1,11 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
-import type { Virtualizer } from "@tanstack/react-virtual";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/types/chat";
 import { Loader2, MoreVertical } from "lucide-react";
 import { REACTION_EMOJIS } from "./constants";
@@ -24,7 +22,6 @@ export function ChatMessageList({
   onLoadOlder,
   messages,
   user,
-  virtualizer,
   editingId,
   editText,
   onEditTextChange,
@@ -41,7 +38,6 @@ export function ChatMessageList({
   onLoadOlder: () => void;
   messages: ChatMessage[];
   user: MinimalUser | null | undefined;
-  virtualizer: Virtualizer<HTMLDivElement, Element>;
   editingId: string | null;
   editText: string;
   onEditTextChange: (v: string) => void;
@@ -59,6 +55,10 @@ export function ChatMessageList({
 
   const [openActionsForId, setOpenActionsForId] = useState<string | null>(null);
   const actionsMenuRef = useRef<HTMLDivElement | null>(null);
+
+  const setActionsMenuEl = useCallback((el: HTMLDivElement | null) => {
+    actionsMenuRef.current = el;
+  }, []);
 
   const openLightbox = (media: { url: string; type: "image" | "video" }) => {
     setLightboxMedia(media);
@@ -110,19 +110,19 @@ export function ChatMessageList({
           setLightboxOpen(open);
           if (!open) setLightboxMedia(null);
         }}>
-        <DialogContent className="max-w-5xl p-0 overflow-hidden">
-          <div className="bg-black">
+        <DialogContent className="max-w-4xl bg-[#0a0c10] border border-white/10">
+          <div className="flex items-center justify-center">
             {lightboxMedia?.type === "image" ? (
               <img
                 src={lightboxMedia.url}
                 alt="Chat attachment"
-                className="max-h-[80vh] w-full object-contain"
+                className="max-h-[80vh] w-auto rounded-2xl"
               />
             ) : lightboxMedia?.type === "video" ? (
               <video
                 src={lightboxMedia.url}
                 controls
-                className="max-h-[80vh] w-full object-contain"
+                className="max-h-[80vh] w-auto rounded-2xl"
               />
             ) : null}
           </div>
@@ -131,35 +131,29 @@ export function ChatMessageList({
 
       <div
         ref={listRef}
-        className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-6 scrollbar-hide">
+        className="flex-1 overflow-y-auto px-6 py-5">
         {loading && (
-          <div className="flex items-center justify-center py-8 text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading
-            conversation...
+          <div className="flex items-center justify-center gap-2 py-10 text-white/70">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Loading conversation...</span>
           </div>
         )}
 
         {!loading && messages.length === 0 && (
-          <div className="text-center text-muted-foreground py-8">
+          <div className="flex items-center justify-center py-10 text-white/60">
             No messages yet. Start the conversation!
           </div>
         )}
 
         {!loading && messages.length > 0 && (
-          <div
-            style={{
-              height: `${virtualizer.getTotalSize()}px`,
-              width: "100%",
-              position: "relative",
-            }}>
+          <div className="space-y-6">
             {loadingOlder && (
-              <div className="text-center text-xs text-muted-foreground py-2">
+              <div className="flex items-center justify-center py-2 text-white/50">
                 Loading older messages...
               </div>
             )}
 
-            {virtualizer.getVirtualItems().map((virtualItem) => {
-              const m = messages[virtualItem.index];
+            {messages.map((m) => {
               const isSelf = m.author.clerkId === user?.clerkId;
               const media = m.media;
               const hasMedia =
@@ -168,271 +162,250 @@ export function ChatMessageList({
                 media.url.trim().length > 0 &&
                 (media.type === "image" || media.type === "video");
 
+              const showActions = isSelf && editingId !== m.id;
+              const bubbleBase =
+                "relative rounded-3xl px-5 py-4 shadow-sm border";
+              const bubbleClass = isSelf
+                ? `${bubbleBase} bg-[#2F6DF6] text-white border-transparent`
+                : `${bubbleBase} bg-[#1A2433] text-white/90 border-white/5`;
+
+              const headerName = isSelf ? "You" : m.author.username;
+              const headerTime = `${m.timestamp}${m.isEdited ? " • edited" : ""}`;
+
+              const reactionsSummary =
+                Array.isArray(m.reactions) && m.reactions.length > 0
+                  ? m.reactions
+                      .slice()
+                      .sort((a, b) => b.count - a.count)
+                      .map((r) => (
+                        <button
+                          key={r.emoji}
+                          type="button"
+                          onClick={() => onToggleReaction(m.id, r.emoji)}
+                          className="inline-flex items-center gap-1 rounded-full bg-[#0F1623] px-3 py-1 text-xs text-white/85 border border-white/10 hover:bg-white/5"
+                          aria-label={`Toggle reaction ${r.emoji}`}>
+                          <span>{r.emoji}</span>
+                          <span className="tabular-nums">{r.count}</span>
+                        </button>
+                      ))
+                  : m.reactionsCount > 0
+                    ? [
+                        <button
+                          key="fallback"
+                          type="button"
+                          onClick={() =>
+                            onToggleReaction(m.id, m.userReaction || "👍")
+                          }
+                          className="inline-flex items-center gap-1 rounded-full bg-[#0F1623] px-3 py-1 text-xs text-white/85 border border-white/10 hover:bg-white/5"
+                          aria-label="Toggle reaction">
+                          <span>{m.userReaction || "👍"}</span>
+                          <span className="tabular-nums">{m.reactionsCount}</span>
+                        </button>,
+                      ]
+                    : [];
+
               return (
                 <div
-                  key={virtualItem.key}
-                  data-index={virtualItem.index}
-                  ref={virtualizer.measureElement}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    transform: `translateY(${virtualItem.start}px)`,
-                  }}
-                  className="pb-4">
-                  <div
-                    className={cn(
-                      "flex items-start gap-4",
-                      isSelf ? "justify-end" : undefined
-                    )}>
-                    {!isSelf && (
-                      <Avatar className="h-10 w-10 border-2 border-border/10">
-                        <AvatarImage
-                          src={m.author.profileImage}
-                          alt={m.author.username}
-                        />
-                        <AvatarFallback className="bg-secondary text-white">
-                          {m.author.username?.[0]?.toUpperCase() || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
+                  key={m.id}
+                  className={
+                    isSelf
+                      ? "flex justify-end gap-3"
+                      : "flex justify-start gap-3"
+                  }>
+                  {!isSelf && (
+                    <Avatar className="h-9 w-9 shrink-0 mt-6">
+                      <AvatarImage
+                        src={m.author.profileImage}
+                        alt={m.author.username}
+                      />
+                      <AvatarFallback>
+                        {m.author.username?.[0]?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
 
+                  <div
+                    className={
+                      isSelf
+                        ? "flex flex-col items-end max-w-[80%] group"
+                        : "flex flex-col items-start max-w-[80%] group"
+                    }>
                     <div
-                      className={cn(
-                        "group flex flex-col gap-2",
-                        isSelf ? "items-end" : "items-start"
-                      )}>
-                      {!isSelf ? (
-                        <div className="flex items-center gap-2 px-1">
-                          <span className="text-xs font-semibold text-white">
-                            {m.author.username}
-                          </span>
-                          <span className="text-[10px] text-white/40">
-                            {m.timestamp}
-                            {m.isEdited ? " • edited" : ""}
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 px-1 justify-end">
-                          <span className="text-[10px] text-white/40">
-                            {m.timestamp}
-                            {m.isEdited ? " • edited" : ""}
-                          </span>
-                          <span className="text-[10px] text-white/60">You</span>
+                      className={
+                        isSelf
+                          ? "flex items-center gap-2 mb-2"
+                          : "flex items-center gap-2 mb-2"
+                      }>
+                      {!isSelf && (
+                        <span className="text-sm font-semibold text-white/90">
+                          {headerName}
+                        </span>
+                      )}
+                      <span className="text-xs text-white/50">{headerTime}</span>
+                      {isSelf && (
+                        <span className="text-sm font-semibold text-white/90">
+                          {headerName}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className={bubbleClass}>
+                      {showActions && (
+                        <div
+                          ref={openActionsForId === m.id ? setActionsMenuEl : null}
+                          className="absolute top-2 right-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setOpenActionsForId((prev) =>
+                                prev === m.id ? null : m.id
+                              )
+                            }
+                            className={
+                              openActionsForId === m.id
+                                ? "inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15"
+                                : "inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 opacity-0 group-hover:opacity-100 hover:bg-white/15 transition"
+                            }
+                            aria-haspopup="menu"
+                            aria-expanded={openActionsForId === m.id}
+                            aria-label="Message actions">
+                            <MoreVertical className="h-4 w-4" />
+                          </button>
+
+                          {openActionsForId === m.id && (
+                            <div
+                              role="menu"
+                              className="absolute right-0 mt-2 w-36 rounded-2xl bg-[#0B1220] border border-white/10 shadow-xl p-1 z-20">
+                              <button
+                                type="button"
+                                role="menuitem"
+                                className="w-full text-left rounded-xl px-3 py-2 text-sm text-white/85 hover:bg-white/5"
+                                onClick={() => {
+                                  setOpenActionsForId(null);
+                                  onStartEdit(m);
+                                }}>
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                role="menuitem"
+                                className="w-full text-left rounded-xl px-3 py-2 text-sm text-white/85 hover:bg-white/5"
+                                onClick={() => {
+                                  setOpenActionsForId(null);
+                                  onDeleteMessage(m.id);
+                                }}>
+                                Delete
+                              </button>
+                            </div>
+                          )}
                         </div>
                       )}
 
-                      <div
-                        className={cn(
-                          "min-w-[86%] rounded-3xl px-5 py-4 shadow-[0_20px_40px_rgba(0,0,0,0.35)] border",
-                          isSelf
-                            ? "bg-[#2563eb] text-white border-[#2563eb]/20"
-                            : "bg-[#0f121a]/70 text-[#f1f5f9] border-white/5"
-                        )}>
-                        {editingId === m.id ? (
-                          <div className="space-y-2">
-                            <textarea
-                              value={editText}
-                              onChange={(e) => onEditTextChange(e.target.value)}
-                              rows={2}
-                              className={cn(
-                                "text-sm w-full rounded-md bg-background/60 border border-white/10 p-2",
-                                isSelf ? "text-primary-foreground" : undefined
-                              )}
-                            />
-                            <div className="flex gap-2 justify-end">
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                onClick={onCancelEdit}>
-                                Cancel
-                              </Button>
-                              <Button
-                                size="sm"
-                                onClick={() => onSaveEdit(m.id)}>
-                                Save
-                              </Button>
-                            </div>
+                      {editingId === m.id ? (
+                        <div className="space-y-3">
+                          <textarea
+                            value={editText}
+                            onChange={(e) => onEditTextChange(e.target.value)}
+                            rows={2}
+                            className="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/10"
+                          />
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={onCancelEdit}>
+                              Cancel
+                            </Button>
+                            <Button size="sm" onClick={() => onSaveEdit(m.id)}>
+                              Save
+                            </Button>
                           </div>
-                        ) : (
-                          <>
-                            {m.text && (
-                              <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                                {m.text}
-                              </div>
-                            )}
-                            {hasMedia && (
-                              <div className="mt-4 overflow-hidden rounded-2xl bg-white border border-white/10">
-                                {media.type === "image" ? (
-                                  <img
-                                    src={media.url}
-                                    alt="attachment"
-                                    className="max-h-[420px] w-full object-contain cursor-pointer hover:opacity-95 transition"
-                                    onClick={() => openLightbox(media)}
-                                  />
-                                ) : (
-                                  <video
-                                    src={media.url}
-                                    controls
-                                    className="max-h-[420px] w-full object-contain cursor-pointer"
-                                    onClick={() => openLightbox(media)}
-                                  />
-                                )}
-                              </div>
-                            )}
-                            {isSelf && (
-                              <div className="relative inline-flex" ref={actionsMenuRef}>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setOpenActionsForId((prev) =>
-                                      prev === m.id ? null : m.id
-                                    )
-                                  }
-                                  className="h-6 w-6 inline-flex items-center justify-center rounded hover:bg-background/60"
-                                  aria-haspopup="menu"
-                                  aria-expanded={openActionsForId === m.id}>
-                                  <MoreVertical className="h-3.5 w-3.5" />
-                                </button>
+                        </div>
+                      ) : (
+                        <>
+                          {m.text && (
+                            <div className="text-[15px] leading-relaxed whitespace-pre-wrap">
+                              {m.text}
+                            </div>
+                          )}
 
-                                {openActionsForId === m.id && (
-                                  <div
-                                    role="menu"
-                                    className={cn(
-                                      "absolute right-0 mt-2 z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
-                                      "border-white/10 bg-[#0f121a]"
-                                    )}>
-                                    <button
-                                      type="button"
-                                      role="menuitem"
-                                      className="w-full text-left px-2 py-1.5 text-sm rounded-sm hover:bg-white/5"
-                                      onClick={() => {
-                                        setOpenActionsForId(null);
-                                        onStartEdit(m);
-                                      }}>
-                                      Edit
-                                    </button>
-                                    <button
-                                      type="button"
-                                      role="menuitem"
-                                      className="w-full text-left px-2 py-1.5 text-sm rounded-sm hover:bg-white/5 text-destructive"
-                                      onClick={() => {
-                                        setOpenActionsForId(null);
-                                        onDeleteMessage(m.id);
-                                      }}>
-                                      Delete
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-
-                      <div
-                        className={cn(
-                          "flex items-center w-full",
-                          isSelf ? "justify-end" : "justify-between"
-                        )}>
-                        {!isSelf ? (
-                          <>
-                            <div className="flex items-center gap-2">
-                              {Array.isArray(m.reactions) && m.reactions.length > 0 ? (
-                                <div className="flex flex-wrap items-center gap-2">
-                                  {m.reactions
-                                    .slice()
-                                    .sort((a, b) => b.count - a.count)
-                                    .map((r) => {
-                                      const active = m.userReaction === r.emoji;
-                                      return (
-                                        <button
-                                          key={r.emoji}
-                                          type="button"
-                                          onClick={() => onToggleReaction(m.id, r.emoji)}
-                                          className={cn(
-                                            "h-7 inline-flex items-center gap-1.5 rounded-full px-3 border text-[11px]",
-                                            "bg-white/[0.04] border-white/10 text-white/90 hover:bg-white/[0.06]",
-                                            active && "border-[#2563eb]/40 bg-[#2563eb]/10"
-                                          )}
-                                          aria-label={`Toggle reaction ${r.emoji}`}>
-                                          <span className="leading-none">{r.emoji}</span>
-                                          <span className="text-white/60">{r.count}</span>
-                                        </button>
-                                      );
-                                    })}
-                                </div>
+                          {hasMedia && (
+                            <div className="mt-3 rounded-2xl overflow-hidden border border-white/10 bg-black/20">
+                              {media.type === "image" ? (
+                                <img
+                                  src={media.url}
+                                  alt="attachment"
+                                  className="w-full max-h-[360px] object-cover cursor-pointer"
+                                  onClick={() => openLightbox(media)}
+                                />
                               ) : (
-                                m.reactionsCount > 0 && (
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      onToggleReaction(m.id, m.userReaction || "👍")
-                                    }
-                                    className={cn(
-                                      "h-7 inline-flex items-center gap-1.5 rounded-full px-3 border text-[11px]",
-                                      "bg-white/[0.04] border-white/10 text-white/90 hover:bg-white/[0.06]"
-                                    )}
-                                    aria-label="Toggle reaction">
-                                    <span className="leading-none">
-                                      {m.userReaction || "👍"}
-                                    </span>
-                                    <span className="text-white/60">
-                                      {m.reactionsCount}
-                                    </span>
-                                  </button>
-                                )
+                                <video
+                                  src={media.url}
+                                  controls
+                                  className="w-full max-h-[360px] object-contain cursor-pointer"
+                                  onClick={() => openLightbox(media)}
+                                />
                               )}
                             </div>
-
-                            <div className="flex items-center gap-1 rounded-full bg-white/[0.04] border border-white/10 p-1">
-                              {REACTION_EMOJIS.map((emoji) => {
-                                const active = m.userReaction === emoji;
-                                return (
-                                  <button
-                                    key={emoji}
-                                    type="button"
-                                    onClick={() => onToggleReaction(m.id, emoji)}
-                                    className={cn(
-                                      "h-7 w-8 inline-flex items-center justify-center rounded-full text-[12px] transition-colors",
-                                      "hover:bg-white/[0.06]",
-                                      active && "bg-[#2563eb]/20"
-                                    )}
-                                    aria-label={`React with ${emoji}`}
-                                    title={emoji}>
-                                    {emoji}
-                                  </button>
-                                );
-                              })}
-                              <button
-                                type="button"
-                                className="h-7 w-8 inline-flex items-center justify-center rounded-full text-[12px] text-white/60 hover:bg-white/[0.06]"
-                                aria-label="More reactions"
-                                title="More">
-                                +
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <div />
-                        )}
-                      </div>
+                          )}
+                        </>
+                      )}
                     </div>
 
-                    {isSelf && (
-                      <Avatar className="h-10 w-10 border-2 border-[#2563eb]/20">
-                        <AvatarImage
-                          src={user?.profileImage}
-                          alt={user?.username}
-                        />
-                        <AvatarFallback className="bg-[#2563eb] text-white">
-                          {user?.username?.[0]?.toUpperCase() || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
+                    {(reactionsSummary.length > 0 || !isSelf) && (
+                      <div
+                        className={
+                          isSelf
+                            ? "mt-2 flex items-center justify-end gap-2"
+                            : "mt-2 flex items-center justify-start gap-2"
+                        }>
+                        {reactionsSummary.length > 0 && (
+                          <div className="flex items-center gap-2">
+                            {reactionsSummary}
+                          </div>
+                        )}
 
+                        {!isSelf && (
+                          <div
+                            className={
+                              "inline-flex items-center gap-1 rounded-full bg-[#0B1220] border border-white/10 p-1 shadow-sm " +
+                              "opacity-0 group-hover:opacity-100 transition"
+                            }>
+                            {REACTION_EMOJIS.map((emoji) => (
+                              <button
+                                key={emoji}
+                                type="button"
+                                onClick={() => onToggleReaction(m.id, emoji)}
+                                className="h-9 w-9 rounded-full text-sm text-white/85 hover:bg-white/5"
+                                aria-label={`React with ${emoji}`}
+                                title={emoji}>
+                                {emoji}
+                              </button>
+                            ))}
+                            <button
+                              type="button"
+                              className="h-9 w-9 rounded-full text-sm text-white/85 hover:bg-white/5"
+                              aria-label="More reactions"
+                              title="More">
+                              +
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
+
+                  {isSelf && (
+                    <Avatar className="h-9 w-9 shrink-0 mt-6">
+                      <AvatarImage
+                        src={user?.profileImage}
+                        alt={user?.username}
+                      />
+                      <AvatarFallback>
+                        {user?.username?.[0]?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                 </div>
               );
             })}

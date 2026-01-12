@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAuthStore } from "@/stores/authStore";
 import { ChatComposer } from "./chat/ChatComposer";
@@ -19,9 +18,10 @@ export default function ChatPage() {
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const [pendingScrollBottom, setPendingScrollBottom] = useState(false);
-  const [pendingScrollIndex, setPendingScrollIndex] = useState<number | null>(
-    null
-  );
+  const [pendingRestoreAfterPrepend, setPendingRestoreAfterPrepend] = useState(false);
+  const pendingPrependScrollRef = useRef<
+    { prevScrollHeight: number; prevScrollTop: number } | null
+  >(null);
 
   const nearBottom = useNearBottom(listRef);
 
@@ -35,25 +35,14 @@ export default function ChatPage() {
     loadOlder,
   } = useChatHistory({
     onInitialLoaded: () => setPendingScrollBottom(true),
-    onPrepended: (prependedCount) => setPendingScrollIndex(prependedCount),
-  });
-
-  // Virtualized scrolling setup
-  const virtualizer = useVirtualizer({
-    count: messages.length,
-    getScrollElement: () => listRef.current,
-    estimateSize: () => 100, // Estimated message height
-    overscan: 5, // Render 5 extra items above and below viewport
+    onPrepended: () => setPendingRestoreAfterPrepend(true),
   });
 
   const scrollToBottom = useCallback(() => {
     const el = listRef.current;
     if (!el) return;
-    // Scroll to the last message
-    if (messages.length > 0) {
-      virtualizer.scrollToIndex(messages.length - 1, { align: "end" });
-    }
-  }, [messages.length, virtualizer]);
+    el.scrollTop = el.scrollHeight;
+  }, []);
 
   useEffect(() => {
     if (!pendingScrollBottom) return;
@@ -62,12 +51,34 @@ export default function ChatPage() {
   }, [pendingScrollBottom, scrollToBottom]);
 
   useEffect(() => {
-    if (pendingScrollIndex === null) return;
+    if (!pendingRestoreAfterPrepend) return;
+    const el = listRef.current;
+    const prev = pendingPrependScrollRef.current;
+    if (!el || !prev) {
+      setPendingRestoreAfterPrepend(false);
+      pendingPrependScrollRef.current = null;
+      return;
+    }
+
     requestAnimationFrame(() => {
-      virtualizer.scrollToIndex(pendingScrollIndex, { align: "start" });
+      const newScrollHeight = el.scrollHeight;
+      const diff = newScrollHeight - prev.prevScrollHeight;
+      el.scrollTop = prev.prevScrollTop + diff;
+      pendingPrependScrollRef.current = null;
+      setPendingRestoreAfterPrepend(false);
     });
-    setPendingScrollIndex(null);
-  }, [pendingScrollIndex, virtualizer]);
+  }, [pendingRestoreAfterPrepend]);
+
+  const handleLoadOlder = useCallback(() => {
+    const el = listRef.current;
+    if (el) {
+      pendingPrependScrollRef.current = {
+        prevScrollHeight: el.scrollHeight,
+        prevScrollTop: el.scrollTop,
+      };
+    }
+    void loadOlder();
+  }, [loadOlder]);
 
   const { typingUsers, emitTypingStart, emitTypingStop } = useChatSocket({
     user,
@@ -125,10 +136,9 @@ export default function ChatPage() {
           loading={loading}
           loadingOlder={loadingOlder}
           hasMoreOlder={hasMoreOlder}
-          onLoadOlder={() => void loadOlder()}
+          onLoadOlder={handleLoadOlder}
           messages={messages}
           user={user}
-          virtualizer={virtualizer}
           editingId={editingId}
           editText={editText}
           onEditTextChange={setEditText}
