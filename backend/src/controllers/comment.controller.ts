@@ -44,6 +44,10 @@ export const getCommentsByContent = asyncHandler(
       parentId?: string;
     };
 
+    if (!contentType || !contentId) {
+      throw new AppError("contentType and contentId are required", 400);
+    }
+
     const result = await CommentService.getCommentsByContent(contentType, contentId, {
       limit,
       skip,

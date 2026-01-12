@@ -17,7 +17,10 @@ export const createPost = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError("Unauthorized", 401);
   }
 
-  const post = await PostService.createPost(userId, data);
+  const post = await PostService.createPost(userId, {
+    ...(data.text !== undefined ? { text: data.text } : {}),
+    ...(data.media !== undefined ? { media: data.media } : {}),
+  });
   return res.status(201).json({ success: true, data: post });
 });
 
@@ -67,7 +70,10 @@ export const updatePost = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError("Unauthorized", 401);
   }
 
-  const updatedPost = await PostService.updatePost(userId, id, updates);
+  const updatedPost = await PostService.updatePost(userId, id, {
+    ...(updates.text !== undefined ? { text: updates.text } : {}),
+    ...(updates.media !== undefined ? { media: updates.media } : {}),
+  });
   return res.status(200).json({ success: true, data: updatedPost });
 });
 
