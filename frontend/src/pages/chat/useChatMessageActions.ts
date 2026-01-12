@@ -27,16 +27,47 @@ export function useChatMessageActions({
       const m = prev[idx];
       const prevUserEmoji = m.userReaction || null;
       let reactionsCount = m.reactionsCount || 0;
+      let reactions = m.reactions;
       let nextUserEmoji: string | null = prevUserEmoji;
+
+      const dec = (arr: typeof reactions, targetEmoji: string) => {
+        if (!arr) return arr;
+        const next = arr
+          .map((r) =>
+            r.emoji === targetEmoji ? { ...r, count: Math.max(0, r.count - 1) } : r
+          )
+          .filter((r) => r.count > 0);
+        return next;
+      };
+
+      const inc = (arr: typeof reactions, targetEmoji: string) => {
+        if (!arr) return arr;
+        const existing = arr.find((r) => r.emoji === targetEmoji);
+        if (existing) {
+          return arr.map((r) =>
+            r.emoji === targetEmoji ? { ...r, count: r.count + 1 } : r
+          );
+        }
+        return [...arr, { emoji: targetEmoji, count: 1 }];
+      };
+
       if (prevUserEmoji === emoji) {
         reactionsCount = Math.max(0, reactionsCount - 1);
+        reactions = dec(reactions, emoji);
         nextUserEmoji = null;
       } else {
         if (!prevUserEmoji) reactionsCount = reactionsCount + 1;
+        if (prevUserEmoji) reactions = dec(reactions, prevUserEmoji);
+        reactions = inc(reactions, emoji);
         nextUserEmoji = emoji;
       }
       const copy = [...prev];
-      copy[idx] = { ...m, reactionsCount, userReaction: nextUserEmoji };
+      copy[idx] = {
+        ...m,
+        reactionsCount,
+        userReaction: nextUserEmoji,
+        ...(reactions ? { reactions } : {}),
+      };
       return copy;
     });
 
@@ -47,9 +78,39 @@ export function useChatMessageActions({
         const res = await ChatService.removeReaction(messageId);
         if (!res.success)
           throw new Error(res.message || "Failed to remove reaction");
+
+        if (res.data) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === messageId
+                ? {
+                    ...m,
+                    reactionsCount: res.data!.reactionsCount,
+                    ...(res.data!.reactions ? { reactions: res.data!.reactions } : {}),
+                    userReaction: null,
+                  }
+                : m
+            )
+          );
+        }
       } else {
         const res = await ChatService.addReaction(messageId, emoji);
         if (!res.success) throw new Error(res.message || "Failed to react");
+
+        if (res.data) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === messageId
+                ? {
+                    ...m,
+                    reactionsCount: res.data!.reactionsCount,
+                    ...(res.data!.reactions ? { reactions: res.data!.reactions } : {}),
+                    userReaction: emoji,
+                  }
+                : m
+            )
+          );
+        }
       }
     } catch (err) {
       logError(err, {

@@ -67,7 +67,13 @@ export function useChatSocket({
     const onReactionAdded = (p: ChatReactionAddedPayload) => {
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === p.messageId ? { ...m, reactionsCount: p.reactionsCount } : m
+          m.id === p.messageId
+            ? {
+                ...m,
+                reactionsCount: p.reactionsCount,
+                ...(p.reactions ? { reactions: p.reactions } : {}),
+              }
+            : m
         )
       );
     };
@@ -75,7 +81,13 @@ export function useChatSocket({
     const onReactionRemoved = (p: ChatReactionRemovedPayload) => {
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === p.messageId ? { ...m, reactionsCount: p.reactionsCount } : m
+          m.id === p.messageId
+            ? {
+                ...m,
+                reactionsCount: p.reactionsCount,
+                ...(p.reactions ? { reactions: p.reactions } : {}),
+              }
+            : m
         )
       );
     };

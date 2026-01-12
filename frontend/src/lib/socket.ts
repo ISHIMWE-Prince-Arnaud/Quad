@@ -71,6 +71,7 @@ export type ChatMessagePayload = {
   media?: ChatMedia;
   mentions: string[];
   reactionsCount: number;
+  reactions?: Array<{ emoji: string; count: number }>;
   isEdited: boolean;
   editedAt?: string | null;
   timestamp: string;
@@ -83,11 +84,13 @@ export type ChatReactionAddedPayload = {
   messageId: string;
   emoji: string;
   reactionsCount: number;
+  reactions?: Array<{ emoji: string; count: number }>;
 };
 
 export type ChatReactionRemovedPayload = {
   messageId: string;
   reactionsCount: number;
+  reactions?: Array<{ emoji: string; count: number }>;
 };
 
 export type ChatTypingStartPayload = {

@@ -177,7 +177,7 @@ export function ChatMessageList({
                   className="pb-4">
                   <div
                     className={cn(
-                      "flex items-start gap-3",
+                      "flex items-start gap-4",
                       isSelf ? "flex-row-reverse" : "flex-row"
                     )}>
                     {!isSelf && (
@@ -194,12 +194,12 @@ export function ChatMessageList({
 
                     <div
                       className={cn(
-                        "group flex flex-col gap-1",
+                        "group flex flex-col gap-2",
                         isSelf ? "items-end" : "items-start"
                       )}>
                       {!isSelf ? (
                         <div className="flex items-center gap-2 px-1">
-                          <span className="text-xs font-semibold text-white/90">
+                          <span className="text-xs font-semibold text-white">
                             {m.author.username}
                           </span>
                           <span className="text-[10px] text-white/40">
@@ -219,10 +219,10 @@ export function ChatMessageList({
 
                       <div
                         className={cn(
-                          "max-w-[84%] rounded-2xl px-4 py-3 shadow-sm border",
+                          "max-w-[86%] rounded-3xl px-5 py-4 shadow-[0_20px_40px_rgba(0,0,0,0.35)] border",
                           isSelf
-                            ? "bg-[#2563eb] text-white rounded-tr-none border-[#2563eb]/20"
-                            : "bg-[#0f121a] text-[#f1f5f9] rounded-tl-none border-white/5"
+                            ? "bg-[#2563eb] text-white border-[#2563eb]/20"
+                            : "bg-[#0f121a]/70 text-[#f1f5f9] border-white/5"
                         )}>
                         {editingId === m.id ? (
                           <div className="space-y-2">
@@ -252,24 +252,24 @@ export function ChatMessageList({
                         ) : (
                           <>
                             {m.text && (
-                              <div className="whitespace-pre-wrap text-sm">
+                              <div className="whitespace-pre-wrap text-sm leading-relaxed">
                                 {m.text}
                               </div>
                             )}
                             {m.media && (
-                              <div className="mt-3 overflow-hidden rounded-xl border border-white/5">
+                              <div className="mt-4 overflow-hidden rounded-2xl bg-white border border-white/10">
                                 {m.media.type === "image" ? (
                                   <img
                                     src={m.media.url}
                                     alt="attachment"
-                                    className="max-h-[300px] w-full object-cover cursor-pointer hover:opacity-95 transition"
+                                    className="max-h-[420px] w-full object-contain cursor-pointer hover:opacity-95 transition"
                                     onClick={() => openLightbox(m.media!)}
                                   />
                                 ) : (
                                   <video
                                     src={m.media.url}
                                     controls
-                                    className="max-h-[300px] w-full object-cover cursor-pointer"
+                                    className="max-h-[420px] w-full object-contain cursor-pointer"
                                     onClick={() => openLightbox(m.media!)}
                                   />
                                 )}
@@ -327,43 +327,90 @@ export function ChatMessageList({
 
                       <div
                         className={cn(
-                          "mt-2 flex items-center gap-2 px-1",
-                          isSelf ? "justify-end" : "justify-start"
+                          "flex items-center w-full",
+                          isSelf ? "justify-end" : "justify-between"
                         )}>
-                        {m.userReaction && m.reactionsCount > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => onToggleReaction(m.id, m.userReaction || "👍")}
-                            className={cn(
-                              "h-6 inline-flex items-center gap-1.5 rounded-full px-2 border text-[11px]",
-                              "bg-white/[0.04] border-white/10 text-white/90 hover:bg-white/[0.06]"
-                            )}
-                            aria-label="Toggle reaction">
-                            <span className="leading-none">{m.userReaction}</span>
-                            <span className="text-white/60">{m.reactionsCount}</span>
-                          </button>
-                        )}
+                        {!isSelf ? (
+                          <>
+                            <div className="flex items-center gap-2">
+                              {Array.isArray(m.reactions) && m.reactions.length > 0 ? (
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {m.reactions
+                                    .slice()
+                                    .sort((a, b) => b.count - a.count)
+                                    .map((r) => {
+                                      const active = m.userReaction === r.emoji;
+                                      return (
+                                        <button
+                                          key={r.emoji}
+                                          type="button"
+                                          onClick={() => onToggleReaction(m.id, r.emoji)}
+                                          className={cn(
+                                            "h-7 inline-flex items-center gap-1.5 rounded-full px-3 border text-[11px]",
+                                            "bg-white/[0.04] border-white/10 text-white/90 hover:bg-white/[0.06]",
+                                            active && "border-[#2563eb]/40 bg-[#2563eb]/10"
+                                          )}
+                                          aria-label={`Toggle reaction ${r.emoji}`}>
+                                          <span className="leading-none">{r.emoji}</span>
+                                          <span className="text-white/60">{r.count}</span>
+                                        </button>
+                                      );
+                                    })}
+                                </div>
+                              ) : (
+                                m.reactionsCount > 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      onToggleReaction(m.id, m.userReaction || "👍")
+                                    }
+                                    className={cn(
+                                      "h-7 inline-flex items-center gap-1.5 rounded-full px-3 border text-[11px]",
+                                      "bg-white/[0.04] border-white/10 text-white/90 hover:bg-white/[0.06]"
+                                    )}
+                                    aria-label="Toggle reaction">
+                                    <span className="leading-none">
+                                      {m.userReaction || "👍"}
+                                    </span>
+                                    <span className="text-white/60">
+                                      {m.reactionsCount}
+                                    </span>
+                                  </button>
+                                )
+                              )}
+                            </div>
 
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {REACTION_EMOJIS.map((emoji) => {
-                            const active = m.userReaction === emoji;
-                            return (
+                            <div className="flex items-center gap-1 rounded-full bg-white/[0.04] border border-white/10 p-1">
+                              {REACTION_EMOJIS.map((emoji) => {
+                                const active = m.userReaction === emoji;
+                                return (
+                                  <button
+                                    key={emoji}
+                                    type="button"
+                                    onClick={() => onToggleReaction(m.id, emoji)}
+                                    className={cn(
+                                      "h-7 w-8 inline-flex items-center justify-center rounded-full text-[12px] transition-colors",
+                                      "hover:bg-white/[0.06]",
+                                      active && "bg-[#2563eb]/20"
+                                    )}
+                                    aria-label={`React with ${emoji}`}
+                                    title={emoji}>
+                                    {emoji}
+                                  </button>
+                                );
+                              })}
                               <button
-                                key={emoji}
                                 type="button"
-                                onClick={() => onToggleReaction(m.id, emoji)}
-                                className={cn(
-                                  "h-6 w-8 inline-flex items-center justify-center rounded-full border text-[12px]",
-                                  "bg-white/[0.03] border-white/10 hover:bg-white/[0.06]",
-                                  active && "bg-[#2563eb]/20 border-[#2563eb]/30"
-                                )}
-                                aria-label={`React with ${emoji}`}
-                                title={emoji}>
-                                {emoji}
+                                className="h-7 w-8 inline-flex items-center justify-center rounded-full text-[12px] text-white/60 hover:bg-white/[0.06]"
+                                aria-label="More reactions"
+                                title="More">
+                                +
                               </button>
-                            );
-                          })}
-                        </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div />
+                        )}
                       </div>
                     </div>
 

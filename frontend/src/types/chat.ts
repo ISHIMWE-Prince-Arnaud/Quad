@@ -22,6 +22,7 @@ export interface ChatMessage {
   media?: ChatMedia;
   mentions: string[];
   reactionsCount: number;
+  reactions?: Array<{ emoji: string; count: number }>;
   isEdited: boolean;
   editedAt?: string | null;
   timestamp: string; // e.g. "Tue 2:13 PM"
@@ -63,9 +64,15 @@ export interface ChatDeleteMessageResponse {
   message?: string;
 }
 
+export interface ChatReactionBreakdown {
+  emoji: string;
+  count: number;
+}
+
 export interface ChatReactionData {
   emoji: string;
   reactionsCount: number;
+  reactions?: ChatReactionBreakdown[];
 }
 
 export interface ChatAddReactionResponse {
@@ -76,7 +83,7 @@ export interface ChatAddReactionResponse {
 
 export interface ChatRemoveReactionResponse {
   success: boolean;
-  data?: { reactionsCount: number };
+  data?: { reactionsCount: number; reactions?: ChatReactionBreakdown[] };
   message?: string;
 }
 
