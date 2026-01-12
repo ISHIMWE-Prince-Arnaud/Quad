@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 import { ChatMessage } from "../models/ChatMessage.model.js";
 import { MessageReaction } from "../models/MessageReaction.model.js";
 import { User } from "../models/User.model.js";
@@ -57,7 +59,7 @@ export class ChatService {
             userId: mentionedUser.clerkId,
             type: "chat_mention",
             actorId: userId,
-            contentId: (message._id as any).toString(),
+            contentId: message.id,
             contentType: "ChatMessage",
             message: generateNotificationMessage("chat_mention", user.username),
           });
@@ -89,11 +91,43 @@ export class ChatService {
       ChatMessage.countDocuments(filter),
     ]);
 
+    const messageIds = messages
+      .map((m) => m._id)
+      .filter((id): id is mongoose.Types.ObjectId => !!id);
+
+    const reactionsAgg =
+      messageIds.length > 0
+        ? await MessageReaction.aggregate([
+            { $match: { messageId: { $in: messageIds } } },
+            {
+              $group: {
+                _id: { messageId: "$messageId", emoji: "$emoji" },
+                count: { $sum: 1 },
+              },
+            },
+            {
+              $group: {
+                _id: "$_id.messageId",
+                reactions: {
+                  $push: { emoji: "$_id.emoji", count: "$count" },
+                },
+              },
+            },
+          ])
+        : [];
+
+    const reactionsByMessageId: Record<
+      string,
+      Array<{ emoji: string; count: number }>
+    > = Object.fromEntries(
+      reactionsAgg.map((r: any) => [String(r._id), r.reactions])
+    );
+
     let userReactions: any = {};
     if (userId) {
       const reactions = await MessageReaction.find({
         userId,
-        messageId: { $in: messages.map((m) => m._id) },
+        messageId: { $in: messageIds },
       });
       userReactions = Object.fromEntries(
         reactions.map((r) => [r.messageId.toString(), r])
@@ -103,7 +137,11 @@ export class ChatService {
     const formattedMessages = messages.map((message) => {
       const messageId = message._id ? message._id.toString() : "";
       const userReaction = userReactions[messageId];
-      return formatMessageResponse(message, userReaction);
+      return formatMessageResponse(
+        message,
+        userReaction,
+        reactionsByMessageId[messageId] ?? []
+      );
     });
 
     return {
@@ -158,7 +196,15 @@ export class ChatService {
       message.editedAt = new Date();
       await message.save();
 
-      const formattedMessage = formatMessageResponse(message);
+      const [userReaction, reactions] = await Promise.all([
+        MessageReaction.findOne({ messageId: id, userId }),
+        MessageReaction.aggregate([
+          { $match: { messageId: new mongoose.Types.ObjectId(id) } },
+          { $group: { _id: "$emoji", count: { $sum: 1 } } },
+          { $project: { _id: 0, emoji: "$_id", count: 1 } },
+        ]),
+      ]);
+      const formattedMessage = formatMessageResponse(message, userReaction ?? undefined, reactions);
       getSocketIO().emit("chat:message:edited", formattedMessage);
 
       return {
@@ -221,15 +267,23 @@ export class ChatService {
     message.reactionsCount = reactionCount;
     await message.save();
 
+    const reactions = await MessageReaction.aggregate([
+      { $match: { messageId: new mongoose.Types.ObjectId(id) } },
+      { $group: { _id: "$emoji", count: { $sum: 1 } } },
+      { $project: { _id: 0, emoji: "$_id", count: 1 } },
+    ]);
+
     getSocketIO().emit("chat:reaction:added", {
       messageId: id,
       emoji,
       reactionsCount: reactionCount,
+      reactions,
     });
 
     return {
       emoji: reaction.emoji,
       reactionsCount: message.reactionsCount,
+      reactions,
     };
   }
 
@@ -252,13 +306,21 @@ export class ChatService {
     message.reactionsCount = reactionCount;
     await message.save();
 
+    const reactions = await MessageReaction.aggregate([
+      { $match: { messageId: new mongoose.Types.ObjectId(id) } },
+      { $group: { _id: "$emoji", count: { $sum: 1 } } },
+      { $project: { _id: 0, emoji: "$_id", count: 1 } },
+    ]);
+
     getSocketIO().emit("chat:reaction:removed", {
       messageId: id,
       reactionsCount: reactionCount,
+      reactions,
     });
 
     return {
       reactionsCount: message.reactionsCount,
+      reactions,
     };
   }
 

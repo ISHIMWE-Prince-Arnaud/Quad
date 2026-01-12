@@ -1,4 +1,3 @@
-/// <reference path="../types/global.d.ts" />
 import type { Request, Response } from "express";
 import type {
   CreateMessageSchemaType,
@@ -54,6 +53,9 @@ export const editMessage = asyncHandler(async (req: Request, res: Response) => {
   if (!userId) {
     throw new AppError("Unauthorized", 401);
   }
+  if (!id) {
+    throw new AppError("Message ID is required", 400);
+  }
 
   const updates = req.body as UpdateMessageSchemaType;
   const result = await ChatService.editMessage(userId, id, updates);
@@ -74,6 +76,9 @@ export const deleteMessage = asyncHandler(async (req: Request, res: Response) =>
   if (!userId) {
     throw new AppError("Unauthorized", 401);
   }
+  if (!id) {
+    throw new AppError("Message ID is required", 400);
+  }
 
   await ChatService.deleteMessage(userId, id);
 
@@ -91,6 +96,9 @@ export const addReaction = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.auth?.userId;
   if (!userId) {
     throw new AppError("Unauthorized", 401);
+  }
+  if (!id) {
+    throw new AppError("Message ID is required", 400);
   }
 
   const body = req.body as AddReactionSchemaType;
@@ -111,6 +119,9 @@ export const removeReaction = asyncHandler(async (req: Request, res: Response) =
   const userId = req.auth?.userId;
   if (!userId) {
     throw new AppError("Unauthorized", 401);
+  }
+  if (!id) {
+    throw new AppError("Message ID is required", 400);
   }
 
   const data = await ChatService.removeReaction(userId, id);

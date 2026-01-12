@@ -64,4 +64,5 @@ export interface IAddReaction {
  */
 export interface IMessageWithReactions extends IChatMessage {
   userReaction?: string; // Current user's reaction emoji if they reacted
+  reactions?: Array<{ emoji: string; count: number }>;
 }

@@ -45,7 +45,8 @@ export const extractMentions = (text?: string): string[] => {
  */
 export const formatMessageResponse = (
   message: IChatMessageDocument,
-  userReaction?: IMessageReactionDocument
+  userReaction?: IMessageReactionDocument,
+  reactions?: Array<{ emoji: string; count: number }>
 ) => {
   return {
     id: message._id,
@@ -54,6 +55,7 @@ export const formatMessageResponse = (
     media: message.media,
     mentions: message.mentions,
     reactionsCount: message.reactionsCount,
+    reactions: reactions ?? [],
     isEdited: message.isEdited,
     editedAt: message.editedAt,
     timestamp: formatChatTimestamp(message.createdAt),
