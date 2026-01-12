@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 
 import { ChatMessage } from "../models/ChatMessage.model.js";
+import type { IChatMessageDocument } from "../models/ChatMessage.model.js";
 import { MessageReaction } from "../models/MessageReaction.model.js";
+import type { IMessageReactionDocument } from "../models/MessageReaction.model.js";
 import { User } from "../models/User.model.js";
 import type {
   AddReactionSchemaType,
@@ -75,7 +77,7 @@ export class ChatService {
   static async getMessages(userId: string | undefined, query: GetMessagesQuerySchemaType) {
     const { page, limit, before } = query;
 
-    const filter: any = {};
+    const filter: mongoose.FilterQuery<IChatMessageDocument> = {};
 
     if (before) {
       const beforeMessage = await ChatMessage.findById(before);
@@ -95,9 +97,14 @@ export class ChatService {
       .map((m) => m._id)
       .filter((id): id is mongoose.Types.ObjectId => !!id);
 
-    const reactionsAgg =
+    type ReactionsAggRow = {
+      _id: mongoose.Types.ObjectId;
+      reactions: Array<{ emoji: string; count: number }>;
+    };
+
+    const reactionsAgg: ReactionsAggRow[] =
       messageIds.length > 0
-        ? await MessageReaction.aggregate([
+        ? await MessageReaction.aggregate<ReactionsAggRow>([
             { $match: { messageId: { $in: messageIds } } },
             {
               $group: {
@@ -120,10 +127,10 @@ export class ChatService {
       string,
       Array<{ emoji: string; count: number }>
     > = Object.fromEntries(
-      reactionsAgg.map((r: any) => [String(r._id), r.reactions])
+      reactionsAgg.map((r) => [String(r._id), r.reactions])
     );
 
-    let userReactions: any = {};
+    let userReactions: Record<string, IMessageReactionDocument> = {};
     if (userId) {
       const reactions = await MessageReaction.find({
         userId,
@@ -171,7 +178,11 @@ export class ChatService {
     if (updates.text !== undefined) {
       const sanitizedText = sanitizeMessageText(updates.text);
       if (sanitizedText !== message.text) {
-        (message as any).text = sanitizedText;
+        if (sanitizedText === undefined) {
+          message.set("text", undefined);
+        } else {
+          message.text = sanitizedText;
+        }
         message.mentions = extractMentions(sanitizedText);
         hasChanges = true;
       }
@@ -179,10 +190,25 @@ export class ChatService {
 
     if (updates.media !== undefined) {
       if (updates.media === null) {
-        (message as any).media = undefined;
+        message.set("media", undefined);
         hasChanges = true;
       } else if (JSON.stringify(updates.media) !== JSON.stringify(message.media)) {
-        (message as any).media = updates.media as any;
+        const nextMedia = updates.media;
+        if (nextMedia) {
+          const aspectRatio = nextMedia.aspectRatio;
+          if (aspectRatio) {
+            message.media = {
+              url: nextMedia.url,
+              type: nextMedia.type,
+              aspectRatio,
+            };
+          } else {
+            message.media = {
+              url: nextMedia.url,
+              type: nextMedia.type,
+            };
+          }
+        }
         hasChanges = true;
       }
     }
