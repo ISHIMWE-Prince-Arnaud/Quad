@@ -1,15 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 import type { Virtualizer } from "@tanstack/react-virtual";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/types/chat";
@@ -61,6 +55,9 @@ export function ChatMessageList({
     type: "image" | "video";
   } | null>(null);
 
+  const [openActionsForId, setOpenActionsForId] = useState<string | null>(null);
+  const actionsMenuRef = useRef<HTMLDivElement | null>(null);
+
   const openLightbox = (media: { url: string; type: "image" | "video" }) => {
     setLightboxMedia(media);
     setLightboxOpen(true);
@@ -80,6 +77,28 @@ export function ChatMessageList({
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, [hasMoreOlder, loadingOlder, onLoadOlder, listRef]);
+
+  useEffect(() => {
+    if (!openActionsForId) return;
+
+    const onPointerDown = (e: MouseEvent) => {
+      const target = e.target as Node | null;
+      if (!target) return;
+      if (actionsMenuRef.current?.contains(target)) return;
+      setOpenActionsForId(null);
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenActionsForId(null);
+    };
+
+    window.addEventListener("mousedown", onPointerDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("mousedown", onPointerDown);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [openActionsForId]);
 
   return (
     <>
@@ -247,24 +266,50 @@ export function ChatMessageList({
                               </span>
                             </div>
                             {isSelf && (
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <button className="h-6 w-6 inline-flex items-center justify-center rounded hover:bg-background/60">
-                                    <MoreVertical className="h-3.5 w-3.5" />
-                                  </button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => onStartEdit(m)}>
-                                    Edit
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() => onDeleteMessage(m.id)}
-                                    className="text-destructive">
-                                    Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                              <div className="relative inline-flex" ref={actionsMenuRef}>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setOpenActionsForId((prev) =>
+                                      prev === m.id ? null : m.id
+                                    )
+                                  }
+                                  className="h-6 w-6 inline-flex items-center justify-center rounded hover:bg-background/60"
+                                  aria-haspopup="menu"
+                                  aria-expanded={openActionsForId === m.id}>
+                                  <MoreVertical className="h-3.5 w-3.5" />
+                                </button>
+
+                                {openActionsForId === m.id && (
+                                  <div
+                                    role="menu"
+                                    className={cn(
+                                      "absolute right-0 mt-2 z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+                                      "border-white/10 bg-[#0f121a]"
+                                    )}>
+                                    <button
+                                      type="button"
+                                      role="menuitem"
+                                      className="w-full text-left px-2 py-1.5 text-sm rounded-sm hover:bg-white/5"
+                                      onClick={() => {
+                                        setOpenActionsForId(null);
+                                        onStartEdit(m);
+                                      }}>
+                                      Edit
+                                    </button>
+                                    <button
+                                      type="button"
+                                      role="menuitem"
+                                      className="w-full text-left px-2 py-1.5 text-sm rounded-sm hover:bg-white/5 text-destructive"
+                                      onClick={() => {
+                                        setOpenActionsForId(null);
+                                        onDeleteMessage(m.id);
+                                      }}>
+                                      Delete
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
                             )}
                           </>
                         )}
