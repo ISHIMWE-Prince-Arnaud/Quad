@@ -116,7 +116,7 @@ export default function ChatPage() {
   });
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] max-w-4xl mx-auto overflow-hidden bg-[#0a0c10] rounded-3xl border border-white/5 shadow-2xl">
+    <div className="flex flex-col h-[calc(100vh-47px)] max-w-4xl mx-auto overflow-hidden bg-[#0a0c10] rounded-3xl border border-white/5 shadow-2xl">
       <ChatHeader />
 
       <div className="flex-1 flex flex-col min-h-0 relative">
