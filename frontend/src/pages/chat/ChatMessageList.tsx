@@ -161,6 +161,12 @@ export function ChatMessageList({
             {virtualizer.getVirtualItems().map((virtualItem) => {
               const m = messages[virtualItem.index];
               const isSelf = m.author.clerkId === user?.clerkId;
+              const media = m.media;
+              const hasMedia =
+                !!media &&
+                typeof media.url === "string" &&
+                media.url.trim().length > 0 &&
+                (media.type === "image" || media.type === "video");
 
               return (
                 <div
@@ -178,7 +184,7 @@ export function ChatMessageList({
                   <div
                     className={cn(
                       "flex items-start gap-4",
-                      isSelf ? "flex-row-reverse" : "flex-row"
+                      isSelf ? "justify-end" : undefined
                     )}>
                     {!isSelf && (
                       <Avatar className="h-10 w-10 border-2 border-border/10">
@@ -219,7 +225,7 @@ export function ChatMessageList({
 
                       <div
                         className={cn(
-                          "max-w-[86%] rounded-3xl px-5 py-4 shadow-[0_20px_40px_rgba(0,0,0,0.35)] border",
+                          "min-w-[86%] rounded-3xl px-5 py-4 shadow-[0_20px_40px_rgba(0,0,0,0.35)] border",
                           isSelf
                             ? "bg-[#2563eb] text-white border-[#2563eb]/20"
                             : "bg-[#0f121a]/70 text-[#f1f5f9] border-white/5"
@@ -256,21 +262,21 @@ export function ChatMessageList({
                                 {m.text}
                               </div>
                             )}
-                            {m.media && (
+                            {hasMedia && (
                               <div className="mt-4 overflow-hidden rounded-2xl bg-white border border-white/10">
-                                {m.media.type === "image" ? (
+                                {media.type === "image" ? (
                                   <img
-                                    src={m.media.url}
+                                    src={media.url}
                                     alt="attachment"
                                     className="max-h-[420px] w-full object-contain cursor-pointer hover:opacity-95 transition"
-                                    onClick={() => openLightbox(m.media!)}
+                                    onClick={() => openLightbox(media)}
                                   />
                                 ) : (
                                   <video
-                                    src={m.media.url}
+                                    src={media.url}
                                     controls
                                     className="max-h-[420px] w-full object-contain cursor-pointer"
-                                    onClick={() => openLightbox(m.media!)}
+                                    onClick={() => openLightbox(media)}
                                   />
                                 )}
                               </div>
@@ -425,6 +431,7 @@ export function ChatMessageList({
                         </AvatarFallback>
                       </Avatar>
                     )}
+
                   </div>
                 </div>
               );
