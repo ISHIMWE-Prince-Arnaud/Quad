@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAuthStore } from "@/stores/authStore";
 import { ChatComposer } from "./chat/ChatComposer";
@@ -17,8 +17,8 @@ export default function ChatPage() {
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  const [pendingScrollBottom, setPendingScrollBottom] = useState(false);
-  const [pendingRestoreAfterPrepend, setPendingRestoreAfterPrepend] = useState(false);
+  const pendingScrollBottomRef = useRef(false);
+  const pendingRestoreAfterPrependRef = useRef(false);
   const pendingPrependScrollRef = useRef<
     { prevScrollHeight: number; prevScrollTop: number } | null
   >(null);
@@ -34,8 +34,12 @@ export default function ChatPage() {
     newestMessageId,
     loadOlder,
   } = useChatHistory({
-    onInitialLoaded: () => setPendingScrollBottom(true),
-    onPrepended: () => setPendingRestoreAfterPrepend(true),
+    onInitialLoaded: () => {
+      pendingScrollBottomRef.current = true;
+    },
+    onPrepended: () => {
+      pendingRestoreAfterPrependRef.current = true;
+    },
   });
 
   const scrollToBottom = useCallback(() => {
@@ -45,17 +49,18 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    if (!pendingScrollBottom) return;
+    if (!pendingScrollBottomRef.current) return;
+    pendingScrollBottomRef.current = false;
     requestAnimationFrame(() => scrollToBottom());
-    setPendingScrollBottom(false);
-  }, [pendingScrollBottom, scrollToBottom]);
+  }, [messages.length, scrollToBottom]);
 
   useEffect(() => {
-    if (!pendingRestoreAfterPrepend) return;
+    if (!pendingRestoreAfterPrependRef.current) return;
     const el = listRef.current;
     const prev = pendingPrependScrollRef.current;
+    pendingRestoreAfterPrependRef.current = false;
+
     if (!el || !prev) {
-      setPendingRestoreAfterPrepend(false);
       pendingPrependScrollRef.current = null;
       return;
     }
@@ -65,9 +70,8 @@ export default function ChatPage() {
       const diff = newScrollHeight - prev.prevScrollHeight;
       el.scrollTop = prev.prevScrollTop + diff;
       pendingPrependScrollRef.current = null;
-      setPendingRestoreAfterPrepend(false);
     });
-  }, [pendingRestoreAfterPrepend]);
+  }, [messages.length]);
 
   const handleLoadOlder = useCallback(() => {
     const el = listRef.current;
