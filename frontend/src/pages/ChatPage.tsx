@@ -143,10 +143,10 @@ export default function ChatPage() {
           }
           onDeleteMessage={handleDeleteClick}
         />
+      </div>
 
-        <div className="absolute bottom-24 left-0 right-0 px-6">
-          <ChatTypingIndicator typingUsers={typingUsers} />
-        </div>
+      <div className="px-6 pb-2">
+        <ChatTypingIndicator typingUsers={typingUsers} />
       </div>
 
       <ChatComposer

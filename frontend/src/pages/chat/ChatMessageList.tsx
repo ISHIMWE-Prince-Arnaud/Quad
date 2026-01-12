@@ -8,6 +8,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/types/chat";
 import { Loader2, MoreVertical } from "lucide-react";
+import { REACTION_EMOJIS } from "./constants";
 
 type MinimalUser = {
   clerkId: string;
@@ -30,6 +31,7 @@ export function ChatMessageList({
   onStartEdit,
   onCancelEdit,
   onSaveEdit,
+  onToggleReaction,
   onDeleteMessage,
 }: {
   listRef: RefObject<HTMLDivElement | null>;
@@ -129,7 +131,7 @@ export function ChatMessageList({
 
       <div
         ref={listRef}
-        className="h-[calc(100vh-220px)] overflow-y-auto px-6 py-4 space-y-6 scrollbar-hide">
+        className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-6 scrollbar-hide">
         {loading && (
           <div className="flex items-center justify-center py-8 text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading
@@ -175,7 +177,7 @@ export function ChatMessageList({
                   className="pb-4">
                   <div
                     className={cn(
-                      "flex items-start gap-4",
+                      "flex items-start gap-3",
                       isSelf ? "flex-row-reverse" : "flex-row"
                     )}>
                     {!isSelf && (
@@ -192,21 +194,35 @@ export function ChatMessageList({
 
                     <div
                       className={cn(
-                        "flex flex-col gap-1",
+                        "group flex flex-col gap-1",
                         isSelf ? "items-end" : "items-start"
                       )}>
-                      {!isSelf && (
-                        <span className="text-xs font-semibold text-[#64748b] ml-1">
-                          {m.author.username}
-                        </span>
+                      {!isSelf ? (
+                        <div className="flex items-center gap-2 px-1">
+                          <span className="text-xs font-semibold text-white/90">
+                            {m.author.username}
+                          </span>
+                          <span className="text-[10px] text-white/40">
+                            {m.timestamp}
+                            {m.isEdited ? " • edited" : ""}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 px-1 justify-end">
+                          <span className="text-[10px] text-white/40">
+                            {m.timestamp}
+                            {m.isEdited ? " • edited" : ""}
+                          </span>
+                          <span className="text-[10px] text-white/60">You</span>
+                        </div>
                       )}
 
                       <div
                         className={cn(
-                          "max-w-[85%] rounded-2xl px-4 py-3 shadow-sm",
+                          "max-w-[84%] rounded-2xl px-4 py-3 shadow-sm border",
                           isSelf
-                            ? "bg-[#2563eb] text-white rounded-tr-none"
-                            : "bg-[#1e293b] text-[#f1f5f9] rounded-tl-none"
+                            ? "bg-[#2563eb] text-white rounded-tr-none border-[#2563eb]/20"
+                            : "bg-[#0f121a] text-[#f1f5f9] rounded-tl-none border-white/5"
                         )}>
                         {editingId === m.id ? (
                           <div className="space-y-2">
@@ -259,12 +275,6 @@ export function ChatMessageList({
                                 )}
                               </div>
                             )}
-                            <div className="mt-2 flex items-center gap-3 text-[10px] opacity-60">
-                              <span>
-                                {m.timestamp}
-                                {m.isEdited ? " • edited" : ""}
-                              </span>
-                            </div>
                             {isSelf && (
                               <div className="relative inline-flex" ref={actionsMenuRef}>
                                 <button
@@ -313,6 +323,47 @@ export function ChatMessageList({
                             )}
                           </>
                         )}
+                      </div>
+
+                      <div
+                        className={cn(
+                          "mt-2 flex items-center gap-2 px-1",
+                          isSelf ? "justify-end" : "justify-start"
+                        )}>
+                        {m.userReaction && m.reactionsCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => onToggleReaction(m.id, m.userReaction || "👍")}
+                            className={cn(
+                              "h-6 inline-flex items-center gap-1.5 rounded-full px-2 border text-[11px]",
+                              "bg-white/[0.04] border-white/10 text-white/90 hover:bg-white/[0.06]"
+                            )}
+                            aria-label="Toggle reaction">
+                            <span className="leading-none">{m.userReaction}</span>
+                            <span className="text-white/60">{m.reactionsCount}</span>
+                          </button>
+                        )}
+
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {REACTION_EMOJIS.map((emoji) => {
+                            const active = m.userReaction === emoji;
+                            return (
+                              <button
+                                key={emoji}
+                                type="button"
+                                onClick={() => onToggleReaction(m.id, emoji)}
+                                className={cn(
+                                  "h-6 w-8 inline-flex items-center justify-center rounded-full border text-[12px]",
+                                  "bg-white/[0.03] border-white/10 hover:bg-white/[0.06]",
+                                  active && "bg-[#2563eb]/20 border-[#2563eb]/30"
+                                )}
+                                aria-label={`React with ${emoji}`}
+                                title={emoji}>
+                                {emoji}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
 

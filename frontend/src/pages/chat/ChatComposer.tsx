@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import type { ChatMedia } from "@/types/chat";
-import { Image as ImageIcon, Loader2, Send, Smile, X } from "lucide-react";
+import { Loader2, Plus, SendHorizontal, Smile, X } from "lucide-react";
 import { COMPOSER_EMOJIS, MAX_MESSAGE_LENGTH } from "./constants";
 import {
   DropdownMenu,
@@ -36,7 +36,7 @@ export function ChatComposer({
   const handleAttachClick = () => fileInputRef.current?.click();
 
   return (
-    <div className="p-4 bg-[#0a0c10] border-t border-border/5">
+    <div className="p-4 bg-[#0a0c10]">
       {media && (
         <div className="mb-4 relative inline-block group">
           <div className="h-20 w-20 rounded-2xl overflow-hidden border border-white/10 shadow-xl">
@@ -59,79 +59,83 @@ export function ChatComposer({
         </div>
       )}
 
-      <div className="flex items-center gap-4 bg-[#1e293b]/50 rounded-2xl p-2 pl-4 border border-white/5 shadow-inner">
-        <button
-          type="button"
-          onClick={handleAttachClick}
-          disabled={uploading}
-          className="text-[#64748b] hover:text-white transition-colors"
-          aria-label="Attach media">
-          {uploading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <ImageIcon className="h-5 w-5" />
-          )}
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*,video/*"
-          className="hidden"
-          onChange={(e) => onFileSelected(e.target.files?.[0] || null)}
-        />
+      <div className="flex items-center gap-3">
+        <div className="flex-1 flex items-center gap-3 rounded-full bg-[#1e293b]/50 border border-white/5 px-4 h-14 shadow-inner">
+          <button
+            type="button"
+            onClick={handleAttachClick}
+            disabled={uploading}
+            className="h-10 w-10 inline-flex items-center justify-center rounded-full bg-white/[0.04] border border-white/5 text-[#94a3b8] hover:text-white hover:bg-white/[0.06] transition-colors"
+            aria-label="Attach media"
+            title="Attach media">
+            {uploading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Plus className="h-5 w-5" />
+            )}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            className="hidden"
+            onChange={(e) => onFileSelected(e.target.files?.[0] || null)}
+          />
 
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => onTextChange(e.target.value)}
-          maxLength={MAX_MESSAGE_LENGTH}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              onSend();
-            }
-          }}
-          placeholder="Type a message..."
-          className="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder-[#64748b] text-sm"
-          aria-label="Message input"
-        />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="h-10 w-10 inline-flex items-center justify-center rounded-full text-[#94a3b8] hover:text-white hover:bg-white/[0.04] transition-colors"
+                aria-label="Insert emoji"
+                title="Emoji">
+                <Smile className="h-5 w-5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[180px]">
+              {COMPOSER_EMOJIS.map((emoji) => (
+                <DropdownMenuItem
+                  key={emoji}
+                  onClick={() => onInsertEmoji(emoji)}>
+                  <span className="text-base leading-none w-10">{emoji}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              className="text-[#64748b] hover:text-white transition-colors"
-              aria-label="Insert emoji">
-              <Smile className="h-5 w-5" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-[180px]">
-            {COMPOSER_EMOJIS.map((emoji) => (
-              <DropdownMenuItem
-                key={emoji}
-                onClick={() => onInsertEmoji(emoji)}>
-                <span className="text-base leading-none">{emoji}</span>
-                <span className="ml-2 text-xs text-muted-foreground">{emoji}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => onTextChange(e.target.value)}
+            maxLength={MAX_MESSAGE_LENGTH}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                onSend();
+              }
+            }}
+            placeholder="Type a message..."
+            className="flex-1 bg-transparent border-none focus:ring-0 outline-none text-white placeholder-[#64748b] text-sm"
+            aria-label="Message input"
+          />
+        </div>
 
         <button
           type="button"
           onClick={onSend}
           disabled={sending || (!text.trim() && !media)}
           className={cn(
-            "h-10 w-10 flex items-center justify-center rounded-full transition-all shadow-lg",
+            "h-14 w-14 flex items-center justify-center rounded-full transition-all shadow-lg",
             sending || (!text.trim() && !media)
               ? "bg-[#2563eb]/50 text-white/50 cursor-not-allowed"
               : "bg-[#2563eb] text-white hover:scale-105 active:scale-95"
           )}
-          aria-label="Send message">
+          aria-label="Send message"
+          title="Send">
           {sending ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
-            <Send className="h-5 w-5 fill-current" />
+            <SendHorizontal className="h-5 w-5" />
           )}
         </button>
       </div>
