@@ -1,4 +1,5 @@
 import { afterAll, afterEach, beforeAll, vi } from "vitest";
+import type { Server } from "socket.io";
 import { setSocketIO } from "../config/socket.config.js";
 import { clearTestDb, startTestDb, stopTestDb } from "./utils/testDb.js";
 import { logger } from "../utils/logger.util.js";
@@ -48,24 +49,29 @@ vi.mock("svix", () => {
         throw new Error("Invalid signature");
       }
 
-      const buf = Buffer.isBuffer(payload) ? payload : Buffer.from(payload);
-      return JSON.parse(buf.toString("utf8"));
+      if (Buffer.isBuffer(payload)) {
+        return JSON.parse(payload.toString("utf8"));
+      }
+
+      if (typeof payload === "string") {
+        const buf = Buffer.from(payload);
+        return JSON.parse(buf.toString("utf8"));
+      }
+
+      throw new Error("Invalid payload type for svix.Webhook.verify mock");
     }
   }
 
   return { Webhook };
 });
 
-const ioMock: {
-  emit: ReturnType<typeof vi.fn>;
-  on: ReturnType<typeof vi.fn>;
-  to: ReturnType<typeof vi.fn>;
-} = {
+const ioMock = {
   emit: vi.fn(),
   on: vi.fn(),
+  to: vi.fn(),
 };
-ioMock.to = vi.fn(() => ioMock);
-setSocketIO(ioMock);
+ioMock.to.mockReturnValue(ioMock);
+setSocketIO(ioMock as unknown as Server);
 
 beforeAll(async () => {
   await startTestDb();
