@@ -5,6 +5,7 @@ const mediaSchema = z
   .object({
   url: z.string().url(),
   type: z.enum(["image", "video"]),
+  aspectRatio: z.enum(["1:1", "16:9", "9:16"]).optional(),
   })
   .strict();
 
@@ -14,14 +15,10 @@ const mediaSchema = z
 export const createPostSchema = z
   .object({
     text: z.string().max(1000).optional(),
-    media: z.array(mediaSchema).optional(),
+    media: z.array(mediaSchema).min(1, "At least one media is required"),
     // Note: author is set server-side from authenticated user
   })
-  .strict()
-  .refine((data) => data.text || (data.media && data.media.length > 0), {
-    message: "Post must have either text or media",
-    path: ["text"], // Show error on text field
-  });
+  .strict();
 
 // ---------------------
 // UPDATE POST

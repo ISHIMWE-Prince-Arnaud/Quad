@@ -10,7 +10,7 @@ import { AppError } from "../utils/appError.util.js";
 
 export interface CreatePostInput {
   text?: string;
-  media?: Array<{ url: string; type: "image" | "video"; aspectRatio?: "1:1" | "16:9" | "9:16" }>;
+  media: Array<{ url: string; type: "image" | "video"; aspectRatio?: "1:1" | "16:9" | "9:16" }>;
 }
 
 export interface UpdatePostInput {
@@ -26,6 +26,10 @@ export class PostService {
         "User not found. Please create a user profile first.",
         404
       );
+    }
+
+    if (!Array.isArray(data.media) || data.media.length === 0) {
+      throw new AppError("Post must have at least one media", 400);
     }
 
     const sanitizedText = data.text ? sanitizePostText(data.text) : undefined;
@@ -97,7 +101,17 @@ export class PostService {
       throw new AppError("Unauthorized", 403);
     }
 
-    const { author: _author, ...safeUpdates } = updates as any;
+    // Schema validation should prevent author updates, but keep this defensive.
+    const safeUpdates: UpdatePostInput = updates;
+
+    if (safeUpdates.media !== undefined && safeUpdates.media.length === 0) {
+      throw new AppError("Post must have at least one media", 400);
+    }
+
+    const nextMedia = safeUpdates.media ?? post.media;
+    if (!Array.isArray(nextMedia) || nextMedia.length === 0) {
+      throw new AppError("Post must have at least one media", 400);
+    }
 
     const sanitizedUpdates = {
       ...safeUpdates,
