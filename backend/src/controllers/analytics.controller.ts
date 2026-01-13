@@ -9,7 +9,31 @@ import { logger } from "../utils/logger.util.js";
 import { getAnalyticsQuerySchema } from "../schemas/analytics.schema.js";
 import { getContentAnalyticsQuerySchema } from "../schemas/analytics.schema.js";
 
-const parseDateRange = (query: any): { from?: Date; to?: Date } => {
+type DateRangeQuery = Record<string, unknown>;
+
+type PostEngagementLean = {
+  reactionsCount?: number;
+  commentsCount?: number;
+};
+
+type StoryEngagementLean = {
+  viewsCount?: number;
+  reactionsCount?: number;
+  commentsCount?: number;
+};
+
+type PollEngagementLean = {
+  totalVotes?: number;
+  reactionsCount?: number;
+  commentsCount?: number;
+};
+
+type UserEngagementLean = {
+  followersCount?: number;
+  followingCount?: number;
+};
+
+const parseDateRange = (query: DateRangeQuery): { from?: Date; to?: Date } => {
   const dateFrom =
     typeof query?.dateFrom === "string" ? new Date(query.dateFrom) : undefined;
   const dateTo =
@@ -36,28 +60,32 @@ export const getContentAnalytics = async (req: Request, res: Response) => {
 
     const [posts, stories, polls] = await Promise.all([
       wantPosts
-        ? Post.find({ userId }).select("reactionsCount commentsCount").lean()
+        ? Post.find({ userId })
+            .select("reactionsCount commentsCount")
+            .lean<PostEngagementLean[]>()
         : Promise.resolve([]),
       wantStories
-        ? Story.find({ userId }).select("viewsCount reactionsCount commentsCount").lean()
+        ? Story.find({ userId })
+            .select("viewsCount reactionsCount commentsCount")
+            .lean<StoryEngagementLean[]>()
         : Promise.resolve([]),
       wantPolls
         ? Poll.find({ "author.clerkId": userId })
             .select("totalVotes reactionsCount commentsCount")
-            .lean()
+            .lean<PollEngagementLean[]>()
         : Promise.resolve([]),
     ]);
 
-    const postEngagement = (posts as any[]).map((p) => ({
+    const postEngagement = posts.map((p) => ({
       reactions: p.reactionsCount || 0,
       comments: p.commentsCount || 0,
     }));
-    const storyEngagement = (stories as any[]).map((s) => ({
+    const storyEngagement = stories.map((s) => ({
       views: s.viewsCount || 0,
       reactions: s.reactionsCount || 0,
       comments: s.commentsCount || 0,
     }));
-    const pollEngagement = (polls as any[]).map((p) => ({
+    const pollEngagement = polls.map((p) => ({
       votes: p.totalVotes || 0,
       reactions: p.reactionsCount || 0,
       comments: p.commentsCount || 0,
@@ -67,7 +95,7 @@ export const getContentAnalytics = async (req: Request, res: Response) => {
       success: true,
       data: {
         posts: {
-          count: (posts as any[]).length,
+          count: posts.length,
           totals: postEngagement.reduce(
             (acc, e) => ({
               reactions: acc.reactions + e.reactions,
@@ -77,7 +105,7 @@ export const getContentAnalytics = async (req: Request, res: Response) => {
           ),
         },
         stories: {
-          count: (stories as any[]).length,
+          count: stories.length,
           totals: storyEngagement.reduce(
             (acc, e) => ({
               views: acc.views + e.views,
@@ -88,7 +116,7 @@ export const getContentAnalytics = async (req: Request, res: Response) => {
           ),
         },
         polls: {
-          count: (polls as any[]).length,
+          count: polls.length,
           totals: pollEngagement.reduce(
             (acc, e) => ({
               votes: acc.votes + e.votes,
@@ -100,7 +128,7 @@ export const getContentAnalytics = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error fetching content analytics", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
@@ -129,7 +157,7 @@ export const recordProfileView = async (req: Request, res: Response) => {
     }
 
     return res.json({ success: true, data: { recorded: !recent } });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error recording profile view", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
@@ -143,11 +171,12 @@ export const getProfileAnalytics = async (req: Request, res: Response) => {
     const targetProfileId = profileId || req.auth.userId;
     const { from, to } = parseDateRange(parsed);
 
-    const match: any = { profileId: targetProfileId };
+    const match: Record<string, unknown> = { profileId: targetProfileId };
     if (from || to) {
-      match.createdAt = {};
-      if (from) match.createdAt.$gte = from;
-      if (to) match.createdAt.$lte = to;
+      const createdAt: Record<string, Date> = {};
+      if (from) createdAt.$gte = from;
+      if (to) createdAt.$lte = to;
+      match.createdAt = createdAt;
     }
 
     const [totalViews, uniqueViewers, byDay] = await Promise.all([
@@ -191,7 +220,7 @@ export const getProfileAnalytics = async (req: Request, res: Response) => {
         viewsByDay: byDay,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error fetching profile analytics", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
@@ -203,11 +232,12 @@ export const getFollowerGrowth = async (req: Request, res: Response) => {
     const targetUserId = parsed.profileId || req.auth.userId;
     const { from, to } = parseDateRange(parsed);
 
-    const match: any = { userId: targetUserId };
+    const match: Record<string, unknown> = { userId: targetUserId };
     if (from || to) {
-      match.date = {};
-      if (from) match.date.$gte = from;
-      if (to) match.date.$lte = to;
+      const date: Record<string, Date> = {};
+      if (from) date.$gte = from;
+      if (to) date.$lte = to;
+      match.date = date;
     }
 
     const history = await FollowerHistory.find(match)
@@ -216,7 +246,7 @@ export const getFollowerGrowth = async (req: Request, res: Response) => {
       .lean();
 
     return res.json({ success: true, data: history });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error fetching follower growth", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
@@ -227,18 +257,26 @@ export const getEngagementSummary = async (req: Request, res: Response) => {
     const userId = req.auth.userId;
 
     const [posts, stories, polls, user] = await Promise.all([
-      Post.find({ userId }).select("reactionsCount commentsCount").lean(),
-      Story.find({ userId }).select("viewsCount reactionsCount commentsCount").lean(),
-      Poll.find({ "author.clerkId": userId }).select("totalVotes reactionsCount commentsCount").lean(),
-      User.findOne({ clerkId: userId }).select("followersCount followingCount").lean(),
+      Post.find({ userId })
+        .select("reactionsCount commentsCount")
+        .lean<PostEngagementLean[]>(),
+      Story.find({ userId })
+        .select("viewsCount reactionsCount commentsCount")
+        .lean<StoryEngagementLean[]>(),
+      Poll.find({ "author.clerkId": userId })
+        .select("totalVotes reactionsCount commentsCount")
+        .lean<PollEngagementLean[]>(),
+      User.findOne({ clerkId: userId })
+        .select("followersCount followingCount")
+        .lean<UserEngagementLean | null>(),
     ]);
 
-    const postsReactions = posts.reduce((s, p: any) => s + (p.reactionsCount || 0), 0);
-    const postsComments = posts.reduce((s, p: any) => s + (p.commentsCount || 0), 0);
+    const postsReactions = posts.reduce((s, p) => s + (p.reactionsCount || 0), 0);
+    const postsComments = posts.reduce((s, p) => s + (p.commentsCount || 0), 0);
 
-    const storiesViews = stories.reduce((s, st: any) => s + (st.viewsCount || 0), 0);
+    const storiesViews = stories.reduce((s, st) => s + (st.viewsCount || 0), 0);
 
-    const pollsVotes = polls.reduce((s, p: any) => s + (p.totalVotes || 0), 0);
+    const pollsVotes = polls.reduce((s, p) => s + (p.totalVotes || 0), 0);
 
     const totalContent = posts.length + stories.length + polls.length;
     const totalEngagement = postsReactions + postsComments + pollsVotes + storiesViews;
@@ -265,7 +303,7 @@ export const getEngagementSummary = async (req: Request, res: Response) => {
         avgEngagementPerItem,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error fetching engagement summary", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }

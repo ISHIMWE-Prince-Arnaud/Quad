@@ -10,6 +10,7 @@ import { Reaction } from "../models/Reaction.model.js";
 import { Follow } from "../models/Follow.model.js";
 import { logger } from "../utils/logger.util.js";
 import type { IUserDocument } from "../models/User.model.js";
+import type mongoose from "mongoose";
 
 export class DatabaseService {
   /**
@@ -39,12 +40,14 @@ export class DatabaseService {
   /**
    * Get multiple users by IDs (prevents N+1 queries)
    */
-  static async getUsersByIds(userIds: string[]): Promise<Map<string, any>> {
+  static async getUsersByIds(
+    userIds: string[]
+  ): Promise<Map<string, Record<string, unknown>>> {
     try {
       const users = await User.find({ _id: { $in: userIds } }).lean();
-      const userMap = new Map<string, any>();
+      const userMap = new Map<string, Record<string, unknown>>();
       users.forEach((user) => {
-        userMap.set(String(user._id), user);
+        userMap.set(String((user as { _id?: unknown })._id), user as Record<string, unknown>);
       });
       return userMap;
     } catch (error) {
@@ -250,10 +253,10 @@ export class DatabaseService {
    * Get content with author populated (prevents N+1)
    */
   static async getContentWithAuthor(
-    Model: any,
-    query: any,
-    options?: any
-  ) {
+    Model: mongoose.Model<unknown>,
+    query: mongoose.FilterQuery<unknown>,
+    options?: mongoose.QueryOptions<unknown>
+  ): Promise<unknown[]> {
     try {
       return await Model.find(query, null, options)
         .populate('author', 'username displayName profileImage')
@@ -268,17 +271,22 @@ export class DatabaseService {
    * Batch update operations
    */
   static async batchUpdate(
-    Model: any,
-    updates: Array<{ filter: any; update: any }>
+    Model: mongoose.Model<unknown>,
+    updates: Array<{
+      filter: mongoose.FilterQuery<unknown>;
+      update: mongoose.UpdateQuery<unknown>;
+    }>
   ): Promise<boolean> {
     try {
-      const bulkOps = updates.map(({ filter, update }) => ({
+      const bulkOps: Array<mongoose.AnyBulkWriteOperation<unknown>> = updates.map(
+        ({ filter, update }) => ({
         updateOne: {
           filter,
           update,
           upsert: false
         }
-      }));
+        })
+      );
 
       await Model.bulkWrite(bulkOps);
       return true;

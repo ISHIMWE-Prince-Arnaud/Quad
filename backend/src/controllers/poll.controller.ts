@@ -59,8 +59,8 @@ export const getMyPolls = asyncHandler(async (req: Request, res: Response) => {
     limit?: string | number;
   };
 
-  const pageNum = parseInt(page as any, 10);
-  const limitNum = parseInt(limit as any, 10);
+  const pageNum = parseInt(String(page), 10);
+  const limitNum = parseInt(String(limit), 10);
 
   const result = await PollService.getMyPolls(userId, pageNum, limitNum);
 

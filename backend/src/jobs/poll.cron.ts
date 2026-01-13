@@ -2,6 +2,7 @@ import cron from "node-cron";
 import { Poll } from "../models/Poll.model.js";
 import { getSocketIO } from "../config/socket.config.js";
 import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
+import { logger } from "../utils/logger.util.js";
 
 /**
  * Cron job to check for expired polls and update their status
@@ -13,7 +14,7 @@ export const startPollExpiryJob = () => {
   // Run every 5 minutes
   cron.schedule("*/5 * * * *", async () => {
     try {
-      console.log("🔍 Checking for expired polls...");
+      logger.info("Checking for expired polls...");
 
       // Find all active polls that have passed their expiration date
       const expiredPolls = await Poll.find({
@@ -22,7 +23,7 @@ export const startPollExpiryJob = () => {
       });
 
       if (expiredPolls.length === 0) {
-        console.log("✅ No polls to expire");
+        logger.info("No polls to expire");
         return;
       }
 
@@ -37,7 +38,7 @@ export const startPollExpiryJob = () => {
         }
       );
 
-      console.log(`✅ Marked ${updateResult.modifiedCount} poll(s) as expired`);
+      logger.info(`Marked ${updateResult.modifiedCount} poll(s) as expired`);
 
       // Emit real-time events and create notifications for each expired poll
       const io = getSocketIO();
@@ -59,12 +60,12 @@ export const startPollExpiryJob = () => {
           }
         }
       }
-    } catch (error) {
-      console.error("❌ Error in poll expiry cron job:", error);
+    } catch (error: unknown) {
+      logger.error("Error in poll expiry cron job", error);
     }
   });
 
-  console.log("⏰ Poll expiry cron job started (runs every 5 minutes)");
+  logger.info("Poll expiry cron job started (runs every 5 minutes)");
 };
 
 /**
@@ -84,8 +85,8 @@ export const expirePolls = async (): Promise<number> => {
     );
 
     return result.modifiedCount;
-  } catch (error) {
-    console.error("Error expiring polls:", error);
+  } catch (error: unknown) {
+    logger.error("Error expiring polls", error);
     throw error;
   }
 };

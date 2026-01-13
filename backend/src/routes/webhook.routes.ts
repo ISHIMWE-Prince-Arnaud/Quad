@@ -39,8 +39,8 @@ router.post(
         case "user.created": {
           const email = evt.data.email_addresses?.[0]?.email_address;
           const username = evt.data.username || email?.split("@")[0] || "user";
-          const firstName = (evt.data as any).first_name;
-          const lastName = (evt.data as any).last_name;
+          const firstName = (evt.data as { first_name?: string }).first_name;
+          const lastName = (evt.data as { last_name?: string }).last_name;
           const displayName =
             [firstName, lastName].filter(Boolean).join(" ").trim() || username;
           const profileImage =
@@ -68,12 +68,12 @@ router.post(
           const username = evt.data.username || email?.split("@")[0] || "user";
 
           const profileImage = evt.data.image_url;
-          const firstName = (evt.data as any).first_name;
-          const lastName = (evt.data as any).last_name;
+          const firstName = (evt.data as { first_name?: string }).first_name;
+          const lastName = (evt.data as { last_name?: string }).last_name;
 
           const existingUser = await User.findOne({ clerkId: evt.data.id });
 
-          const updateOps: Record<string, any> = {
+          const updateOps: Record<string, unknown> = {
             $set: {
               username,
               email,
@@ -123,7 +123,7 @@ router.post(
             }
 
             await session.commitTransaction();
-          } catch (propagationError: any) {
+          } catch (propagationError: unknown) {
             try {
               await session.abortTransaction();
             } catch {
@@ -131,7 +131,7 @@ router.post(
             }
 
             const msg =
-              typeof propagationError?.message === "string" ? propagationError.message : "";
+              propagationError instanceof Error ? propagationError.message : "";
             const isTxnUnsupported =
               msg.includes("Transaction") &&
               (msg.includes("replica set") ||
@@ -195,14 +195,15 @@ router.post(
       }
 
       return res.status(200).json({ success: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error("Clerk webhook verification failed", {
-        message: err?.message,
-        name: err?.name,
+        message: err instanceof Error ? err.message : undefined,
+        name: err instanceof Error ? err.name : undefined,
       });
+      const message = err instanceof Error ? err.message : "Invalid webhook signature";
       return res
         .status(400)
-        .json({ error: "Invalid webhook signature", details: err.message });
+        .json({ error: "Invalid webhook signature", details: message });
     }
   }
 );

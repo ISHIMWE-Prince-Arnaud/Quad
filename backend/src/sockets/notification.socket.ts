@@ -1,4 +1,5 @@
 import type { Server, Socket } from "socket.io";
+import { logger } from "../utils/logger.util.js";
 
 /**
  * Setup notification socket handlers
@@ -9,7 +10,7 @@ export const setupNotificationSocket = (io: Server) => {
     socket.on("notification:join", (userId: string) => {
       if (userId) {
         socket.join(userId);
-        console.log(`User ${userId} joined notification room`);
+        logger.socket("User joined notification room", { userId });
       }
     });
 
@@ -17,7 +18,7 @@ export const setupNotificationSocket = (io: Server) => {
     socket.on("notification:leave", (userId: string) => {
       if (userId) {
         socket.leave(userId);
-        console.log(`User ${userId} left notification room`);
+        logger.socket("User left notification room", { userId });
       }
     });
 

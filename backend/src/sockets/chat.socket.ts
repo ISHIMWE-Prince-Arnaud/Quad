@@ -1,4 +1,5 @@
 import type { Server, Socket } from "socket.io";
+import { logger } from "../utils/logger.util.js";
 
 // Store typing users: Map<socketId, {userId, username}>
 const typingUsers = new Map<string, { userId: string; username: string }>();
@@ -8,7 +9,7 @@ const typingUsers = new Map<string, { userId: string; username: string }>();
  */
 export const setupChatSocket = (io: Server) => {
   io.on("connection", (socket: Socket) => {
-    console.log("🔌 User connected to chat:", socket.id);
+    logger.socket("User connected to chat", { socketId: socket.id });
 
     // ===========================
     // TYPING INDICATORS
@@ -31,7 +32,7 @@ export const setupChatSocket = (io: Server) => {
         username: data.username,
       });
 
-      console.log(`⌨️  ${data.username} is typing...`);
+      logger.socket("User is typing", { username: data.username, userId: data.userId });
     });
 
     /**
@@ -49,7 +50,10 @@ export const setupChatSocket = (io: Server) => {
           userId: data.userId,
         });
 
-        console.log(`⌨️  ${typingUser.username} stopped typing`);
+        logger.socket("User stopped typing", {
+          username: typingUser.username,
+          userId: typingUser.userId,
+        });
       }
     });
 
@@ -65,10 +69,13 @@ export const setupChatSocket = (io: Server) => {
           userId: typingUser.userId,
         });
         typingUsers.delete(socket.id);
-        console.log(`⌨️  ${typingUser.username} disconnected while typing`);
+        logger.socket("User disconnected while typing", {
+          username: typingUser.username,
+          userId: typingUser.userId,
+        });
       }
 
-      console.log("🔌 User disconnected from chat:", socket.id);
+      logger.socket("User disconnected from chat", { socketId: socket.id });
     });
   });
 };

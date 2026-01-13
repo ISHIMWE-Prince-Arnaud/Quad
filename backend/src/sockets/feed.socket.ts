@@ -1,5 +1,6 @@
 import type { Server, Socket } from "socket.io";
 import type { FeedItemType } from "../types/feed.types.js";
+import { logger } from "../utils/logger.util.js";
 
 /**
  * Emit new content event
@@ -63,7 +64,7 @@ export const setupFeedSocket = (io: Server) => {
     socket.on("feed:join", (userId: string) => {
       if (userId) {
         socket.join(`feed:${userId}`);
-        console.log(`User ${userId} joined feed room`);
+        logger.socket("User joined feed room", { userId });
       }
     });
 
@@ -71,7 +72,7 @@ export const setupFeedSocket = (io: Server) => {
     socket.on("feed:leave", (userId: string) => {
       if (userId) {
         socket.leave(`feed:${userId}`);
-        console.log(`User ${userId} left feed room`);
+        logger.socket("User left feed room", { userId });
       }
     });
 

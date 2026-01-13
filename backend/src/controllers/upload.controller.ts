@@ -67,12 +67,13 @@ export const uploadPostMedia = async (req: Request, res: Response) => {
         aspectRatio,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Post media upload error", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
       message: "Failed to upload media",
-      error: error.message,
+      error: message,
     });
   }
 };
@@ -132,12 +133,13 @@ export const uploadStoryMedia = async (req: Request, res: Response) => {
         aspectRatio,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Story upload error", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
       message: "Failed to upload story",
-      error: error.message,
+      error: message,
     });
   }
 };
@@ -197,12 +199,13 @@ export const uploadPollMedia = async (req: Request, res: Response) => {
         aspectRatio,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Poll upload error", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
       message: "Failed to upload poll media",
-      error: error.message,
+      error: message,
     });
   }
 };
@@ -252,9 +255,12 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
         );
 
         // Optionally sync to Clerk as well so avatars stay consistent
-        await clerkClient.users.updateUser(clerkId, {
-          imageUrl: result.url,
-        } as any);
+        await clerkClient.users.updateUser(
+          clerkId,
+          ({ imageUrl: result.url } as unknown) as Parameters<
+            typeof clerkClient.users.updateUser
+          >[1]
+        );
       } catch (persistError) {
         logger.error("Failed to persist profile image URL", persistError);
       }
@@ -268,12 +274,13 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
         aspectRatio: "1:1", // Profile images are always square
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Profile image upload error", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
       message: "Failed to upload profile image",
-      error: error.message,
+      error: message,
     });
   }
 };
@@ -333,12 +340,13 @@ export const uploadChatMedia = async (req: Request, res: Response) => {
         aspectRatio,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Chat media upload error", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
       message: "Failed to upload chat media",
-      error: error.message,
+      error: message,
     });
   }
 };
@@ -399,12 +407,13 @@ export const uploadCoverImage = async (req: Request, res: Response) => {
         aspectRatio: "3:1", // Cover images are 3:1 aspect ratio
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Cover image upload error", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
       message: "Failed to upload cover image",
-      error: error.message,
+      error: message,
     });
   }
 };
@@ -450,12 +459,13 @@ export const deleteFile = async (req: Request, res: Response) => {
       success: false,
       message: result.message,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("File deletion error", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
       message: "Failed to delete file",
-      error: error.message,
+      error: message,
     });
   }
 };
