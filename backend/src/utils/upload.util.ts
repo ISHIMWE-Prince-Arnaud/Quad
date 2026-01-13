@@ -1,5 +1,4 @@
 import cloudinary, { UPLOAD_PRESETS } from "../config/cloudinary.config.js";
-import type { UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
 import { logger } from "./logger.util.js";
 import { Readable } from "stream";
 

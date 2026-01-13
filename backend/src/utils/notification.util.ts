@@ -86,8 +86,8 @@ export const deleteReadNotifications = async (userId: string): Promise<number> =
  */
 export const generateNotificationMessage = (
   type: string,
-  actorUsername?: string,
-  contentType?: string
+  _actorUsername?: string,
+  _contentType?: string
 ): string => {
   switch (type) {
     case "follow":

@@ -228,13 +228,15 @@ export const fetchContentByTab = async (
       return await fetchStories(cursor, limit);
     case "home":
     default:
-      // Fetch from all content types
-      const [posts, polls, stories] = await Promise.all([
-        fetchPosts(cursor, Math.ceil(limit * 0.5)),
-        fetchPolls(cursor, Math.ceil(limit * 0.3)),
-        fetchStories(cursor, Math.ceil(limit * 0.2)),
-      ]);
-      return [...posts, ...polls, ...stories];
+      {
+        // Fetch from all content types
+        const [posts, polls, stories] = await Promise.all([
+          fetchPosts(cursor, Math.ceil(limit * 0.5)),
+          fetchPolls(cursor, Math.ceil(limit * 0.3)),
+          fetchStories(cursor, Math.ceil(limit * 0.2)),
+        ]);
+        return [...posts, ...polls, ...stories];
+      }
   }
 };
 

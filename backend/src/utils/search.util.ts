@@ -113,7 +113,7 @@ export const searchUsers = async (options: SearchOptions): Promise<SearchResult<
     // Generate highlights for text search
     const highlights: { [key: string]: string[] } = {};
     if (query && users.length > 0) {
-      users.forEach((user: any, index: number) => {
+      users.forEach((user: any, _index: number) => {
         const userHighlights: string[] = [];
         if (user.username?.toLowerCase().includes(query.toLowerCase())) {
           userHighlights.push(user.username);

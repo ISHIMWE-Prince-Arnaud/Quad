@@ -1,6 +1,5 @@
 import type { IPollDocument } from "../models/Poll.model.js";
 import type { IPollVoteDocument } from "../models/PollVote.model.js";
-import type { ResultsVisibility } from "../types/poll.types.js";
 
 /**
  * Check if a poll is expired
