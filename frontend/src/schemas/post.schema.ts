@@ -14,7 +14,7 @@ export const mediaSchema = z.object({
 
 /**
  * Post creation schema aligned with backend POST /api/posts
- * Either text or media must be provided (or both)
+ * Media is required; text is optional
  */
 export const createPostSchema = z
   .object({
@@ -26,21 +26,9 @@ export const createPostSchema = z
       .optional(),
     media: z
       .array(mediaSchema)
-      .max(10, "Cannot upload more than 10 media items")
-      .optional(),
-  })
-  .refine(
-    (data) => {
-      // Check that at least one content type is present with meaningful content
-      const hasText = data.text && data.text.trim().length > 0;
-      const hasMedia = data.media && data.media.length > 0;
-      return hasText || hasMedia;
-    },
-    {
-      message: "Post must have text or media",
-      path: ["text"],
-    }
-  );
+      .min(1, "At least one media is required")
+      .max(10, "Cannot upload more than 10 media items"),
+  });
 
 export type CreatePostData = z.infer<typeof createPostSchema>;
 export type MediaData = z.infer<typeof mediaSchema>;

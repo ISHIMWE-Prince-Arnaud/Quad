@@ -52,8 +52,10 @@ export function CreatePostForm({
   const handleSubmit = async (data: CreatePostData) => {
     // Include uploaded media in submission
     const submitData: CreatePostData = {
-      text: data.text || undefined,
-      media: uploadedMedia.length > 0 ? uploadedMedia : undefined,
+      ...(typeof data.text === "string" && data.text.trim().length > 0
+        ? { text: data.text }
+        : {}),
+      media: uploadedMedia,
     };
 
     await onSubmit?.(submitData);
@@ -72,7 +74,7 @@ export function CreatePostForm({
     useWatch({ control: form.control, name: "text", defaultValue: "" }) || "";
   const charCount = textValue.length;
   const isOverLimit = charCount > 1000;
-  const hasContent = textValue.trim().length > 0 || uploadedMedia.length > 0;
+  const hasMedia = uploadedMedia.length > 0;
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-sm">
@@ -130,7 +132,7 @@ export function CreatePostForm({
 
             {/* Media Upload */}
             <div>
-              <FormLabel htmlFor="media-upload">Add Media (Optional)</FormLabel>
+              <FormLabel htmlFor="media-upload">Add Media</FormLabel>
               <p
                 className="text-xs text-muted-foreground mb-2"
                 id="media-upload-description">
@@ -149,9 +151,9 @@ export function CreatePostForm({
             {/* Submit Button */}
             <div className="flex items-center justify-between pt-4 border-t">
               <div className="text-sm">
-                {!hasContent && form.formState.isSubmitted && (
+                {!hasMedia && form.formState.isSubmitted && (
                   <span className="text-destructive">
-                    Post must have text or media
+                    Post must have at least one media
                   </span>
                 )}
               </div>
@@ -172,7 +174,7 @@ export function CreatePostForm({
                 </Button>
                 <Button
                   type="submit"
-                  disabled={isLoading || isOverLimit || !hasContent}
+                  disabled={isLoading || isOverLimit || !hasMedia}
                   className="min-w-[100px]">
                   {isLoading ? "Posting..." : "Post"}
                 </Button>

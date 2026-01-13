@@ -19,7 +19,7 @@ export function CreatePostActions({
     <div className="flex items-center justify-between pt-4 border-t">
       <div className="text-sm text-muted-foreground">
         {!hasContent && isSubmitted && (
-          <span className="text-destructive">Post must have text or media</span>
+          <span className="text-destructive">Post must have at least one media</span>
         )}
       </div>
       <div className="flex gap-2">

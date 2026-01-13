@@ -16,7 +16,7 @@ export function FeedPostComposer({
   onCreatePost,
   disabled = false,
 }: {
-  onCreatePost: (payload: { text: string; media?: CreatePostData["media"] }) => Promise<void>;
+  onCreatePost: (payload: { text?: string; media: CreatePostData["media"] }) => Promise<void>;
   disabled?: boolean;
 }) {
   const { user } = useAuthStore();
@@ -50,8 +50,9 @@ export function FeedPostComposer({
     handleDragLeave,
   } = useCreatePostMedia();
 
-  const hasText = text.trim().length > 0;
-  const canSubmit = hasText && uploadingFiles.length === 0 && !disabled;
+  const trimmedText = text.trim();
+  const hasMedia = uploadedMedia.length > 0;
+  const canSubmit = hasMedia && uploadingFiles.length === 0 && !disabled;
 
   useEffect(() => {
     if (!disabled && isExpanded) {
@@ -68,8 +69,8 @@ export function FeedPostComposer({
   const submit = async () => {
     if (disabled || isSubmitting) return;
 
-    if (!hasText) {
-      toast.error("Post text is required");
+    if (!hasMedia) {
+      toast.error("Post must have at least one media");
       setIsExpanded(true);
       inputRef.current?.focus();
       return;
@@ -83,8 +84,8 @@ export function FeedPostComposer({
     try {
       setIsSubmitting(true);
       await onCreatePost({
-        text: text.trim(),
-        media: uploadedMedia.length > 0 ? uploadedMedia : undefined,
+        ...(trimmedText.length > 0 ? { text: trimmedText } : {}),
+        media: uploadedMedia,
       });
       resetComposer();
     } finally {

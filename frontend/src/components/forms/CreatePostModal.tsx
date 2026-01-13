@@ -76,12 +76,14 @@ export function CreatePostModal({
     useWatch({ control: form.control, name: "text", defaultValue: "" }) || "";
   const charCount = textValue.length;
   const isOverLimit = charCount > 1000;
-  const hasContent = textValue.trim().length > 0 || uploadedMedia.length > 0;
+  const hasMedia = uploadedMedia.length > 0;
 
   const handleSubmit = async (data: CreatePostData) => {
     const submitData: CreatePostData = {
-      text: data.text || undefined,
-      media: uploadedMedia.length > 0 ? uploadedMedia : undefined,
+      ...(typeof data.text === "string" && data.text.trim().length > 0
+        ? { text: data.text }
+        : {}),
+      media: uploadedMedia,
     };
 
     await onSubmit(submitData);
@@ -91,7 +93,7 @@ export function CreatePostModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogDescription className="sr-only">
-          Create a new post and optionally attach media.
+          Create a new post and attach at least one media.
         </DialogDescription>
         <CreatePostModalHeader user={user} />
 
@@ -126,7 +128,7 @@ export function CreatePostModal({
 
             {/* Action Buttons */}
             <CreatePostActions
-              hasContent={hasContent}
+              hasContent={hasMedia}
               isSubmitted={form.formState.isSubmitted}
               isLoading={isLoading}
               isOverLimit={isOverLimit}

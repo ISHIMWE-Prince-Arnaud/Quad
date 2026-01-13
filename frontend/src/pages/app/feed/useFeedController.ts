@@ -301,11 +301,11 @@ export function useFeedController({
   }, []);
 
   const handleCreatePost = useCallback(
-    async (payload: { text: string; media?: CreatePostData["media"] }) => {
+    async (payload: { text?: string; media: CreatePostData["media"] }) => {
       const canShowPost = tab === "home" || tab === "posts";
 
-      if (!payload.text.trim()) {
-        toast.error("Post text is required");
+      if (!Array.isArray(payload.media) || payload.media.length === 0) {
+        toast.error("Post must have at least one media");
         return;
       }
 
@@ -323,7 +323,9 @@ export function useFeedController({
           lastName: authUser?.lastName,
           profileImage: authUser?.profileImage,
         },
-        text: payload.text,
+        ...(typeof payload.text === "string" && payload.text.trim().length > 0
+          ? { text: payload.text }
+          : {}),
         media: payload.media,
         reactionsCount: 0,
         commentsCount: 0,
@@ -354,7 +356,9 @@ export function useFeedController({
         }
 
         const res = await PostService.createPost({
-          text: payload.text,
+          ...(typeof payload.text === "string" && payload.text.trim().length > 0
+            ? { text: payload.text }
+            : {}),
           media: payload.media,
         });
 
