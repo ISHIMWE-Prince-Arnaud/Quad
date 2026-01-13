@@ -28,8 +28,16 @@ describe("Property 7: Request Payload Schema Validation", () => {
             .string({ minLength: 1, maxLength: 1000 })
             .filter((s) => s.trim().length > 0),
           (text) => {
-          const result = createPostSchema.safeParse({ text });
-          expect(result.success).toBe(true);
+            const result = createPostSchema.safeParse({
+              text,
+              media: [
+                {
+                  url: "https://example.com/image.jpg",
+                  type: "image" as const,
+                },
+              ],
+            });
+            expect(result.success).toBe(true);
           }
         ),
         { numRuns: 100 }
@@ -71,7 +79,15 @@ describe("Property 7: Request Payload Schema Validation", () => {
     it("should reject post with text exceeding 1000 characters", () => {
       fc.assert(
         fc.property(fc.string({ minLength: 1001, maxLength: 2000 }), (text) => {
-          const result = createPostSchema.safeParse({ text });
+          const result = createPostSchema.safeParse({
+            text,
+            media: [
+              {
+                url: "https://example.com/image.jpg",
+                type: "image" as const,
+              },
+            ],
+          });
           expect(result.success).toBe(false);
         }),
         { numRuns: 100 }

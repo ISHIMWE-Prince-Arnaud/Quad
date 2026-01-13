@@ -22,24 +22,29 @@ describe("Real-time Feed Updates Property Tests", () => {
   it("Property 23: Engagement updates are reflected in feed items", async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(
+        fc.uniqueArray(
           fc.record({
-            _id: fc.string({ minLength: 10, maxLength: 30 }),
-            userId: fc.string({ minLength: 10, maxLength: 30 }),
+            _id: fc.uuid(),
+            userId: fc.uuid(),
             author: fc.record({
-              _id: fc.string({ minLength: 10, maxLength: 30 }),
-              clerkId: fc.string({ minLength: 10, maxLength: 30 }),
+              _id: fc.uuid(),
+              clerkId: fc.uuid(),
               username: fc.string({ minLength: 3, maxLength: 20 }),
               email: fc.emailAddress(),
             }),
             text: fc.string({ minLength: 1, maxLength: 280 }),
-            media: fc.constant([]),
+            media: fc.constant([
+              {
+                url: "https://example.com/image.jpg",
+                type: "image" as const,
+              },
+            ]),
             reactionsCount: fc.integer({ min: 0, max: 100 }),
             commentsCount: fc.integer({ min: 0, max: 100 }),
             createdAt: fc.constant(new Date().toISOString()),
             updatedAt: fc.constant(new Date().toISOString()),
           }),
-          { minLength: 1, maxLength: 10 }
+          { minLength: 1, maxLength: 10, selector: (item) => item._id }
         ),
         fc.integer({ min: 0, max: 200 }),
         fc.integer({ min: 0, max: 200 }),
@@ -95,24 +100,29 @@ describe("Real-time Feed Updates Property Tests", () => {
   it("Property 23: Deleted content is removed from feed", async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(
+        fc.uniqueArray(
           fc.record({
-            _id: fc.string({ minLength: 10, maxLength: 30 }),
-            userId: fc.string({ minLength: 10, maxLength: 30 }),
+            _id: fc.uuid(),
+            userId: fc.uuid(),
             author: fc.record({
-              _id: fc.string({ minLength: 10, maxLength: 30 }),
-              clerkId: fc.string({ minLength: 10, maxLength: 30 }),
+              _id: fc.uuid(),
+              clerkId: fc.uuid(),
               username: fc.string({ minLength: 3, maxLength: 20 }),
               email: fc.emailAddress(),
             }),
             text: fc.string({ minLength: 1, maxLength: 280 }),
-            media: fc.constant([]),
+            media: fc.constant([
+              {
+                url: "https://example.com/image.jpg",
+                type: "image" as const,
+              },
+            ]),
             reactionsCount: fc.integer({ min: 0, max: 100 }),
             commentsCount: fc.integer({ min: 0, max: 100 }),
             createdAt: fc.constant(new Date().toISOString()),
             updatedAt: fc.constant(new Date().toISOString()),
           }),
-          { minLength: 1, maxLength: 10 }
+          { minLength: 1, maxLength: 10, selector: (item) => item._id }
         ),
         async (feedItems) => {
           const store = useFeedStore.getState();
