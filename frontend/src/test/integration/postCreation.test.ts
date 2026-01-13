@@ -43,7 +43,7 @@ describe("Post Creation Integration", () => {
     const result = await PostService.createPost(postData);
 
     expect(result.success).toBe(true);
-    expect(result.data?.media).toHaveLength(1);
+    expect(result.data.media).toHaveLength(1);
     expect(result.data?._id).toBe("post123");
   });
 
@@ -77,13 +77,14 @@ describe("Post Creation Integration", () => {
     const result = await PostService.createPost(postData);
 
     expect(result.success).toBe(true);
-    expect(result.data?.media).toHaveLength(1);
-    expect(result.data?.media[0].type).toBe("image");
+    expect(result.data.media).toHaveLength(1);
+    expect(result.data.media[0].type).toBe("image");
   });
 
   it("should handle post creation errors", async () => {
     const postData = {
       text: "",
+      media: [],
     };
 
     mock.onPost("/posts").reply(400, {

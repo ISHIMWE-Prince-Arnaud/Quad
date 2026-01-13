@@ -10,7 +10,7 @@ export interface Post {
     profileImage?: string;
   };
   text?: string;
-  media?: Array<{
+  media: Array<{
     url: string;
     type: "image" | "video";
     aspectRatio?: "1:1" | "16:9" | "9:16";

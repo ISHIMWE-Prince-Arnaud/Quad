@@ -63,7 +63,7 @@ describe("Feed Pagination Property Tests", () => {
 
           // Mock axios get method
           vi.spyOn(api, "get").mockImplementation(
-            (url: string, config?: any) => {
+            (_url: string, config?: any) => {
               const params = config?.params || {};
               const cursor = params.cursor;
               const pageLimit = params.limit || limit;
