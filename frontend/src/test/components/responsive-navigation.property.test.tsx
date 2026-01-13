@@ -329,7 +329,7 @@ describe("Responsive Navigation Property Tests", () => {
         );
 
         // Property: Theme control should be present on desktop
-        expect(screen.getAllByText("Theme").length).toBeGreaterThan(0);
+        expect(screen.getAllByLabelText("Theme selector").length).toBeGreaterThan(0);
 
         cleanup();
 
