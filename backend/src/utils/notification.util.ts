@@ -24,22 +24,24 @@ export const createNotification = async (
 
     // Format notification with actor
     const notificationWithActor: INotificationWithActor = {
-      id: (notification._id as any).toString(),
+      id: String(notification._id),
       userId: notification.userId,
       type: notification.type,
-      actorId: notification.actorId as any,
-      contentId: notification.contentId as any,
-      contentType: notification.contentType as any,
+      actorId: notification.actorId,
+      contentId: notification.contentId,
+      contentType: notification.contentType,
       message: notification.message,
       isRead: notification.isRead,
       createdAt: notification.createdAt,
-      actor: actor ? ({
+      actor: actor
+        ? {
         clerkId: actor.clerkId,
         username: actor.username,
         email: actor.email,
         displayName: actor.displayName,
         profileImage: actor.profileImage,
-      } as any) : undefined,
+        }
+        : undefined,
     };
 
     // Emit real-time notification
@@ -63,7 +65,7 @@ export const markNotificationsAsRead = async (
   userId: string,
   notificationIds?: string[]
 ): Promise<number> => {
-  const query: any = { userId, isRead: false };
+  const query: Record<string, unknown> = { userId, isRead: false };
   
   if (notificationIds && notificationIds.length > 0) {
     query._id = { $in: notificationIds };

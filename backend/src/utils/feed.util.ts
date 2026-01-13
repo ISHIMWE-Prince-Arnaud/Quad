@@ -25,8 +25,17 @@ const DEFAULT_WEIGHTS: IScoringWeights = {
   popularity: 0.1,
 };
 
-const getContentAuthorId = (content: any): string => {
-  return (content?.author?.clerkId as string | undefined) || (content?.userId as string | undefined) || "";
+const getContentAuthorId = (content: unknown): string => {
+  if (!content || typeof content !== "object") return "";
+  const obj = content as Record<string, unknown>;
+  const author = obj.author;
+  if (author && typeof author === "object") {
+    const clerkId = (author as Record<string, unknown>).clerkId;
+    if (typeof clerkId === "string") return clerkId;
+  }
+
+  const userId = obj.userId;
+  return typeof userId === "string" ? userId : "";
 };
 
 /**
@@ -109,7 +118,7 @@ export const fetchPosts = async (
     const maxAgeDate = new Date();
     maxAgeDate.setDate(maxAgeDate.getDate() - maxAgeDays);
 
-    const query: any = {
+    const query: Record<string, unknown> = {
       createdAt: { $gte: maxAgeDate },
     };
 
@@ -124,15 +133,18 @@ export const fetchPosts = async (
       { sort: { createdAt: -1 }, limit }
     );
 
-    return posts.map((post: any) => ({
-      _id: post._id,
+    return posts.map((post) => {
+      const p = post as Record<string, unknown>;
+      return {
+      _id: p._id,
       type: "post" as FeedItemType,
       content: post,
-      createdAt: post.createdAt || new Date(),
+      createdAt: (p.createdAt as Date | undefined) || new Date(),
       authorId: getContentAuthorId(post),
-      reactionsCount: post.reactionsCount || 0,
-      commentsCount: post.commentsCount || 0,
-    }));
+      reactionsCount: (p.reactionsCount as number | undefined) || 0,
+      commentsCount: (p.commentsCount as number | undefined) || 0,
+    };
+    });
   } catch (error) {
     logger.error("Error fetching posts for feed", error);
     return [];
@@ -151,7 +163,7 @@ export const fetchPolls = async (
   const maxAgeDate = new Date();
   maxAgeDate.setDate(maxAgeDate.getDate() - maxAgeDays);
 
-  const query: any = {
+  const query: Record<string, unknown> = {
     createdAt: { $gte: maxAgeDate },
   };
 
@@ -187,7 +199,7 @@ export const fetchStories = async (
   cursor?: string,
   limit: number = 20
 ): Promise<IRawContentItem[]> => {
-  const query: any = {
+  const query: Record<string, unknown> = {
     status: "published",
   };
 

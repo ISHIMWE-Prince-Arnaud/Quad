@@ -172,7 +172,7 @@ export function conditionalCache(productionOptions: Partial<CacheOptions>) {
 export function etag(_req: Request, res: Response, next: NextFunction) {
   const originalSend = res.send;
 
-  res.send = function (body: any): Response {
+  res.send = function (body: unknown): Response {
     if (body && typeof body === "object") {
       const etag = `"${Buffer.from(JSON.stringify(body))
         .toString("base64")

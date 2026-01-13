@@ -105,9 +105,9 @@ export interface IFeedQueryOptions {
  * Raw Content Item (before scoring)
  */
 export interface IRawContentItem {
-  _id: any;
+  _id: unknown;
   type: FeedItemType;
-  content: any;
+  content: unknown;
   createdAt: Date;
   authorId: string;
   reactionsCount: number;

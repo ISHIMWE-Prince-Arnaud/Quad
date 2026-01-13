@@ -13,7 +13,7 @@ import type { CommentableContentType } from "../types/comment.types.js";
 export const verifyReactableContent = async (
   contentType: ReactableContentType,
   contentId: string
-): Promise<{ exists: boolean; content?: any }> => {
+): Promise<{ exists: boolean; content?: unknown }> => {
   try {
     let content = null;
 
@@ -54,7 +54,7 @@ export const verifyReactableContent = async (
 export const verifyCommentableContent = async (
   contentType: CommentableContentType,
   contentId: string
-): Promise<{ exists: boolean; content?: any }> => {
+): Promise<{ exists: boolean; content?: unknown }> => {
   try {
     let content = null;
 

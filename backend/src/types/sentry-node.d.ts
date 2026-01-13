@@ -1,4 +1,4 @@
 declare module "@sentry/node" {
-  const Sentry: any;
+  const Sentry: unknown;
   export = Sentry;
 }

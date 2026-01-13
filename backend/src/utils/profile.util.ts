@@ -66,7 +66,7 @@ export const calculateProfileStats = async (
 /**
  * Format user profile with statistics
  */
-export const formatProfileResponse = (
+export const formatUserProfile = (
   user: IUserDocument,
   stats: IProfileStats
 ): IUserProfile => {
@@ -100,5 +100,5 @@ export const formatProfileResponse = (
     updatedAt: user.updatedAt,
     joinedAt: user.createdAt,
     stats,
-  } as any;
+  };
 };

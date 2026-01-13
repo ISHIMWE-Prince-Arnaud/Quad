@@ -6,6 +6,51 @@ import { Story } from "../models/Story.model.js";
 import { SearchHistory } from "../models/SearchHistory.model.js";
 import { SearchAnalytics } from "../models/SearchAnalytics.model.js";
 
+type UserSearchLean = {
+  clerkId: string;
+  username?: string;
+  displayName?: string;
+  profileImage?: string;
+  bio?: string;
+  followersCount?: number;
+  followingCount?: number;
+  createdAt?: Date;
+  score?: number;
+};
+
+type PostSearchLean = {
+  _id: unknown;
+  text?: string;
+  createdAt?: Date;
+  reactionsCount?: number;
+  commentsCount?: number;
+  score?: number;
+};
+
+type PollSearchLean = {
+  _id: unknown;
+  question?: string;
+  createdAt?: Date;
+  totalVotes?: number;
+  reactionsCount?: number;
+  commentsCount?: number;
+  score?: number;
+};
+
+type StorySearchLean = {
+  _id: unknown;
+  title?: string;
+  content?: string;
+  createdAt?: Date;
+  publishedAt?: Date;
+  viewsCount?: number;
+  reactionsCount?: number;
+  commentsCount?: number;
+  score?: number;
+};
+
+type SortCriteria = Record<string, 1 | -1 | { $meta: "textScore" }>;
+
 // =========================
 // MONGODB SEARCH UTILITIES
 // =========================
@@ -35,7 +80,9 @@ interface SearchResult<T> {
 /**
  * Enhanced search users with filters, pagination, and fuzzy search
  */
-export const searchUsers = async (options: SearchOptions): Promise<SearchResult<any>> => {
+export const searchUsers = async (
+  options: SearchOptions
+): Promise<SearchResult<UserSearchLean>> => {
   try {
     const { 
       query = "", 
@@ -48,7 +95,7 @@ export const searchUsers = async (options: SearchOptions): Promise<SearchResult<
     } = options;
 
     // Build search query
-    const searchQuery: any = {};
+    const searchQuery: Record<string, unknown> = {};
     
     if (query && query.trim().length > 0) {
       if (fuzzy) {
@@ -66,13 +113,14 @@ export const searchUsers = async (options: SearchOptions): Promise<SearchResult<
 
     // Add date filters
     if (dateFrom || dateTo) {
-      searchQuery.createdAt = {};
-      if (dateFrom) searchQuery.createdAt.$gte = dateFrom;
-      if (dateTo) searchQuery.createdAt.$lte = dateTo;
+      const createdAt: Record<string, Date> = {};
+      if (dateFrom) createdAt.$gte = dateFrom;
+      if (dateTo) createdAt.$lte = dateTo;
+      searchQuery.createdAt = createdAt;
     }
 
     // Build sort criteria
-    let sortCriteria: any = {};
+    let sortCriteria: SortCriteria = {};
     switch (sortBy) {
       case 'newest':
         sortCriteria = { createdAt: -1 };
@@ -103,7 +151,7 @@ export const searchUsers = async (options: SearchOptions): Promise<SearchResult<
       .skip(offset)
       .limit(limit)
       .select("clerkId username displayName bio profileImage followersCount followingCount createdAt")
-      .lean();
+      .lean<UserSearchLean[]>();
 
     // Calculate pagination info
     const page = Math.floor(offset / limit) + 1;
@@ -113,7 +161,7 @@ export const searchUsers = async (options: SearchOptions): Promise<SearchResult<
     // Generate highlights for text search
     const highlights: { [key: string]: string[] } = {};
     if (query && users.length > 0) {
-      users.forEach((user: any, _index: number) => {
+      users.forEach((user) => {
         const userHighlights: string[] = [];
         if (user.username?.toLowerCase().includes(query.toLowerCase())) {
           userHighlights.push(user.username);
@@ -150,7 +198,9 @@ export const searchUsers = async (options: SearchOptions): Promise<SearchResult<
 /**
  * Enhanced search posts with filters, pagination, and fuzzy search
  */
-export const searchPosts = async (options: SearchOptions): Promise<SearchResult<any>> => {
+export const searchPosts = async (
+  options: SearchOptions
+): Promise<SearchResult<PostSearchLean>> => {
   try {
     const { 
       query = "", 
@@ -164,7 +214,7 @@ export const searchPosts = async (options: SearchOptions): Promise<SearchResult<
     } = options;
 
     // Build search query
-    const searchQuery: any = {};
+    const searchQuery: Record<string, unknown> = {};
     
     if (query && query.trim().length > 0) {
       if (fuzzy) {
@@ -183,9 +233,10 @@ export const searchPosts = async (options: SearchOptions): Promise<SearchResult<
 
     // Add date filters
     if (dateFrom || dateTo) {
-      searchQuery.createdAt = {};
-      if (dateFrom) searchQuery.createdAt.$gte = dateFrom;
-      if (dateTo) searchQuery.createdAt.$lte = dateTo;
+      const createdAt: Record<string, Date> = {};
+      if (dateFrom) createdAt.$gte = dateFrom;
+      if (dateTo) createdAt.$lte = dateTo;
+      searchQuery.createdAt = createdAt;
     }
 
     // Add author filter
@@ -194,7 +245,7 @@ export const searchPosts = async (options: SearchOptions): Promise<SearchResult<
     }
 
     // Build sort criteria
-    let sortCriteria: any = {};
+    let sortCriteria: SortCriteria = {};
     switch (sortBy) {
       case 'newest':
         sortCriteria = { createdAt: -1 };
@@ -225,7 +276,7 @@ export const searchPosts = async (options: SearchOptions): Promise<SearchResult<
       .skip(offset)
       .limit(limit)
       .select("userId author text media reactionsCount commentsCount createdAt")
-      .lean();
+      .lean<PostSearchLean[]>();
 
     // Calculate pagination info
     const page = Math.floor(offset / limit) + 1;
@@ -235,9 +286,9 @@ export const searchPosts = async (options: SearchOptions): Promise<SearchResult<
     // Generate highlights for text search
     const highlights: { [key: string]: string[] } = {};
     if (query && posts.length > 0) {
-      posts.forEach((post: any) => {
+      posts.forEach((post) => {
         if (post.text?.toLowerCase().includes(query.toLowerCase())) {
-          highlights[post._id] = [post.text.substring(0, 100) + "..."];
+          highlights[String(post._id)] = [post.text.substring(0, 100) + "..."];
         }
       });
     }
@@ -265,7 +316,9 @@ export const searchPosts = async (options: SearchOptions): Promise<SearchResult<
 /**
  * Enhanced search polls with filters, pagination, and fuzzy search
  */
-export const searchPolls = async (options: SearchOptions): Promise<SearchResult<any>> => {
+export const searchPolls = async (
+  options: SearchOptions
+): Promise<SearchResult<PollSearchLean>> => {
   try {
     const { 
       query = "", 
@@ -279,7 +332,7 @@ export const searchPolls = async (options: SearchOptions): Promise<SearchResult<
     } = options;
 
     // Build search query
-    const searchQuery: any = { status: "active" }; // Only active polls
+    const searchQuery: Record<string, unknown> = { status: "active" }; // Only active polls
     
     if (query && query.trim().length > 0) {
       if (fuzzy) {
@@ -297,9 +350,10 @@ export const searchPolls = async (options: SearchOptions): Promise<SearchResult<
 
     // Add date filters
     if (dateFrom || dateTo) {
-      searchQuery.createdAt = {};
-      if (dateFrom) searchQuery.createdAt.$gte = dateFrom;
-      if (dateTo) searchQuery.createdAt.$lte = dateTo;
+      const createdAt: Record<string, Date> = {};
+      if (dateFrom) createdAt.$gte = dateFrom;
+      if (dateTo) createdAt.$lte = dateTo;
+      searchQuery.createdAt = createdAt;
     }
 
     // Add author filter
@@ -308,7 +362,7 @@ export const searchPolls = async (options: SearchOptions): Promise<SearchResult<
     }
 
     // Build sort criteria
-    let sortCriteria: any = {};
+    let sortCriteria: SortCriteria = {};
     switch (sortBy) {
       case 'newest':
         sortCriteria = { createdAt: -1 };
@@ -339,7 +393,7 @@ export const searchPolls = async (options: SearchOptions): Promise<SearchResult<
       .skip(offset)
       .limit(limit)
       .select("author question options status totalVotes reactionsCount commentsCount expiresAt createdAt")
-      .lean();
+      .lean<PollSearchLean[]>();
 
     // Calculate pagination info
     const page = Math.floor(offset / limit) + 1;
@@ -368,7 +422,9 @@ export const searchPolls = async (options: SearchOptions): Promise<SearchResult<
 /**
  * Enhanced search stories with filters, pagination, and fuzzy search
  */
-export const searchStories = async (options: SearchOptions): Promise<SearchResult<any>> => {
+export const searchStories = async (
+  options: SearchOptions
+): Promise<SearchResult<StorySearchLean>> => {
   try {
     const { 
       query = "", 
@@ -382,7 +438,7 @@ export const searchStories = async (options: SearchOptions): Promise<SearchResul
     } = options;
 
     // Build search query
-    const searchQuery: any = { status: "published" }; // Only published stories
+    const searchQuery: Record<string, unknown> = { status: "published" }; // Only published stories
     
     if (query && query.trim().length > 0) {
       if (fuzzy) {
@@ -401,9 +457,10 @@ export const searchStories = async (options: SearchOptions): Promise<SearchResul
 
     // Add date filters
     if (dateFrom || dateTo) {
-      searchQuery.publishedAt = {};
-      if (dateFrom) searchQuery.publishedAt.$gte = dateFrom;
-      if (dateTo) searchQuery.publishedAt.$lte = dateTo;
+      const publishedAt: Record<string, Date> = {};
+      if (dateFrom) publishedAt.$gte = dateFrom;
+      if (dateTo) publishedAt.$lte = dateTo;
+      searchQuery.publishedAt = publishedAt;
     }
 
     // Add author filter
@@ -412,7 +469,7 @@ export const searchStories = async (options: SearchOptions): Promise<SearchResul
     }
 
     // Build sort criteria
-    let sortCriteria: any = {};
+    let sortCriteria: SortCriteria = {};
     switch (sortBy) {
       case 'newest':
         sortCriteria = { publishedAt: -1 };
@@ -443,7 +500,7 @@ export const searchStories = async (options: SearchOptions): Promise<SearchResul
       .skip(offset)
       .limit(limit)
       .select("userId author title excerpt coverImage tags viewsCount reactionsCount commentsCount publishedAt createdAt")
-      .lean();
+      .lean<StorySearchLean[]>();
 
     // Calculate pagination info
     const page = Math.floor(offset / limit) + 1;
@@ -557,7 +614,7 @@ export const saveSearchHistory = async (
   query: string,
   searchType: 'users' | 'posts' | 'polls' | 'stories' | 'global',
   resultsCount: number,
-  filters?: any
+  filters?: Record<string, unknown>
 ) => {
   try {
     // Don't save empty queries
@@ -685,7 +742,7 @@ export const updateSearchAnalytics = async (
  */
 export const getPopularSearches = async (searchType?: string, limit: number = 10) => {
   try {
-    const query: any = {};
+    const query: Record<string, unknown> = {};
     if (searchType) {
       query.searchType = searchType;
     }
@@ -709,7 +766,7 @@ export const getPopularSearches = async (searchType?: string, limit: number = 10
 export const getTrendingSearches = async (searchType?: string, limit: number = 10) => {
   try {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const query: any = {
+    const query: Record<string, unknown> = {
       lastSearched: { $gte: sevenDaysAgo }
     };
     

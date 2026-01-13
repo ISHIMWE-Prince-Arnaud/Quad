@@ -4,6 +4,8 @@
  */
 
 import { env } from "../config/env.config.js";
+import type { ErrorRequestHandler, RequestHandler } from "express";
+import { logger } from "./logger.util.js";
 
 interface ErrorTrackingConfig {
   dsn?: string;
@@ -24,7 +26,43 @@ interface ErrorContext {
 class ErrorTracker {
   private config: ErrorTrackingConfig;
   private initialized = false;
-  private Sentry: any = null;
+  private Sentry: unknown = null;
+
+  private getSentry(): {
+    init: (options: Record<string, unknown>) => void;
+    httpIntegration: () => unknown;
+    expressIntegration: () => unknown;
+    mongooseIntegration: () => unknown;
+    Handlers: {
+      requestHandler: () => RequestHandler;
+      errorHandler: () => ErrorRequestHandler;
+    };
+    setUser: (user: UserContext | null) => void;
+    captureException: (error: Error, context?: { extra?: ErrorContext }) => void;
+    captureMessage: (message: string, context?: { level: string; extra?: ErrorContext }) => void;
+    addBreadcrumb: (breadcrumb: Record<string, unknown>) => void;
+    setContext: (name: string, context: ErrorContext) => void;
+  } | null {
+    if (!this.Sentry) return null;
+    return this.Sentry as {
+      init: (options: Record<string, unknown>) => void;
+      httpIntegration: () => unknown;
+      expressIntegration: () => unknown;
+      mongooseIntegration: () => unknown;
+      Handlers: {
+        requestHandler: () => RequestHandler;
+        errorHandler: () => ErrorRequestHandler;
+      };
+      setUser: (user: UserContext | null) => void;
+      captureException: (error: Error, context?: { extra?: ErrorContext }) => void;
+      captureMessage: (
+        message: string,
+        context?: { level: string; extra?: ErrorContext }
+      ) => void;
+      addBreadcrumb: (breadcrumb: Record<string, unknown>) => void;
+      setContext: (name: string, context: ErrorContext) => void;
+    };
+  }
 
   constructor() {
     const dsn = env.SENTRY_DSN;
@@ -43,7 +81,7 @@ class ErrorTracker {
    */
   async initialize(): Promise<void> {
     if (!this.config.enabled || this.initialized) {
-      console.log(
+      logger.info(
         "[ErrorTracking] Skipping initialization (disabled or already initialized)"
       );
       return;
@@ -53,88 +91,96 @@ class ErrorTracker {
       // Dynamically import Sentry only in production
       this.Sentry = await import("@sentry/node");
 
-      this.Sentry.init({
+      const sentry = this.getSentry();
+      if (!sentry) {
+        logger.warn("[ErrorTracking] Sentry import returned empty module");
+        return;
+      }
+
+      sentry.init({
         dsn: this.config.dsn,
         environment: this.config.environment,
         integrations: [
-          this.Sentry.httpIntegration(),
-          this.Sentry.expressIntegration(),
-          this.Sentry.mongooseIntegration(),
+          sentry.httpIntegration(),
+          sentry.expressIntegration(),
+          sentry.mongooseIntegration(),
         ],
         // Performance Monitoring
         tracesSampleRate: 0.1, // 10% of transactions
         // Release tracking
         release: process.env.npm_package_version,
         // Filter sensitive data
-        beforeSend(event: any) {
+        beforeSend(event: Record<string, unknown>) {
           // Remove sensitive data from event
-          if (event.request?.cookies) {
-            delete event.request.cookies;
-          }
-          if (event.request?.headers) {
-            delete event.request.headers["authorization"];
-            delete event.request.headers["cookie"];
+          const request = event.request;
+          if (request && typeof request === "object") {
+            const requestObj = request as Record<string, unknown>;
+
+            if ("cookies" in requestObj) {
+              delete requestObj.cookies;
+            }
+
+            const headers = requestObj.headers;
+            if (headers && typeof headers === "object") {
+              const headersObj = headers as Record<string, unknown>;
+              delete headersObj.authorization;
+              delete headersObj.cookie;
+            }
           }
           return event;
         },
       });
 
       this.initialized = true;
-      console.log("[ErrorTracking] Initialized successfully");
-    } catch (error) {
-      console.error("[ErrorTracking] Failed to initialize:", error);
+      logger.info("[ErrorTracking] Initialized successfully");
+    } catch (error: unknown) {
+      logger.error("[ErrorTracking] Failed to initialize:", error);
     }
   }
 
   /**
    * Get Sentry request handler middleware
    */
-  getRequestHandler() {
-    if (!this.config.enabled || !this.Sentry) {
-      return (_req: any, _res: any, next: any) => next();
+  getRequestHandler(): RequestHandler {
+    const sentry = this.getSentry();
+    if (!this.config.enabled || !sentry) {
+      return (_req, _res, next) => next();
     }
-    return this.Sentry.Handlers.requestHandler();
+    return sentry.Handlers.requestHandler();
   }
 
   /**
    * Get Sentry error handler middleware
    */
-  getErrorHandler() {
-    if (!this.config.enabled || !this.Sentry) {
-      return (_err: any, _req: any, _res: any, next: any) => next();
+  getErrorHandler(): ErrorRequestHandler {
+    const sentry = this.getSentry();
+    if (!this.config.enabled || !sentry) {
+      return (_err, _req, _res, next) => next();
     }
-    return this.Sentry.Handlers.errorHandler();
+    return sentry.Handlers.errorHandler();
   }
 
   /**
    * Set user context for error tracking
    */
   setUser(user: UserContext | null): void {
-    if (!this.config.enabled || !this.Sentry) return;
+    const sentry = this.getSentry();
+    if (!this.config.enabled || !sentry) return;
 
-    if (user) {
-      this.Sentry.setUser({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      });
-    } else {
-      this.Sentry.setUser(null);
-    }
+    sentry.setUser(user);
   }
 
   /**
    * Capture an exception
    */
   captureException(error: Error, context?: ErrorContext): void {
-    if (!this.config.enabled || !this.Sentry) {
-      console.error("[ErrorTracking] Exception:", error, context);
+    const sentry = this.getSentry();
+    if (!this.config.enabled || !sentry) {
+      logger.error("[ErrorTracking] Exception", { error, context });
       return;
     }
 
-    this.Sentry.captureException(error, {
-      extra: context,
-    });
+    sentry.captureException(error, context ? { extra: context } : {});
   }
 
   /**
@@ -145,24 +191,29 @@ class ErrorTracker {
     level: "info" | "warning" | "error" = "info",
     context?: ErrorContext
   ): void {
-    if (!this.config.enabled || !this.Sentry) {
-      console.log(`[ErrorTracking] ${level.toUpperCase()}:`, message, context);
+    const sentry = this.getSentry();
+    if (!this.config.enabled || !sentry) {
+      if (level === "error") {
+        logger.error(`[ErrorTracking] ${level.toUpperCase()}: ${message}`, context);
+      } else if (level === "warning") {
+        logger.warn(`[ErrorTracking] ${level.toUpperCase()}: ${message}`, context);
+      } else {
+        logger.info(`[ErrorTracking] ${level.toUpperCase()}: ${message}`, context);
+      }
       return;
     }
 
-    this.Sentry.captureMessage(message, {
-      level,
-      extra: context,
-    });
+    sentry.captureMessage(message, context ? { level, extra: context } : { level });
   }
 
   /**
    * Add breadcrumb for debugging
    */
   addBreadcrumb(message: string, category: string, data?: ErrorContext): void {
-    if (!this.config.enabled || !this.Sentry) return;
+    const sentry = this.getSentry();
+    if (!this.config.enabled || !sentry) return;
 
-    this.Sentry.addBreadcrumb({
+    sentry.addBreadcrumb({
       message,
       category,
       data,
@@ -174,9 +225,10 @@ class ErrorTracker {
    * Set custom context
    */
   setContext(name: string, context: ErrorContext): void {
-    if (!this.config.enabled || !this.Sentry) return;
+    const sentry = this.getSentry();
+    if (!this.config.enabled || !sentry) return;
 
-    this.Sentry.setContext(name, context);
+    sentry.setContext(name, context);
   }
 
   /**

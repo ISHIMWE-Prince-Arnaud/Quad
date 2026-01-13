@@ -87,8 +87,9 @@ export const uploadMultipleToCloudinary = async (
       uploadToCloudinary(buffer, preset)
     );
     return await Promise.all(uploadPromises);
-  } catch (error: any) {
-    throw new Error(`Multiple upload failed: ${error.message}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Multiple upload failed: ${message}`);
   }
 };
 
@@ -116,11 +117,11 @@ export const deleteFromCloudinary = async (
       success: false,
       message: `Deletion failed: ${result.result}`,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Cloudinary delete error", error);
     return {
       success: false,
-      message: error.message || "Failed to delete file",
+      message: error instanceof Error ? error.message : "Failed to delete file",
     };
   }
 };

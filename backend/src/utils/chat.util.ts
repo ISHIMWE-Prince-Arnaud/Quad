@@ -68,7 +68,7 @@ export const formatMessageResponse = (
 /**
  * Check if message has valid content
  */
-export const hasValidContent = (text?: string, media?: any): boolean => {
+export const hasValidContent = (text?: string, media?: unknown): boolean => {
   return !!(text && text.trim().length > 0) || !!media;
 };
 

@@ -127,7 +127,7 @@ export const formatPollResponse = (
     anonymousVoting: poll.settings?.anonymousVoting ?? false,
   };
 
-  const response: any = {
+  const response: Record<string, unknown> = {
     id: poll._id,
     author: poll.author,
     question: poll.question,
