@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { Card, CardHeader } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
+import { copyToClipboard } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import type { PollCardProps } from "./poll-card/types";
 import { PollCardHeader } from "./poll-card/PollCardHeader";
@@ -60,20 +61,11 @@ export function PollCard({
     const url = `${window.location.origin}${path}`;
 
     try {
-      const shareFn = (
-        navigator as unknown as {
-          share?: (data: {
-            url?: string;
-            title?: string;
-            text?: string;
-          }) => Promise<void>;
-        }
-      ).share;
-      if (typeof shareFn === "function") {
-        await shareFn({ url, title: poll.question });
-      } else {
-        await navigator.clipboard.writeText(url);
+      const ok = await copyToClipboard(url);
+      if (ok) {
         toast.success("Poll link copied to clipboard");
+      } else {
+        toast.error("Failed to copy link");
       }
     } catch (e) {
       logError(e, { component: "PollCard", action: "copyLink", metadata: { pollId: poll.id } });

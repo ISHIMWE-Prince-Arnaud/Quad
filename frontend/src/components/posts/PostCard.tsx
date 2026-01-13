@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
+import { copyToClipboard } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import type { Post } from "@/types/post";
 import toast from "react-hot-toast";
@@ -73,20 +74,11 @@ export function PostCard({
     const url = `${window.location.origin}${path}`;
 
     try {
-      const shareFn = (
-        navigator as unknown as {
-          share?: (data: {
-            url?: string;
-            title?: string;
-            text?: string;
-          }) => Promise<void>;
-        }
-      ).share;
-      if (typeof shareFn === "function") {
-        await shareFn({ url, title: "Quad Post" });
-      } else {
-        await navigator.clipboard.writeText(url);
+      const ok = await copyToClipboard(url);
+      if (ok) {
         toast.success("Post link copied to clipboard");
+      } else {
+        toast.error("Failed to copy link");
       }
     } catch (e) {
       logError(e, {
