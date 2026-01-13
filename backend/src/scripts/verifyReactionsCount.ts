@@ -15,8 +15,16 @@ type ReactionGroup = {
 };
 
 type ContentModel = {
-  find: (filter: any) => { select: (fields: string) => { lean: () => Promise<any[]> } };
-  countDocuments: (filter: any) => Promise<number>;
+  find: (
+    filter: mongoose.FilterQuery<unknown>
+  ) => {
+    select: (
+      fields: string
+    ) => {
+      lean: () => Promise<Array<{ _id: unknown; reactionsCount?: unknown }>>;
+    };
+  };
+  countDocuments: (filter: mongoose.FilterQuery<unknown>) => Promise<number>;
 };
 
 const args = process.argv.slice(2);

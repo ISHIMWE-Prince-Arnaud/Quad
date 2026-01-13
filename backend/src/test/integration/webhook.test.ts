@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 
 import { createTestApp } from "../utils/testApp.js";
 
-const sendWebhook = async (payload: any, headers?: Record<string, string>) => {
+const sendWebhook = async (payload: unknown, headers?: Record<string, string>) => {
   const app = createTestApp();
-  const body = JSON.stringify(payload);
+  const body = JSON.stringify(payload as Record<string, unknown>);
 
   const req = request(app)
     .post("/api/webhooks/clerk")

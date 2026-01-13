@@ -17,8 +17,12 @@ vi.spyOn(logger, "error").mockImplementation(() => {});
 
 vi.mock("@clerk/express", () => {
   return {
-    getAuth: (req: any) => ({ userId: req?.auth?.userId ?? null }),
-    clerkMiddleware: () => (_req: any, _res: any, next: any) => next(),
+    getAuth: (req: unknown) => ({
+      userId:
+        (req as { auth?: { userId?: string | null } } | null | undefined)?.auth
+          ?.userId ?? null,
+    }),
+    clerkMiddleware: () => (_req: unknown, _res: unknown, next: () => void) => next(),
     clerkClient: {
       users: {
         getUser: async (userId: string) => ({
@@ -38,8 +42,9 @@ vi.mock("svix", () => {
   class Webhook {
     constructor(_secret: string) {}
 
-    verify(payload: any, headers: any) {
-      if (headers?.["x-test-invalid-signature"] === "1") {
+    verify(payload: unknown, headers: unknown) {
+      const hdrs = headers as Record<string, unknown> | null | undefined;
+      if (hdrs?.["x-test-invalid-signature"] === "1") {
         throw new Error("Invalid signature");
       }
 
@@ -51,7 +56,11 @@ vi.mock("svix", () => {
   return { Webhook };
 });
 
-const ioMock: any = {
+const ioMock: {
+  emit: ReturnType<typeof vi.fn>;
+  on: ReturnType<typeof vi.fn>;
+  to: ReturnType<typeof vi.fn>;
+} = {
   emit: vi.fn(),
   on: vi.fn(),
 };

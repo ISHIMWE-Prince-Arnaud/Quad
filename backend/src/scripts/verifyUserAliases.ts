@@ -69,8 +69,9 @@ async function main(): Promise<void> {
     return;
   }
 
-  const previous = Array.isArray((user as any).previousUsernames)
-    ? ((user as any).previousUsernames as string[])
+  const previousRaw = (user as unknown as { previousUsernames?: unknown }).previousUsernames;
+  const previous = Array.isArray(previousRaw)
+    ? previousRaw.filter((v): v is string => typeof v === "string")
     : [];
 
   logger.info("Selected user for alias verification", {

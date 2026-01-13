@@ -14,6 +14,22 @@ type ReactionGroup = {
   count: number;
 };
 
+type BulkWriteModel = {
+  bulkWrite: (
+    ops: Array<mongoose.AnyBulkWriteOperation<unknown>>,
+    options?: mongoose.BulkWriteOptions
+  ) => Promise<unknown>;
+  updateMany: (
+    filter: mongoose.FilterQuery<unknown>,
+    update: mongoose.UpdateQuery<unknown>
+  ) => Promise<unknown>;
+};
+
+type UpdateManyResultLike = {
+  modifiedCount?: number;
+  nModified?: number;
+};
+
 const args = new Set(process.argv.slice(2));
 const WRITE =
   args.has("--write") ||
@@ -23,10 +39,7 @@ const WRITE =
 const DRY_RUN = !WRITE;
 
 const bulkSetCounts = async (
-  model: {
-    bulkWrite: (ops: any[], options?: any) => Promise<any>;
-    updateMany: (filter: any, update: any) => Promise<any>;
-  },
+  model: BulkWriteModel,
   contentType: ReactableContentType,
   groups: Map<string, number>
 ) => {
@@ -62,11 +75,12 @@ const bulkSetCounts = async (
     logger.info(`DRY RUN: would zero out ${contentType} docs matching filter`, zeroFilter);
   } else {
     const res = await model.updateMany(zeroFilter, { $set: { reactionsCount: 0 } });
+    const result = res as UpdateManyResultLike;
     const modified =
-      typeof (res as any).modifiedCount === "number"
-        ? (res as any).modifiedCount
-        : typeof (res as any).nModified === "number"
-          ? (res as any).nModified
+      typeof result.modifiedCount === "number"
+        ? result.modifiedCount
+        : typeof result.nModified === "number"
+          ? result.nModified
           : undefined;
     logger.info(
       `Zeroed out stale reactionsCount for ${contentType} docs: ${modified ?? "(unknown count)"}`

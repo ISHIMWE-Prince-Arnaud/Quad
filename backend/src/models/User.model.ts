@@ -2,7 +2,7 @@ import mongoose, { Schema, Types, Document } from "mongoose";
 import type { IUser } from "../types/user.types.js";
 
 export interface IUserDocument
-  extends Document<Types.ObjectId, any, IUser>,
+  extends Document<Types.ObjectId, unknown, IUser>,
     IUser {
   _id: Types.ObjectId;
 }

@@ -94,8 +94,8 @@ const PollSchema = new Schema<IPollDocument>(
       ],
       required: true,
       validate: {
-        validator: function(options: any[]) {
-          return options.length >= 2 && options.length <= 5;
+        validator: function(options: unknown[]) {
+          return Array.isArray(options) && options.length >= 2 && options.length <= 5;
         },
         message: "Poll must have between 2 and 5 options"
       }
