@@ -168,7 +168,12 @@ export function createMockPost(overrides?: Partial<any>) {
     userId: fc.sample(arbitraries.userId(), 1)[0],
     author: createMockUser(),
     text: fc.sample(arbitraries.postText(), 1)[0],
-    media: [],
+    media: [
+      {
+        url: fc.sample(arbitraries.imageUrl(), 1)[0],
+        type: "image",
+      },
+    ],
     reactionsCount: 0,
     commentsCount: 0,
     createdAt: new Date().toISOString(),

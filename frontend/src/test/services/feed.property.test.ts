@@ -36,7 +36,12 @@ describe("Feed Pagination Property Tests", () => {
                 email: `user${i}@test.com`,
               },
               text: `Post ${i}`,
-              media: [],
+              media: [
+                {
+                  url: `https://example.com/image-${i}.jpg`,
+                  type: "image" as const,
+                },
+              ],
               reactionsCount: 0,
               commentsCount: 0,
               createdAt: new Date().toISOString(),

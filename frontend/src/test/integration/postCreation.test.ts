@@ -14,9 +14,14 @@ describe("Post Creation Integration", () => {
     mock.reset();
   });
 
-  it("should create a post with text only", async () => {
+  it("should create a post with media only", async () => {
     const postData = {
-      text: "This is a test post",
+      media: [
+        {
+          url: "https://example.com/image.jpg",
+          type: "image" as const,
+        },
+      ],
     };
 
     const mockResponse = {
@@ -24,8 +29,8 @@ describe("Post Creation Integration", () => {
       data: {
         _id: "post123",
         userId: "user123",
-        text: postData.text,
-        media: [],
+        text: undefined,
+        media: postData.media,
         reactionsCount: 0,
         commentsCount: 0,
         createdAt: new Date().toISOString(),
@@ -38,7 +43,7 @@ describe("Post Creation Integration", () => {
     const result = await PostService.createPost(postData);
 
     expect(result.success).toBe(true);
-    expect(result.data?.text).toBe(postData.text);
+    expect(result.data?.media).toHaveLength(1);
     expect(result.data?._id).toBe("post123");
   });
 
@@ -83,7 +88,7 @@ describe("Post Creation Integration", () => {
 
     mock.onPost("/posts").reply(400, {
       success: false,
-      message: "Post text is required",
+      message: "At least one media is required",
     });
 
     try {
@@ -104,7 +109,12 @@ describe("Post Creation Integration", () => {
         _id: postId,
         userId: "user123",
         text: "Test post",
-        media: [],
+        media: [
+          {
+            url: "https://example.com/image.jpg",
+            type: "image" as const,
+          },
+        ],
         reactionsCount: 0,
         commentsCount: 0,
         createdAt: new Date().toISOString(),
@@ -132,7 +142,12 @@ describe("Post Creation Integration", () => {
         _id: postId,
         userId: "user123",
         text: updateData.text,
-        media: [],
+        media: [
+          {
+            url: "https://example.com/image.jpg",
+            type: "image" as const,
+          },
+        ],
         reactionsCount: 0,
         commentsCount: 0,
         createdAt: new Date().toISOString(),
@@ -163,7 +178,15 @@ describe("Post Creation Integration", () => {
 
   it("should handle complete post lifecycle", async () => {
     // Create
-    const createData = { text: "New post" };
+    const createData = {
+      text: "New post",
+      media: [
+        {
+          url: "https://example.com/image.jpg",
+          type: "image" as const,
+        },
+      ],
+    };
     const postId = "post123";
 
     mock.onPost("/posts").reply(200, {
@@ -172,7 +195,7 @@ describe("Post Creation Integration", () => {
         _id: postId,
         userId: "user123",
         text: createData.text,
-        media: [],
+        media: createData.media,
         reactionsCount: 0,
         commentsCount: 0,
         createdAt: new Date().toISOString(),

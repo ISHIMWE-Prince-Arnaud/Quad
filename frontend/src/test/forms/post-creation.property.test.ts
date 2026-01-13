@@ -28,7 +28,7 @@ describe("Property 25: Content Creation Validation", () => {
     vi.clearAllMocks();
   });
 
-  it("should successfully create and retrieve posts with valid text-only data", async () => {
+  it("should reject posts with text-only data", async () => {
     await fc.assert(
       fc.asyncProperty(
         // Generator for valid text-only posts (non-whitespace)
@@ -40,46 +40,7 @@ describe("Property 25: Content Creation Validation", () => {
 
           // Validate against schema
           const validationResult = createPostSchema.safeParse(postData);
-          expect(validationResult.success).toBe(true);
-
-          const createdPost = {
-            _id: "test-post-id",
-            userId: "test-user-id",
-            author: {
-              clerkId: "test-clerk-id",
-              username: "testuser",
-              email: "test@example.com",
-            },
-            text: postData.text,
-            media: [],
-            reactionsCount: 0,
-            commentsCount: 0,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          };
-
-          // Mock create
-          vi.mocked(endpoints.posts.create).mockResolvedValue({
-            data: { success: true, data: createdPost },
-          } as any);
-
-          // Mock getById
-          vi.mocked(endpoints.posts.getById).mockResolvedValue({
-            data: { success: true, data: createdPost },
-          } as any);
-
-          // Test creation
-          const createResult = await PostService.createPost(postData);
-          expect(createResult.success).toBe(true);
-          expect(createResult.data).toBeDefined();
-          expect(createResult.data._id).toBe(createdPost._id);
-
-          // Test retrieval
-          const retrieveResult = await PostService.getPostById(createdPost._id);
-          expect(retrieveResult.success).toBe(true);
-          expect(retrieveResult.data).toBeDefined();
-          expect(retrieveResult.data._id).toBe(createdPost._id);
-          expect(retrieveResult.data.text).toBe(text);
+          expect(validationResult.success).toBe(false);
         }
       ),
       { numRuns: 100 }
@@ -234,7 +195,15 @@ describe("Property 25: Content Creation Validation", () => {
           .string({ minLength: 1001, maxLength: 2000 })
           .filter((s) => s.trim().length >= 1001),
         async (text) => {
-          const postData = { text };
+          const postData = {
+            text,
+            media: [
+              {
+                url: "https://example.com/image.jpg",
+                type: "image" as const,
+              },
+            ],
+          };
 
           // Validate against schema - should fail due to length
           const validationResult = createPostSchema.safeParse(postData);
