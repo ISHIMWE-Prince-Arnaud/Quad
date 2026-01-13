@@ -14,7 +14,7 @@
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit && npm run lint"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.55.0",
