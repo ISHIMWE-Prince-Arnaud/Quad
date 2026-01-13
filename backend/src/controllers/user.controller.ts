@@ -111,10 +111,7 @@ export const updateUser = async (req: Request, res: Response) => {
       return res.status(403).json({ success: false, message: "Forbidden" });
     }
 
-    const updates = req.body as Partial<UpdateUserProfileSchemaType>;
-    const { previousUsernames: _ignored, clerkId: _ignoredClerkId, ...safeUpdates } = updates;
-    void _ignored;
-    void _ignoredClerkId;
+    const safeUpdates = req.body as Partial<UpdateUserProfileSchemaType>;
 
     const existingUser = await User.findOne({ clerkId });
     if (!existingUser) {

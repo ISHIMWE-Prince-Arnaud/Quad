@@ -18,7 +18,7 @@ export const createNotification = async (
     let actor = null;
     if (data.actorId) {
       actor = await User.findOne({ clerkId: data.actorId }).select(
-        "clerkId username displayName profileImage"
+        "clerkId username email displayName profileImage"
       );
     }
 
@@ -27,21 +27,29 @@ export const createNotification = async (
       id: String(notification._id),
       userId: notification.userId,
       type: notification.type,
-      actorId: notification.actorId,
-      contentId: notification.contentId,
-      contentType: notification.contentType,
+      ...(notification.actorId !== undefined ? { actorId: notification.actorId } : {}),
+      ...(notification.contentId !== undefined ? { contentId: notification.contentId } : {}),
+      ...(notification.contentType !== undefined
+        ? { contentType: notification.contentType }
+        : {}),
       message: notification.message,
       isRead: notification.isRead,
       createdAt: notification.createdAt,
-      actor: actor
+      ...(actor
         ? {
-        clerkId: actor.clerkId,
-        username: actor.username,
-        email: actor.email,
-        displayName: actor.displayName,
-        profileImage: actor.profileImage,
-        }
-        : undefined,
+            actor: {
+              clerkId: actor.clerkId,
+              username: actor.username,
+              email: actor.email,
+              ...(actor.displayName !== undefined
+                ? { displayName: actor.displayName }
+                : {}),
+              ...(actor.profileImage !== undefined
+                ? { profileImage: actor.profileImage }
+                : {}),
+            },
+          }
+        : {}),
     };
 
     // Emit real-time notification

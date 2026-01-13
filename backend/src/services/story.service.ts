@@ -8,6 +8,7 @@ import type {
 import { getSocketIO } from "../config/socket.config.js";
 import { emitContentDeleted, emitNewContent } from "../sockets/feed.socket.js";
 import { extractMentions } from "../utils/chat.util.js";
+import type { SortOrder } from "mongoose";
 import {
   createNotification,
   generateNotificationMessage,
@@ -112,7 +113,7 @@ export class StoryService {
       filter.$text = { $search: query.search };
     }
 
-    let sort: Record<string, unknown> = {};
+    let sort: Record<string, SortOrder> = {};
     switch (query.sortBy) {
       case "newest":
         sort = { publishedAt: -1, createdAt: -1 };

@@ -5,6 +5,9 @@ import { User } from "../models/User.model.js";
 import { Follow } from "../models/Follow.model.js";
 import { DatabaseService } from "../services/database.service.js";
 import { logger } from "./logger.util.js";
+import type { IPost } from "../types/post.types.js";
+import type { IPoll } from "../types/poll.types.js";
+import type { IStory } from "../types/story.types.js";
 import type {
   FeedItemType,
   ContentTab,
@@ -134,7 +137,7 @@ export const fetchPosts = async (
     );
 
     return posts.map((post) => {
-      const p = post as Record<string, unknown>;
+      const p = post as unknown as Record<string, unknown>;
       return {
       _id: p._id,
       type: "post" as FeedItemType,
@@ -332,9 +335,9 @@ export const scoreAndRankContent = async (
     const author = authorMap.get(item.authorId);
 
     return {
-      _id: item._id.toString(),
+      _id: String(item._id),
       type: item.type,
-      content: item.content,
+      content: item.content as IPost | IStory | IPoll,
       score,
       priority: isFollowing ? ("following" as ContentPriority) : ("discover" as ContentPriority),
       createdAt: item.createdAt,

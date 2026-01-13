@@ -120,7 +120,7 @@ export const getMyStories = asyncHandler(async (req: Request, res: Response) => 
     status?: string;
   };
 
-  const result = await StoryService.getMyStories(userId, { limit, skip, status });
+  const result = await StoryService.getMyStories(userId, { limit, skip, ...(status ? { status } : {}) });
 
   return res.status(200).json({
     success: true,

@@ -1,6 +1,9 @@
 import { Poll } from "../models/Poll.model.js";
 import { PollVote } from "../models/PollVote.model.js";
+import type { IPollVoteDocument } from "../models/PollVote.model.js";
 import { User } from "../models/User.model.js";
+import type { IMedia } from "../types/post.types.js";
+import type { SortOrder } from "mongoose";
 import type {
   CreatePollSchemaType,
   GetPollsQuerySchemaType,
@@ -95,7 +98,7 @@ export class PollService {
       filter._id = voted === true ? { $in: votedPollIds } : { $nin: votedPollIds };
     }
 
-    let sortOption: Record<string, unknown> = {};
+    let sortOption: Record<string, SortOrder> = {};
     switch (sort) {
       case "newest":
         sortOption = { createdAt: -1 };
@@ -120,13 +123,16 @@ export class PollService {
       Poll.countDocuments(filter),
     ]);
 
-    let userVotes: Record<string, unknown> = {};
+    let userVotes: Partial<Record<string, IPollVoteDocument>> = {};
     if (userId) {
       const votes = await PollVote.find({
         userId,
         pollId: { $in: polls.map((p) => p._id) },
       });
-      userVotes = Object.fromEntries(votes.map((v) => [v.pollId.toString(), v]));
+      userVotes = votes.reduce<Partial<Record<string, IPollVoteDocument>>>((acc, v) => {
+        acc[v.pollId.toString()] = v;
+        return acc;
+      }, {});
     }
 
     const formattedPolls = polls.map((poll) => {
@@ -134,7 +140,7 @@ export class PollService {
       const userVote = userVotes[pollId];
       const hasVoted = !!userVote;
       const showResults = canViewResults(poll, hasVoted);
-      return formatPollResponse(poll, userVote || undefined, showResults);
+      return formatPollResponse(poll, userVote, showResults);
     });
 
     return {
@@ -216,7 +222,15 @@ export class PollService {
     }
 
     if (updates.questionMedia !== undefined) {
-      poll.questionMedia = updates.questionMedia;
+      const { url, type, aspectRatio } = updates.questionMedia;
+
+      const questionMedia: IMedia = {
+        url,
+        type,
+        ...(aspectRatio !== undefined ? { aspectRatio } : {}),
+      };
+
+      poll.questionMedia = questionMedia;
     }
 
     await poll.save();

@@ -11,6 +11,8 @@ import { Follow } from "../models/Follow.model.js";
 import { logger } from "../utils/logger.util.js";
 import type { IUserDocument } from "../models/User.model.js";
 import type mongoose from "mongoose";
+import type { Document } from "mongoose";
+import type { LeanDocument } from "../types/mongoose.types.js";
 
 export class DatabaseService {
   /**
@@ -252,15 +254,16 @@ export class DatabaseService {
   /**
    * Get content with author populated (prevents N+1)
    */
-  static async getContentWithAuthor(
-    Model: mongoose.Model<unknown>,
-    query: mongoose.FilterQuery<unknown>,
-    options?: mongoose.QueryOptions<unknown>
-  ): Promise<unknown[]> {
+  static async getContentWithAuthor<T extends Document>(
+    Model: mongoose.Model<T>,
+    query: mongoose.FilterQuery<T>,
+    options?: mongoose.QueryOptions<T>
+  ): Promise<LeanDocument<T>[]> {
     try {
-      return await Model.find(query, null, options)
+      const results = await Model.find(query, null, options)
         .populate('author', 'username displayName profileImage')
         .lean();
+      return results as LeanDocument<T>[];
     } catch (error) {
       logger.error('Failed to get content with author', error);
       return [];

@@ -51,7 +51,7 @@ export const getCommentsByContent = asyncHandler(
     const result = await CommentService.getCommentsByContent(contentType, contentId, {
       limit,
       skip,
-      parentId,
+      ...(parentId ? { parentId } : {}),
     });
 
     return res.status(200).json({

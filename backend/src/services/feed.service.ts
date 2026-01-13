@@ -376,7 +376,7 @@ export class FeedService {
   static async getNewContentCount(userId: string, query: NewCountQuerySchemaType) {
     const { feedType, tab, since } = query;
 
-    const baseQuery: any = {
+    const baseQuery: Record<string, unknown> = {
       _id: { $gt: since },
     };
 

@@ -17,7 +17,7 @@ type ReactionGroup = {
 type BulkWriteModel = {
   bulkWrite: (
     ops: Array<mongoose.AnyBulkWriteOperation<unknown>>,
-    options?: mongoose.BulkWriteOptions
+    options?: mongoose.mongo.BulkWriteOptions
   ) => Promise<unknown>;
   updateMany: (
     filter: mongoose.FilterQuery<unknown>,

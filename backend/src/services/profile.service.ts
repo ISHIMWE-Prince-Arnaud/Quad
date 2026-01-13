@@ -11,7 +11,7 @@ import type {
   PaginationQuerySchemaType,
   UpdateProfileSchemaType,
 } from "../schemas/profile.schema.js";
-import { calculateProfileStats, formatProfileResponse } from "../utils/profile.util.js";
+import { calculateProfileStats, formatUserProfile } from "../utils/profile.util.js";
 import { propagateUserSnapshotUpdates } from "../utils/userSnapshotPropagation.util.js";
 import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
 import { AppError } from "../utils/appError.util.js";
@@ -77,7 +77,7 @@ export class ProfileService {
     await ProfileService.trackProfileView(user.clerkId, currentUserId);
 
     const stats = await calculateProfileStats(user.clerkId);
-    return formatProfileResponse(user, stats);
+    return formatUserProfile(user, stats);
   }
 
   static async getProfileByUsername(username: string, currentUserId: string | null) {
@@ -94,7 +94,7 @@ export class ProfileService {
     await ProfileService.trackProfileView(user.clerkId, currentUserId);
 
     const stats = await calculateProfileStats(user.clerkId);
-    const profile = formatProfileResponse(user, stats);
+    const profile = formatUserProfile(user, stats);
 
     return {
       profile,
@@ -234,7 +234,7 @@ export class ProfileService {
     }
 
     const stats = await calculateProfileStats(user.clerkId);
-    const profile = formatProfileResponse(user, stats);
+    const profile = formatUserProfile(user, stats);
 
     return profile;
   }
