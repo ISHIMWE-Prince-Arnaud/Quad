@@ -1,8 +1,24 @@
-import { IUser } from "./user.types.js";
-
 declare global {
+  interface IUser {
+    clerkId: string;
+    username: string;
+    previousUsernames?: string[];
+    email: string;
+    displayName?: string;
+    firstName?: string;
+    lastName?: string;
+    profileImage?: string;
+    coverImage?: string;
+    bio?: string;
+    isVerified?: boolean;
+    followersCount?: number;
+    followingCount?: number;
+    createdAt?: Date;
+    updatedAt?: Date;
+  }
+
   namespace Express {
-    export interface Request {
+    interface Request {
       user?: IUser;
       auth: {
         userId: string;
