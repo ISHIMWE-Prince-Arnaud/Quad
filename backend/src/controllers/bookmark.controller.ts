@@ -30,11 +30,12 @@ export const createBookmark = async (req: Request, res: Response) => {
       data: created,
       bookmarked: true,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error toggling bookmark", error);
+    const message = error instanceof Error ? error.message : "Server error";
     return res
       .status(500)
-      .json({ success: false, message: "Server error", error: error.message });
+      .json({ success: false, message: "Server error", error: message });
   }
 };
 
@@ -49,7 +50,7 @@ export const removeBookmark = async (req: Request, res: Response) => {
       success: true,
       message: "Bookmark removed",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error removing bookmark", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
@@ -62,7 +63,7 @@ export const getBookmarks = async (req: Request, res: Response) => {
     const query = parsedQuery as GetBookmarksQuerySchemaType;
     const { page, limit, contentType } = query;
 
-    const filter: any = { userId };
+    const filter: Record<string, unknown> = { userId };
     if (contentType) filter.contentType = contentType;
 
     const skip = (page - 1) * limit;
@@ -83,7 +84,7 @@ export const getBookmarks = async (req: Request, res: Response) => {
         hasMore: page < Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error fetching bookmarks", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
@@ -100,7 +101,7 @@ export const checkBookmark = async (req: Request, res: Response) => {
       success: true,
       data: { bookmarked: !!exists },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error checking bookmark", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }

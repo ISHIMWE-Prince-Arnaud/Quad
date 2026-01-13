@@ -52,9 +52,12 @@ export const createUser = async (req: Request, res: Response) => {
     });
 
     return res.status(201).json({ success: true, data: newUser });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error creating user", error);
-    return res.status(500).json({ success: false, message: "Server error", error: error.message });
+    const message = error instanceof Error ? error.message : "Server error";
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: message });
   }
 };
 
@@ -83,7 +86,7 @@ export const getUser = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({ success: true, data: user });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error fetching user", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
@@ -109,9 +112,7 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     const updates = req.body as Partial<UpdateUserProfileSchemaType>;
-    const { previousUsernames: _ignored, clerkId: _ignoredClerkId, ...safeUpdates } =
-      updates as any;
-
+    const { previousUsernames: _ignored, clerkId: _ignoredClerkId, ...safeUpdates } = updates;
     void _ignored;
     void _ignoredClerkId;
 
@@ -120,13 +121,18 @@ export const updateUser = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const updateOps: Record<string, any> = { $set: safeUpdates };
-    if (safeUpdates.username && safeUpdates.username !== existingUser.username) {
+    const updateOps: {
+      $set: Record<string, unknown>;
+      $addToSet?: Record<string, unknown>;
+    } = { $set: safeUpdates as Record<string, unknown> };
+
+    const nextUsername = safeUpdates.username;
+    if (typeof nextUsername === "string" && nextUsername !== existingUser.username) {
       const current = Array.isArray(existingUser.previousUsernames)
         ? existingUser.previousUsernames
         : [];
 
-      const next = current.filter((u) => u !== safeUpdates.username);
+      const next = current.filter((u) => u !== nextUsername);
       if (!next.includes(existingUser.username)) {
         next.push(existingUser.username);
       }
@@ -173,7 +179,7 @@ export const updateUser = async (req: Request, res: Response) => {
         clerkId: updatedUser.clerkId,
         ...propagationResult,
       });
-    } catch (propagationError: any) {
+    } catch (propagationError: unknown) {
       try {
         await session.abortTransaction();
       } catch {
@@ -181,7 +187,7 @@ export const updateUser = async (req: Request, res: Response) => {
       }
 
       // Fallback for deployments without transaction support.
-      const msg = typeof propagationError?.message === "string" ? propagationError.message : "";
+      const msg = propagationError instanceof Error ? propagationError.message : "";
       const isTxnUnsupported =
         msg.includes("Transaction") &&
         (msg.includes("replica set") || msg.includes("mongos") || msg.includes("not supported"));
@@ -226,7 +232,7 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({ success: true, data: updatedUser });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error updating user", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
@@ -258,7 +264,7 @@ export const deleteUser = async (req: Request, res: Response) => {
     }
 
     return res.status(200).json({ success: true, message: "User deleted successfully" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Error deleting user", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }

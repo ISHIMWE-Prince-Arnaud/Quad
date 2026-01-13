@@ -15,6 +15,16 @@ import {
   getTrendingSearches,
 } from "../utils/search.util.js";
 
+type SearchSortBy = "relevance" | "newest" | "oldest" | "popular";
+
+const parseSortBy = (value: unknown): SearchSortBy => {
+  if (typeof value !== "string") return "relevance";
+  if (value === "relevance" || value === "newest" || value === "oldest" || value === "popular") {
+    return value;
+  }
+  return "relevance";
+};
+
 // =========================
 // SEARCH CONTROLLERS
 // =========================
@@ -47,7 +57,7 @@ export const searchUsersController = async (req: Request, res: Response) => {
       query,
       limit: Number(limit) || 20,
       offset: Number(offset) || 0,
-      sortBy: (sortBy as any) || "relevance",
+      sortBy: parseSortBy(sortBy),
       fuzzy: fuzzy === "true",
       dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
       dateTo: dateTo ? new Date(dateTo as string) : undefined,
@@ -118,7 +128,7 @@ export const searchPostsController = async (req: Request, res: Response) => {
       query,
       limit: Number(limit) || 20,
       offset: Number(offset) || 0,
-      sortBy: (sortBy as any) || "relevance",
+      sortBy: parseSortBy(sortBy),
       fuzzy: fuzzy === "true",
       author: author as string,
       dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
@@ -191,7 +201,7 @@ export const searchPollsController = async (req: Request, res: Response) => {
       query,
       limit: Number(limit) || 20,
       offset: Number(offset) || 0,
-      sortBy: (sortBy as any) || "relevance",
+      sortBy: parseSortBy(sortBy),
       fuzzy: fuzzy === "true",
       author: author as string,
       dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
@@ -264,7 +274,7 @@ export const searchStoriesController = async (req: Request, res: Response) => {
       query,
       limit: Number(limit) || 20,
       offset: Number(offset) || 0,
-      sortBy: (sortBy as any) || "relevance",
+      sortBy: parseSortBy(sortBy),
       fuzzy: fuzzy === "true",
       author: author as string,
       dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
@@ -327,7 +337,7 @@ export const globalSearchController = async (req: Request, res: Response) => {
     const searchOptions = {
       query,
       limit: Number(limit) || 5,
-      sortBy: (sortBy as any) || "relevance",
+      sortBy: parseSortBy(sortBy),
       fuzzy: fuzzy === "true",
     };
 
