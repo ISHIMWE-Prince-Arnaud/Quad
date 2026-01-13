@@ -74,7 +74,7 @@ export class PollService {
   static async getAllPolls(userId: string | undefined, query: GetPollsQuerySchemaType) {
     const { page, limit, status, author, voted, search, sort } = query;
 
-    const filter: any = {};
+    const filter: Record<string, unknown> = {};
 
     if (status && status !== "all") {
       filter.status = status;
@@ -95,7 +95,7 @@ export class PollService {
       filter._id = voted === true ? { $in: votedPollIds } : { $nin: votedPollIds };
     }
 
-    let sortOption: any = {};
+    let sortOption: Record<string, unknown> = {};
     switch (sort) {
       case "newest":
         sortOption = { createdAt: -1 };
@@ -120,7 +120,7 @@ export class PollService {
       Poll.countDocuments(filter),
     ]);
 
-    let userVotes: any = {};
+    let userVotes: Record<string, unknown> = {};
     if (userId) {
       const votes = await PollVote.find({
         userId,
@@ -180,7 +180,7 @@ export class PollService {
       throw new AppError("Poll not found", 404);
     }
 
-    let userVote: any = undefined;
+    let userVote: unknown = undefined;
     let hasVoted = false;
 
     if (userId) {
@@ -192,7 +192,7 @@ export class PollService {
     }
 
     const showResults = canViewResults(poll, hasVoted);
-    const formattedPoll = formatPollResponse(poll, userVote, showResults);
+    const formattedPoll = formatPollResponse(poll, userVote as never, showResults);
 
     return formattedPoll;
   }
@@ -216,7 +216,7 @@ export class PollService {
     }
 
     if (updates.questionMedia !== undefined) {
-      (poll as any).questionMedia = updates.questionMedia as any;
+      poll.questionMedia = updates.questionMedia;
     }
 
     await poll.save();
@@ -264,7 +264,7 @@ export class PollService {
     }
 
     const vote = await PollVote.create({
-      pollId: id as any,
+      pollId: id,
       userId,
       optionIndices,
       votedAt: new Date(),

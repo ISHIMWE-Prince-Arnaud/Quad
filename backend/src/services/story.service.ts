@@ -92,7 +92,7 @@ export class StoryService {
     _userId: string | undefined,
     query: GetStoriesQuerySchemaType
   ) {
-    const filter: any = {};
+    const filter: Record<string, unknown> = {};
 
     if (query.status) {
       filter.status = query.status;
@@ -112,7 +112,7 @@ export class StoryService {
       filter.$text = { $search: query.search };
     }
 
-    let sort: any = {};
+    let sort: Record<string, unknown> = {};
     switch (query.sortBy) {
       case "newest":
         sort = { publishedAt: -1, createdAt: -1 };
@@ -268,11 +268,11 @@ export class StoryService {
 
   static async getMyStories(
     userId: string,
-    opts: { limit?: string; skip?: string; status?: any }
+    opts: { limit?: string; skip?: string; status?: string }
   ) {
     const { limit = "20", skip = "0", status } = opts;
 
-    const filter: any = { "author.clerkId": userId };
+    const filter: Record<string, unknown> = { "author.clerkId": userId };
 
     if (status === "draft" || status === "published") {
       filter.status = status;

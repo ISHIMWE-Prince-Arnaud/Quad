@@ -12,7 +12,7 @@ export class NotificationService {
   static async getNotifications(userId: string, query: GetNotificationsQuerySchemaType) {
     const { page, limit, unreadOnly } = query;
 
-    const filter: any = { userId };
+    const filter: Record<string, unknown> = { userId };
     if (unreadOnly) {
       filter.isRead = false;
     }
@@ -37,7 +37,7 @@ export class NotificationService {
     const actorMap = new Map(actors.map((actor) => [actor.clerkId, actor]));
 
     const formattedNotifications = notifications.map((notification) => ({
-      id: (notification._id as any).toString(),
+      id: String(notification._id),
       userId: notification.userId,
       type: notification.type,
       actorId: notification.actorId,

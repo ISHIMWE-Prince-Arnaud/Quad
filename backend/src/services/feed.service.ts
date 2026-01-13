@@ -13,12 +13,16 @@ import { Poll } from "../models/Poll.model.js";
 import { Post } from "../models/Post.model.js";
 import { Story } from "../models/Story.model.js";
 
-const getContentAuthorId = (content: any): string => {
-  return (
-    (content?.author?.clerkId as string | undefined) ||
-    (content?.userId as string | undefined) ||
-    ""
-  );
+const getContentAuthorId = (content: unknown): string => {
+  if (!content || typeof content !== "object") return "";
+  const obj = content as Record<string, unknown>;
+  const author = obj.author;
+  if (author && typeof author === "object") {
+    const clerkId = (author as Record<string, unknown>).clerkId;
+    if (typeof clerkId === "string") return clerkId;
+  }
+  const userId = obj.userId;
+  return typeof userId === "string" ? userId : "";
 };
 
 export class FeedService {
@@ -46,7 +50,7 @@ export class FeedService {
 
     let items: IRawContentItem[] = [];
 
-    const baseQuery: any = {};
+    const baseQuery: Record<string, unknown> = {};
     if (cursor) {
       baseQuery._id = { $lt: cursor };
     }

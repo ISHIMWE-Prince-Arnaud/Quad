@@ -67,7 +67,10 @@ export class ReactionService {
       throw new AppError("User not found", 404);
     }
 
-    const contentOwnerId = (content as any).userId || (content as any).clerkId;
+    const contentObj = content as unknown as Record<string, unknown>;
+    const contentOwnerId =
+      (typeof contentObj.userId === "string" ? contentObj.userId : undefined) ||
+      (typeof contentObj.clerkId === "string" ? contentObj.clerkId : undefined);
 
     const existingReaction = await Reaction.findOne({
       contentType,
@@ -179,7 +182,7 @@ export class ReactionService {
 
       await createNotification({
         userId: contentOwnerId,
-        type: notificationType as any,
+        type: notificationType,
         actorId: userId,
         contentId,
         contentType:

@@ -116,13 +116,17 @@ export class ProfileService {
       throw new AppError("Forbidden: You can only update your own profile", 403);
     }
 
-    const updateOps: Record<string, any> = { $set: updates };
+    const updateOps: {
+      $set: Record<string, unknown>;
+      $addToSet?: Record<string, unknown>;
+      $pull?: Record<string, unknown>;
+    } = { $set: updates as Record<string, unknown> };
     if (updates.username && updates.username !== userToUpdate.username) {
       updateOps.$addToSet = { previousUsernames: userToUpdate.username };
       updateOps.$pull = { previousUsernames: updates.username };
     }
 
-    let user: any = null;
+    let user: (typeof userToUpdate) | null = null;
 
     const session = await mongoose.startSession();
     try {
@@ -160,14 +164,14 @@ export class ProfileService {
         clerkId: user.clerkId,
         ...propagationResult,
       });
-    } catch (propagationError: any) {
+    } catch (propagationError: unknown) {
       try {
         await session.abortTransaction();
       } catch {
         // ignore
       }
 
-      const msg = typeof propagationError?.message === "string" ? propagationError.message : "";
+      const msg = propagationError instanceof Error ? propagationError.message : "";
       const isTxnUnsupported =
         msg.includes("Transaction") &&
         (msg.includes("replica set") || msg.includes("mongos") || msg.includes("not supported"));
@@ -218,12 +222,12 @@ export class ProfileService {
     try {
       await clerkClient.users.updateUser(
         currentUserId,
-        {
+        ({
           firstName: updates.firstName ?? undefined,
           lastName: updates.lastName ?? undefined,
           username: updates.username ?? undefined,
           imageUrl: updates.profileImage === null ? null : updates.profileImage ?? undefined,
-        } as any
+        } as unknown) as Parameters<typeof clerkClient.users.updateUser>[1]
       );
     } catch (clerkError) {
       logger.error("Failed to sync profile updates to Clerk", clerkError);
