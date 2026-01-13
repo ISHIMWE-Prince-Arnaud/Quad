@@ -16,6 +16,7 @@ import uploadRoutes from "../../routes/upload.routes.js";
 import searchRoutes from "../../routes/search.routes.js";
 import bookmarkRoutes from "../../routes/bookmark.routes.js";
 import analyticsRoutes from "../../routes/analytics.routes.js";
+import { errorHandler } from "../../middlewares/error.middleware.js";
 
 export const createTestApp = () => {
   const app = express();
@@ -46,6 +47,8 @@ export const createTestApp = () => {
   app.use("/api/analytics", analyticsRoutes);
   app.use("/api/upload", uploadRoutes);
   app.use("/api/search", searchRoutes);
+
+  app.use(errorHandler);
 
   return app;
 };

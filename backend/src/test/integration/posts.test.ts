@@ -37,7 +37,10 @@ describe("Posts CRUD", () => {
     const createRes = await request(app)
       .post("/api/posts")
       .set(getAuthHeaders(authorId))
-      .send({ text: "Original" });
+      .send({
+        text: "Original",
+        media: [{ url: "https://example.com/a.jpg", type: "image" }],
+      });
 
     const postId = createRes.body?.data?._id as string;
 
@@ -67,7 +70,10 @@ describe("Posts CRUD", () => {
     const createRes = await request(app)
       .post("/api/posts")
       .set(getAuthHeaders(authorId))
-      .send({ text: "To delete" });
+      .send({
+        text: "To delete",
+        media: [{ url: "https://example.com/a.jpg", type: "image" }],
+      });
 
     const postId = createRes.body?.data?._id as string;
 

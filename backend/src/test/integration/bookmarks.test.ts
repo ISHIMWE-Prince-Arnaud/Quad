@@ -17,7 +17,10 @@ describe("Bookmarks API", () => {
     const postRes = await request(app)
       .post("/api/posts")
       .set(getAuthHeaders(userId))
-      .send({ text: "Bookmark me" });
+      .send({
+        text: "Bookmark me",
+        media: [{ url: "https://example.com/a.jpg", type: "image" }],
+      });
 
     const postId = postRes.body?.data?._id as string;
 

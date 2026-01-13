@@ -4,7 +4,9 @@ import { describe, expect, it } from "vitest";
 import { createTestApp } from "../utils/testApp.js";
 import { getAuthHeaders } from "../utils/testAuth.js";
 
-const ensureUser = async (app: any, userId: string) => {
+type TestApp = ReturnType<typeof createTestApp>;
+
+const ensureUser = async (app: TestApp, userId: string) => {
   await request(app).post("/api/users").set(getAuthHeaders(userId)).send({});
 };
 
@@ -34,7 +36,10 @@ describe("Feed API", () => {
     await request(app)
       .post("/api/posts")
       .set(getAuthHeaders(authorId))
-      .send({ text: "From author" });
+      .send({
+        text: "From author",
+        media: [{ url: "https://example.com/a.jpg", type: "image" }],
+      });
 
     await request(app)
       .post(`/api/follow/${authorId}`)
@@ -57,7 +62,10 @@ describe("Feed API", () => {
     await request(app)
       .post("/api/posts")
       .set(getAuthHeaders(userId))
-      .send({ text: "P1" });
+      .send({
+        text: "P1",
+        media: [{ url: "https://example.com/a.jpg", type: "image" }],
+      });
 
     await request(app)
       .post("/api/polls")
@@ -90,12 +98,18 @@ describe("Feed API", () => {
     await request(app)
       .post("/api/posts")
       .set(getAuthHeaders(userId))
-      .send({ text: "P1" });
+      .send({
+        text: "P1",
+        media: [{ url: "https://example.com/a1.jpg", type: "image" }],
+      });
 
     await request(app)
       .post("/api/posts")
       .set(getAuthHeaders(userId))
-      .send({ text: "P2" });
+      .send({
+        text: "P2",
+        media: [{ url: "https://example.com/a2.jpg", type: "image" }],
+      });
 
     const first = await request(app)
       .get("/api/feed/foryou")
@@ -123,7 +137,10 @@ describe("Feed API", () => {
     await request(app)
       .post("/api/posts")
       .set(getAuthHeaders(userId))
-      .send({ text: "P1" });
+      .send({
+        text: "P1",
+        media: [{ url: "https://example.com/a.jpg", type: "image" }],
+      });
 
     const res = await request(app)
       .get("/api/feed/new-count")

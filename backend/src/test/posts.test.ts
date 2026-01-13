@@ -12,7 +12,12 @@ describe("Posts API", () => {
   it("POST /api/posts returns 401 when unauthenticated", async () => {
     const app = createTestApp();
 
-    const res = await request(app).post("/api/posts").send({ text: "Hello" });
+    const res = await request(app)
+      .post("/api/posts")
+      .send({
+        text: "Hello",
+        media: [{ url: "https://example.com/a.jpg", type: "image" }],
+      });
 
     expect(res.status).toBe(401);
     expect(res.body?.success).toBe(false);
@@ -24,7 +29,10 @@ describe("Posts API", () => {
     const res = await request(app)
       .post("/api/posts")
       .set(getAuthHeaders("missing_profile_user"))
-      .send({ text: "Hello" });
+      .send({
+        text: "Hello",
+        media: [{ url: "https://example.com/a.jpg", type: "image" }],
+      });
 
     expect(res.status).toBe(404);
     expect(res.body?.success).toBe(false);
@@ -39,7 +47,10 @@ describe("Posts API", () => {
     const createRes = await request(app)
       .post("/api/posts")
       .set(getAuthHeaders(userId))
-      .send({ text: "Hello world" });
+      .send({
+        text: "Hello world",
+        media: [{ url: "https://example.com/a.jpg", type: "image" }],
+      });
 
     expect(createRes.status).toBe(201);
     expect(createRes.body?.success).toBe(true);
@@ -68,7 +79,10 @@ describe("Posts API", () => {
     const createRes = await request(app)
       .post("/api/posts")
       .set(getAuthHeaders(authorId))
-      .send({ text: "Original" });
+      .send({
+        text: "Original",
+        media: [{ url: "https://example.com/a.jpg", type: "image" }],
+      });
 
     const postId = createRes.body?.data?._id as string;
 
