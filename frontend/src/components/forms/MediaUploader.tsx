@@ -18,7 +18,6 @@ interface MediaUploaderProps {
 interface UploadingFile {
   file: File;
   preview: string;
-  progress: number;
   error?: string;
 }
 
@@ -82,7 +81,6 @@ export function MediaUploader({
       const newUploadingFiles: UploadingFile[] = validFiles.map((file) => ({
         file,
         preview: URL.createObjectURL(file),
-        progress: 0,
       }));
 
       setUploadingFiles((prev) => [...prev, ...newUploadingFiles]);
@@ -93,13 +91,6 @@ export function MediaUploader({
         const uploadingIndex = uploadingFiles.length + i;
 
         try {
-          // Simulate progress (in production, use actual upload progress)
-          setUploadingFiles((prev) =>
-            prev.map((uf, idx) =>
-              idx === uploadingIndex ? { ...uf, progress: 50 } : uf
-            )
-          );
-
           const uploadResult = await UploadService.uploadPostMedia(file);
 
           // Detect aspect ratio for images
@@ -277,8 +268,7 @@ export function MediaUploader({
                   </div>
                 ) : (
                   <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                    <p className="text-white text-xs">{file.progress}%</p>
+                    <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto" />
                   </div>
                 )}
               </div>

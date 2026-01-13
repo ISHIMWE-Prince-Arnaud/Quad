@@ -50,7 +50,6 @@ export function useCreatePostMedia() {
       const newUploadingFiles: UploadingFile[] = validFiles.map((file) => ({
         file,
         preview: URL.createObjectURL(file),
-        progress: 0,
       }));
 
       const baseIndex = uploadingFiles.length;
@@ -62,10 +61,6 @@ export function useCreatePostMedia() {
         const localPreview = newUploadingFiles[i]?.preview;
 
         try {
-          setUploadingFiles((prev) =>
-            prev.map((uf, idx) => (idx === uploadingIndex ? { ...uf, progress: 50 } : uf))
-          );
-
           const uploadResult = await UploadService.uploadPostMedia(file);
 
           let aspectRatio: "1:1" | "16:9" | "9:16" | undefined;

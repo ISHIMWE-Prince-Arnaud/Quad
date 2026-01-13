@@ -91,7 +91,6 @@ export function MediaPreviewGrid({
                   ) : (
                     <div className="text-center">
                       <Loader2 className="h-8 w-8 text-white animate-spin mx-auto mb-2" />
-                      <p className="text-white text-xs">{file.progress}%</p>
                     </div>
                   )}
                 </div>
