@@ -45,9 +45,7 @@ export class PostService {
         ...(author.displayName !== undefined ? { displayName: author.displayName } : {}),
         ...(author.firstName !== undefined ? { firstName: author.firstName } : {}),
         ...(author.lastName !== undefined ? { lastName: author.lastName } : {}),
-        ...(author.profileImage !== undefined
-          ? { profileImage: author.profileImage }
-          : {}),
+        ...(author.profileImage !== undefined ? { profileImage: author.profileImage } : {}),
       },
     });
 

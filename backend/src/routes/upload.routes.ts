@@ -21,7 +21,7 @@ const router = Router();
  * Body (multipart/form-data):
  *   - file: image or video file
  *   - aspectRatio: "1:1" | "16:9" | "9:16" (optional, default: "1:1")
- * Max: 10MB images, 100MB videos
+ * Max: 10MB images, 1GB videos
  * Formats: JPEG, PNG, WebP, GIF, HEIC (images) | MP4, MOV, AVI, MKV, WebM (videos)
  * -------------------------
  */
@@ -35,7 +35,7 @@ router.post("/post", requireApiAuth, uploadSingle, uploadPostMedia);
  * Body (multipart/form-data):
  *   - file: image or video file
  *   - aspectRatio: "1:1" | "16:9" | "9:16" (optional, default: "9:16")
- * Max: 10MB images, 100MB videos
+ * Max: 10MB images, 1GB videos
  * Formats: JPEG, PNG, WebP, GIF, HEIC (images) | MP4, MOV, AVI, MKV, WebM (videos)
  * -------------------------
  */
@@ -49,7 +49,7 @@ router.post("/story", requireApiAuth, uploadSingle, uploadStoryMedia);
  * Body (multipart/form-data):
  *   - file: image or video file
  *   - aspectRatio: "1:1" | "16:9" | "9:16" (optional, default: "1:1")
- * Max: 10MB images, 100MB videos
+ * Max: 10MB images, 1GB videos
  * Formats: JPEG, PNG, WebP, GIF, HEIC (images) | MP4, MOV, AVI, MKV, WebM (videos)
  * -------------------------
  */
@@ -63,7 +63,7 @@ router.post("/poll", requireApiAuth, uploadSingle, uploadPollMedia);
  * Body (multipart/form-data):
  *   - file: image or video file
  *   - aspectRatio: "1:1" | "16:9" | "9:16" (optional, default: "1:1")
- * Max: 10MB images, 50MB videos
+ * Max: 10MB images, 1GB videos
  * Formats: JPEG, PNG, WebP, GIF, HEIC (images) | MP4, MOV, AVI, MKV, WebM (videos)
  * -------------------------
  */
@@ -76,7 +76,7 @@ router.post("/chat", requireApiAuth, uploadSingle, uploadChatMedia);
  * Protected: User must be signed in
  * Body (multipart/form-data):
  *   - file: image file only (no videos)
- * Max: 5MB
+ * Max: 10MB
  * Formats: JPEG, PNG, WebP, GIF, HEIC
  * Output: Always square (1:1 aspect ratio)
  * -------------------------

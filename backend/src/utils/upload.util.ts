@@ -203,7 +203,7 @@ export const getValidationRules = (preset: UploadPresetType) => {
       allowedTypes: imageTypes,
     },
     POST_VIDEO: {
-      maxSize: 100, // 100MB
+      maxSize: 1024, // 1GB
       allowedTypes: videoTypes,
     },
     STORY_IMAGE: {
@@ -211,7 +211,7 @@ export const getValidationRules = (preset: UploadPresetType) => {
       allowedTypes: imageTypes,
     },
     STORY_VIDEO: {
-      maxSize: 100, // 100MB
+      maxSize: 1024, // 1GB
       allowedTypes: videoTypes,
     },
     POLL_IMAGE: {
@@ -219,11 +219,11 @@ export const getValidationRules = (preset: UploadPresetType) => {
       allowedTypes: imageTypes,
     },
     POLL_VIDEO: {
-      maxSize: 100, // 100MB
+      maxSize: 1024, // 1GB
       allowedTypes: videoTypes,
     },
     PROFILE: {
-      maxSize: 5, // 5MB
+      maxSize: 10, // 10MB
       allowedTypes: imageTypes,
     },
     COVER: {
@@ -235,7 +235,7 @@ export const getValidationRules = (preset: UploadPresetType) => {
       allowedTypes: imageTypes,
     },
     CHAT_VIDEO: {
-      maxSize: 50, // 50MB (smaller than posts for chat)
+      maxSize: 1024, // 1GB
       allowedTypes: videoTypes,
     },
   };

@@ -212,8 +212,8 @@ export class UploadService {
   } {
     const maxSizes = {
       image: 10 * 1024 * 1024, // 10MB
-      video: 100 * 1024 * 1024, // 100MB
-      profileImage: 5 * 1024 * 1024, // 5MB
+      video: 1024 * 1024 * 1024, // 1GB
+      profileImage: 10 * 1024 * 1024, // 10MB
       coverImage: 10 * 1024 * 1024, // 10MB
     };
 
@@ -257,13 +257,21 @@ export class UploadService {
     }
 
     // Check file size
-    const maxSize = type === "video" ? maxSizes.video : maxSizes.image;
+    let maxSize: number;
+    let sizeLabel: string;
+
+    if (file.type.startsWith("video/")) {
+      maxSize = maxSizes.video;
+      sizeLabel = "1GB";
+    } else {
+      maxSize = maxSizes.image;
+      sizeLabel = "10MB";
+    }
+
     if (file.size > maxSize) {
       return {
         valid: false,
-        error: `File size too large. Maximum size is ${Math.round(
-          maxSize / 1024 / 1024
-        )}MB.`,
+        error: `File size too large. Maximum size is ${sizeLabel}.`,
       };
     }
 

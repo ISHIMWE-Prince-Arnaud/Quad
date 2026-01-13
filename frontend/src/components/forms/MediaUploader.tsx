@@ -200,7 +200,7 @@ export function MediaUploader({
           Click to upload or drag and drop
         </p>
         <p className="text-xs text-muted-foreground">
-          Images or videos (up to {maxFiles} files, max 10MB each)
+          Images (max 10MB) or Videos (max 1GB)
         </p>
         <input
           ref={fileInputRef}
