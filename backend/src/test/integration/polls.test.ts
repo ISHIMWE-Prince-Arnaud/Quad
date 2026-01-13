@@ -5,7 +5,9 @@ import { createTestApp } from "../utils/testApp.js";
 import { getAuthHeaders } from "../utils/testAuth.js";
 import { Poll } from "../../models/Poll.model.js";
 
-const ensureUser = async (app: any, userId: string) => {
+type TestApp = ReturnType<typeof createTestApp>;
+
+const ensureUser = async (app: TestApp, userId: string) => {
   await request(app).post("/api/users").set(getAuthHeaders(userId)).send({});
 };
 
