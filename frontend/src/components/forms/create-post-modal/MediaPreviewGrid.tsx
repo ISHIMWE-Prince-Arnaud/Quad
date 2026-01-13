@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Loader2 } from "lucide-react";
+import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import PulsingLogoSpinner from "@/components/ui/PulsingLogoSpinner";
 import type { MediaData } from "@/schemas/post.schema";
 
 import type { UploadingFile } from "./types";
@@ -89,9 +90,7 @@ export function MediaPreviewGrid({
                       </Button>
                     </div>
                   ) : (
-                    <div className="text-center">
-                      <Loader2 className="h-8 w-8 text-white animate-spin mx-auto mb-2" />
-                    </div>
+                    <PulsingLogoSpinner />
                   )}
                 </div>
               </Card>

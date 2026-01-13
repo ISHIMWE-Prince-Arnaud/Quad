@@ -7,6 +7,7 @@ import type { MediaData } from "@/schemas/post.schema";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { logError } from "@/lib/errorHandling";
+import PulsingLogoSpinner from "@/components/ui/PulsingLogoSpinner";
 
 interface MediaUploaderProps {
   onMediaChange: (media: MediaData[]) => void;
@@ -250,8 +251,8 @@ export function MediaUploader({
                   className="w-full h-full object-cover opacity-50"
                 />
               ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center opacity-50">
-                  <Video className="h-8 w-8 text-muted-foreground" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+                  <PulsingLogoSpinner />
                 </div>
               )}
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -267,9 +268,7 @@ export function MediaUploader({
                     </Button>
                   </div>
                 ) : (
-                  <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto" />
-                  </div>
+                  <PulsingLogoSpinner />
                 )}
               </div>
             </Card>

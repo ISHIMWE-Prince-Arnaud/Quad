@@ -121,6 +121,16 @@ export default {
           from: { transform: "rotate(0deg)" },
           to: { transform: "rotate(360deg)" },
         },
+        "breathing": {
+          from : {
+            transform: "scale(0.5)",
+            opacity: "0.8",
+          },
+          to : {
+            transform: "scale(1.5)",
+            opacity: "1",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -137,6 +147,7 @@ export default {
         shimmer: "shimmer 2s linear infinite",
         "bounce-in": "bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
         "spin-slow": "spin-slow 3s linear infinite",
+        "breathing": "breathing 2s ease-in-out infinite",
       },
       transitionDuration: {
         250: "250ms",
