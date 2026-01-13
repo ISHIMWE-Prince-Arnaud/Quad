@@ -112,6 +112,9 @@ export const updateUser = async (req: Request, res: Response) => {
     const { previousUsernames: _ignored, clerkId: _ignoredClerkId, ...safeUpdates } =
       updates as any;
 
+    void _ignored;
+    void _ignoredClerkId;
+
     const existingUser = await User.findOne({ clerkId });
     if (!existingUser) {
       return res.status(404).json({ success: false, message: "User not found" });

@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import type { IReaction, ReactableContentType } from "../types/reaction.types.js";
+import type { IReaction } from "../types/reaction.types.js";
 
 export interface IReactionDocument extends Omit<IReaction, "_id">, Document {}
 

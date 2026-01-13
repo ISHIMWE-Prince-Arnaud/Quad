@@ -3,13 +3,11 @@ import type { AspectRatio } from "../config/cloudinary.config.js";
 import { logger } from "../utils/logger.util.js";
 import {
   uploadToCloudinary,
-  uploadMultipleToCloudinary,
   deleteFromCloudinary,
   extractPublicIdFromUrl,
   validateFileType,
   validateFileSize,
   getValidationRules,
-  type UploadResult,
 } from "../utils/upload.util.js";
 import { User } from "../models/User.model.js";
 import { clerkClient } from "@clerk/express";

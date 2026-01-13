@@ -166,7 +166,7 @@ function checkCloudinary(): ServiceStatus {
       status: "up",
       message: "Cloudinary configured",
     };
-  } catch (error) {
+  } catch {
     return {
       status: "down",
       message: "Cloudinary check failed",
@@ -191,7 +191,7 @@ function checkClerk(): ServiceStatus {
       status: "up",
       message: "Clerk configured",
     };
-  } catch (error) {
+  } catch {
     return {
       status: "down",
       message: "Clerk check failed",
@@ -216,7 +216,7 @@ export const readinessCheck = async (_req: Request, res: Response) => {
       ready: true,
       message: "Server is ready",
     });
-  } catch (error) {
+  } catch {
     res.status(503).json({
       ready: false,
       message: "Server not ready",

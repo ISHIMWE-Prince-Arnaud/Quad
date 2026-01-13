@@ -31,11 +31,12 @@ export const verifyReactableContent = async (
       case "poll":
         content = await Poll.findById(contentId);
         break;
-      case "comment":
+      case "comment": {
         // Comments can be reacted to
         const { Comment } = await import("../models/Comment.model.js");
         content = await Comment.findById(contentId);
         break;
+      }
       default:
         return { exists: false };
     }

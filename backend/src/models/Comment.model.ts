@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import type { IComment, CommentableContentType } from "../types/comment.types.js";
+import type { IComment } from "../types/comment.types.js";
 
 export interface ICommentDocument extends Omit<IComment, "_id">, Document {}
 

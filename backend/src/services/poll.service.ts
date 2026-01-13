@@ -1,5 +1,4 @@
 import { Poll } from "../models/Poll.model.js";
-import type { IPollDocument } from "../models/Poll.model.js";
 import { PollVote } from "../models/PollVote.model.js";
 import { User } from "../models/User.model.js";
 import type {
