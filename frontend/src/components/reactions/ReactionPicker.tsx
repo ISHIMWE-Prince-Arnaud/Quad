@@ -8,12 +8,7 @@ import type { ReactionType } from "@/services/reactionService";
 import type { ReactNode } from "react";
 
 const REACTIONS: { type: ReactionType; label: string; emoji: string }[] = [
-  { type: "like", label: "Like", emoji: "👍" },
   { type: "love", label: "Love", emoji: "❤️" },
-  { type: "laugh", label: "Laugh", emoji: "😂" },
-  { type: "wow", label: "Wow", emoji: "😮" },
-  { type: "sad", label: "Sad", emoji: "😢" },
-  { type: "angry", label: "Angry", emoji: "😡" },
 ];
 
 interface ReactionPickerProps {

@@ -127,8 +127,7 @@ describe("Property 28: Reaction API Consistency", () => {
           const mockResponse = {
             reactions: [],
             reactionCounts: [
-              { type: "like" as ReactionType, count: 5 },
-              { type: "love" as ReactionType, count: 3 },
+              { type: "love" as ReactionType, count: 8 },
             ],
             userReaction: null,
             totalCount: 8,

@@ -10,12 +10,7 @@ import {
 import type { ReactionType } from "@/services/reactionService";
 
 const REACTIONS: { type: ReactionType; label: string; emoji: string }[] = [
-  { type: "like", label: "Like", emoji: "👍" },
   { type: "love", label: "Love", emoji: "❤️" },
-  { type: "laugh", label: "Laugh", emoji: "😂" },
-  { type: "wow", label: "Wow", emoji: "😮" },
-  { type: "sad", label: "Sad", emoji: "😢" },
-  { type: "angry", label: "Angry", emoji: "😡" },
 ];
 
 const LONG_PRESS_MS = 450;
