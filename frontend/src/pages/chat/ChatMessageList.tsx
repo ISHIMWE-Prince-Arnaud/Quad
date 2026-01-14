@@ -4,9 +4,9 @@ import type { RefObject } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import type { ChatMessage } from "@/types/chat";
 import { Loader2, MoreVertical } from "lucide-react";
-import { REACTION_EMOJIS } from "./constants";
 
 type MinimalUser = {
   clerkId: string;
@@ -271,37 +271,7 @@ export function ChatMessageList({
                 const headerName = isSelf ? "You" : m.author.username;
                 const headerTime = `${m.timestamp}${m.isEdited ? " • edited" : ""}`;
 
-                const reactionsSummary =
-                  Array.isArray(m.reactions) && m.reactions.length > 0
-                    ? m.reactions
-                        .slice()
-                        .sort((a, b) => b.count - a.count)
-                        .map((r) => (
-                          <button
-                            key={r.emoji}
-                            type="button"
-                            onClick={() => onToggleReaction(m.id, r.emoji)}
-                            className="inline-flex items-center gap-1 rounded-full bg-[#0F1623] px-3 py-1 text-xs text-white/85 border border-white/10 hover:bg-white/5"
-                            aria-label={`Toggle reaction ${r.emoji}`}>
-                            <span>{r.emoji}</span>
-                            <span className="tabular-nums">{r.count}</span>
-                          </button>
-                        ))
-                    : m.reactionsCount > 0
-                      ? [
-                          <button
-                            key="fallback"
-                            type="button"
-                            onClick={() =>
-                              onToggleReaction(m.id, m.userReaction || "👍")
-                            }
-                            className="inline-flex items-center gap-1 rounded-full bg-[#0F1623] px-3 py-1 text-xs text-white/85 border border-white/10 hover:bg-white/5"
-                            aria-label="Toggle reaction">
-                            <span>{m.userReaction || "👍"}</span>
-                            <span className="tabular-nums">{m.reactionsCount}</span>
-                          </button>,
-                        ]
-                      : [];
+                const isHeartReacted = m.userReaction === "❤️";
 
                 return (
                   <div
@@ -460,38 +430,27 @@ export function ChatMessageList({
                           )}
                         </div>
 
-                        {(reactionsSummary.length > 0 || showReactionPicker) && (
+                        {(m.reactionsCount > 0 || showReactionPicker) && (
                           <div
                             className={
                               isSelf
                                 ? "mt-2 flex items-center justify-end gap-2"
                                 : "mt-2 flex items-center justify-start gap-2"
                             }>
-                            {reactionsSummary.length > 0 && (
-                              <div className="flex items-center gap-2">
-                                {reactionsSummary}
-                              </div>
-                            )}
-
-                            {showReactionPicker && (
-                              <div
-                                className={
-                                  "inline-flex items-center gap-1 rounded-full bg-[#0B1220] border border-white/10 p-1 shadow-sm " +
-                                  "opacity-0 group-hover:opacity-100 transition"
-                                }>
-                                {REACTION_EMOJIS.map((emoji) => (
-                                  <button
-                                    key={emoji}
-                                    type="button"
-                                    onClick={() => onToggleReaction(m.id, emoji)}
-                                    className="h-9 w-9 rounded-full text-sm text-white/85 hover:bg-white/5"
-                                    aria-label={`React with ${emoji}`}
-                                    title={emoji}>
-                                    {emoji}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
+                            <div
+                              className={
+                                "opacity-0 group-hover:opacity-100 transition"
+                              }>
+                              <HeartReactionButton
+                                liked={isHeartReacted}
+                                count={m.reactionsCount}
+                                onToggle={() => onToggleReaction(m.id, "❤️")}
+                                className="inline-flex items-center gap-1 rounded-full bg-[#0F1623] px-3 py-1 text-xs text-white/85 border border-white/10 hover:bg-white/5"
+                                countClassName="text-xs tabular-nums text-white/85"
+                                iconClassName="h-4 w-4"
+                                ariaLabel={`React to message. ${m.reactionsCount} reactions`}
+                              />
+                            </div>
                           </div>
                         )}
                       </div>

@@ -227,7 +227,7 @@ export function useProfilePageController({
 
             const likedContentRefs = (reactionsRes.data || []).filter((r) => {
               return (
-                r.type === "like" &&
+                r.type === "love" &&
                 (r.contentType === "post" || r.contentType === "story" || r.contentType === "poll")
               );
             });
