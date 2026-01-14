@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Bookmark, MessageCircle, Share2 } from "lucide-react";
 
-import { QuickReactionPicker } from "@/components/reactions/QuickReactionPicker";
+import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import { cn } from "@/lib/utils";
 
 import type { ReactionType } from "@/services/reactionService";
@@ -10,7 +10,6 @@ export function StoryCardFooter({
   storyId,
   reactionPending,
   userReaction,
-  selectedEmoji,
   reactionCount,
   onSelectReaction,
   commentsCount,
@@ -21,7 +20,6 @@ export function StoryCardFooter({
   storyId: string;
   reactionPending: boolean;
   userReaction: ReactionType | null;
-  selectedEmoji: string;
   reactionCount: number;
   onSelectReaction: (type: ReactionType) => void;
   commentsCount: number;
@@ -32,22 +30,18 @@ export function StoryCardFooter({
   return (
     <div className="px-4 pb-3 pt-2 flex items-center justify-between text-xs text-muted-foreground border-t">
       <div className="flex items-center gap-3">
-        <QuickReactionPicker
-          onSelect={onSelectReaction}
-          onQuickSelect={(type) => onSelectReaction(type)}
-          quickType="love"
-          trigger={
-            <button
-              type="button"
-              disabled={reactionPending}
-              className={cn(
-                "flex items-center gap-1 hover:text-pink-600 transition-colors",
-                userReaction && "text-pink-600"
-              )}>
-              <span>{selectedEmoji}</span>
-              <span>{reactionCount}</span>
-            </button>
-          }
+        <HeartReactionButton
+          liked={Boolean(userReaction)}
+          count={reactionCount}
+          pending={reactionPending}
+          onToggle={() => void onSelectReaction("love")}
+          className={cn(
+            "flex items-center gap-1 hover:text-pink-600 transition-colors",
+            userReaction && "text-pink-600"
+          )}
+          iconClassName="h-3.5 w-3.5"
+          countClassName="text-xs font-normal"
+          ariaLabel={`React to story. ${reactionCount} reactions`}
         />
 
         <Link

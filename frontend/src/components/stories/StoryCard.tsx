@@ -31,7 +31,7 @@ export function StoryCard({ story, onDelete, className }: StoryCardProps) {
   const isOwner = user?.clerkId === story.author.clerkId;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { bookmarked, handleToggleBookmark } = useStoryBookmark(story._id);
-  const { userReaction, reactionPending, reactionCount, selectedEmoji, handleSelectReaction } =
+  const { userReaction, reactionPending, reactionCount, handleSelectReaction } =
     useStoryReactions({ storyId: story._id, initialTotal: story.reactionsCount || 0 });
   const handleCopyLink = useStoryShare({ storyId: story._id, title: story.title });
 
@@ -93,7 +93,6 @@ export function StoryCard({ story, onDelete, className }: StoryCardProps) {
               storyId={story._id}
               reactionPending={reactionPending}
               userReaction={userReaction}
-              selectedEmoji={selectedEmoji}
               reactionCount={reactionCount}
               onSelectReaction={handleSelectReaction}
               commentsCount={story.commentsCount || 0}

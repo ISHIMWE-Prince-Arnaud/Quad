@@ -60,7 +60,6 @@ export default function StoryPage() {
           viewsCount={controller.story.viewsCount}
           readingTime={controller.readingTime}
           userReaction={controller.userReaction}
-          reactionCounts={controller.reactionCounts}
           totalReactions={controller.totalReactions}
           onSelectReaction={(type) => void controller.handleSelectReaction(type)}
         />

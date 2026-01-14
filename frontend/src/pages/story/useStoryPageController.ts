@@ -6,7 +6,6 @@ import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
 import { logError } from "@/lib/errorHandling";
 
-import { EMPTY_REACTION_COUNTS } from "./constants";
 import { getErrorMessage } from "./getErrorMessage";
 
 export function useStoryPageController({
@@ -23,13 +22,7 @@ export function useStoryPageController({
   const [deleting, setDeleting] = useState(false);
 
   const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
-  const [reactionCounts, setReactionCounts] = useState<Record<ReactionType, number>>({
-    ...EMPTY_REACTION_COUNTS,
-  });
-
-  const totalReactions = useMemo(() => {
-    return (Object.values(reactionCounts) as number[]).reduce((a, b) => a + b, 0);
-  }, [reactionCounts]);
+  const [totalReactions, setTotalReactions] = useState(0);
 
   const readingTime = useMemo(() => {
     if (!story?.content) return 0;
@@ -72,12 +65,8 @@ export function useStoryPageController({
       try {
         const res = await ReactionService.getByContent("story", id);
         if (!cancelled && res.success && res.data) {
-          const next: Record<ReactionType, number> = { ...EMPTY_REACTION_COUNTS };
-          for (const rc of res.data.reactionCounts) {
-            next[rc.type] = rc.count;
-          }
-          setReactionCounts(next);
-          setUserReaction((res.data.userReaction?.type as ReactionType) || null);
+          setTotalReactions(res.data.totalCount ?? 0);
+          setUserReaction(res.data.userReaction?.type ?? null);
         }
       } catch (err) {
         logError(err, {
@@ -136,28 +125,24 @@ export function useStoryPageController({
     async (type: ReactionType) => {
       if (!id) return;
       const prevType = userReaction;
-      const prevCounts = { ...reactionCounts };
 
-      const nextCounts: Record<ReactionType, number> = { ...prevCounts };
-      if (prevType === type) {
-        nextCounts[type] = Math.max(0, (nextCounts[type] ?? 0) - 1);
-        setUserReaction(null);
-      } else {
-        if (prevType) {
-          nextCounts[prevType] = Math.max(0, (nextCounts[prevType] ?? 0) - 1);
-        }
-        nextCounts[type] = (nextCounts[type] ?? 0) + 1;
-        setUserReaction(type);
-      }
-      setReactionCounts(nextCounts);
+      const prevTotal = totalReactions;
+      const wasReacted = prevType === type;
+      const nextTotal = wasReacted ? Math.max(0, prevTotal - 1) : prevTotal + 1;
+      setUserReaction(wasReacted ? null : type);
+      setTotalReactions(nextTotal);
 
       try {
-        if (prevType === type) {
-          const res = await ReactionService.remove("story", id);
-          if (!res.success) throw new Error(res.message || "Failed to remove");
-        } else {
-          const res = await ReactionService.toggle("story", id, type);
-          if (!res.success) throw new Error(res.message || "Failed to react");
+        const res = await ReactionService.toggle("story", id, type);
+        if (!res.success) throw new Error(res.message || "Failed to update reaction");
+
+        if (typeof res.reactionCount === "number") {
+          setTotalReactions(res.reactionCount);
+        }
+        if (res.data === null) {
+          setUserReaction(null);
+        } else if (res.data) {
+          setUserReaction(res.data.type);
         }
       } catch (err) {
         logError(err, {
@@ -166,11 +151,11 @@ export function useStoryPageController({
           metadata: { id, reactionType: type },
         });
         toast.error("Failed to update reaction");
-        setReactionCounts(prevCounts);
         setUserReaction(prevType);
+        setTotalReactions(prevTotal);
       }
     },
-    [id, reactionCounts, userReaction]
+    [id, totalReactions, userReaction]
   );
 
   return {
@@ -181,7 +166,6 @@ export function useStoryPageController({
     setIsDeleteDialogOpen,
     deleting,
     userReaction,
-    reactionCounts,
     totalReactions,
     readingTime,
     handleShare,
