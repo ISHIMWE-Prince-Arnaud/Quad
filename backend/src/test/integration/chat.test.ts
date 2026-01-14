@@ -91,7 +91,7 @@ describe("Chat API", () => {
     const add = await request(app)
       .post(`/api/chat/messages/${messageId}/reactions`)
       .set(getAuthHeaders(reactorId))
-      .send({ emoji: "👍" });
+      .send({ emoji: "❤️" });
 
     expect(add.status).toBe(200);
 
