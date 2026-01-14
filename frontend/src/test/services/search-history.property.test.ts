@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import * as fc from "fast-check";
 import { SearchService } from "@/services/searchService";
-import { api } from "@/lib/api";
+import { endpoints } from "@/lib/api";
 
 // Feature: quad-production-ready, Property 34: Search History Persistence
 // For any search performed, it should be saved to search history and retrievable via the history endpoint.
@@ -28,14 +28,14 @@ describe("Search History Property Tests", () => {
             createdAt: new Date(Date.now() - index * 1000).toISOString(),
           }));
 
-          vi.spyOn(api, "get").mockResolvedValueOnce({
+          vi.spyOn(endpoints.search, "history").mockResolvedValueOnce({
             data: {
               success: true,
               data: {
                 history: mockHistory.slice(0, limit),
               },
             },
-          });
+          } as any);
 
           // Get search history
           const history = await SearchService.getSearchHistory(limit);
@@ -45,9 +45,7 @@ describe("Search History Property Tests", () => {
           expect(Array.isArray(history)).toBe(true);
 
           // Property 2: API should be called with correct limit
-          expect(api.get).toHaveBeenCalledWith("/search/history", {
-            params: { limit },
-          });
+          expect(endpoints.search.history).toHaveBeenCalledWith({ limit });
 
           // Property 3: Returned history should not exceed limit
           expect(history.length).toBeLessThanOrEqual(limit);
@@ -70,20 +68,18 @@ describe("Search History Property Tests", () => {
         fc.string({ minLength: 10, maxLength: 30 }),
         async (historyId) => {
           // Mock delete response
-          vi.spyOn(api, "delete").mockResolvedValueOnce({
+          vi.spyOn(endpoints.search, "deleteHistory").mockResolvedValueOnce({
             data: {
               success: true,
               data: {},
             },
-          });
+          } as any);
 
           // Delete history item
           await SearchService.deleteSearchHistoryItem(historyId);
 
           // Property: API should be called with correct history ID
-          expect(api.delete).toHaveBeenCalledWith(
-            `/search/history/${historyId}`
-          );
+          expect(endpoints.search.deleteHistory).toHaveBeenCalledWith(historyId);
         }
       ),
       { numRuns: 100 }
@@ -94,18 +90,18 @@ describe("Search History Property Tests", () => {
     await fc.assert(
       fc.asyncProperty(fc.constant(null), async () => {
         // Mock clear response
-        vi.spyOn(api, "delete").mockResolvedValueOnce({
+        vi.spyOn(endpoints.search, "deleteHistory").mockResolvedValueOnce({
           data: {
             success: true,
             data: {},
           },
-        });
+        } as any);
 
         // Clear all history
         await SearchService.clearSearchHistory();
 
         // Property: API should be called to clear all history
-        expect(api.delete).toHaveBeenCalledWith("/search/history");
+        expect(endpoints.search.deleteHistory).toHaveBeenCalledWith();
       }),
       { numRuns: 100 }
     );
@@ -115,14 +111,14 @@ describe("Search History Property Tests", () => {
     await fc.assert(
       fc.asyncProperty(fc.integer({ min: 1, max: 50 }), async (limit) => {
         // Mock empty history response
-        vi.spyOn(api, "get").mockResolvedValueOnce({
+        vi.spyOn(endpoints.search, "history").mockResolvedValueOnce({
           data: {
             success: true,
             data: {
               history: [],
             },
           },
-        });
+        } as any);
 
         // Get search history
         const history = await SearchService.getSearchHistory(limit);
@@ -150,14 +146,14 @@ describe("Search History Property Tests", () => {
             createdAt: new Date(Date.now() - index * 60000).toISOString(), // Each 1 minute apart
           }));
 
-          vi.spyOn(api, "get").mockResolvedValueOnce({
+          vi.spyOn(endpoints.search, "history").mockResolvedValueOnce({
             data: {
               success: true,
               data: {
                 history: mockHistory,
               },
             },
-          });
+          } as any);
 
           // Get search history
           const history = await SearchService.getSearchHistory(20);
@@ -183,7 +179,9 @@ describe("Search History Property Tests", () => {
     await fc.assert(
       fc.asyncProperty(fc.integer({ min: 1, max: 50 }), async (limit) => {
         // Mock API error
-        vi.spyOn(api, "get").mockRejectedValueOnce(new Error("Network error"));
+        vi.spyOn(endpoints.search, "history").mockRejectedValueOnce(
+          new Error("Network error")
+        );
 
         // Property: Service should handle errors without crashing
         await expect(SearchService.getSearchHistory(limit)).rejects.toThrow();

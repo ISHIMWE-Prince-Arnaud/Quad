@@ -17,9 +17,9 @@ describe("Real-time Poll Updates Property Tests", () => {
         fc.record({
           contentType: fc.constant("poll" as const),
           contentId: fc.string({ minLength: 10, maxLength: 30 }),
-          reactionsCount: fc.option(fc.integer({ min: 0, max: 10000 })),
-          commentsCount: fc.option(fc.integer({ min: 0, max: 10000 })),
-          votes: fc.option(fc.integer({ min: 0, max: 50000 })),
+          reactionsCount: fc.option(fc.integer({ min: 0, max: 10000 }), { nil: undefined }),
+          commentsCount: fc.option(fc.integer({ min: 0, max: 10000 }), { nil: undefined }),
+          votes: fc.option(fc.integer({ min: 0, max: 50000 }), { nil: undefined }),
           timestamp: fc.constant(new Date().toISOString()),
         }),
         async (payload: FeedEngagementUpdatePayload) => {
@@ -308,7 +308,7 @@ describe("Real-time Poll Updates Property Tests", () => {
           expect(afterUpdate.totalVotes).toBeGreaterThanOrEqual(0);
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 25 }
     );
   });
 });

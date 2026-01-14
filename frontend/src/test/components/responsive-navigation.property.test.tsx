@@ -41,6 +41,10 @@ vi.mock("@/components/search/GlobalSearchBar", () => ({
   GlobalSearchBar: () => <div data-testid="search-bar">Search</div>,
 }));
 
+vi.mock("@/components/theme/ThemeSelector", () => ({
+  ThemeSelector: () => <div role="group" aria-label="Theme selector" />,
+}));
+
 // Mock right panel children to avoid async effects leaking after teardown
 vi.mock("@/components/polls/FeaturedPoll", () => ({
   FeaturedPoll: () => <div data-testid="featured-poll" />,
@@ -329,7 +333,7 @@ describe("Responsive Navigation Property Tests", () => {
         );
 
         // Property: Theme control should be present on desktop
-        expect(screen.getAllByLabelText("Theme selector").length).toBeGreaterThan(0);
+        expect(screen.getAllByRole("group", { name: "Theme selector" }).length).toBeGreaterThan(0);
 
         cleanup();
 
@@ -350,7 +354,7 @@ describe("Responsive Navigation Property Tests", () => {
         });
 
         // Property: Theme selector should be present in navbar
-        expect(screen.getAllByLabelText("Theme selector").length).toBeGreaterThan(
+        expect(screen.getAllByRole("group", { name: "Theme selector" }).length).toBeGreaterThan(
           0
         );
       }),

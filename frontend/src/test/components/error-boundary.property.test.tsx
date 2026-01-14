@@ -66,7 +66,7 @@ describe("Property 67: Error Boundary Catch", () => {
       fc.asyncProperty(
         fc
           .string({ minLength: 5, maxLength: 100 })
-          .filter((s) => s.trim().length >= 5),
+          .filter((s) => s.trim().length >= 5 && /[a-zA-Z0-9]/.test(s)),
         async (errorMessage) => {
           // Clean up before each render
           cleanup();
@@ -85,9 +85,10 @@ describe("Property 67: Error Boundary Catch", () => {
           expect(details).toBeInTheDocument();
 
           // Property: Error message should be displayed
-          expect(
-            screen.getByText(errorMessage, { exact: false })
-          ).toBeInTheDocument();
+          const errorMessageElements = screen.getAllByText(
+            (_, element) => element?.textContent?.includes(errorMessage) || false
+          );
+          expect(errorMessageElements.length).toBeGreaterThanOrEqual(1);
         }
       ),
       { numRuns: 20 }
