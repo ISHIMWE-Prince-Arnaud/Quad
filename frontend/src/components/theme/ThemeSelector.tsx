@@ -1,77 +1,48 @@
-import { Moon, Sun, Monitor } from "lucide-react";
-import { motion } from "framer-motion";
+import { Moon, Sun } from "lucide-react";
 import { useThemeStore } from "@/stores/themeStore";
 import { cn } from "@/lib/utils";
 
 export function ThemeSelector() {
-  const { theme, setTheme } = useThemeStore();
-
-  const themes = [
-    { name: "Light", icon: Sun, value: "light" as const },
-    { name: "Dark", icon: Moon, value: "dark" as const },
-    { name: "System", icon: Monitor, value: "system" as const },
-  ];
+  const { effectiveTheme, setTheme } = useThemeStore();
 
   return (
-    <motion.div
-      role="group"
-      aria-label="Theme selector"
-      className="flex items-center gap-1 p-1 rounded-xl bg-accent/70 backdrop-blur-sm border border-border/40 shadow-sm"
-      initial={false}
-      animate={{ opacity: 1 }}
-    >
-      {themes.map(({ name, icon: Icon, value }) => {
-        const isActive = theme === value;
+    <div className="p-6 pt-4 border-t border-white/5 bg-[#0a0c10]/95 backdrop-blur supports-[backdrop-filter]:bg-[#0a0c10]/70">
+          <div
+            role="group"
+            aria-label="Theme"
+            className="flex items-center justify-between rounded-full bg-white/[0.04] border border-white/5 p-1">
+            <button
+              type="button"
+              onClick={() => setTheme("light")}
+              aria-pressed={effectiveTheme === "light"}
+              className={cn(
+                "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0c10]",
+                effectiveTheme === "light"
+                  ? "bg-[#2563eb] text-white shadow-[0_10px_20px_rgba(37,99,235,0.25)]"
+                  : "text-[#94a3b8] hover:text-white"
+              )}
+              title="Light">
+              <Sun className="h-4 w-4" />
+              Light
+            </button>
 
-        return (
-          <motion.button
-            key={value}
-            onClick={() => setTheme(value)}
-            aria-pressed={isActive}
-            aria-label={`Switch to ${name.toLowerCase()} theme`}
-            className={cn(
-              "relative flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-md transition-colors text-xs font-medium",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              isActive
-                ? "text-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.94 }}
-          >
-            {/* Improved selection indicator */}
-            {isActive && (
-              <motion.div
-                layoutId="theme-selector-indicator"
-                className="absolute inset-0 rounded-md bg-background/90 shadow-md border border-border/40"
-                transition={{
-                  type: "spring",
-                  stiffness: 350,
-                  damping: 28,
-                }}
-              />
-            )}
-
-            {/* Icon animation */}
-            <motion.div
-              className="relative z-10"
-              animate={{
-                rotate: isActive ? [0, 360] : 0,
-                scale: isActive ? [1, 1.15, 1] : 1,
-              }}
-              transition={{
-                duration: 0.45,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              <Icon className="h-4 w-4" aria-hidden="true" />
-            </motion.div>
-
-            {/* Optional icon label */}
-            <span className="relative z-10">{name}</span>
-          </motion.button>
-        );
-      })}
-    </motion.div>
+            <button
+              type="button"
+              onClick={() => setTheme("dark")}
+              aria-pressed={effectiveTheme === "dark"}
+              className={cn(
+                "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0c10]",
+                effectiveTheme === "dark"
+                  ? "bg-[#2563eb] text-white shadow-[0_10px_20px_rgba(37,99,235,0.25)]"
+                  : "text-[#94a3b8] hover:text-white"
+              )}
+              title="Dark">
+              <Moon className="h-4 w-4" />
+              Dark
+            </button>
+        </div>
+    </div>
   );
 }

@@ -16,7 +16,6 @@ import { useAuthStore } from "@/stores/authStore";
 import { useAuth } from "@clerk/clerk-react";
 import { cn } from "@/lib/utils";
 import { logError } from "@/lib/errorHandling";
-import { ThemeSelector } from "@/components/theme/ThemeSelector";
 
 // Assuming these UI components exist in your project structure
 import {
@@ -125,10 +124,6 @@ export function Sidebar() {
       </nav>
 
       <div className="px-4 pb-8 pt-6 space-y-3 border-t border-white/5">
-        <div className="flex justify-center">
-          <ThemeSelector />
-        </div>
-
         <Button
           asChild
           className="w-full rounded-2xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-[0_10px_20px_rgba(37,99,235,0.25)]">
