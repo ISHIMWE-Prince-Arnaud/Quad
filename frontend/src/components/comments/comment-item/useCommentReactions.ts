@@ -1,10 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import { ReactionService } from "@/services/reactionService";
 import type { ReactionType } from "@/services/reactionService";
-
-import { EMPTY_REACTION_COUNTS, reactionEmojiMap } from "./constants";
 
 export function useCommentReactions({
   commentId,
@@ -16,9 +14,6 @@ export function useCommentReactions({
   const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
   const [reactionPending, setReactionPending] = useState(false);
   const [reactionCount, setReactionCount] = useState<number>(initialCount);
-  const [reactionCounts, setReactionCounts] = useState<
-    Record<ReactionType, number>
-  >(() => ({ ...EMPTY_REACTION_COUNTS }));
 
   useEffect(() => {
     let cancelled = false;
@@ -31,16 +26,6 @@ export function useCommentReactions({
           if (typeof res.data.totalCount === "number") {
             setReactionCount(res.data.totalCount);
           }
-
-          if (Array.isArray(res.data.reactionCounts)) {
-            const nextCounts: Record<ReactionType, number> = {
-              ...EMPTY_REACTION_COUNTS,
-            };
-            for (const rc of res.data.reactionCounts) {
-              nextCounts[rc.type] = rc.count;
-            }
-            setReactionCounts(nextCounts);
-          }
         }
       } catch {
         // ignore
@@ -51,36 +36,16 @@ export function useCommentReactions({
     };
   }, [commentId]);
 
-  const selectedEmoji = useMemo(
-    () => (userReaction ? reactionEmojiMap[userReaction] : "❤️"),
-    [userReaction]
-  );
-
   const selectReaction = async (type: ReactionType) => {
     if (reactionPending) return;
     setReactionPending(true);
 
     const prevType = userReaction;
     const prevCount = reactionCount;
-    const prevCounts = reactionCounts;
 
-    const nextCounts: Record<ReactionType, number> = { ...prevCounts };
-    if (prevType === type) {
-      nextCounts[type] = Math.max(0, (nextCounts[type] ?? 0) - 1);
-      setUserReaction(null);
-    } else {
-      if (prevType) {
-        nextCounts[prevType] = Math.max(0, (nextCounts[prevType] ?? 0) - 1);
-      }
-      nextCounts[type] = (nextCounts[type] ?? 0) + 1;
-      setUserReaction(type);
-    }
-
-    const nextTotal = (Object.values(nextCounts) as number[]).reduce(
-      (sum, value) => sum + value,
-      0
-    );
-    setReactionCounts(nextCounts);
+    const wasReacted = prevType === type;
+    const nextTotal = wasReacted ? Math.max(0, prevCount - 1) : prevCount + 1;
+    setUserReaction(wasReacted ? null : type);
     setReactionCount(nextTotal);
 
     try {
@@ -93,7 +58,6 @@ export function useCommentReactions({
       }
     } catch (e) {
       setUserReaction(prevType);
-      setReactionCounts(prevCounts);
       setReactionCount(prevCount);
       const msg = e instanceof Error ? e.message : "Failed to update reaction";
       toast.error(msg);
@@ -106,8 +70,6 @@ export function useCommentReactions({
     userReaction,
     reactionPending,
     reactionCount,
-    reactionCounts,
-    selectedEmoji,
     selectReaction,
   };
 }

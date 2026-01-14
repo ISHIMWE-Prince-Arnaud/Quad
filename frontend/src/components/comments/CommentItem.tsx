@@ -11,7 +11,6 @@ import { CommentReplies } from "./comment-item/CommentReplies";
 import { CommentReplyComposer } from "./comment-item/CommentReplyComposer";
 import { CommentReplyControls } from "./comment-item/CommentReplyControls";
 import { useCommentEdit } from "./comment-item/useCommentEdit";
-import { useCommentLike } from "./comment-item/useCommentLike";
 import { useCommentReactions } from "./comment-item/useCommentReactions";
 import { useCommentReplies } from "./comment-item/useCommentReplies";
 
@@ -27,16 +26,10 @@ export function CommentItem({ comment, onDeleted }: CommentItemProps) {
     userReaction,
     reactionPending,
     reactionCount,
-    reactionCounts,
     selectReaction,
   } = useCommentReactions({
     commentId: comment._id,
     initialCount: comment.reactionsCount || 0,
-  });
-
-  const { likesCount, liked, likePending, toggleLike } = useCommentLike({
-    commentId: comment._id,
-    initialCount: comment.likesCount || 0,
   });
 
   const {
@@ -106,14 +99,9 @@ export function CommentItem({ comment, onDeleted }: CommentItemProps) {
             />
 
             <CommentEngagementBar
-              liked={liked}
-              likesCount={likesCount}
-              likePending={likePending}
-              onToggleLike={() => void toggleLike()}
               userReaction={userReaction}
               reactionCount={reactionCount}
               reactionPending={reactionPending}
-              reactionCounts={reactionCounts}
               onSelectReaction={(type) => void selectReaction(type)}
             />
 
