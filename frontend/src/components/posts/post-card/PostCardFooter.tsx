@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import { Bookmark, MessageCircle, Share2 } from "lucide-react";
-import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
-import { QuickReactionPicker } from "@/components/reactions/QuickReactionPicker";
+import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import type { ReactionType } from "@/services/reactionService";
 
 export function PostCardFooter({
@@ -15,7 +14,6 @@ export function PostCardFooter({
   onCopyLink,
   userReaction,
   reactionPending,
-  selectedEmoji,
   reactionCount,
   onSelectReaction,
 }: {
@@ -27,9 +25,7 @@ export function PostCardFooter({
   onCopyLink: () => void | Promise<void>;
   userReaction: ReactionType | null;
   reactionPending: boolean;
-  selectedEmoji: string;
   reactionCount: number;
-  reactionCounts: Record<ReactionType, number>;
   onSelectReaction: (type: ReactionType) => void | Promise<void>;
 }) {
   const actionBase =
@@ -38,28 +34,14 @@ export function PostCardFooter({
   return (
     <>
       <div className="flex items-center gap-6 flex-1">
-        <QuickReactionPicker
-          onSelect={onSelectReaction}
-          onQuickSelect={(type) => onSelectReaction(type)}
-          quickType="love"
-          trigger={
-            <button
-              type="button"
-              disabled={reactionPending}
-              className={cn(
-                actionBase,
-                "hover:bg-white/5 hover:text-[#f43f5e]",
-                "disabled:opacity-50 disabled:cursor-not-allowed",
-                userReaction && "text-[#f43f5e]"
-              )}
-              aria-label={`Like post. ${reactionCount} likes`}
-              title="React">
-              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                <span className="text-lg leading-none">{selectedEmoji}</span>
-              </motion.div>
-              <span className="text-xs font-bold">{reactionCount}</span>
-            </button>
-          }
+        <HeartReactionButton
+          liked={Boolean(userReaction)}
+          count={reactionCount}
+          pending={reactionPending}
+          onToggle={() => void onSelectReaction("love")}
+          ariaLabel={`React to post. ${reactionCount} reactions`}
+          className={cn(actionBase, "hover:bg-white/5")}
+          countClassName="text-xs font-bold text-[#64748b]"
         />
 
         <Link

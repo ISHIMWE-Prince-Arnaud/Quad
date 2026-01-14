@@ -44,8 +44,6 @@ export function PostCard({
     userReaction,
     reactionPending,
     reactionCount,
-    reactionCounts,
-    selectedEmoji,
     selectReaction,
   } = usePostReactions(post._id);
 
@@ -148,9 +146,7 @@ export function PostCard({
               onCopyLink={() => void handleCopyLink()}
               userReaction={userReaction}
               reactionPending={reactionPending}
-              selectedEmoji={selectedEmoji}
               reactionCount={safeReactionCount}
-              reactionCounts={reactionCounts}
               onSelectReaction={(type) => void selectReaction(type)}
             />
           </CardFooter>
