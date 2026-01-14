@@ -5,21 +5,11 @@ import { ReactionService } from "@/services/reactionService";
 import type { ReactionType } from "@/services/reactionService";
 
 const DEFAULT_REACTION_COUNTS: Record<ReactionType, number> = {
-  like: 0,
   love: 0,
-  laugh: 0,
-  wow: 0,
-  sad: 0,
-  angry: 0,
 };
 
 export const reactionEmojiMap: Record<ReactionType, string> = {
-  like: "👍",
   love: "❤️",
-  laugh: "😂",
-  wow: "😮",
-  sad: "😢",
-  angry: "😡",
 };
 
 export function usePollReactions(pollId: string, initialTotalCount = 0) {
@@ -87,16 +77,16 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
     } else {
       // If switching from another type, decrement that first
       if (prevType) {
-        nextCounts[prevType] = Math.max(0, (nextCounts[prevType] ?? 0) - 1);
+        nextCounts[prevType as ReactionType] = Math.max(
+          0,
+          (nextCounts[prevType as ReactionType] ?? 0) - 1
+        );
       }
       nextCounts[type] = (nextCounts[type] ?? 0) + 1;
       setUserReaction(type);
     }
 
-    const nextTotal = (Object.values(nextCounts) as number[]).reduce(
-      (sum, value) => sum + value,
-      0
-    );
+    const nextTotal = nextCounts.love ?? 0;
     setReactionCounts(nextCounts);
     setReactionCount(nextTotal);
 

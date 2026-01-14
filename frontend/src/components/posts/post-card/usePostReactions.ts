@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import { ReactionService } from "@/services/reactionService";
 import type { ReactionType } from "@/services/reactionService";
 
-import { EMPTY_REACTION_COUNTS, reactionEmojiMap } from "./constants";
+import { EMPTY_REACTION_COUNTS } from "./constants";
 
 export function usePostReactions(postId: string) {
   const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
@@ -48,11 +48,6 @@ export function usePostReactions(postId: string) {
       cancelled = true;
     };
   }, [postId]);
-
-  const selectedEmoji = useMemo(
-    () => (userReaction ? reactionEmojiMap[userReaction] : "❤️"),
-    [userReaction]
-  );
 
   const selectReaction = async (type: ReactionType) => {
     if (reactionPending) return;
@@ -115,7 +110,6 @@ export function usePostReactions(postId: string) {
     reactionPending,
     reactionCount,
     reactionCounts,
-    selectedEmoji,
     selectReaction,
   };
 }
