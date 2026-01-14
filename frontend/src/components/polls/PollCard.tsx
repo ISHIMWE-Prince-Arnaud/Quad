@@ -35,8 +35,6 @@ export function PollCard({
      userReaction,
      reactionPending,
      reactionCount,
-     reactionCounts,
-     selectedEmoji,
      handleSelectReaction,
    } = usePollReactions(poll.id, poll.reactionsCount || 0);
 
@@ -112,9 +110,7 @@ export function PollCard({
             bookmarked={bookmarked}
             onToggleBookmark={toggleBookmark}
             userReaction={userReaction}
-            selectedEmoji={selectedEmoji}
             reactionCount={reactionCount}
-            reactionCounts={reactionCounts}
             reactionPending={reactionPending}
             onSelectReaction={(type) => void handleSelectReaction(type)}
           />

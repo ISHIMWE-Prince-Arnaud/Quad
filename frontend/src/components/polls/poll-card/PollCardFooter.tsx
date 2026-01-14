@@ -3,10 +3,9 @@ import { Bookmark, MessageCircle, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
-import { QuickReactionPicker } from "@/components/reactions/QuickReactionPicker";
+import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import { cn } from "@/lib/utils";
 import type { ReactionType } from "@/services/reactionService";
-import { reactionEmojiMap } from "./usePollReactions";
 
 export function PollCardFooter({
   pollId,
@@ -15,9 +14,7 @@ export function PollCardFooter({
   bookmarked,
   onToggleBookmark,
   userReaction,
-  selectedEmoji,
   reactionCount,
-  reactionCounts,
   reactionPending,
   onSelectReaction,
 }: {
@@ -27,48 +24,21 @@ export function PollCardFooter({
   bookmarked: boolean;
   onToggleBookmark: () => void;
   userReaction: ReactionType | null;
-  selectedEmoji: string;
   reactionCount: number;
-  reactionCounts: Record<ReactionType, number>;
   reactionPending: boolean;
   onSelectReaction: (type: ReactionType) => void;
 }) {
   return (
     <CardFooter className="pt-0 pb-3 flex items-center justify-between border-t">
       <div className="flex items-center gap-1">
-        <QuickReactionPicker
-          onSelect={onSelectReaction}
-          onQuickSelect={(type) => onSelectReaction(type)}
-          quickType="love"
-          trigger={
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={reactionPending}
-              className={cn(
-                "gap-2 text-muted-foreground",
-                userReaction ? "text-pink-600" : "hover:text-pink-600"
-              )}>
-              <span className="text-sm">{selectedEmoji}</span>
-              <span className="text-xs">{reactionCount}</span>
-            </Button>
-          }
+        <HeartReactionButton
+          liked={Boolean(userReaction)}
+          count={reactionCount}
+          pending={reactionPending}
+          onToggle={() => void onSelectReaction("love")}
+          className={cn("gap-2", userReaction ? "text-pink-600" : "")}
+          ariaLabel={`React to poll. ${reactionCount} reactions`}
         />
-        <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
-          {(Object.keys(reactionCounts) as ReactionType[]).map((type) => {
-            const count = reactionCounts[type] ?? 0;
-            if (!count) return null;
-            return (
-              <span
-                key={type}
-                className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
-                <span>{reactionEmojiMap[type]}</span>
-                <span>{count}</span>
-              </span>
-            );
-          })}
-        </div>
       </div>
 
       <div className="flex items-center gap-1">

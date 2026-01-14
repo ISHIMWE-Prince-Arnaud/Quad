@@ -7,11 +7,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { QuickReactionPicker } from "@/components/reactions/QuickReactionPicker";
+import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import type { Poll } from "@/types/poll";
 import type { ReactionType } from "@/services/reactionService";
-
-import { reactionEmojiMap } from "./constants";
 
 export function PollDetailsCard({
   poll,
@@ -24,7 +22,6 @@ export function PollDetailsCard({
   onEdit,
   onRequestDelete,
   userReaction,
-  reactionCounts,
   totalReactions,
   onSelectReaction,
 }: {
@@ -38,7 +35,6 @@ export function PollDetailsCard({
   onEdit: () => void;
   onRequestDelete: () => void;
   userReaction: ReactionType | null;
-  reactionCounts: Record<ReactionType, number>;
   totalReactions: number;
   onSelectReaction: (type: ReactionType) => void;
 }) {
@@ -178,34 +174,13 @@ export function PollDetailsCard({
 
         <div className="mt-4 space-y-2">
           <div className="flex items-center gap-2">
-            <QuickReactionPicker
-              onSelect={onSelectReaction}
-              onQuickSelect={() => onSelectReaction("love")}
-              quickType="love"
-              trigger={
-                <Button variant={userReaction ? "secondary" : "outline"} size="sm">
-                  {userReaction
-                    ? `Reacted ${reactionEmojiMap[userReaction]}`
-                    : "React"}
-                </Button>
-              }
+            <HeartReactionButton
+              liked={Boolean(userReaction)}
+              count={totalReactions}
+              onToggle={() => onSelectReaction("love")}
+              ariaLabel={`React to poll. ${totalReactions} reactions`}
             />
             <div className="text-sm text-muted-foreground">{totalReactions} reactions</div>
-          </div>
-
-          <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
-            {(Object.keys(reactionCounts) as ReactionType[]).map((type) => {
-              const count = reactionCounts[type] ?? 0;
-              if (!count) return null;
-              return (
-                <span
-                  key={type}
-                  className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5">
-                  <span>{reactionEmojiMap[type]}</span>
-                  <span>{count}</span>
-                </span>
-              );
-            })}
           </div>
         </div>
       </CardContent>

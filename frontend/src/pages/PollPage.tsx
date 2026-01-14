@@ -46,8 +46,7 @@ export default function PollPage() {
     };
   }, [id, setPoll]);
 
-  const { userReaction, reactionCounts, totalReactions, handleSelectReaction } =
-    usePollReactions({ id });
+  const { userReaction, totalReactions, handleSelectReaction } = usePollReactions({ id });
 
   const { voting, canVote, toggleSelection, handleVote } = usePollVoting({
     id,
@@ -101,7 +100,6 @@ export default function PollPage() {
           onEdit={handleEdit}
           onRequestDelete={() => setIsDeleteDialogOpen(true)}
           userReaction={userReaction}
-          reactionCounts={reactionCounts}
           totalReactions={totalReactions}
           onSelectReaction={(type) => void handleSelectReaction(type)}
         />

@@ -4,27 +4,15 @@ import toast from "react-hot-toast";
 import { ReactionService } from "@/services/reactionService";
 import type { ReactionType } from "@/services/reactionService";
 
-const DEFAULT_REACTION_COUNTS: Record<ReactionType, number> = {
-  love: 0,
-};
-
-export const reactionEmojiMap: Record<ReactionType, string> = {
-  love: "❤️",
-};
-
 export function usePollReactions(pollId: string, initialTotalCount = 0) {
   const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
   const [reactionPending, setReactionPending] = useState(false);
   const [reactionCount, setReactionCount] = useState<number>(initialTotalCount);
-  const [reactionCounts, setReactionCounts] = useState<
-    Record<ReactionType, number>
-  >({ ...DEFAULT_REACTION_COUNTS });
 
   useEffect(() => {
     setUserReaction(null);
     setReactionPending(false);
     setReactionCount(initialTotalCount);
-    setReactionCounts({ ...DEFAULT_REACTION_COUNTS });
   }, [pollId, initialTotalCount]);
 
   useEffect(() => {
@@ -38,16 +26,6 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
           if (typeof res.data.totalCount === "number") {
             setReactionCount(res.data.totalCount);
           }
-
-          if (Array.isArray(res.data.reactionCounts)) {
-            const nextCounts: Record<ReactionType, number> = {
-              ...DEFAULT_REACTION_COUNTS,
-            };
-            for (const rc of res.data.reactionCounts) {
-              nextCounts[rc.type] = rc.count;
-            }
-            setReactionCounts(nextCounts);
-          }
         }
       } catch {
         // Silent fail
@@ -59,35 +37,16 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
     };
   }, [pollId]);
 
-  const selectedEmoji = userReaction ? reactionEmojiMap[userReaction] : "❤️";
-
   const handleSelectReaction = async (type: ReactionType) => {
     if (reactionPending) return;
     setReactionPending(true);
 
     const prevType = userReaction;
     const prevCount = reactionCount;
-    const prevCounts = reactionCounts;
 
-    const nextCounts: Record<ReactionType, number> = { ...prevCounts };
-    if (prevType === type) {
-      // Remove existing reaction of same type
-      nextCounts[type] = Math.max(0, (nextCounts[type] ?? 0) - 1);
-      setUserReaction(null);
-    } else {
-      // If switching from another type, decrement that first
-      if (prevType) {
-        nextCounts[prevType as ReactionType] = Math.max(
-          0,
-          (nextCounts[prevType as ReactionType] ?? 0) - 1
-        );
-      }
-      nextCounts[type] = (nextCounts[type] ?? 0) + 1;
-      setUserReaction(type);
-    }
-
-    const nextTotal = nextCounts.love ?? 0;
-    setReactionCounts(nextCounts);
+    const wasReacted = prevType === type;
+    const nextTotal = wasReacted ? Math.max(0, prevCount - 1) : prevCount + 1;
+    setUserReaction(wasReacted ? null : type);
     setReactionCount(nextTotal);
 
     try {
@@ -102,7 +61,6 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
     } catch (err: unknown) {
       // Revert on error
       setUserReaction(prevType);
-      setReactionCounts(prevCounts);
       setReactionCount(prevCount);
       let msg = "Failed to update reaction";
       if (
@@ -123,8 +81,6 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
     userReaction,
     reactionPending,
     reactionCount,
-    reactionCounts,
-    selectedEmoji,
     handleSelectReaction,
   };
 }
