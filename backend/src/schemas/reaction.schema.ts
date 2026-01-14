@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Valid reaction types
-export const reactionTypes = ["like", "love", "laugh", "wow", "sad", "angry"] as const;
+export const reactionTypes = ["love"] as const;
 
 // Valid content types that can be reacted to
 export const reactableContentTypes = ["post", "story", "poll", "comment"] as const;

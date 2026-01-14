@@ -1,6 +1,6 @@
 import { endpoints } from "@/lib/api";
 
-export type ReactionType = "like" | "love" | "laugh" | "wow" | "sad" | "angry";
+export type ReactionType = "love";
 export type ReactableContentType = "post" | "story" | "poll" | "comment";
 
 export interface ToggleReactionResponse {

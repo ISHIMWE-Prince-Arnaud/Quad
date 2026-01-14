@@ -46,7 +46,7 @@ export type UpdateMessageSchemaType = z.infer<typeof updateMessageSchema>;
 // ===========================
 export const addReactionSchema = z
   .object({
-    emoji: z.string().min(1, "Emoji is required").max(10, "Emoji too long"),
+    emoji: z.literal("❤️"),
   })
   .strict();
 

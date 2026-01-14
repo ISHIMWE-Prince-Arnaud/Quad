@@ -8,7 +8,7 @@ export interface IReaction {
   userId: string;                     // Clerk user ID
   username: string;                   // User's display name (snapshot)
   profileImage?: string;              // User's avatar (snapshot)
-  type: "like" | "love" | "laugh" | "wow" | "sad" | "angry"; // Reaction types
+  type: "love"; // Reaction types
   createdAt: Date;
   updatedAt: Date;
 }

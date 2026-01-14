@@ -25,7 +25,7 @@ const ReactionSchema = new Schema<IReactionDocument>(
     profileImage: { type: String },
     type: { 
       type: String, 
-      enum: ["like", "love", "laugh", "wow", "sad", "angry"],
+      enum: ["love"],
       required: true 
     },
   },

@@ -17,7 +17,7 @@ import { AppError } from "../utils/appError.util.js";
 export interface ToggleReactionInput {
   contentType: ReactableContentType;
   contentId: string;
-  type: "like" | "love" | "laugh" | "wow" | "sad" | "angry";
+  type: "love";
 }
 
 export class ReactionService {
