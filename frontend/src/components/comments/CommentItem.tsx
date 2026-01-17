@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Comment } from "@/types/comment";
 import { CommentService } from "@/services/commentService";
@@ -109,6 +108,15 @@ export function CommentItem({ comment, onDeleted }: CommentItemProps) {
             onSelectReaction={(type) => void selectReaction(type)}
             onReply={() => setShowReplyComposer((v) => !v)}
           />
+
+          {repliesCount > 0 && (
+            <button
+              onClick={toggleRepliesOpen}
+              className="flex items-center gap-2 mt-2 text-xs font-semibold text-blue-500 hover:text-blue-600 transition-colors">
+              <span className="w-8 h-[1px] bg-border mr-1"></span>
+              {repliesOpen ? "Hide replies" : `View ${repliesCount} replies`}
+            </button>
+          )}
 
           {showReplyComposer && (
             <div className="pt-2">

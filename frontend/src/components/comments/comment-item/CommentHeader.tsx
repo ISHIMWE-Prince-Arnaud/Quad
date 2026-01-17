@@ -10,8 +10,8 @@ export function CommentHeader({
 }: {
   comment: Comment;
   isAuthor: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }) {
   return (
     <div className="flex items-center gap-2 text-sm">
@@ -28,7 +28,7 @@ export function CommentHeader({
       </span>
 
       {/* Edit/Delete controls could be a dropdown menu or minimal text buttons. Keeping simple for now but ensuring they don't break flow */}
-      {(onEdit || onDelete) && isAuthor && (
+      {isAuthor && onEdit && onDelete && (
         <div className="ml-2 flex items-center gap-2 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             type="button"
