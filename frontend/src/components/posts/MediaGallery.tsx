@@ -35,6 +35,12 @@ function formatTime(seconds: number) {
   return `${mins}:${pad2(secs)}`;
 }
 
+function getAspectClass(aspectRatio?: MediaItem["aspectRatio"]) {
+  if (aspectRatio === "1:1") return "aspect-square";
+  if (aspectRatio === "9:16") return "aspect-[9/16]";
+  return "aspect-video";
+}
+
 function VideoPlayer({
   src,
   autoPlay,
@@ -301,7 +307,7 @@ function VideoPlayer({
     <div
       ref={containerRef}
       className={cn(
-        "relative bg-black/90 overflow-hidden",
+        "relative bg-black/90 overflow-hidden w-full h-full",
         containerClassName
       )}
       onMouseMove={showControls}
@@ -317,7 +323,7 @@ function VideoPlayer({
         src={src}
         autoPlay={autoPlay}
         playsInline
-        className={cn("w-full h-full", videoClassName)}
+        className={cn("w-full h-full object-cover", videoClassName)}
         onClick={() => {
           void togglePlay();
           showControls();
@@ -525,7 +531,13 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
     const item = media[0];
     return (
       <>
-        <div className={cn("relative rounded-xl overflow-hidden", className)}>
+        <div
+          className={cn(
+            "relative rounded-xl overflow-hidden",
+            item.type === "video" &&
+              cn("bg-black", getAspectClass(item.aspectRatio), "max-h-[500px]"),
+            className
+          )}>
           {item.type === "image" ? (
             <img
               src={item.url}
@@ -538,7 +550,7 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
               src={item.url}
               autoPlay={false}
               containerClassName="rounded-xl"
-              videoClassName="rounded-xl"
+              videoClassName="rounded-xl object-contain"
             />
           )}
         </div>
@@ -780,8 +792,8 @@ function MediaLightbox({
               <VideoPlayer
                 src={currentItem?.url}
                 autoPlay
-                containerClassName="max-w-full max-h-full"
-                videoClassName="max-w-full max-h-full object-contain"
+                containerClassName="w-full h-full max-w-full max-h-full"
+                videoClassName="w-full h-full object-contain"
               />
             )}
           </div>
