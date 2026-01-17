@@ -18,7 +18,6 @@ export function useTokenManager() {
         localStorage.setItem("clerk-db-jwt", token);
       } else {
         logAuthEvent("Token retrieval failed");
-        localStorage.removeItem("clerk-db-jwt");
       }
 
       return token;
@@ -27,7 +26,6 @@ export function useTokenManager() {
       logAuthEvent("Token retrieval error", {
         error: (error as Error).message,
       });
-      localStorage.removeItem("clerk-db-jwt");
       return null;
     }
   }, [getToken]);

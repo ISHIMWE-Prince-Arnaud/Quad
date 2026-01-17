@@ -9,6 +9,30 @@ import { logError } from "../errorHandling";
 import { generateCacheKey, requestCache } from "../requestCache";
 import { rateLimitState } from "./rateLimitState";
 
+async function getRuntimeClerkToken(): Promise<string | null> {
+  try {
+    const clerk = (window as unknown as { Clerk?: unknown }).Clerk as
+      | {
+          load?: () => Promise<void>;
+          session?: { getToken?: () => Promise<string | null> } | null;
+        }
+      | undefined;
+
+    if (!clerk) {
+      return null;
+    }
+
+    if (typeof clerk.load === "function") {
+      await clerk.load();
+    }
+
+    const token = await clerk.session?.getToken?.();
+    return token || null;
+  } catch {
+    return null;
+  }
+}
+
 type CachedResponseError = {
   config: InternalAxiosRequestConfig;
   response: AxiosResponse;
@@ -29,7 +53,14 @@ export function attachInterceptors(api: AxiosInstance) {
         );
       }
 
-      const token = localStorage.getItem("clerk-db-jwt");
+      let token = localStorage.getItem("clerk-db-jwt");
+      if (!token) {
+        token = await getRuntimeClerkToken();
+        if (token) {
+          localStorage.setItem("clerk-db-jwt", token);
+        }
+      }
+
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -83,18 +114,7 @@ export function attachInterceptors(api: AxiosInstance) {
       }
 
       const request = response?.request as XMLHttpRequest | undefined;
-      const finalUrl = request?.responseURL;
-      const isTestEnvironment = import.meta.env.MODE === "test" || !request;
-
-      if (
-        !isTestEnvironment &&
-        typeof finalUrl === "string" &&
-        !finalUrl.includes("/api/")
-      ) {
-        localStorage.removeItem("clerk-db-jwt");
-        window.location.href = "/login";
-        return Promise.reject(new Error("Session expired"));
-      }
+      void request;
 
       if (response.config.method?.toLowerCase() === "get") {
         const skipCache = response.config.headers["X-Skip-Cache"] === "true";
@@ -135,18 +155,23 @@ export function attachInterceptors(api: AxiosInstance) {
       const originalRequest = axiosError.config as InternalAxiosRequestConfig & {
         _retry?: boolean;
         _retryCount?: number;
+        _authRetry?: boolean;
       };
 
       if (axiosError.response?.status === 401) {
-        localStorage.removeItem("clerk-db-jwt");
+        if (originalRequest && !originalRequest._authRetry) {
+          originalRequest._authRetry = true;
 
-        if (!window.location.pathname.includes("/login")) {
-          sessionStorage.setItem(
-            "redirectAfterLogin",
-            window.location.pathname
-          );
-          window.location.href = "/login";
+          const refreshed = await getRuntimeClerkToken();
+          if (refreshed) {
+            localStorage.setItem("clerk-db-jwt", refreshed);
+            originalRequest.headers = originalRequest.headers ?? {};
+            originalRequest.headers.Authorization = `Bearer ${refreshed}`;
+            return api(originalRequest);
+          }
         }
+
+        localStorage.removeItem("clerk-db-jwt");
 
         logError(axiosError, {
           component: "API",
