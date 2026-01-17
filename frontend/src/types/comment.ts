@@ -11,10 +11,8 @@ export interface Comment {
   contentId: string;
   author: CommentAuthor;
   text: string;
-  parentId?: string;
   reactionsCount: number;
   likesCount: number;
-  repliesCount: number;
   createdAt: string;
   updatedAt: string;
 }

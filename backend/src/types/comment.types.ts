@@ -12,10 +12,8 @@ export interface IComment {
     profileImage?: string;
   };
   text: string;           // Comment content
-  parentId?: string;      // For nested replies (optional)
   reactionsCount: number; // Number of reactions on this comment (like, love, etc.)
   likesCount: number;     // Number of likes on this comment (from CommentLike model)
-  repliesCount: number;   // Number of replies to this comment
   createdAt: Date;
   updatedAt: Date;
 }

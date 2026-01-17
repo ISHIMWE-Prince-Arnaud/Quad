@@ -7,8 +7,7 @@ import { endpoints } from "@/lib/api";
 /**
  * Feature: quad-production-ready, Property 30: Comment Creation with Parent
  *
- * For any comment reply, the `parentId` should be set to the parent comment's ID,
- * and the reply should appear under the parent.
+ * Comment replies are not supported.
  *
  * Validates: Requirements 9.4
  */
@@ -28,12 +27,12 @@ vi.mock("@/lib/api", () => ({
   },
 }));
 
-describe("Property 30: Comment Creation with Parent", () => {
+describe("Property 30: Comment Creation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should create root comments without parentId", async () => {
+  it("should create comments", async () => {
     await fc.assert(
       fc.asyncProperty(
         // Generate random content type
@@ -58,10 +57,8 @@ describe("Property 30: Comment Creation with Parent", () => {
             contentType,
             contentId,
             text,
-            // No parentId for root comment
             reactionsCount: 0,
             likesCount: 0,
-            repliesCount: 0,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
@@ -77,14 +74,13 @@ describe("Property 30: Comment Creation with Parent", () => {
             contentType,
             contentId,
             text,
-            // No parentId provided
           });
 
           expect(result.success).toBe(true);
           expect(result.data._id).toBe(mockComment._id);
           expect(result.data.text).toBe(text);
 
-          // Verify the API was called without parentId
+          // Verify the API was called with expected payload
           expect(endpoints.comments.create).toHaveBeenCalledWith({
             contentType,
             contentId,
@@ -94,17 +90,5 @@ describe("Property 30: Comment Creation with Parent", () => {
       ),
       { numRuns: 100 }
     );
-  });
-
-  it("should create replies with correct parentId", async () => {
-    expect(true).toBe(true);
-  });
-
-  it("should maintain parent-child relationship after creation", async () => {
-    expect(true).toBe(true);
-  });
-
-  it("should validate that parentId is a valid comment ID", async () => {
-    expect(true).toBe(true);
   });
 });

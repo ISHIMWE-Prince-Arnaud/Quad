@@ -187,7 +187,6 @@ Use this checklist to ensure all steps are completed before and after deployment
 - [ ] Add reaction works
 - [ ] Remove reaction works
 - [ ] Add comment works
-- [ ] Reply to comment works
 - [ ] Like comment works
 
 #### Real-time Features
@@ -320,7 +319,7 @@ Roll back if:
 - [ ] Security review complete
 - [ ] Performance acceptable
 
-**Signed:** ********\_******** **Date:** ****\_****
+**Signed:** **\*\*\*\***\_**\*\*\*\*** **Date:** \***\*\_\*\***
 
 ### DevOps
 
@@ -329,7 +328,7 @@ Roll back if:
 - [ ] Backups configured
 - [ ] Deployment successful
 
-**Signed:** ********\_******** **Date:** ****\_****
+**Signed:** **\*\*\*\***\_**\*\*\*\*** **Date:** \***\*\_\*\***
 
 ### Product Owner
 
@@ -338,7 +337,7 @@ Roll back if:
 - [ ] Documentation complete
 - [ ] Ready for launch
 
-**Signed:** ********\_******** **Date:** ****\_****
+**Signed:** **\*\*\*\***\_**\*\*\*\*** **Date:** \***\*\_\*\***
 
 ## Notes
 
@@ -346,10 +345,10 @@ Use this section to document any deployment-specific notes, issues encountered, 
 
 ---
 
-**Deployment Date:** ********\_********
+**Deployment Date:** **\*\*\*\***\_**\*\*\*\***
 
-**Deployed By:** ********\_********
+**Deployed By:** **\*\*\*\***\_**\*\*\*\***
 
-**Version:** ********\_********
+**Version:** **\*\*\*\***\_**\*\*\*\***
 
 **Notes:**

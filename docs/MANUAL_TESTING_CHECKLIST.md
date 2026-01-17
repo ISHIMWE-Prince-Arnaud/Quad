@@ -143,8 +143,6 @@ This document provides a comprehensive checklist for manually testing the Quad a
 ### Comments
 
 - [ ] Can add comment to post
-- [ ] Can reply to comment
-- [ ] Nested replies display correctly
 - [ ] Can like comment
 - [ ] Can delete own comment
 - [ ] Comment count updates
@@ -380,7 +378,6 @@ This document provides a comprehensive checklist for manually testing the Quad a
 Document any bugs found during testing:
 
 1. **Issue**: [Description]
-
    - **Severity**: Critical/High/Medium/Low
    - **Steps to Reproduce**: [Steps]
    - **Expected**: [Expected behavior]
@@ -391,7 +388,7 @@ Document any bugs found during testing:
 
 ## Test Sign-off
 
-- **Tester Name**: ******\_\_\_******
-- **Date**: ******\_\_\_******
+- **Tester Name**: **\*\***\_\_\_**\*\***
+- **Date**: **\*\***\_\_\_**\*\***
 - **Overall Status**: Pass / Fail / Pass with Issues
-- **Notes**: ******\_\_\_******
+- **Notes**: **\*\***\_\_\_**\*\***

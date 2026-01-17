@@ -120,9 +120,6 @@ export const generateNotificationMessage = (
     
     case "comment_poll":
       return "commented on your poll";
-    
-    case "comment_reply":
-      return "replied to your comment";
 
     case "mention_post":
       return "mentioned you in a post";

@@ -95,7 +95,6 @@ export class CommentService {
       text,
       reactionsCount: 0,
       likesCount: 0,
-      repliesCount: 0,
     });
 
     const mentions = extractMentions(text);
@@ -183,11 +182,7 @@ export class CommentService {
   ) {
     const { limit = "20", skip = "0" } = opts;
 
-    const query: Record<string, unknown> = {
-      contentType,
-      contentId,
-      parentId: { $exists: false },
-    };
+    const query: Record<string, unknown> = { contentType, contentId };
 
     const comments = await Comment.find(query)
       .populate("author", "username displayName profileImage")
@@ -249,27 +244,7 @@ export class CommentService {
       throw new AppError("Unauthorized", 403);
     }
 
-    if (!comment.parentId) {
-      await updateContentCommentsCount(
-        comment.contentType,
-        comment.contentId,
-        -1
-      );
-    } else {
-      await Comment.findByIdAndUpdate(comment.parentId, {
-        $inc: { repliesCount: -1 },
-      });
-    }
-
-    const deletedReplies = await Comment.deleteMany({ parentId: id });
-
-    if (deletedReplies.deletedCount && deletedReplies.deletedCount > 0) {
-      await updateContentCommentsCount(
-        comment.contentType,
-        comment.contentId,
-        -deletedReplies.deletedCount
-      );
-    }
+    await updateContentCommentsCount(comment.contentType, comment.contentId, -1);
 
     await CommentLike.deleteMany({ commentId: id });
     await Comment.findByIdAndDelete(id);
@@ -279,7 +254,6 @@ export class CommentService {
       contentType: comment.contentType,
       contentId: comment.contentId,
       commentId: id,
-      parentId: comment.parentId,
     });
 
     try {

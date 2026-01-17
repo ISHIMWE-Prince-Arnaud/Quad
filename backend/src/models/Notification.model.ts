@@ -8,7 +8,6 @@ export type NotificationType =
   | "comment_post"
   | "comment_story"
   | "comment_poll"
-  | "comment_reply"
   | "mention_post"
   | "mention_story"
   | "mention_comment"
@@ -49,7 +48,6 @@ const NotificationSchema = new Schema<INotificationDocument>(
         "comment_post",
         "comment_story",
         "comment_poll",
-        "comment_reply",
         "mention_post",
         "mention_story",
         "mention_comment",

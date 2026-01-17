@@ -150,11 +150,9 @@ interface ICommentDocument {
   userId: string;           // Reference to User (clerkId)
   contentType: 'post' | 'story' | 'poll';
   contentId: string;        // Reference to content
-  parentId?: string;        // Parent comment (for replies)
   content: string;          // Comment text
   mediaUrl?: string;        // Optional media
   likesCount: number;       // Likes count
-  repliesCount: number;     // Replies count
   isEdited: boolean;        // Edit status
   createdAt: Date;
   updatedAt: Date;
@@ -164,7 +162,6 @@ interface ICommentDocument {
 **Indexes:**
 - `contentType` + `contentId` (compound)
 - `userId` (compound with createdAt)
-- `parentId` (sparse index)
 - Text index on `content`
 
 ---

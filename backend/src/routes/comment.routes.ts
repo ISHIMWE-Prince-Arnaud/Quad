@@ -26,7 +26,7 @@ const router = Router();
  * CREATE COMMENT
  * POST /api/comments
  * Protected: User must be signed in
- * Body: { contentType, contentId, text, parentId? }
+ * Body: { contentType, contentId, text }
  * -------------------------
  */
 router.post(
@@ -41,7 +41,7 @@ router.post(
  * GET COMMENTS BY CONTENT
  * GET /api/comments/:contentType/:contentId
  * Protected: User must be signed in
- * Query params: limit, skip, parentId (optional)
+ * Query params: limit, skip
  * -------------------------
  */
 router.get("/:contentType/:contentId", requireApiAuth, getCommentsByContent);
