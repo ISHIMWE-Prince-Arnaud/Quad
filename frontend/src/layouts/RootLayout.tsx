@@ -10,7 +10,7 @@ import { useNotificationStore } from "@/stores/notificationStore";
 export function RootLayout() {
   // Sync auth state with Clerk
   useAuthSync();
-  const { user } = useAuthStore();
+  const { user, isLoading } = useAuthStore();
   const joinedRef = useRef<string | null>(null);
   const { fetchUnreadCount, incrementUnread } = useNotificationStore();
 
@@ -27,7 +27,7 @@ export function RootLayout() {
     const socket = getSocket();
     const userId = user?.clerkId;
 
-    if (!userId) {
+    if (isLoading || !userId) {
       return;
     }
 
@@ -59,7 +59,7 @@ export function RootLayout() {
         socket.emit("notification:leave", userId);
       }
     };
-  }, [user?.clerkId, fetchUnreadCount, incrementUnread]);
+  }, [isLoading, user?.clerkId, fetchUnreadCount, incrementUnread]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">

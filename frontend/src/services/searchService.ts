@@ -30,6 +30,16 @@ export class SearchService {
   static async searchUsers(
     params: UserSearchParams
   ): Promise<ApiSearchResult<ApiProfile>> {
+    if (!params.q.trim()) {
+      return {
+        results: [],
+        total: 0,
+        page: Math.floor((params.offset || 0) / (params.limit || 20)) + 1,
+        limit: params.limit || 20,
+        hasMore: false,
+      };
+    }
+
     const response = await endpoints.search.users({
       q: params.q,
       limit: params.limit || 20,

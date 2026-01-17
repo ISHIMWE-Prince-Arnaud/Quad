@@ -65,10 +65,15 @@ export function useTokenManager() {
         const isValid = await verifyToken(storedToken);
 
         if (!isValid) {
-          logAuthEvent("Stored token invalid, clearing");
-          localStorage.removeItem("clerk-db-jwt");
-          // Try to get a fresh token
-          await getAuthToken();
+          // Token is missing/expired/near-expiry (per verifier). Try to refresh first
+          // to avoid a window where requests have no Authorization header.
+          logAuthEvent("Stored token invalid, attempting refresh");
+
+          const refreshed = await getAuthToken();
+          if (!refreshed) {
+            logAuthEvent("Token refresh failed, clearing stored token");
+            localStorage.removeItem("clerk-db-jwt");
+          }
         } else {
           logAuthEvent("Stored token valid");
         }
