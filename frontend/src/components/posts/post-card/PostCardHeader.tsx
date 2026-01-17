@@ -16,14 +16,12 @@ export function PostCardHeader({
   post,
   displayName,
   isOwner,
-  onCopyLink,
   onEdit,
   onRequestDelete,
 }: {
   post: Post;
   displayName: string;
   isOwner: boolean;
-  onCopyLink: () => void;
   onEdit: () => void;
   onRequestDelete: () => void;
 }) {
@@ -54,33 +52,27 @@ export function PostCardHeader({
         </div>
       </Link>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 shrink-0"
-            aria-label="Post options">
-            <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem asChild>
-            <Link to={`/app/posts/${post._id}`}>View post</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onCopyLink}>Copy link</DropdownMenuItem>
-          {isOwner && (
-            <>
-              <DropdownMenuItem onClick={onEdit}>Edit post</DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive"
-                onClick={onRequestDelete}>
-                Delete post
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {isOwner && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 shrink-0"
+              aria-label="Post options">
+              <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onEdit}>Edit post</DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={onRequestDelete}>
+              Delete post
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   );
 }

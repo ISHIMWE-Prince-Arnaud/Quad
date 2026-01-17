@@ -112,7 +112,6 @@ export function PostCard({
               post={post}
               displayName={displayName}
               isOwner={isOwner}
-              onCopyLink={() => void handleCopyLink()}
               onEdit={handleEdit}
               onRequestDelete={() => setIsDeleteDialogOpen(true)}
             />
