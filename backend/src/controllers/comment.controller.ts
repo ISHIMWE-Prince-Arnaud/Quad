@@ -11,8 +11,7 @@ import { CommentService } from "../services/comment.service.js";
 // CREATE COMMENT
 // =========================
 export const createComment = asyncHandler(async (req: Request, res: Response) => {
-  const { contentType, contentId, text, parentId } =
-    req.body as CreateCommentSchemaType;
+  const { contentType, contentId, text } = req.body as CreateCommentSchemaType;
   const userId = req.auth?.userId;
   if (!userId) {
     throw new AppError("Unauthorized", 401);
@@ -22,7 +21,6 @@ export const createComment = asyncHandler(async (req: Request, res: Response) =>
     contentType,
     contentId,
     text,
-    ...(parentId ? { parentId } : {}),
   });
 
   return res.status(201).json({
@@ -38,10 +36,9 @@ export const createComment = asyncHandler(async (req: Request, res: Response) =>
 export const getCommentsByContent = asyncHandler(
   async (req: Request, res: Response) => {
     const { contentType, contentId } = req.params;
-    const { limit = "20", skip = "0", parentId } = req.query as {
+    const { limit = "20", skip = "0" } = req.query as {
       limit?: string;
       skip?: string;
-      parentId?: string;
     };
 
     if (!contentType || !contentId) {
@@ -51,7 +48,6 @@ export const getCommentsByContent = asyncHandler(
     const result = await CommentService.getCommentsByContent(contentType, contentId, {
       limit,
       skip,
-      ...(parentId ? { parentId } : {}),
     });
 
     return res.status(200).json({
@@ -73,29 +69,6 @@ export const getComment = asyncHandler(async (req: Request, res: Response) => {
 
   const comment = await CommentService.getComment(id);
   return res.status(200).json({ success: true, data: comment });
-});
-
-// =========================
-// GET REPLIES TO COMMENT
-// =========================
-export const getReplies = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("Comment ID is required", 400);
-  }
-
-  const { limit = "10", skip = "0" } = req.query as {
-    limit?: string;
-    skip?: string;
-  };
-
-  const result = await CommentService.getReplies(id, limit, skip);
-
-  return res.status(200).json({
-    success: true,
-    data: result.replies,
-    pagination: result.pagination,
-  });
 });
 
 // =========================

@@ -7,11 +7,8 @@ import toast from "react-hot-toast";
 import { CommentBody } from "./comment-item/CommentBody";
 import { CommentEngagementBar } from "./comment-item/CommentEngagementBar";
 import { CommentHeader } from "./comment-item/CommentHeader";
-import { CommentReplies } from "./comment-item/CommentReplies";
-import { CommentReplyComposer } from "./comment-item/CommentReplyComposer";
 import { useCommentEdit } from "./comment-item/useCommentEdit";
 import { useCommentReactions } from "./comment-item/useCommentReactions";
-import { useCommentReplies } from "./comment-item/useCommentReplies";
 
 interface CommentItemProps {
   comment: Comment;
@@ -37,23 +34,6 @@ export function CommentItem({ comment, onDeleted }: CommentItemProps) {
     cancelEdit,
     saveEdit,
   } = useCommentEdit({ commentId: comment._id, initialText: comment.text });
-
-  const {
-    replies,
-    repliesCount,
-    repliesHasMore,
-    repliesLoading,
-    repliesOpen,
-    showReplyComposer,
-    setShowReplyComposer,
-    loadReplies,
-    toggleRepliesOpen,
-    onReplyCreated,
-    onReplyDeleted,
-  } = useCommentReplies({
-    commentId: comment._id,
-    initialCount: comment.repliesCount || 0,
-  });
 
   const isAuthor = user?.clerkId && user.clerkId === comment.author.clerkId;
 
@@ -106,42 +86,9 @@ export function CommentItem({ comment, onDeleted }: CommentItemProps) {
             reactionCount={reactionCount}
             reactionPending={reactionPending}
             onSelectReaction={(type) => void selectReaction(type)}
-            onReply={() => setShowReplyComposer((v) => !v)}
           />
-
-          {repliesCount > 0 && (
-            <button
-              onClick={toggleRepliesOpen}
-              className="flex items-center gap-2 mt-2 text-xs font-semibold text-blue-500 hover:text-blue-600 transition-colors">
-              <span className="w-8 h-[1px] bg-border mr-1"></span>
-              {repliesOpen ? "Hide replies" : `View ${repliesCount} replies`}
-            </button>
-          )}
-
-          {showReplyComposer && (
-            <div className="pt-2">
-              <CommentReplyComposer
-                contentType={comment.contentType}
-                contentId={comment.contentId}
-                parentId={comment._id}
-                placeholder={`Reply to @${comment.author.username}...`}
-                onCreated={() => void onReplyCreated()}
-              />
-            </div>
-          )}
         </div>
       </div>
-
-      {repliesOpen && (
-        <CommentReplies
-          replies={replies}
-          repliesHasMore={repliesHasMore}
-          repliesLoading={repliesLoading}
-          onLoadMore={() => void loadReplies(false)}
-          ReplyItem={CommentItem}
-          onReplyDeleted={onReplyDeleted}
-        />
-      )}
     </div>
   );
 }

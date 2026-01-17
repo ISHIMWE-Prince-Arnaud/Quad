@@ -82,7 +82,6 @@ export const endpoints = {
     getByContent: (contentType: string, contentId: string, params?: unknown) =>
       api.get(`/comments/${contentType}/${contentId}`, { params }),
     getById: (id: string) => api.get(`/comments/${id}`),
-    getReplies: (id: string, params?: unknown) => api.get(`/comments/${id}/replies`, { params }),
     update: (id: string, data: unknown) => api.put(`/comments/${id}`, data),
     delete: (id: string) => api.delete(`/comments/${id}`),
     toggleLike: (data: unknown) => api.post("/comments/like", data),

@@ -10,7 +10,6 @@ import toast from "react-hot-toast";
 interface CommentComposerProps {
   contentType: "post" | "story" | "poll";
   contentId: string;
-  parentId?: string;
   placeholder?: string;
   autoFocus?: boolean;
   onCreated?: () => void;
@@ -19,7 +18,6 @@ interface CommentComposerProps {
 export function CommentComposer({
   contentType,
   contentId,
-  parentId,
   placeholder,
   autoFocus,
   onCreated,
@@ -38,7 +36,6 @@ export function CommentComposer({
         contentType,
         contentId,
         text: value,
-        parentId,
       });
       if (!res.success)
         throw new Error(res.message || "Failed to post comment");

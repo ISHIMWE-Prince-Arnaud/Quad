@@ -5,7 +5,7 @@ export class CommentService {
   static async getByContent(
     contentType: "post" | "story" | "poll",
     contentId: string,
-    params?: { limit?: number; skip?: number; parentId?: string | null }
+    params?: { limit?: number; skip?: number }
   ): Promise<{
     success: boolean;
     data: Comment[];
@@ -39,13 +39,16 @@ export class CommentService {
     contentType: "post" | "story" | "poll";
     contentId: string;
     text: string;
-    parentId?: string;
   }): Promise<{
     success: boolean;
     data: Comment;
     message?: string;
   }> {
-    const response = await endpoints.comments.create(data);
+    const response = await endpoints.comments.create({
+      contentType: data.contentType,
+      contentId: data.contentId,
+      text: data.text,
+    });
     return response.data as {
       success: boolean;
       data: Comment;
@@ -62,34 +65,6 @@ export class CommentService {
     return response.data as {
       success: boolean;
       data: Comment;
-      message?: string;
-    };
-  }
-
-  static async getReplies(
-    id: string,
-    params?: { limit?: number; skip?: number }
-  ): Promise<{
-    success: boolean;
-    data: Comment[];
-    pagination?: {
-      total: number;
-      limit: number;
-      skip: number;
-      hasMore: boolean;
-    };
-    message?: string;
-  }> {
-    const response = await endpoints.comments.getReplies(id, params);
-    return response.data as {
-      success: boolean;
-      data: Comment[];
-      pagination?: {
-        total: number;
-        limit: number;
-        skip: number;
-        hasMore: boolean;
-      };
       message?: string;
     };
   }

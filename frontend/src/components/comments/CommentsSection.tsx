@@ -77,7 +77,6 @@ export function CommentsSection({
       const res = await CommentService.getByContent(contentType, contentId, {
         limit: cursor.limit,
         skip: nextSkip,
-        parentId: null,
       });
       if (res.success) {
         const data = res.data || [];

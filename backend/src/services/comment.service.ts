@@ -20,7 +20,6 @@ export interface CreateCommentInput {
   contentType: CommentableContentType;
   contentId: string;
   text: string;
-  parentId?: string;
 }
 
 export class CommentService {
@@ -62,7 +61,7 @@ export class CommentService {
   }
 
   static async createComment(userId: string, data: CreateCommentInput) {
-    const { contentType, contentId, text, parentId } = data;
+    const { contentType, contentId, text } = data;
 
     const { exists, content } = await verifyCommentableContent(
       contentType,
@@ -82,18 +81,6 @@ export class CommentService {
       (typeof contentObj.userId === "string" ? contentObj.userId : undefined) ||
       (typeof contentObj.clerkId === "string" ? contentObj.clerkId : undefined);
 
-    let parentComment: { author: { clerkId: string } } | null = null;
-    if (parentId) {
-      parentComment = (await Comment.findById(parentId)) as unknown as {
-        author: { clerkId: string };
-      } | null;
-      if (!parentComment) {
-        throw new AppError("Parent comment not found", 404);
-      }
-
-      await Comment.findByIdAndUpdate(parentId, { $inc: { repliesCount: 1 } });
-    }
-
     const newComment = await Comment.create({
       contentType,
       contentId,
@@ -106,7 +93,6 @@ export class CommentService {
           : {}),
       },
       text,
-      ...(parentId ? { parentId } : {}),
       reactionsCount: 0,
       likesCount: 0,
       repliesCount: 0,
@@ -139,52 +125,37 @@ export class CommentService {
 
     await updateContentCommentsCount(contentType, contentId, 1);
 
-    if (parentId && parentComment) {
-      const parentAuthorId = parentComment.author.clerkId;
-      if (parentAuthorId !== userId) {
-        await createNotification({
-          userId: parentAuthorId,
-          type: "comment_reply",
-          actorId: userId,
-          contentId: parentId,
-          contentType: "Comment",
-          message: generateNotificationMessage("comment_reply", user.username),
-        });
-      }
-    } else {
-      if (contentOwnerId && contentOwnerId !== userId) {
-        const notificationType =
-          contentType === "post"
-            ? "comment_post"
-            : contentType === "story"
-              ? "comment_story"
-              : "comment_poll";
+    if (contentOwnerId && contentOwnerId !== userId) {
+      const notificationType =
+        contentType === "post"
+          ? "comment_post"
+          : contentType === "story"
+            ? "comment_story"
+            : "comment_poll";
 
-        await createNotification({
-          userId: contentOwnerId,
-          type: notificationType,
-          actorId: userId,
-          contentId,
-          contentType:
-            contentType === "post"
-              ? "Post"
-              : contentType === "story"
-                ? "Story"
-                : "Poll",
-          message: generateNotificationMessage(
-            notificationType,
-            user.username,
-            contentType
-          ),
-        });
-      }
+      await createNotification({
+        userId: contentOwnerId,
+        type: notificationType,
+        actorId: userId,
+        contentId,
+        contentType:
+          contentType === "post"
+            ? "Post"
+            : contentType === "story"
+              ? "Story"
+              : "Poll",
+        message: generateNotificationMessage(
+          notificationType,
+          user.username,
+          contentType
+        ),
+      });
     }
 
     const io = getSocketIO();
     io.emit("commentAdded", {
       contentType,
       contentId,
-      parentId,
       comment: newComment,
     });
 
@@ -208,16 +179,15 @@ export class CommentService {
   static async getCommentsByContent(
     contentType: string,
     contentId: string,
-    opts: { limit?: string; skip?: string; parentId?: string }
+    opts: { limit?: string; skip?: string }
   ) {
-    const { limit = "20", skip = "0", parentId } = opts;
+    const { limit = "20", skip = "0" } = opts;
 
-    const query: Record<string, unknown> = { contentType, contentId };
-    if (parentId === "null" || !parentId) {
-      query.parentId = { $exists: false };
-    } else {
-      query.parentId = parentId;
-    }
+    const query: Record<string, unknown> = {
+      contentType,
+      contentId,
+      parentId: { $exists: false },
+    };
 
     const comments = await Comment.find(query)
       .populate("author", "username displayName profileImage")
@@ -244,25 +214,6 @@ export class CommentService {
       throw new AppError("Comment not found", 404);
     }
     return comment;
-  }
-
-  static async getReplies(id: string, limit = "10", skip = "0") {
-    const replies = await Comment.find({ parentId: id })
-      .sort({ createdAt: 1 })
-      .limit(Number(limit))
-      .skip(Number(skip));
-
-    const total = await Comment.countDocuments({ parentId: id });
-
-    return {
-      replies,
-      pagination: {
-        total,
-        limit: Number(limit),
-        skip: Number(skip),
-        hasMore: Number(skip) + replies.length < total,
-      },
-    };
   }
 
   static async updateComment(userId: string, id: string, text: string) {

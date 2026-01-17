@@ -1,5 +1,3 @@
-import { CommentComposer } from "@/components/comments/CommentComposer";
-
 export function CommentReplyComposer({
   contentType,
   contentId,
@@ -13,14 +11,10 @@ export function CommentReplyComposer({
   placeholder: string;
   onCreated: () => void;
 }) {
-  return (
-    <CommentComposer
-      contentType={contentType}
-      contentId={contentId}
-      parentId={parentId}
-      placeholder={placeholder}
-      autoFocus
-      onCreated={onCreated}
-    />
-  );
+  void contentType;
+  void contentId;
+  void parentId;
+  void placeholder;
+  void onCreated;
+  return null;
 }

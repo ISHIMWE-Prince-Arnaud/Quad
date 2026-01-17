@@ -3,7 +3,6 @@ import {
   createComment,
   getCommentsByContent,
   getComment,
-  getReplies,
   updateComment,
   deleteComment,
   toggleCommentLike,
@@ -59,21 +58,6 @@ router.get(
   requireApiAuth,
   validateSchema(commentIdSchema, "params"),
   getComment
-);
-
-/**
- * -------------------------
- * GET REPLIES TO COMMENT
- * GET /api/comments/:id/replies
- * Protected: User must be signed in
- * Query params: limit, skip
- * -------------------------
- */
-router.get(
-  "/:id/replies",
-  requireApiAuth,
-  validateSchema(commentIdSchema, "params"),
-  getReplies
 );
 
 /**

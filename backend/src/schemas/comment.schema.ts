@@ -15,7 +15,6 @@ export const createCommentSchema = z
     text: z.string()
       .min(1, "Comment text is required")
       .max(2000, "Comment cannot exceed 2000 characters"),
-    parentId: z.string().optional(), // For replies
   })
   .strict();
 
@@ -39,7 +38,6 @@ export const getCommentsByContentSchema = z
     contentId: z.string().min(1, "Content ID is required"),
     limit: z.string().optional(),
     skip: z.string().optional(),
-    parentId: z.string().optional(), // For fetching replies
   })
   .strict();
 

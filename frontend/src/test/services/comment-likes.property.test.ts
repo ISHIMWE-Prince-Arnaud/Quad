@@ -19,7 +19,6 @@ vi.mock("@/lib/api", () => ({
       create: vi.fn(),
       getByContent: vi.fn(),
       getById: vi.fn(),
-      getReplies: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
       toggleLike: vi.fn(),
@@ -252,12 +251,14 @@ describe("Property 31: Comment Like Toggle", () => {
           // Clear mocks for each property test run
           vi.clearAllMocks();
 
-          let currentLiked = false;
-          let currentCount = 0;
+          let currentLiked: boolean = false;
+          let currentCount: number = 0;
 
           for (let i = 0; i < numToggles; i++) {
-            const nextLiked = !currentLiked;
-            const nextCount = nextLiked ? currentCount + 1 : currentCount - 1;
+            const nextLiked: boolean = !currentLiked;
+            const nextCount: number = nextLiked
+              ? currentCount + 1
+              : currentCount - 1;
 
             vi.mocked(endpoints.comments.toggleLike).mockResolvedValueOnce({
               data: {

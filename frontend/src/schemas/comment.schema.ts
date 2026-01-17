@@ -23,7 +23,6 @@ export const createCommentSchema = z.object({
         message: "Comment cannot be empty",
       }
     ),
-  parentId: z.string().optional(),
 });
 
 /**
