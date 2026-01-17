@@ -35,6 +35,9 @@ function formatTime(seconds: number) {
   return `${mins}:${pad2(secs)}`;
 }
 
+const GLOBAL_VIDEO_PLAY_EVENT = "quad:video-play";
+let globalVideoPlayerInstance = 0;
+
 function getAspectClass(aspectRatio?: MediaItem["aspectRatio"]) {
   if (aspectRatio === "1:1") return "aspect-square";
   if (aspectRatio === "9:16") return "aspect-[9/16]";
@@ -56,6 +59,9 @@ function VideoPlayer({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hideTimerRef = useRef<number | null>(null);
   const settingsRef = useRef<HTMLDivElement | null>(null);
+  const playerIdRef = useRef<string>(
+    `vp_${Date.now()}_${(globalVideoPlayerInstance += 1)}`
+  );
 
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -242,6 +248,12 @@ function VideoPlayer({
     const handlePlay = () => {
       setIsPlaying(true);
       scheduleHide();
+
+      window.dispatchEvent(
+        new CustomEvent(GLOBAL_VIDEO_PLAY_EVENT, {
+          detail: { id: playerIdRef.current },
+        })
+      );
     };
 
     const handlePause = () => {
@@ -277,6 +289,25 @@ function VideoPlayer({
       video.removeEventListener("volumechange", handleVolume);
     };
   }, [clearHideTimer, isSeeking, scheduleHide]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const onGlobalPlay = (event: Event) => {
+      const ev = event as CustomEvent<{ id?: string }>;
+      if (!ev.detail?.id) return;
+      if (ev.detail.id === playerIdRef.current) return;
+      if (!video.paused) {
+        video.pause();
+      }
+    };
+
+    window.addEventListener(GLOBAL_VIDEO_PLAY_EVENT, onGlobalPlay);
+    return () => {
+      window.removeEventListener(GLOBAL_VIDEO_PLAY_EVENT, onGlobalPlay);
+    };
+  }, []);
 
   useEffect(() => {
     if (!settingsOpen) return;
