@@ -106,14 +106,10 @@ export function FeedList({
             if (item.type === "post") {
               const post = item.content as Post;
               const isOptimistic = post._id.startsWith("optimistic:");
-              return (
-                <>
-                  {isOptimistic ? (
-                    <OptimisticPostCard key={post._id} post={post} />
-                  ) : (
-                    <PostCard key={post._id} post={post} onDelete={onDeletePost} />
-                  )}
-                </>
+              return isOptimistic ? (
+                <OptimisticPostCard key={post._id} post={post} />
+              ) : (
+                <PostCard key={post._id} post={post} onDelete={onDeletePost} />
               );
             }
 

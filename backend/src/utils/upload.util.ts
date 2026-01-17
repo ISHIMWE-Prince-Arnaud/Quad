@@ -1,6 +1,11 @@
 import cloudinary, { UPLOAD_PRESETS } from "../config/cloudinary.config.js";
 import { logger } from "./logger.util.js";
 import { Readable } from "stream";
+import type {
+  UploadApiErrorResponse,
+  UploadApiResponse,
+  UploadResponseCallback,
+} from "cloudinary";
 
 // Upload result interface
 export interface UploadResult {
@@ -27,47 +32,65 @@ export const uploadToCloudinary = async (
   return new Promise((resolve, reject) => {
     const uploadOptions = UPLOAD_PRESETS[preset];
 
-    // Create upload stream
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: uploadOptions.folder,
-        resource_type: uploadOptions.resource_type,
-        transformation: uploadOptions.transformation,
-      },
-      (error, result) => {
-        if (error) {
-          return reject(new Error(`Cloudinary upload failed: ${error.message}`));
-        }
+    const isVideo = uploadOptions.resource_type === "video";
 
-        if (!result) {
-          return reject(new Error("Upload failed: No result returned"));
-        }
-
-        const uploadResult: UploadResult = {
-          url: result.secure_url,
-          publicId: result.public_id,
-          format: result.format,
-          width: result.width,
-          height: result.height,
-          size: result.bytes,
-          resourceType: result.resource_type as "image" | "video",
-        };
-
-        // Generate thumbnail for videos
-        if (result.resource_type === "video") {
-          uploadResult.thumbnail = cloudinary.url(result.public_id, {
-            resource_type: "video",
-            transformation: [
-              { width: 400, height: 300, crop: "fill" },
-              { start_offset: "1" },
-            ],
-            format: "jpg",
-          });
-        }
-
-        resolve(uploadResult);
+    const handleUploadResult: UploadResponseCallback = (
+      error?: UploadApiErrorResponse,
+      result?: UploadApiResponse
+    ) => {
+      if (error) {
+        return reject(new Error(`Cloudinary upload failed: ${error.message}`));
       }
-    );
+
+      if (!result) {
+        return reject(new Error("Upload failed: No result returned"));
+      }
+
+      const uploadResult: UploadResult = {
+        url: result.secure_url,
+        publicId: result.public_id,
+        format: result.format,
+        width: result.width,
+        height: result.height,
+        size: result.bytes,
+        resourceType: result.resource_type as "image" | "video",
+      };
+
+      // Generate thumbnail for videos
+      if (result.resource_type === "video") {
+        uploadResult.thumbnail = cloudinary.url(result.public_id, {
+          resource_type: "video",
+          transformation: [
+            { width: 400, height: 300, crop: "fill" },
+            { start_offset: "1" },
+          ],
+          format: "jpg",
+        });
+      }
+
+      resolve(uploadResult);
+    };
+
+    // Create upload stream
+    const uploadStream = isVideo
+      ? cloudinary.uploader.upload_chunked_stream(
+          {
+            folder: uploadOptions.folder,
+            resource_type: uploadOptions.resource_type,
+            eager: uploadOptions.transformation,
+            eager_async: true,
+            chunk_size: 10_000_000,
+          },
+          handleUploadResult
+        )
+      : cloudinary.uploader.upload_stream(
+          {
+            folder: uploadOptions.folder,
+            resource_type: uploadOptions.resource_type,
+            transformation: uploadOptions.transformation,
+          },
+          handleUploadResult
+        );
 
     // Convert buffer to stream and pipe to Cloudinary
     const bufferStream = Readable.from(fileBuffer);
