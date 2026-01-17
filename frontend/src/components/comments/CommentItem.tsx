@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Comment } from "@/types/comment";
 import { CommentService } from "@/services/commentService";
 import { useAuthStore } from "@/stores/authStore";
@@ -9,7 +10,6 @@ import { CommentEngagementBar } from "./comment-item/CommentEngagementBar";
 import { CommentHeader } from "./comment-item/CommentHeader";
 import { CommentReplies } from "./comment-item/CommentReplies";
 import { CommentReplyComposer } from "./comment-item/CommentReplyComposer";
-import { CommentReplyControls } from "./comment-item/CommentReplyControls";
 import { useCommentEdit } from "./comment-item/useCommentEdit";
 import { useCommentReactions } from "./comment-item/useCommentReactions";
 import { useCommentReplies } from "./comment-item/useCommentReplies";
@@ -22,15 +22,11 @@ interface CommentItemProps {
 export function CommentItem({ comment, onDeleted }: CommentItemProps) {
   const { user } = useAuthStore();
 
-  const {
-    userReaction,
-    reactionPending,
-    reactionCount,
-    selectReaction,
-  } = useCommentReactions({
-    commentId: comment._id,
-    initialCount: comment.reactionsCount || 0,
-  });
+  const { userReaction, reactionPending, reactionCount, selectReaction } =
+    useCommentReactions({
+      commentId: comment._id,
+      initialCount: comment.reactionsCount || 0,
+    });
 
   const {
     bodyText,
@@ -77,9 +73,18 @@ export function CommentItem({ comment, onDeleted }: CommentItemProps) {
   };
 
   return (
-    <Card className="shadow-sm">
-      <CardContent className="pt-6">
-        <div className="flex gap-3">
+    <div className="group space-y-3">
+      <div className="flex gap-4">
+        <div className="shrink-0">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={comment.author.profileImage} />
+            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+              {comment.author.username.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+
+        <div className="flex-1 min-w-0 space-y-1">
           <CommentHeader
             comment={comment}
             isAuthor={Boolean(isAuthor)}
@@ -87,32 +92,26 @@ export function CommentItem({ comment, onDeleted }: CommentItemProps) {
             onDelete={() => void handleDelete()}
           />
 
-          <div className="flex-1 min-w-0">
-            <CommentBody
-              isEditing={isEditing}
-              bodyText={bodyText}
-              editText={editText}
-              onEditTextChange={setEditText}
-              editPending={editPending}
-              onCancel={cancelEdit}
-              onSave={() => void saveEdit()}
-            />
+          <CommentBody
+            isEditing={isEditing}
+            bodyText={bodyText}
+            editText={editText}
+            onEditTextChange={setEditText}
+            editPending={editPending}
+            onCancel={cancelEdit}
+            onSave={() => void saveEdit()}
+          />
 
-            <CommentEngagementBar
-              userReaction={userReaction}
-              reactionCount={reactionCount}
-              reactionPending={reactionPending}
-              onSelectReaction={(type) => void selectReaction(type)}
-            />
+          <CommentEngagementBar
+            userReaction={userReaction}
+            reactionCount={reactionCount}
+            reactionPending={reactionPending}
+            onSelectReaction={(type) => void selectReaction(type)}
+            onReply={() => setShowReplyComposer((v) => !v)}
+          />
 
-            <CommentReplyControls
-              repliesCount={repliesCount}
-              repliesOpen={repliesOpen}
-              onToggleRepliesOpen={toggleRepliesOpen}
-              onToggleComposer={() => setShowReplyComposer((v) => !v)}
-            />
-
-            {showReplyComposer && (
+          {showReplyComposer && (
+            <div className="pt-2">
               <CommentReplyComposer
                 contentType={comment.contentType}
                 contentId={comment.contentId}
@@ -120,21 +119,21 @@ export function CommentItem({ comment, onDeleted }: CommentItemProps) {
                 placeholder={`Reply to @${comment.author.username}...`}
                 onCreated={() => void onReplyCreated()}
               />
-            )}
-
-            {repliesOpen && (
-              <CommentReplies
-                replies={replies}
-                repliesHasMore={repliesHasMore}
-                repliesLoading={repliesLoading}
-                onLoadMore={() => void loadReplies(false)}
-                ReplyItem={CommentItem}
-                onReplyDeleted={onReplyDeleted}
-              />
-            )}
-          </div>
+            </div>
+          )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {repliesOpen && (
+        <CommentReplies
+          replies={replies}
+          repliesHasMore={repliesHasMore}
+          repliesLoading={repliesLoading}
+          onLoadMore={() => void loadReplies(false)}
+          ReplyItem={CommentItem}
+          onReplyDeleted={onReplyDeleted}
+        />
+      )}
+    </div>
   );
 }

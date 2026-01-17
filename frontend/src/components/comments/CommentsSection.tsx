@@ -116,54 +116,57 @@ export function CommentsSection({
   };
 
   return (
-    <Card className="shadow-sm">
-      <CardContent className="space-y-4 pt-6 pb-5">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold">Comments</h3>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl font-semibold text-foreground">
+          Comments <span className="text-muted-foreground ml-1">({comments.length})</span>
+        </h3>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>Sort by:</span>
           <select
-            className="h-8 rounded-md border bg-background px-2 text-xs"
+            className="bg-transparent font-medium text-foreground focus:outline-none cursor-pointer"
             value={sort}
             onChange={(e) => setSort(e.target.value as CommentSort)}>
+            <option value="mostLiked">Top</option>
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
-            <option value="mostLiked">Most liked</option>
           </select>
         </div>
+      </div>
 
-        <CommentComposer
-          contentType={contentType}
-          contentId={contentId}
-          onCreated={handleCommentCreated}
-        />
+      <CommentComposer
+        contentType={contentType}
+        contentId={contentId}
+        onCreated={handleCommentCreated}
+      />
 
-        {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
-        <div className="space-y-3">
-          {sortedComments.map((c) => (
-            <CommentItem
-              key={c._id}
-              comment={c}
-              onDeleted={handleCommentDeleted}
-            />
-          ))}
-          {sortedComments.length === 0 && !loading && !error && (
-            <p className="text-sm text-muted-foreground">
-              Be the first to comment.
-            </p>
-          )}
-          {cursor.hasMore && (
-            <div className="flex justify-center pt-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => void loadComments(false)}
-                disabled={loading}>
-                {loading ? "Loading..." : "Load more"}
-              </Button>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+      <div className="space-y-6">
+        {sortedComments.map((c) => (
+          <CommentItem
+            key={c._id}
+            comment={c}
+            onDeleted={handleCommentDeleted}
+          />
+        ))}
+        {sortedComments.length === 0 && !loading && !error && (
+          <p className="text-muted-foreground">
+            Be the first to comment.
+          </p>
+        )}
+        {cursor.hasMore && (
+          <div className="flex justify-center pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void loadComments(false)}
+              disabled={loading}>
+              {loading ? "Loading..." : "Load more"}
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

@@ -16,11 +16,14 @@ export function CommentReplies({
   repliesHasMore: boolean;
   repliesLoading: boolean;
   onLoadMore: () => void;
-  ReplyItem: ComponentType<{ comment: Comment; onDeleted?: (id: string) => void }>;
+  ReplyItem: ComponentType<{
+    comment: Comment;
+    onDeleted?: (id: string) => void;
+  }>;
   onReplyDeleted: (id: string) => void;
 }) {
   return (
-    <div className="mt-3 ml-3 border-l pl-4 space-y-2">
+    <div className="ml-5 border-l-2 border-border/30 pl-6 space-y-6 mt-4">
       {replies.map((reply) => (
         <ReplyItem key={reply._id} comment={reply} onDeleted={onReplyDeleted} />
       ))}
@@ -30,9 +33,10 @@ export function CommentReplies({
             type="button"
             variant="ghost"
             size="sm"
+            className="text-muted-foreground hover:text-foreground h-8 text-xs"
             disabled={repliesLoading}
             onClick={onLoadMore}>
-            {repliesLoading ? "Loading..." : "Load more replies"}
+            {repliesLoading ? "Loading..." : "View more replies"}
           </Button>
         </div>
       )}
