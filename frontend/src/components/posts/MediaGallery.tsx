@@ -4,6 +4,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  Loader2,
   Maximize,
   Minimize,
   Pause,
@@ -62,9 +63,14 @@ function VideoPlayer({
   const playerIdRef = useRef<string>(
     `vp_${Date.now()}_${(globalVideoPlayerInstance += 1)}`
   );
+  const bufferingTimerRef = useRef<number | null>(null);
 
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isBuffering, setIsBuffering] = useState(false);
+  const [isSlowNetwork, setIsSlowNetwork] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
   const [playbackRate, setPlaybackRate] = useState(1);
@@ -80,6 +86,13 @@ function VideoPlayer({
     if (hideTimerRef.current) {
       window.clearTimeout(hideTimerRef.current);
       hideTimerRef.current = null;
+    }
+  }, []);
+
+  const clearBufferingTimer = useCallback(() => {
+    if (bufferingTimerRef.current) {
+      window.clearTimeout(bufferingTimerRef.current);
+      bufferingTimerRef.current = null;
     }
   }, []);
 
@@ -232,11 +245,42 @@ function VideoPlayer({
 
     const handleLoaded = () => {
       setIsReady(true);
+      setIsInitialLoading(false);
+      setHasError(false);
       setDuration(Number.isFinite(video.duration) ? video.duration : 0);
       setIsMuted(video.muted);
       setVolume(video.volume);
       setPlaybackRate(video.playbackRate || 1);
       setIsPlaying(!video.paused);
+    };
+
+    const handleLoadStart = () => {
+      setIsInitialLoading(true);
+      setHasError(false);
+    };
+
+    const handleWaiting = () => {
+      setIsBuffering(true);
+    };
+
+    const handlePlaying = () => {
+      setIsBuffering(false);
+      setIsInitialLoading(false);
+    };
+
+    const handleStalled = () => {
+      setIsBuffering(true);
+    };
+
+    const handleCanPlay = () => {
+      setIsInitialLoading(false);
+      setIsBuffering(false);
+    };
+
+    const handleError = () => {
+      setHasError(true);
+      setIsInitialLoading(false);
+      setIsBuffering(false);
     };
 
     const handleTimeUpdate = () => {
@@ -273,6 +317,12 @@ function VideoPlayer({
 
     video.addEventListener("loadedmetadata", handleLoaded);
     video.addEventListener("loadeddata", handleLoaded);
+    video.addEventListener("loadstart", handleLoadStart);
+    video.addEventListener("waiting", handleWaiting);
+    video.addEventListener("stalled", handleStalled);
+    video.addEventListener("playing", handlePlaying);
+    video.addEventListener("canplay", handleCanPlay);
+    video.addEventListener("error", handleError);
     video.addEventListener("durationchange", handleDuration);
     video.addEventListener("timeupdate", handleTimeUpdate);
     video.addEventListener("play", handlePlay);
@@ -282,6 +332,12 @@ function VideoPlayer({
     return () => {
       video.removeEventListener("loadedmetadata", handleLoaded);
       video.removeEventListener("loadeddata", handleLoaded);
+      video.removeEventListener("loadstart", handleLoadStart);
+      video.removeEventListener("waiting", handleWaiting);
+      video.removeEventListener("stalled", handleStalled);
+      video.removeEventListener("playing", handlePlaying);
+      video.removeEventListener("canplay", handleCanPlay);
+      video.removeEventListener("error", handleError);
       video.removeEventListener("durationchange", handleDuration);
       video.removeEventListener("timeupdate", handleTimeUpdate);
       video.removeEventListener("play", handlePlay);
@@ -289,6 +345,23 @@ function VideoPlayer({
       video.removeEventListener("volumechange", handleVolume);
     };
   }, [clearHideTimer, isSeeking, scheduleHide]);
+
+  useEffect(() => {
+    clearBufferingTimer();
+    setIsSlowNetwork(false);
+
+    if (hasError) return;
+
+    if (isInitialLoading || isBuffering) {
+      bufferingTimerRef.current = window.setTimeout(() => {
+        setIsSlowNetwork(true);
+      }, 2500);
+    }
+
+    return () => {
+      clearBufferingTimer();
+    };
+  }, [clearBufferingTimer, hasError, isBuffering, isInitialLoading]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -328,8 +401,9 @@ function VideoPlayer({
   useEffect(() => {
     return () => {
       clearHideTimer();
+      clearBufferingTimer();
     };
-  }, [clearHideTimer]);
+  }, [clearBufferingTimer, clearHideTimer]);
 
   const effectiveTime = isSeeking ? seekValue : currentTime;
   const progressPct = duration > 0 ? (effectiveTime / duration) * 100 : 0;
@@ -361,7 +435,32 @@ function VideoPlayer({
         }}
       />
 
-      {!isPlaying && (
+      {(isInitialLoading || isBuffering || hasError) && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/35 pointer-events-none">
+          <div className="flex flex-col items-center gap-2 text-white/90">
+            {!hasError ? (
+              <>
+                <Loader2 className="h-7 w-7 animate-spin" />
+                <div className="text-sm font-medium">
+                  {isSlowNetwork ? "Buffering…" : "Loading…"}
+                </div>
+                {isSlowNetwork && (
+                  <div className="text-xs text-white/70">
+                    Network seems slow or unstable
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="text-sm font-medium">Failed to load video</div>
+                <div className="text-xs text-white/70">Tap play to retry</div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {!isPlaying && isReady && !isInitialLoading && !hasError && (
         <button
           type="button"
           aria-label="Play"
