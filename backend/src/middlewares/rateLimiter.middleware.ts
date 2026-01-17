@@ -7,16 +7,23 @@ import { logger } from "../utils/logger.util.js";
 
 import { env } from "../config/env.config.js";
 
+const generalRetryAfterSeconds = Math.ceil(env.RATE_LIMIT_GENERAL_WINDOW_MS / 1000);
+const searchRetryAfterSeconds = Math.ceil(env.RATE_LIMIT_SEARCH_WINDOW_MS / 1000);
+const uploadRetryAfterSeconds = Math.ceil(env.RATE_LIMIT_UPLOAD_WINDOW_MS / 1000);
+const authRetryAfterSeconds = Math.ceil(env.RATE_LIMIT_AUTH_WINDOW_MS / 1000);
+const writeRetryAfterSeconds = Math.ceil(env.RATE_LIMIT_WRITE_WINDOW_MS / 1000);
+
 /**
  * General rate limiter for all API endpoints
  */
 export const generalRateLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 15 minutes
-  max: env.NODE_ENV === "development" ? 1000000 : 100, // Higher limit in development
+  windowMs: env.RATE_LIMIT_GENERAL_WINDOW_MS, // 15 minutes
+  max:
+    env.NODE_ENV === "development" ? 1000000 : env.RATE_LIMIT_GENERAL_MAX, // Higher limit in development
   message: {
     success: false,
     message: "Too many requests from this IP, please try again later.",
-    retryAfter: 15 * 60, // 15 minutes in seconds
+    retryAfter: generalRetryAfterSeconds, // 15 minutes in seconds
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
@@ -25,7 +32,7 @@ export const generalRateLimiter = rateLimit({
     res.status(429).json({
       success: false,
       message: "Too many requests from this IP, please try again later.",
-      retryAfter: 15 * 60,
+      retryAfter: generalRetryAfterSeconds,
     });
   },
 });
@@ -34,19 +41,19 @@ export const generalRateLimiter = rateLimit({
  * Strict rate limiter for search endpoints
  */
 export const searchRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // limit each IP to 50 search requests per windowMs
+  windowMs: env.RATE_LIMIT_SEARCH_WINDOW_MS, // 15 minutes
+  max: env.RATE_LIMIT_SEARCH_MAX, // limit each IP to 50 search requests per windowMs
   message: {
     success: false,
     message: "Too many search requests, please slow down.",
-    retryAfter: 15 * 60,
+    retryAfter: searchRetryAfterSeconds,
   },
   handler: (req: Request, res: Response) => {
     logger.warn(`Search rate limit exceeded for IP: ${req.ip} on ${req.path}`);
     res.status(429).json({
       success: false,
       message: "Too many search requests, please slow down.",
-      retryAfter: 15 * 60,
+      retryAfter: searchRetryAfterSeconds,
     });
   },
 });
@@ -55,19 +62,19 @@ export const searchRateLimiter = rateLimit({
  * Upload rate limiter for file upload endpoints
  */
 export const uploadRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // limit each IP to 20 upload requests per windowMs
+  windowMs: env.RATE_LIMIT_UPLOAD_WINDOW_MS, // 15 minutes
+  max: env.RATE_LIMIT_UPLOAD_MAX, // limit each IP to 20 upload requests per windowMs
   message: {
     success: false,
     message: "Too many upload requests, please wait before uploading again.",
-    retryAfter: 15 * 60,
+    retryAfter: uploadRetryAfterSeconds,
   },
   handler: (req: Request, res: Response) => {
     logger.warn(`Upload rate limit exceeded for IP: ${req.ip} on ${req.path}`);
     res.status(429).json({
       success: false,
       message: "Too many upload requests, please wait before uploading again.",
-      retryAfter: 15 * 60,
+      retryAfter: uploadRetryAfterSeconds,
     });
   },
 });
@@ -76,19 +83,19 @@ export const uploadRateLimiter = rateLimit({
  * Authentication rate limiter for auth-related endpoints
  */
 export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // limit each IP to 10 auth requests per windowMs
+  windowMs: env.RATE_LIMIT_AUTH_WINDOW_MS, // 15 minutes
+  max: env.RATE_LIMIT_AUTH_MAX, // limit each IP to 10 auth requests per windowMs
   message: {
     success: false,
     message: "Too many authentication attempts, please try again later.",
-    retryAfter: 15 * 60,
+    retryAfter: authRetryAfterSeconds,
   },
   handler: (req: Request, res: Response) => {
     logger.warn(`Auth rate limit exceeded for IP: ${req.ip} on ${req.path}`);
     res.status(429).json({
       success: false,
       message: "Too many authentication attempts, please try again later.",
-      retryAfter: 15 * 60,
+      retryAfter: authRetryAfterSeconds,
     });
   },
 });
@@ -97,19 +104,19 @@ export const authRateLimiter = rateLimit({
  * Strict rate limiter for write operations (create, update, delete)
  */
 export const writeRateLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 30, // limit each IP to 30 write operations per minute
+  windowMs: env.RATE_LIMIT_WRITE_WINDOW_MS, // 1 minute
+  max: env.RATE_LIMIT_WRITE_MAX, // limit each IP to 30 write operations per minute
   message: {
     success: false,
     message: "Too many write operations, please slow down.",
-    retryAfter: 60,
+    retryAfter: writeRetryAfterSeconds,
   },
   handler: (req: Request, res: Response) => {
     logger.warn(`Write rate limit exceeded for IP: ${req.ip} on ${req.path}`);
     res.status(429).json({
       success: false,
       message: "Too many write operations, please slow down.",
-      retryAfter: 60,
+      retryAfter: writeRetryAfterSeconds,
     });
   },
 });
