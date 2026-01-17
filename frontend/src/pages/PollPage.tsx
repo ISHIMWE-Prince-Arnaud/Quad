@@ -104,7 +104,11 @@ export default function PollPage() {
           onSelectReaction={(type) => void handleSelectReaction(type)}
         />
 
-        <CommentsSection contentType="poll" contentId={poll.id} />
+        <CommentsSection
+          contentType="poll"
+          contentId={poll.id}
+          contentAuthorClerkId={poll.author.clerkId}
+        />
       </div>
 
       {/* Delete confirmation dialog */}

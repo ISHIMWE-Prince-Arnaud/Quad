@@ -50,7 +50,7 @@ export function CommentBody({
   }
 
   return (
-    <p className="mt-1 text-sm whitespace-pre-wrap break-words">
+    <p className="mt-1 text-[13px] leading-relaxed text-[#94a3b8] whitespace-pre-wrap break-words">
       <MentionText text={bodyText} />
     </p>
   );

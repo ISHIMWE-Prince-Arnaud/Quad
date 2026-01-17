@@ -67,7 +67,6 @@ export function StoryCard({ story, onDelete, className }: StoryCardProps) {
               storyId={story._id}
               createdAt={story.createdAt}
               isOwner={!!isOwner}
-              authorUsername={story.author.username}
               onCopyLink={handleCopyLink}
               onEdit={handleEdit}
               onDelete={() => setIsDeleteDialogOpen(true)}

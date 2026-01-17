@@ -1,33 +1,28 @@
-import { ThumbsUp } from "lucide-react";
-import type { ReactionType } from "@/services/reactionService";
 import { cn } from "@/lib/utils";
+import { Heart } from "lucide-react";
 
 export function CommentEngagementBar({
-  userReaction,
-  reactionCount,
-  reactionPending,
-  onSelectReaction,
+  liked,
+  likesCount,
+  likePending,
+  onToggleLike,
 }: {
-  userReaction: ReactionType | null;
-  reactionCount: number;
-  reactionPending: boolean;
-  onSelectReaction: (type: ReactionType) => void;
+  liked: boolean;
+  likesCount: number;
+  likePending: boolean;
+  onToggleLike: () => void;
 }) {
-  const isLiked = Boolean(userReaction);
-
   return (
-    <div className="flex items-center gap-4 pt-1">
+    <div className="flex items-center gap-4 pt-2">
       <button
-        onClick={() => onSelectReaction("love")}
-        disabled={reactionPending}
+        onClick={onToggleLike}
+        disabled={likePending}
         className={cn(
-          "flex items-center gap-1.5 text-xs font-medium transition-colors",
-          isLiked
-            ? "text-blue-500"
-            : "text-muted-foreground hover:text-foreground"
+          "flex items-center gap-2 text-xs font-semibold transition-colors",
+          liked ? "text-[#ef4444]" : "text-[#94a3b8] hover:text-white"
         )}>
-        <ThumbsUp className={cn("h-3.5 w-3.5", isLiked && "fill-current")} />
-        <span>{reactionCount > 0 ? reactionCount : "Like"}</span>
+        <Heart className={cn("h-4 w-4", liked && "fill-current")} />
+        <span>{likesCount}</span>
       </button>
     </div>
   );

@@ -8,21 +8,25 @@ import { CommentBody } from "./comment-item/CommentBody";
 import { CommentEngagementBar } from "./comment-item/CommentEngagementBar";
 import { CommentHeader } from "./comment-item/CommentHeader";
 import { useCommentEdit } from "./comment-item/useCommentEdit";
-import { useCommentReactions } from "./comment-item/useCommentReactions";
+import { useCommentLike } from "./comment-item/useCommentLike";
 
 interface CommentItemProps {
   comment: Comment;
+  contentAuthorClerkId?: string;
   onDeleted?: (id: string) => void;
 }
 
-export function CommentItem({ comment, onDeleted }: CommentItemProps) {
+export function CommentItem({
+  comment,
+  contentAuthorClerkId,
+  onDeleted,
+}: CommentItemProps) {
   const { user } = useAuthStore();
 
-  const { userReaction, reactionPending, reactionCount, selectReaction } =
-    useCommentReactions({
-      commentId: comment._id,
-      initialCount: comment.reactionsCount || 0,
-    });
+  const { likesCount, liked, likePending, toggleLike } = useCommentLike({
+    commentId: comment._id,
+    initialCount: comment.likesCount || 0,
+  });
 
   const {
     bodyText,
@@ -35,7 +39,9 @@ export function CommentItem({ comment, onDeleted }: CommentItemProps) {
     saveEdit,
   } = useCommentEdit({ commentId: comment._id, initialText: comment.text });
 
-  const isAuthor = user?.clerkId && user.clerkId === comment.author.clerkId;
+  const isOwner = user?.clerkId && user.clerkId === comment.author.clerkId;
+  const isContentAuthor =
+    contentAuthorClerkId && comment.author.clerkId === contentAuthorClerkId;
 
   const handleDelete = async () => {
     if (!window.confirm("Delete this comment?")) return;
@@ -52,23 +58,21 @@ export function CommentItem({ comment, onDeleted }: CommentItemProps) {
   };
 
   return (
-    <div className="group space-y-3">
-      <div className="flex gap-4">
-        <div className="shrink-0">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={comment.author.profileImage} />
-            <AvatarFallback className="bg-primary/10 text-primary font-medium">
-              {comment.author.username.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </div>
+    <div className="group">
+      <div className="flex gap-3">
+        <Avatar className="h-9 w-9 shrink-0">
+          <AvatarImage src={comment.author.profileImage} />
+          <AvatarFallback className="bg-white/5 text-white/80 font-medium">
+            {comment.author.username.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
 
-        <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex-1 min-w-0">
           <CommentHeader
             comment={comment}
-            isAuthor={Boolean(isAuthor)}
-            onEdit={startEdit}
-            onDelete={() => void handleDelete()}
+            isAuthor={Boolean(isContentAuthor)}
+            onEdit={isOwner ? startEdit : undefined}
+            onDelete={isOwner ? () => void handleDelete() : undefined}
           />
 
           <CommentBody
@@ -82,10 +86,10 @@ export function CommentItem({ comment, onDeleted }: CommentItemProps) {
           />
 
           <CommentEngagementBar
-            userReaction={userReaction}
-            reactionCount={reactionCount}
-            reactionPending={reactionPending}
-            onSelectReaction={(type) => void selectReaction(type)}
+            liked={liked}
+            likesCount={likesCount}
+            likePending={likePending}
+            onToggleLike={() => void toggleLike()}
           />
         </div>
       </div>

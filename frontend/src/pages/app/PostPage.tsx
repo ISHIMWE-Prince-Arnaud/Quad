@@ -124,7 +124,11 @@ export default function PostPage() {
       {/* Post card */}
       <PostCard post={post} onDelete={handleDelete} isSingleView />
 
-      <CommentsSection contentType="post" contentId={post._id} />
+      <CommentsSection
+        contentType="post"
+        contentId={post._id}
+        contentAuthorClerkId={post.author.clerkId}
+      />
     </div>
   );
 }

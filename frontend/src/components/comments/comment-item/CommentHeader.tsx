@@ -14,36 +14,32 @@ export function CommentHeader({
   onDelete?: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <span className="font-semibold text-foreground">
-        @{comment.author.username}
-      </span>
-      {isAuthor && (
-        <span className="rounded-[4px] bg-blue-600/20 px-1.5 py-0.5 text-[10px] font-bold text-blue-500 uppercase tracking-wide">
-          Author
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0 flex items-center gap-2">
+        <span className="truncate text-[13px] font-semibold text-[#e2e8f0]">
+          {comment.author.username}
         </span>
-      )}
-      <span className="text-muted-foreground text-xs">
+        {isAuthor && (
+          <span className="rounded-full bg-blue-600/20 px-2 py-0.5 text-[10px] font-bold text-blue-400 uppercase tracking-wide">
+            Author
+          </span>
+        )}
+
+        {onEdit && onDelete && (
+          <div className="ml-1 hidden items-center gap-2 text-[11px] text-[#64748b] group-hover:flex">
+            <button type="button" onClick={onEdit} className="hover:text-white">
+              Edit
+            </button>
+            <button type="button" onClick={onDelete} className="hover:text-destructive">
+              Delete
+            </button>
+          </div>
+        )}
+      </div>
+
+      <span className="shrink-0 text-[11px] font-medium text-[#64748b]">
         {timeAgo(comment.createdAt)}
       </span>
-
-      {/* Edit/Delete controls could be a dropdown menu or minimal text buttons. Keeping simple for now but ensuring they don't break flow */}
-      {isAuthor && onEdit && onDelete && (
-        <div className="ml-2 flex items-center gap-2 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            type="button"
-            onClick={onEdit}
-            className="hover:text-foreground">
-            Edit
-          </button>
-          <button
-            type="button"
-            onClick={onDelete}
-            className="hover:text-destructive">
-            Delete
-          </button>
-        </div>
-      )}
     </div>
   );
 }

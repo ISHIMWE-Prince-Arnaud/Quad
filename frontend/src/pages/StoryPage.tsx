@@ -64,7 +64,11 @@ export default function StoryPage() {
           onSelectReaction={(type) => void controller.handleSelectReaction(type)}
         />
 
-        <CommentsSection contentType="story" contentId={controller.story._id} />
+        <CommentsSection
+          contentType="story"
+          contentId={controller.story._id}
+          contentAuthorClerkId={controller.story.author.clerkId}
+        />
       </div>
 
       {/* Delete confirmation dialog */}

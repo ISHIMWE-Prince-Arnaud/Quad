@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CommentComposer } from "@/components/comments/CommentComposer";
 import { CommentItem } from "@/components/comments/CommentItem";
 import { CommentService } from "@/services/commentService";
 import type { Comment } from "@/types/comment";
+import { ChevronDown } from "lucide-react";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -23,6 +24,7 @@ export type CommentSort = "newest" | "oldest" | "mostLiked";
 interface CommentsSectionProps {
   contentType: "post" | "story" | "poll";
   contentId: string;
+  contentAuthorClerkId?: string;
   initialPageSize?: number;
 }
 
@@ -35,6 +37,7 @@ interface CommentsCursor {
 export function CommentsSection({
   contentType,
   contentId,
+  contentAuthorClerkId,
   initialPageSize = 20,
 }: CommentsSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -45,26 +48,9 @@ export function CommentsSection({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sort, setSort] = useState<CommentSort>("newest");
+  const [total, setTotal] = useState<number | null>(null);
 
-  const sortedComments = useMemo(() => {
-    const copy = [...comments];
-    switch (sort) {
-      case "oldest":
-        return copy.sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-      case "mostLiked":
-        return copy.sort((a, b) => b.likesCount - a.likesCount);
-      case "newest":
-      default:
-        return copy.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-    }
-  }, [comments, sort]);
+  const displayTotal = typeof total === "number" ? total : comments.length;
 
   const loadComments = async (reset = false) => {
     if (loading) return;
@@ -82,6 +68,9 @@ export function CommentsSection({
         const data = res.data || [];
         setComments((prev) => (reset ? data : [...prev, ...data]));
         const pag = res.pagination;
+        if (typeof pag?.total === "number") {
+          setTotal(pag.total);
+        }
         setCursor({
           skip: nextSkip + data.length,
           limit: cursor.limit,
@@ -101,6 +90,7 @@ export function CommentsSection({
     // reset when content changes
     setComments([]);
     setCursor({ skip: 0, limit: initialPageSize, hasMore: true });
+    setTotal(null);
     void loadComments(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contentType, contentId, initialPageSize]);
@@ -111,56 +101,55 @@ export function CommentsSection({
 
   const handleCommentDeleted = (id: string) => {
     setComments((prev) => prev.filter((c) => c._id !== id));
+    setTotal((t) => (typeof t === "number" ? Math.max(0, t - 1) : t));
   };
 
   return (
-    <div className="space-y-6">
+    <div className="rounded-3xl bg-[#0b1220] border border-white/5 p-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-semibold text-foreground">
-          Comments <span className="text-muted-foreground ml-1">({comments.length})</span>
+        <h3 className="text-[12px] font-semibold tracking-widest text-[#94a3b8] uppercase">
+          Comments ({displayTotal})
         </h3>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>Sort by:</span>
-          <select
-            className="bg-transparent font-medium text-foreground focus:outline-none cursor-pointer"
-            value={sort}
-            onChange={(e) => setSort(e.target.value as CommentSort)}>
-            <option value="mostLiked">Top</option>
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-          </select>
-        </div>
       </div>
 
-      <CommentComposer
-        contentType={contentType}
-        contentId={contentId}
-        onCreated={handleCommentCreated}
-      />
+      <div className="mt-4">
+        <CommentComposer
+          contentType={contentType}
+          contentId={contentId}
+          placeholder="Add a comment..."
+          onCreated={handleCommentCreated}
+        />
+      </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
 
-      <div className="space-y-6">
-        {sortedComments.map((c) => (
-          <CommentItem
-            key={c._id}
-            comment={c}
-            onDeleted={handleCommentDeleted}
-          />
+      <div className="mt-4 divide-y divide-white/5">
+        {comments.map((c) => (
+          <div key={c._id} className="py-4">
+            <CommentItem
+              comment={c}
+              contentAuthorClerkId={contentAuthorClerkId}
+              onDeleted={handleCommentDeleted}
+            />
+          </div>
         ))}
-        {sortedComments.length === 0 && !loading && !error && (
-          <p className="text-muted-foreground">
-            Be the first to comment.
-          </p>
+
+        {comments.length === 0 && !loading && !error && (
+          <div className="py-6">
+            <p className="text-sm text-[#94a3b8]">Be the first to comment.</p>
+          </div>
         )}
+
         {cursor.hasMore && (
-          <div className="flex justify-center pt-2">
+          <div className="pt-4 flex justify-center">
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => void loadComments(false)}
-              disabled={loading}>
-              {loading ? "Loading..." : "Load more"}
+              disabled={loading}
+              className="text-[#94a3b8] hover:text-white">
+              {loading ? "Loading..." : "Load more comments"}
+              <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </div>
         )}
