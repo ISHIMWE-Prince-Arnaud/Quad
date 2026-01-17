@@ -79,12 +79,6 @@ export function PostCardHeader({
               </DropdownMenuItem>
             </>
           )}
-          {!isOwner && (
-            <>
-              <DropdownMenuItem>Report post</DropdownMenuItem>
-              <DropdownMenuItem>Block {post.author.username}</DropdownMenuItem>
-            </>
-          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

@@ -14,7 +14,6 @@ export function StoryCardHeader({
   storyId,
   createdAt,
   isOwner,
-  authorUsername,
   onCopyLink,
   onEdit,
   onDelete,
@@ -22,7 +21,6 @@ export function StoryCardHeader({
   storyId: string;
   createdAt: string;
   isOwner: boolean;
-  authorUsername: string;
   onCopyLink: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -49,12 +47,6 @@ export function StoryCardHeader({
               <DropdownMenuItem className="text-destructive" onClick={onDelete}>
                 Delete story
               </DropdownMenuItem>
-            </>
-          )}
-          {!isOwner && (
-            <>
-              <DropdownMenuItem>Report story</DropdownMenuItem>
-              <DropdownMenuItem>Block {authorUsername}</DropdownMenuItem>
             </>
           )}
         </DropdownMenuContent>

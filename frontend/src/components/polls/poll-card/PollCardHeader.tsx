@@ -73,12 +73,6 @@ export function PollCardHeader({
               </DropdownMenuItem>
             </>
           )}
-          {!isOwner && (
-            <>
-              <DropdownMenuItem>Report poll</DropdownMenuItem>
-              <DropdownMenuItem>Block {poll.author.username}</DropdownMenuItem>
-            </>
-          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
