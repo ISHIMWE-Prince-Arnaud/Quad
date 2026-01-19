@@ -22,26 +22,27 @@ export function CreatePostTextField({
       name="text"
       render={({ field }) => (
         <FormItem>
+          <p className="text-sm font-semibold text-white">What's happening?</p>
           <FormControl>
-            <AutoExpandingTextarea
-              placeholder="What's happening?"
-              className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base"
-              minHeight={120}
-              maxHeight={400}
-              disabled={isLoading}
-              {...field}
-            />
+            <div className="relative rounded-2xl border border-white/5 bg-[#0f172a]/50">
+              <AutoExpandingTextarea
+                placeholder="Share your thoughts..."
+                className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm text-white/90 placeholder:text-[#64748b] px-4 py-3 pr-24"
+                minHeight={120}
+                maxHeight={320}
+                disabled={isLoading}
+                {...field}
+              />
+              <span
+                className={cn(
+                  "absolute bottom-2 right-3 text-xs text-[#94a3b8]",
+                  isOverLimit && "text-destructive font-medium"
+                )}>
+                {charCount}/1000
+              </span>
+            </div>
           </FormControl>
-          <div className="flex items-center justify-between text-xs">
-            <FormMessage />
-            <span
-              className={cn(
-                "text-muted-foreground",
-                isOverLimit && "text-destructive font-medium"
-              )}>
-              {charCount}/1000
-            </span>
-          </div>
+          <FormMessage />
         </FormItem>
       )}
     />

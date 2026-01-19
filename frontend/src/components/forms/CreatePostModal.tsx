@@ -91,7 +91,9 @@ export function CreatePostModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        showClose={false}
+        className="max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/5 bg-[#0b1220] p-6">
         <DialogDescription className="sr-only">
           Create a new post and attach at least one media.
         </DialogDescription>
@@ -100,7 +102,7 @@ export function CreatePostModal({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4">
+            className="space-y-6">
             {/* Text Input */}
             <CreatePostTextField
               control={form.control}
@@ -118,6 +120,13 @@ export function CreatePostModal({
             />
 
             {/* Media Upload Area */}
+            <div className="space-y-2">
+              <div>
+                <p className="text-sm font-semibold text-white">Add Media</p>
+                <p className="text-xs text-[#94a3b8]">
+                  Upload up to 10 images or videos. JPG, PNG, GIF, MP4
+                </p>
+              </div>
             <MediaUploadDropzone
               isDragging={isDragging}
               onDrop={handleDrop}
@@ -125,6 +134,7 @@ export function CreatePostModal({
               onDragLeave={handleDragLeave}
               onSelectFiles={handleFileSelect}
             />
+            </div>
 
             {/* Action Buttons */}
             <CreatePostActions

@@ -1,6 +1,6 @@
 import type { DragEventHandler } from "react";
 
-import { Image as ImageIcon } from "lucide-react";
+import { Upload } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -23,8 +23,9 @@ export function MediaUploadDropzone({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       className={cn(
-        "border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer",
-        isDragging ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+        "rounded-2xl border border-dashed p-6 text-center transition-colors cursor-pointer",
+        "border-white/10 bg-[#0f172a]/20 hover:bg-[#0f172a]/30",
+        isDragging && "border-primary bg-primary/5"
       )}
       onClick={() => {
         const input = document.createElement("input");
@@ -34,9 +35,13 @@ export function MediaUploadDropzone({
         input.onchange = (e) => onSelectFiles((e.target as HTMLInputElement).files);
         input.click();
       }}>
-      <ImageIcon className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-      <p className="text-sm font-medium mb-1">Add photos or videos</p>
-      <p className="text-xs text-muted-foreground">or drag and drop</p>
+      <div className="mx-auto h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center">
+        <Upload className="h-5 w-5 text-primary" />
+      </div>
+      <p className="mt-3 text-sm font-semibold text-white">Click to upload or drag and drop</p>
+      <p className="mt-1 text-xs text-[#94a3b8]">
+        Images (max 10MB) or Videos (max 1GB)
+      </p>
     </div>
   );
 }
