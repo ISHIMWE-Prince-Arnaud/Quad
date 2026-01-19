@@ -12,7 +12,6 @@ import {
   Settings,
   Volume2,
   VolumeX,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -872,60 +871,99 @@ function MediaLightbox({
   onPrev,
 }: MediaLightboxProps) {
   const currentItem = media[currentIndex];
+  const mediaContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (media.length <= 1) return;
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        onNext();
+      }
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        onPrev();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [media.length, onNext, onPrev, open]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl h-[90vh] p-0 bg-black/95">
+      <DialogContent
+        showClose={false}
+        className="!left-0 !top-0 !translate-x-0 !translate-y-0 !max-w-none !w-screen !h-screen p-0 bg-black/95 border-0 rounded-none">
         <DialogTitle className="sr-only">Media viewer</DialogTitle>
         <DialogDescription className="sr-only">
           View post media in full screen and navigate between items.
         </DialogDescription>
-        <div className="relative w-full h-full flex items-center justify-center">
-          {/* Close button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
-            onClick={onClose}>
-            <X className="h-6 w-6" />
-          </Button>
+        <div
+          className="relative w-full h-full"
+          onPointerDownCapture={(e) => {
+            const target = e.target as Node | null;
+            if (!target) return;
 
+            const container = mediaContainerRef.current;
+            if (container && !container.contains(target)) {
+              onClose();
+            }
+          }}>
           {/* Navigation buttons */}
-          {media.length > 1 && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute left-4 z-50 text-white hover:bg-white/20"
-                onClick={onPrev}>
-                <ChevronLeft className="h-8 w-8" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-4 z-50 text-white hover:bg-white/20"
-                onClick={onNext}>
-                <ChevronRight className="h-8 w-8" />
-              </Button>
-            </>
-          )}
-
           {/* Media content */}
-          <div className="w-full h-full flex items-center justify-center p-8">
-            {currentItem?.type === "image" ? (
-              <img
-                src={currentItem.url}
-                alt="Full size"
-                className="max-w-full max-h-full object-contain"
-              />
-            ) : (
-              <VideoPlayer
-                src={currentItem?.url}
-                autoPlay
-                containerClassName="w-full h-full max-w-full max-h-full"
-                videoClassName="w-full h-full object-contain"
-              />
-            )}
+          <div
+            className="relative z-10 w-full h-full flex items-center justify-center p-8"
+            onMouseDown={(e) => e.stopPropagation()}>
+            <div
+              ref={mediaContainerRef}
+              className="relative flex items-center justify-center w-full h-full max-w-[1100px] max-h-[85vh]">
+              {media.length > 1 && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1/2 -translate-y-1/2 left-0 -translate-x-1/2 z-50 text-white hover:bg-white/20"
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onPrev();
+                    }}>
+                    <ChevronLeft className="h-8 w-8" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 z-50 text-white hover:bg-white/20"
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onNext();
+                    }}>
+                    <ChevronRight className="h-8 w-8" />
+                  </Button>
+                </>
+              )}
+
+              {currentItem?.type === "image" ? (
+                <img
+                  src={currentItem.url}
+                  alt="Full size"
+                  className="max-w-[1100px] max-h-[85vh] w-auto h-auto object-contain"
+                />
+              ) : (
+                <VideoPlayer
+                  src={currentItem?.url}
+                  autoPlay
+                  containerClassName="w-full h-full max-w-[1100px] max-h-[85vh]"
+                  videoClassName="w-full h-full object-contain"
+                />
+              )}
+            </div>
           </div>
 
           {/* Counter */}
