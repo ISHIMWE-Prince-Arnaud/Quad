@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Bookmark, MessageCircle, Share2 } from "lucide-react";
+import { Bookmark, Share2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
+import { CommentCountIcon } from "@/components/engagement/CommentCountIcon";
 import type { ReactionType } from "@/services/reactionService";
 
 export function PostCardFooter({
@@ -49,12 +50,7 @@ export function PostCardFooter({
           className={cn(actionBase, "hover:bg-white/5 hover:text-[#3b82f6]")}
           aria-label={`${commentsCount} comments`}
           title="Comments">
-          <MessageCircle
-            className={cn(
-              "h-4 w-4",
-              commentsCount > 0 && "text-[#2563EB] fill-current"
-            )}
-          />
+          <CommentCountIcon count={commentsCount} className="h-4 w-4" />
           <span className="text-xs font-bold">{commentsCount}</span>
         </Link>
 

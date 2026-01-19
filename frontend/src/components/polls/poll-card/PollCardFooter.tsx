@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { Bookmark, MessageCircle, Share2 } from "lucide-react";
+import { Bookmark, Share2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { CardFooter } from "@/components/ui/card";
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
+import { CommentCountIcon } from "@/components/engagement/CommentCountIcon";
 import { cn } from "@/lib/utils";
 import type { ReactionType } from "@/services/reactionService";
 
@@ -48,12 +49,7 @@ export function PollCardFooter({
           className="gap-2 text-muted-foreground hover:text-blue-600"
           asChild>
           <Link to={`/app/polls/${pollId}`}>
-            <MessageCircle
-              className={cn(
-                "h-4 w-4",
-                commentsCount > 0 && "text-[#2563EB] fill-current"
-              )}
-            />
+            <CommentCountIcon count={commentsCount} className="h-4 w-4" />
             <span className="text-xs">{commentsCount}</span>
           </Link>
         </Button>

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Heart,
-  MessageCircle,
   MoreHorizontal,
   Play,
   Share,
@@ -10,6 +9,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { CommentCountIcon } from "@/components/engagement/CommentCountIcon";
 import { cn } from "@/lib/utils";
 
 import type { ContentItem } from "./types";
@@ -219,12 +219,7 @@ export function ContentCard({ item }: { item: ContentItem }) {
               variant="ghost"
               size="sm"
               className="h-auto p-0 text-muted-foreground hover:text-primary">
-              <MessageCircle
-                className={cn(
-                  "h-4 w-4 mr-1",
-                  item.comments > 0 && "text-[#2563EB] fill-current"
-                )}
-              />
+              <CommentCountIcon count={item.comments} className="h-4 w-4 mr-1" />
               <span className="text-xs">{item.comments}</span>
             </Button>
             {item.shares !== undefined && (

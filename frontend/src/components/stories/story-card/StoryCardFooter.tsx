@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Bookmark, MessageCircle, Share2 } from "lucide-react";
+import { Bookmark, Share2 } from "lucide-react";
 
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
+import { CommentCountIcon } from "@/components/engagement/CommentCountIcon";
 import { cn } from "@/lib/utils";
 
 import type { ReactionType } from "@/services/reactionService";
@@ -47,12 +48,7 @@ export function StoryCardFooter({
         <Link
           to={`/app/stories/${storyId}`}
           className="flex items-center gap-1 hover:text-blue-600 transition-colors">
-          <MessageCircle
-            className={cn(
-              "h-3.5 w-3.5",
-              commentsCount > 0 && "text-[#2563EB] fill-current"
-            )}
-          />
+          <CommentCountIcon count={commentsCount} className="h-3.5 w-3.5" />
           <span>{commentsCount}</span>
         </Link>
       </div>
