@@ -28,7 +28,7 @@ export function CreatePostActions({
           variant="ghost"
           onClick={onCancel}
           disabled={isLoading}
-          className="text-[#94a3b8] hover:bg-secondary">
+          className="text-[#94a3b8] hover:text-white hover:bg-secondary">
           Cancel
         </Button>
         <Button

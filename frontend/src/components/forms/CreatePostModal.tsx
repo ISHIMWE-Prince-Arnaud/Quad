@@ -90,7 +90,11 @@ export function CreatePostModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) onClose();
+      }}>
       <DialogContent
         showClose={false}
         className="max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/5 bg-[#0b1220] p-6">
