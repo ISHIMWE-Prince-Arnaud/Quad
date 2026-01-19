@@ -48,7 +48,9 @@ export function PollCardFooter({
           className="gap-2 text-muted-foreground hover:text-blue-600"
           asChild>
           <Link to={`/app/polls/${pollId}`}>
-            <MessageCircle className="h-4 w-4" />
+            <MessageCircle
+              className={cn("h-4 w-4", commentsCount > 0 && "fill-current")}
+            />
             <span className="text-xs">{commentsCount}</span>
           </Link>
         </Button>

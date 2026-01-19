@@ -49,7 +49,7 @@ export function PostCardFooter({
           className={cn(actionBase, "hover:bg-white/5 hover:text-[#3b82f6]")}
           aria-label={`${commentsCount} comments`}
           title="Comments">
-          <MessageCircle className="h-4 w-4" />
+          <MessageCircle className={cn("h-4 w-4", commentsCount > 0 && "fill-current")} />
           <span className="text-xs font-bold">{commentsCount}</span>
         </Link>
 

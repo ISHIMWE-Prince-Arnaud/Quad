@@ -219,7 +219,9 @@ export function ContentCard({ item }: { item: ContentItem }) {
               variant="ghost"
               size="sm"
               className="h-auto p-0 text-muted-foreground hover:text-primary">
-              <MessageCircle className="h-4 w-4 mr-1" />
+              <MessageCircle
+                className={cn("h-4 w-4 mr-1", item.comments > 0 && "fill-current")}
+              />
               <span className="text-xs">{item.comments}</span>
             </Button>
             {item.shares !== undefined && (

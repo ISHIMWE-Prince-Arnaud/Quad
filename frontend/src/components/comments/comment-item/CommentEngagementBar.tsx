@@ -1,5 +1,4 @@
-import { cn } from "@/lib/utils";
-import { Heart } from "lucide-react";
+import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 
 export function CommentEngagementBar({
   liked,
@@ -14,16 +13,16 @@ export function CommentEngagementBar({
 }) {
   return (
     <div className="flex items-center gap-4 pt-2">
-      <button
-        onClick={onToggleLike}
-        disabled={likePending}
-        className={cn(
-          "flex items-center gap-2 text-xs font-semibold transition-colors",
-          liked ? "text-[#ef4444]" : "text-[#94a3b8] hover:text-white"
-        )}>
-        <Heart className={cn("h-4 w-4", liked && "fill-current")} />
-        <span>{likesCount}</span>
-      </button>
+      <HeartReactionButton
+        liked={liked}
+        count={likesCount}
+        pending={likePending}
+        onToggle={onToggleLike}
+        ariaLabel={`Like comment. ${likesCount} likes`}
+        className="px-2 py-1 hover:bg-white/5"
+        iconClassName="h-4 w-4"
+        countClassName="text-xs font-semibold text-[#94a3b8]"
+      />
     </div>
   );
 }
