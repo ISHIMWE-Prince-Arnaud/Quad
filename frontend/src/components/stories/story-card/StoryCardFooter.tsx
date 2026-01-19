@@ -47,7 +47,12 @@ export function StoryCardFooter({
         <Link
           to={`/app/stories/${storyId}`}
           className="flex items-center gap-1 hover:text-blue-600 transition-colors">
-          <MessageCircle className={cn("h-3.5 w-3.5", commentsCount > 0 && "fill-current")} />
+          <MessageCircle
+            className={cn(
+              "h-3.5 w-3.5",
+              commentsCount > 0 && "text-[#2563EB] fill-current"
+            )}
+          />
           <span>{commentsCount}</span>
         </Link>
       </div>

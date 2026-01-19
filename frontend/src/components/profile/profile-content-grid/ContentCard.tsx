@@ -220,7 +220,10 @@ export function ContentCard({ item }: { item: ContentItem }) {
               size="sm"
               className="h-auto p-0 text-muted-foreground hover:text-primary">
               <MessageCircle
-                className={cn("h-4 w-4 mr-1", item.comments > 0 && "fill-current")}
+                className={cn(
+                  "h-4 w-4 mr-1",
+                  item.comments > 0 && "text-[#2563EB] fill-current"
+                )}
               />
               <span className="text-xs">{item.comments}</span>
             </Button>
