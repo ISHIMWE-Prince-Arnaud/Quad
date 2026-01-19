@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CommentService } from "@/services/commentService";
 import { useAuthStore } from "@/stores/authStore";
+import type { Comment } from "@/types/comment";
 import toast from "react-hot-toast";
 
 interface CommentComposerProps {
@@ -10,7 +11,7 @@ interface CommentComposerProps {
   contentId: string;
   placeholder?: string;
   autoFocus?: boolean;
-  onCreated?: () => void;
+  onCreated?: (comment: Comment) => void;
 }
 
 export function CommentComposer({
@@ -38,7 +39,7 @@ export function CommentComposer({
       if (!res.success)
         throw new Error(res.message || "Failed to post comment");
       setText("");
-      onCreated?.();
+      onCreated?.(res.data);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to post comment";
       toast.error(msg);

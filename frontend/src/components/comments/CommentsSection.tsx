@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CommentComposer } from "@/components/comments/CommentComposer";
 import { CommentItem } from "@/components/comments/CommentItem";
 import { CommentService } from "@/services/commentService";
 import type { Comment } from "@/types/comment";
 import { ChevronDown } from "lucide-react";
+import { getSocket } from "@/lib/socket";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -19,7 +20,24 @@ function getErrorMessage(error: unknown): string {
   return "Failed to load comments";
 }
 
-export type CommentSort = "newest" | "oldest" | "mostLiked";
+type CommentAddedPayload = {
+  contentType: "post" | "story" | "poll";
+  contentId: string;
+  comment: unknown;
+};
+
+type CommentUpdatedPayload = {
+  contentType: "post" | "story" | "poll";
+  contentId: string;
+  commentId: string;
+  comment: unknown;
+};
+
+type CommentDeletedPayload = {
+  contentType: "post" | "story" | "poll";
+  contentId: string;
+  commentId: string;
+};
 
 interface CommentsSectionProps {
   contentType: "post" | "story" | "poll";
@@ -51,6 +69,64 @@ export function CommentsSection({
   const [total, setTotal] = useState<number | null>(null);
 
   const displayTotal = typeof total === "number" ? total : comments.length;
+
+  const normalizeIncomingComment = useCallback((incoming: unknown): Comment | null => {
+    if (!incoming || typeof incoming !== "object") return null;
+    const c = incoming as Record<string, unknown>;
+    const id = c._id;
+    const ct = c.contentType;
+    const cid = c.contentId;
+    const author = c.author;
+    const text = c.text;
+    if (typeof id !== "string") return null;
+    if (ct !== "post" && ct !== "story" && ct !== "poll") return null;
+    if (typeof cid !== "string") return null;
+    if (!author || typeof author !== "object") return null;
+    if (typeof text !== "string") return null;
+
+    const a = author as Record<string, unknown>;
+    const createdAt = c.createdAt;
+    const updatedAt = c.updatedAt;
+
+    return {
+      _id: id,
+      contentType: ct,
+      contentId: cid,
+      author: {
+        clerkId: typeof a.clerkId === "string" ? a.clerkId : "",
+        username: typeof a.username === "string" ? a.username : "",
+        email: typeof a.email === "string" ? a.email : "",
+        profileImage:
+          typeof a.profileImage === "string" ? a.profileImage : undefined,
+      },
+      text,
+      reactionsCount: typeof c.reactionsCount === "number" ? c.reactionsCount : 0,
+      likesCount: typeof c.likesCount === "number" ? c.likesCount : 0,
+      createdAt:
+        typeof createdAt === "string"
+          ? createdAt
+          : createdAt instanceof Date
+            ? createdAt.toISOString()
+            : new Date().toISOString(),
+      updatedAt:
+        typeof updatedAt === "string"
+          ? updatedAt
+          : updatedAt instanceof Date
+            ? updatedAt.toISOString()
+            : new Date().toISOString(),
+    };
+  }, []);
+
+  const removeCommentById = useCallback((commentId: string) => {
+    setComments((prev) => {
+      const exists = prev.some((c) => c._id === commentId);
+      if (exists) {
+        setTotal((t) => (typeof t === "number" ? Math.max(0, t - 1) : t));
+        setCursor((c) => ({ ...c, skip: Math.max(0, c.skip - 1) }));
+      }
+      return prev.filter((c) => c._id !== commentId);
+    });
+  }, []);
 
   const loadComments = async (reset = false) => {
     if (loading) return;
@@ -95,13 +171,67 @@ export function CommentsSection({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contentType, contentId, initialPageSize]);
 
-  const handleCommentCreated = async () => {
-    await loadComments(true);
+  useEffect(() => {
+    const socket = getSocket();
+
+    const onAdded = (payload: CommentAddedPayload) => {
+      if (payload.contentType !== contentType || payload.contentId !== contentId) {
+        return;
+      }
+      const normalized = normalizeIncomingComment(payload.comment);
+      if (!normalized) return;
+
+      setComments((prev) => {
+        if (prev.some((c) => c._id === normalized._id)) return prev;
+        return [normalized, ...prev];
+      });
+      setTotal((t) => (typeof t === "number" ? t + 1 : t));
+      setCursor((c) => ({ ...c, skip: c.skip + 1 }));
+    };
+
+    const onUpdated = (payload: CommentUpdatedPayload) => {
+      if (payload.contentType !== contentType || payload.contentId !== contentId) {
+        return;
+      }
+      const normalized = normalizeIncomingComment(payload.comment);
+      setComments((prev) =>
+        prev.map((c) => {
+          if (c._id !== payload.commentId) return c;
+          return normalized ? { ...c, ...normalized } : c;
+        })
+      );
+    };
+
+    const onDeleted = (payload: CommentDeletedPayload) => {
+      if (payload.contentType !== contentType || payload.contentId !== contentId) {
+        return;
+      }
+
+      removeCommentById(payload.commentId);
+    };
+
+    socket.on("commentAdded", onAdded);
+    socket.on("commentUpdated", onUpdated);
+    socket.on("commentDeleted", onDeleted);
+
+    return () => {
+      socket.off("commentAdded", onAdded);
+      socket.off("commentUpdated", onUpdated);
+      socket.off("commentDeleted", onDeleted);
+    };
+  }, [contentType, contentId, normalizeIncomingComment, removeCommentById]);
+
+  const handleCommentCreated = (comment: Comment) => {
+    setComments((prev) => {
+      if (prev.some((c) => c._id === comment._id)) return prev;
+      return [comment, ...prev];
+    });
+    setTotal((t) => (typeof t === "number" ? t + 1 : t));
+    setCursor((c) => ({ ...c, skip: c.skip + 1 }));
   };
 
   const handleCommentDeleted = (id: string) => {
-    setComments((prev) => prev.filter((c) => c._id !== id));
-    setTotal((t) => (typeof t === "number" ? Math.max(0, t - 1) : t));
+    removeCommentById(id);
   };
 
   return (
