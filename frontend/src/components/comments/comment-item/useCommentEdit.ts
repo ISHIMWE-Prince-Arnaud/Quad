@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import { CommentService } from "@/services/commentService";
@@ -14,6 +14,14 @@ export function useCommentEdit({
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(initialText);
   const [editPending, setEditPending] = useState(false);
+
+  useEffect(() => {
+    // Keep local display state in sync with upstream comment updates (e.g. Socket.IO).
+    // Don't clobber the user's in-progress edit.
+    if (isEditing || editPending) return;
+    setBodyText(initialText);
+    setEditText(initialText);
+  }, [initialText, isEditing, editPending]);
 
   const startEdit = () => {
     setEditText(bodyText);
