@@ -63,7 +63,7 @@ export function CommentComposer({
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={placeholder || "Add a comment..."}
-            className="h-auto border-0 bg-transparent px-0 py-0 text-[13px] text-[#e2e8f0] placeholder:text-[#64748b] focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="h-auto border-0 bg-transparent px-2 py-0 text-[13px] text-[#e2e8f0] placeholder:text-[#64748b] focus-visible:ring-0 focus-visible:ring-offset-0"
             maxLength={2000}
             autoFocus={autoFocus}
             onKeyDown={(e) => {

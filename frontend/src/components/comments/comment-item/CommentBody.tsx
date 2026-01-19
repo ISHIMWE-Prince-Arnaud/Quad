@@ -21,18 +21,19 @@ export function CommentBody({
 }) {
   if (isEditing) {
     return (
-      <div className="mt-1 space-y-2">
+      <div className="mt-2 space-y-3">
         <Textarea
           value={editText}
           onChange={(e) => onEditTextChange(e.target.value)}
-          className="min-h-[60px]"
+          className="min-h-[56px] rounded-xl border-white/10 bg-white/5 text-white placeholder:text-[#64748b] focus-visible:ring-1 focus-visible:ring-blue-500/60"
           maxLength={2000}
         />
-        <div className="flex gap-2 justify-end">
+        <div className="flex items-center justify-end gap-4">
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             size="sm"
+            className="h-9 px-2 text-[#94a3b8] hover:text-white hover:bg-transparent"
             disabled={editPending}
             onClick={onCancel}>
             Cancel
@@ -40,9 +41,11 @@ export function CommentBody({
           <Button
             type="button"
             size="sm"
+            className="h-9 rounded-lg bg-blue-600 text-white hover:bg-blue-500"
             disabled={editPending}
+            loading={editPending}
             onClick={onSave}>
-            {editPending ? "Saving..." : "Save"}
+            Save changes
           </Button>
         </div>
       </div>

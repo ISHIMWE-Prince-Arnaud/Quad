@@ -3,12 +3,23 @@ import type { Comment } from "@/types/comment";
 import { CommentService } from "@/services/commentService";
 import { useAuthStore } from "@/stores/authStore";
 import toast from "react-hot-toast";
+import { useState } from "react";
+import { Trash2 } from "lucide-react";
 
 import { CommentBody } from "./comment-item/CommentBody";
 import { CommentEngagementBar } from "./comment-item/CommentEngagementBar";
 import { CommentHeader } from "./comment-item/CommentHeader";
 import { useCommentEdit } from "./comment-item/useCommentEdit";
 import { useCommentLike } from "./comment-item/useCommentLike";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface CommentItemProps {
   comment: Comment;
@@ -22,6 +33,9 @@ export function CommentItem({
   onDeleted,
 }: CommentItemProps) {
   const { user } = useAuthStore();
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletePending, setDeletePending] = useState(false);
 
   const { likesCount, liked, likePending, toggleLike } = useCommentLike({
     commentId: comment._id,
@@ -44,16 +58,20 @@ export function CommentItem({
     contentAuthorClerkId && comment.author.clerkId === contentAuthorClerkId;
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete this comment?")) return;
+    if (deletePending) return;
+    setDeletePending(true);
     try {
       const res = await CommentService.delete(comment._id);
       if (!res.success) {
         throw new Error(res.message || "Failed to delete comment");
       }
+      setDeleteOpen(false);
       onDeleted?.(comment._id);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to delete comment";
       toast.error(msg);
+    } finally {
+      setDeletePending(false);
     }
   };
 
@@ -72,7 +90,7 @@ export function CommentItem({
             comment={comment}
             isAuthor={Boolean(isContentAuthor)}
             onEdit={isOwner ? startEdit : undefined}
-            onDelete={isOwner ? () => void handleDelete() : undefined}
+            onRequestDelete={isOwner ? () => setDeleteOpen(true) : undefined}
           />
 
           <CommentBody
@@ -93,6 +111,51 @@ export function CommentItem({
           />
         </div>
       </div>
+
+      <Dialog
+        open={deleteOpen}
+        onOpenChange={(open) => {
+          if (deletePending) return;
+          setDeleteOpen(open);
+        }}>
+        <DialogContent
+          showClose={false}
+          className="max-w-md rounded-3xl border border-white/10 bg-[#0b1220] p-8 text-white shadow-2xl">
+          <DialogHeader className="items-center text-center space-y-4">
+            <div className="h-16 w-16 rounded-full bg-[#ef4444]/15 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-xl bg-[#ef4444] flex items-center justify-center">
+                <Trash2 className="h-5 w-5 text-[#0b1220]" aria-hidden="true" />
+              </div>
+            </div>
+            <DialogTitle className="text-[28px] font-bold tracking-tight">
+              Delete Comment?
+            </DialogTitle>
+            <DialogDescription className="text-center text-[14px] leading-relaxed text-[#94a3b8]">
+              Are you sure you want to delete this comment? This action cannot be undone and it will be removed from the conversation forever.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="mt-2 flex flex-row items-center justify-center gap-4 sm:justify-center sm:space-x-0">
+            <Button
+              type="button"
+              variant="secondary"
+              className="h-12 rounded-full px-10 bg-white/5 hover:bg-white/10 text-white"
+              disabled={deletePending}
+              onClick={() => setDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              className="h-12 rounded-full px-10"
+              loading={deletePending}
+              disabled={deletePending}
+              onClick={() => void handleDelete()}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
