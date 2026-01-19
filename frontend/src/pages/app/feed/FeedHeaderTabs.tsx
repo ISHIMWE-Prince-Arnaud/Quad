@@ -19,7 +19,7 @@ export function FeedHeaderTabs({
           type="button"
           size="sm"
           variant={feedType === "foryou" ? "default" : "ghost"}
-          className="rounded-full px-4"
+          className="rounded-full px- hover:bg-secondary"
           onClick={() => onFeedTypeChange("foryou")}>
           For You
         </Button>
@@ -27,7 +27,7 @@ export function FeedHeaderTabs({
           type="button"
           size="sm"
           variant={feedType === "following" ? "default" : "ghost"}
-          className="rounded-full px-4"
+          className="rounded-full px- hover:bg-secondary"
           onClick={() => onFeedTypeChange("following")}>
           Following
         </Button>
