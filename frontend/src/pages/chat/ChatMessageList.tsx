@@ -180,7 +180,7 @@ export function ChatMessageList({
 
       <div
         ref={listRef}
-        className="flex-1 overflow-y-auto px-6 py-5">
+        className="flex-1 overflow-y-auto scrollbar-hide px-6 py-5">
         {loading && (
           <div className="flex items-center justify-center gap-2 py-10 text-white/70">
             <Loader2 className="h-4 w-4 animate-spin" />
