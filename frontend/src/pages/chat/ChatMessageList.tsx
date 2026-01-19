@@ -4,9 +4,8 @@ import type { RefObject } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import type { ChatMessage } from "@/types/chat";
-import { Loader2, MoreVertical } from "lucide-react";
+import { Loader2, MessageSquare, MoreVertical } from "lucide-react";
 
 type MinimalUser = {
   clerkId: string;
@@ -50,7 +49,8 @@ const linkifyText = (text: string) => {
           href={part}
           target="_blank"
           rel="noreferrer noopener"
-          className="underline underline-offset-2 text-white/95 hover:text-white break-all">
+          className="underline underline-offset-2 text-white/95 hover:text-white break-all"
+        >
           {part}
         </a>
       );
@@ -62,6 +62,87 @@ const linkifyText = (text: string) => {
     );
   });
 };
+
+function ChatMessageListSkeleton() {
+  return (
+    <div className="py-6 space-y-6 animate-pulse">
+      <div className="flex items-start gap-3">
+        <div className="h-9 w-9 rounded-full bg-white/10 shrink-0" />
+        <div className="flex flex-col items-start max-w-[72%] w-full">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-3 w-28 rounded-full bg-white/10" />
+            <div className="h-3 w-14 rounded-full bg-white/10" />
+          </div>
+          <div className="rounded-3xl bg-white/10 px-4 py-3 w-full">
+            <div className="h-4 w-[85%] rounded bg-white/10" />
+            <div className="mt-2 h-4 w-[62%] rounded bg-white/10" />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-start justify-end gap-3">
+        <div className="flex flex-col items-end max-w-[72%] w-full">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-3 w-14 rounded-full bg-white/10" />
+            <div className="h-3 w-10 rounded-full bg-white/10" />
+          </div>
+          <div className="rounded-3xl bg-[#2563eb]/35 px-4 py-3 w-full">
+            <div className="h-4 w-[78%] rounded bg-white/15" />
+            <div className="mt-2 h-4 w-[55%] rounded bg-white/15" />
+          </div>
+        </div>
+        <div className="h-9 w-9 rounded-full bg-white/10 shrink-0" />
+      </div>
+
+      <div className="flex items-start gap-3">
+        <div className="h-9 w-9 rounded-full bg-white/10 shrink-0" />
+        <div className="flex flex-col items-start max-w-[72%] w-full">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-3 w-24 rounded-full bg-white/10" />
+            <div className="h-3 w-16 rounded-full bg-white/10" />
+          </div>
+          <div className="rounded-3xl bg-white/10 px-4 py-3 w-full">
+            <div className="-mx-4 -mt-3 rounded-t-3xl overflow-hidden">
+              <div className="h-44 w-full bg-white/10" />
+            </div>
+            <div className="mt-3 h-4 w-[72%] rounded bg-white/10" />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-start justify-end gap-3">
+        <div className="flex flex-col items-end max-w-[72%] w-full">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-3 w-16 rounded-full bg-white/10" />
+            <div className="h-3 w-10 rounded-full bg-white/10" />
+          </div>
+          <div className="rounded-3xl bg-[#2563eb]/35 px-4 py-3 w-full">
+            <div className="h-4 w-[66%] rounded bg-white/15" />
+          </div>
+        </div>
+        <div className="h-9 w-9 rounded-full bg-white/10 shrink-0" />
+      </div>
+    </div>
+  );
+}
+
+function ChatEmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-16">
+      <div className="h-14 w-14 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-xl">
+        <MessageSquare className="h-7 w-7 text-white/70" />
+      </div>
+      <h3 className="mt-5 text-base font-semibold text-white">No messages yet</h3>
+      <p className="mt-1 text-sm text-white/60 max-w-sm">
+        Start the conversation by sending your first message. Share an update, ask
+        a question, or drop a quick hello.
+      </p>
+      <div className="mt-6 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs text-white/60">
+        Tip: Press Enter to send
+      </div>
+    </div>
+  );
+}
 
 export function ChatMessageList({
   listRef,
@@ -181,24 +262,16 @@ export function ChatMessageList({
       <div
         ref={listRef}
         className="flex-1 overflow-y-auto scrollbar-hide px-6 py-5">
-        {loading && (
-          <div className="flex items-center justify-center gap-2 py-10 text-white/70">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Loading conversation...</span>
-          </div>
-        )}
+        {loading && <ChatMessageListSkeleton />}
 
-        {!loading && messages.length === 0 && (
-          <div className="flex items-center justify-center py-10 text-white/60">
-            No messages yet. Start the conversation!
-          </div>
-        )}
+        {!loading && messages.length === 0 && <ChatEmptyState />}
 
         {!loading && messages.length > 0 && (
           <div>
             {loadingOlder && (
-              <div className="flex items-center justify-center py-2 text-white/50">
-                Loading older messages...
+              <div className="flex items-center justify-center gap-2 py-2 text-white/50">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Loading older messages...</span>
               </div>
             )}
 
@@ -260,18 +333,17 @@ export function ChatMessageList({
                 const showAvatar = startsNewGroup;
                 const showHeader = startsNewGroup;
                 const showActions = isSelf && editingId !== m.id;
-                const showReactionPicker = editingId !== m.id;
-
-                const bubbleBase =
-                  "relative rounded-3xl px-5 py-4 shadow-sm border";
+                const bubbleBase = "relative rounded-3xl px-4 py-3";
                 const bubbleClass = isSelf
-                  ? `${bubbleBase} bg-[#2F6DF6] text-white border-transparent`
-                  : `${bubbleBase} bg-[#1A2433] text-white/90 border-white/5`;
+                  ? `${bubbleBase} bg-[#2563eb] text-white`
+                  : `${bubbleBase} bg-[#1A2433] text-white/90`;
 
                 const headerName = isSelf ? "You" : m.author.username;
                 const headerTime = `${m.timestamp}${m.isEdited ? " • edited" : ""}`;
-
-                const isHeartReacted = m.userReaction === "❤️";
+                const showReactionPill = m.reactionsCount > 0;
+                const reactionPillPosition = isSelf
+                  ? "absolute -bottom-3 left-4"
+                  : "absolute -bottom-3 right-4";
 
                 return (
                   <div
@@ -280,8 +352,8 @@ export function ChatMessageList({
                     <div
                       className={
                         isSelf
-                          ? "flex justify-end gap-3"
-                          : "flex justify-start gap-3"
+                          ? "flex justify-end items-start gap-3"
+                          : "flex justify-start items-start gap-3"
                       }>
                       {!isSelf &&
                         (showAvatar ? (
@@ -301,13 +373,18 @@ export function ChatMessageList({
                       <div
                         className={
                           isSelf
-                            ? "flex flex-col items-end max-w-[80%] group"
-                            : "flex flex-col items-start max-w-[80%] group"
+                            ? "flex flex-col items-end max-w-[72%] group"
+                            : "flex flex-col items-start max-w-[72%] group"
                         }>
                         {showHeader && (
-                          <div className="flex items-center gap-2 mb-2">
+                          <div
+                            className={
+                              isSelf
+                                ? "flex items-center justify-end gap-2 mb-2 w-full"
+                                : "flex items-center justify-start gap-2 mb-2 w-full"
+                            }>
                             {!isSelf && (
-                              <span className="text-sm font-semibold text-white/90">
+                              <span className="text-sm font-semibold text-white">
                                 {headerName}
                               </span>
                             )}
@@ -315,7 +392,7 @@ export function ChatMessageList({
                               {headerTime}
                             </span>
                             {isSelf && (
-                              <span className="text-sm font-semibold text-white/90">
+                              <span className="text-sm font-semibold text-white">
                                 {headerName}
                               </span>
                             )}
@@ -402,14 +479,14 @@ export function ChatMessageList({
                             </div>
                           ) : (
                             <>
-                              {m.text && (
-                                <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
-                                  {linkifyText(m.text)}
-                                </div>
-                              )}
-
                               {hasMedia && (
-                                <div className="mt-3 rounded-2xl overflow-hidden border border-white/10 bg-black/20">
+                                <div
+                                  className={
+                                    (m.text
+                                      ? "-mx-4 -mt-3 rounded-t-3xl"
+                                      : "-mx-4 -mt-3 rounded-3xl") +
+                                    " overflow-hidden"
+                                  }>
                                   {media.type === "image" ? (
                                     <img
                                       src={media.url}
@@ -426,33 +503,35 @@ export function ChatMessageList({
                                   )}
                                 </div>
                               )}
+
+                              {m.text && (
+                                <div
+                                  className={
+                                    "text-[15px] leading-relaxed whitespace-pre-wrap break-words" +
+                                    (hasMedia ? " mt-3" : "")
+                                  }>
+                                  {linkifyText(m.text)}
+                                </div>
+                              )}
                             </>
                           )}
-                        </div>
 
-                        {(m.reactionsCount > 0 || showReactionPicker) && (
-                          <div
-                            className={
-                              isSelf
-                                ? "mt-2 flex items-center justify-end gap-2"
-                                : "mt-2 flex items-center justify-start gap-2"
-                            }>
-                            <div
+                          {showReactionPill && (
+                            <button
+                              type="button"
+                              onClick={() => onToggleReaction(m.id, "❤️")}
                               className={
-                                "opacity-0 group-hover:opacity-100 transition"
-                              }>
-                              <HeartReactionButton
-                                liked={isHeartReacted}
-                                count={m.reactionsCount}
-                                onToggle={() => onToggleReaction(m.id, "❤️")}
-                                className="inline-flex items-center gap-1 rounded-full bg-[#0F1623] px-3 py-1 text-xs text-white/85 border border-white/10 hover:bg-white/5"
-                                countClassName="text-xs tabular-nums text-white/85"
-                                iconClassName="h-4 w-4"
-                                ariaLabel={`React to message. ${m.reactionsCount} reactions`}
-                              />
-                            </div>
-                          </div>
-                        )}
+                                `${reactionPillPosition} inline-flex items-center gap-1 rounded-full ` +
+                                "bg-[#0F1623] border border-white/10 px-2 py-1 shadow-lg"
+                              }
+                              aria-label={`Reactions: ${m.reactionsCount}`}>
+                              <span className="text-[13px] leading-none">❤️</span>
+                              <span className="text-xs tabular-nums text-white/80">
+                                {m.reactionsCount}
+                              </span>
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       {isSelf &&
