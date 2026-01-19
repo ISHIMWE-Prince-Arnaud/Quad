@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CommentComposer } from "@/components/comments/CommentComposer";
 import { CommentItem } from "@/components/comments/CommentItem";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CommentService } from "@/services/commentService";
 import type { Comment } from "@/types/comment";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, MessageCircle } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 
 function getErrorMessage(error: unknown): string {
@@ -52,6 +53,32 @@ interface CommentsCursor {
   hasMore: boolean;
 }
 
+function CommentSkeletonRow() {
+  return (
+    <div className="py-4">
+      <div className="flex gap-3">
+        <Skeleton
+          variant="circular"
+          className="h-9 w-9 shrink-0 bg-white/5"
+        />
+        <div className="flex-1 min-w-0 space-y-2">
+          <div className="flex items-center justify-between gap-3">
+            <Skeleton variant="text" className="h-4 w-28 bg-white/5" />
+            <Skeleton variant="text" className="h-3 w-16 bg-white/5" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton variant="text" className="h-4 w-full bg-white/5" />
+            <Skeleton variant="text" className="h-4 w-10/12 bg-white/5" />
+          </div>
+          <div className="pt-1">
+            <Skeleton variant="text" className="h-4 w-20 bg-white/5" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CommentsSection({
   contentType,
   contentId,
@@ -69,6 +96,8 @@ export function CommentsSection({
   const [total, setTotal] = useState<number | null>(null);
 
   const displayTotal = typeof total === "number" ? total : comments.length;
+  const initialLoading = loading && comments.length === 0;
+  const loadingMore = loading && comments.length > 0;
 
   const normalizeIncomingComment = useCallback((incoming: unknown): Comment | null => {
     if (!incoming || typeof incoming !== "object") return null;
@@ -254,23 +283,50 @@ export function CommentsSection({
       {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
 
       <div className="mt-4 divide-y divide-white/5">
-        {comments.map((c) => (
-          <div key={c._id} className="py-4">
-            <CommentItem
-              comment={c}
-              contentAuthorClerkId={contentAuthorClerkId}
-              onDeleted={handleCommentDeleted}
-            />
-          </div>
-        ))}
+        {initialLoading && (
+          <>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <CommentSkeletonRow key={`comment-skeleton-initial-${i}`} />
+            ))}
+          </>
+        )}
 
-        {comments.length === 0 && !loading && !error && (
-          <div className="py-6">
-            <p className="text-sm text-[#94a3b8]">Be the first to comment.</p>
+        {!initialLoading &&
+          comments.map((c) => (
+            <div key={c._id} className="py-4">
+              <CommentItem
+                comment={c}
+                contentAuthorClerkId={contentAuthorClerkId}
+                onDeleted={handleCommentDeleted}
+              />
+            </div>
+          ))}
+
+        {!initialLoading && comments.length === 0 && !error && (
+          <div className="py-10">
+            <div className="mx-auto max-w-md rounded-2xl border border-white/5 bg-[#0f172a]/40 p-6 text-center">
+              <div className="mx-auto h-12 w-12 rounded-full bg-[#2563EB]/10 flex items-center justify-center">
+                <MessageCircle className="h-5 w-5 text-[#2563EB]" />
+              </div>
+              <p className="mt-4 text-[14px] font-semibold text-white">
+                No comments yet
+              </p>
+              <p className="mt-1 text-[13px] text-[#94a3b8]">
+                Be the first to share what you think.
+              </p>
+            </div>
           </div>
         )}
 
-        {cursor.hasMore && (
+        {loadingMore && (
+          <>
+            {Array.from({ length: 2 }).map((_, i) => (
+              <CommentSkeletonRow key={`comment-skeleton-more-${i}`} />
+            ))}
+          </>
+        )}
+
+        {cursor.hasMore && !initialLoading && (
           <div className="pt-4 flex justify-center">
             <Button
               variant="ghost"
