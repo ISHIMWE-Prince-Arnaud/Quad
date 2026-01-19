@@ -57,7 +57,7 @@ export function ChatComposer({
             type="button"
             onClick={handleAttachClick}
             disabled={uploading}
-            className="h-10 w-10 inline-flex items-center justify-center rounded-full bg-white/[0.04] border border-white/5 text-[#94a3b8] hover:text-white hover:bg-white/[0.06] transition-colors"
+            className="h-10 w-10 inline-flex items-center justify-center text-[#94a3b8] hover:text-white hover:bg-white/[0.06] rounded-full transition-colors"
             aria-label="Attach media"
             title="Attach media">
             {uploading ? (
