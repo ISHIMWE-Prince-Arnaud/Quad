@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { timeAgo } from "@/lib/timeUtils";
@@ -26,7 +27,7 @@ export function PostCardHeader({
   onRequestDelete: () => void;
 }) {
   return (
-    <div className="flex items-start justify-between">
+    <div className="flex items-start justify-between group">
       <Link
         to={`/app/profile/${post.author.username}`}
         className="flex items-center gap-3 hover:opacity-80 transition-opacity">
@@ -58,16 +59,27 @@ export function PostCardHeader({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 shrink-0"
+              className="h-9 w-9 p-0 shrink-0 rounded-full text-[#94a3b8] hover:text-white hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-primary/40 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100"
               aria-label="Post options">
               <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onEdit}>Edit post</DropdownMenuItem>
+          <DropdownMenuContent
+            align="end"
+            className="min-w-[180px] rounded-xl border border-white/10 bg-[#0b1220] p-1 text-white shadow-xl">
             <DropdownMenuItem
-              className="text-destructive"
+              onClick={onEdit}
+              className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+              <Pencil className="h-4 w-4 text-[#94a3b8]" aria-hidden="true" />
+              Edit post
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator className="bg-white/10" />
+
+            <DropdownMenuItem
+              className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
               onClick={onRequestDelete}>
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
               Delete post
             </DropdownMenuItem>
           </DropdownMenuContent>
