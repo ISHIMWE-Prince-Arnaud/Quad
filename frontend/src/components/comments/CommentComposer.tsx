@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AutoExpandingTextarea } from "@/components/ui/auto-expanding-textarea";
@@ -6,6 +7,8 @@ import { CommentService } from "@/services/commentService";
 import { useAuthStore } from "@/stores/authStore";
 import type { Comment } from "@/types/comment";
 import toast from "react-hot-toast";
+import { SendHorizontal } from "lucide-react"; // Assumes lucide-react is installed
+import { cn } from "@/lib/utils";
 
 interface CommentComposerProps {
   contentType: "post" | "story" | "poll";
@@ -25,11 +28,26 @@ export function CommentComposer({
   const { user } = useAuthStore();
   const [text, setText] = useState("");
   const [pending, setPending] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const MAX_LENGTH = 2000;
+  const charCount = text.length;
+  const isOverLimit = charCount > MAX_LENGTH;
+  const isNearLimit = charCount > MAX_LENGTH * 0.9;
+
+  // Reset height on submit
+  useEffect(() => {
+    if (!text && textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
+  }, [text]);
 
   const handleSubmit = async () => {
     const value = text.trim();
-    if (!value) return;
+    if (!value || isOverLimit) return;
     if (pending) return;
+
     setPending(true);
     try {
       const res = await CommentService.create({
@@ -39,8 +57,11 @@ export function CommentComposer({
       });
       if (!res.success)
         throw new Error(res.message || "Failed to post comment");
+      
       setText("");
+      setIsFocused(false); // Optional: collapse focus state on send
       onCreated?.(res.data);
+      toast.success("Comment posted!");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to post comment";
       toast.error(msg);
@@ -49,48 +70,90 @@ export function CommentComposer({
     }
   };
 
+  const handleKeyDown = (e: ReactKeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      if (e.nativeEvent.isComposing) return;
+      e.preventDefault();
+      void handleSubmit();
+    }
+  };
+
   return (
-    <div className="flex items-start gap-3">
-      <Avatar className="h-8 w-8 shrink-0">
-        <AvatarImage src={user?.profileImage} />
-        <AvatarFallback className="bg-white/5 text-white/80">
+    <div className="flex items-start gap-4 p-4">
+      <Avatar className="h-10 w-10 shrink-0 border border-white/10">
+        <AvatarImage src={user?.profileImage} alt={user?.username} />
+        <AvatarFallback className="bg-slate-800 text-slate-200 font-medium">
           {user?.username?.charAt(0).toUpperCase() || "U"}
         </AvatarFallback>
       </Avatar>
 
       <div className="flex-1">
-        <div className="flex items-end gap-3 rounded-2xl bg-[#0f172a]/70 border border-white/5 px-4 py-2 transition-colors focus-within:border-white/10 focus-within:bg-[#0f172a]">
+        <div
+          className={cn(
+            "relative rounded-2xl border bg-[#0f172a]/70 transition-all duration-200",
+            isFocused
+              ? "border-blue-500/50 bg-[#0f172a] shadow-[0_0_0_4px_rgba(59,130,246,0.1)]"
+              : "border-white/5 hover:border-white/10"
+          )}>
           <AutoExpandingTextarea
+            ref={textareaRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={placeholder || "Add a comment..."}
-            className="min-h-[24px] border-0 bg-transparent px-0 py-0 text-[13px] leading-5 text-[#e2e8f0] placeholder:text-[#64748b] focus-visible:ring-0 focus-visible:ring-offset-0"
-            maxLength={2000}
-            autoFocus={autoFocus}
-            minHeight={24}
-            maxHeight={140}
-            rows={1}
-            onKeyDown={(e) => {
-              if (e.key !== "Enter") return;
-              if (e.shiftKey) return;
-              if (e.nativeEvent instanceof KeyboardEvent && e.nativeEvent.isComposing)
-                return;
-
-              e.preventDefault();
-              void handleSubmit();
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => {
+              if (!text) setIsFocused(false);
             }}
+            placeholder={placeholder || "Write a comment..."}
+            className="min-h-[48px] w-full resize-none border-0 bg-transparent px-4 py-3 text-[14px] leading-relaxed text-slate-200 placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0"
+            maxLength={MAX_LENGTH}
+            autoFocus={autoFocus}
+            minHeight={48}
+            maxHeight={200}
+            onKeyDown={handleKeyDown}
           />
 
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => void handleSubmit()}
-            loading={pending}
-            disabled={pending || !text.trim()}
-            className="h-8 px-3 rounded-full text-[13px] font-semibold text-blue-400 hover:text-white hover:bg-white/5 disabled:opacity-50">
-            Post
-          </Button>
+          {(isFocused || text.length > 0) && (
+            <div className="flex items-center justify-between border-t border-white/5 px-3 py-2">
+              <div>
+                {text.length > 0 && (
+                  <span
+                    className={cn(
+                      "text-xs transition-colors",
+                      isOverLimit
+                        ? "text-red-500 font-bold"
+                        : isNearLimit
+                          ? "text-yellow-500"
+                          : "text-slate-500"
+                    )}>
+                    {charCount} / {MAX_LENGTH}
+                  </span>
+                )}
+              </div>
+
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => void handleSubmit()}
+                disabled={pending || !text.trim() || isOverLimit}
+                className={cn(
+                  "h-8 rounded-full px-4 text-xs font-semibold transition-all",
+                  text.trim()
+                    ? "bg-blue-600 text-white hover:bg-blue-500"
+                    : "bg-white/5 text-slate-500 hover:bg-white/10"
+                )}>
+                {pending ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Posting
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    Post <SendHorizontal className="h-3 w-3" />
+                  </span>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
