@@ -115,7 +115,6 @@ export default function ChatPage() {
     sending,
     setMedia,
     handleTextChange,
-    insertEmoji,
     handleFileSelected,
     handleSend,
   } = useChatComposer({
@@ -171,7 +170,6 @@ export default function ChatPage() {
         onTextChange={handleTextChange}
         onRemoveMedia={() => setMedia(null)}
         onFileSelected={(file) => void handleFileSelected(file)}
-        onInsertEmoji={insertEmoji}
         onSend={() => void handleSend()}
       />
 

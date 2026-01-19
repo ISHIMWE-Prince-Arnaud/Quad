@@ -1,14 +1,8 @@
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import type { ChatMedia } from "@/types/chat";
-import { Loader2, Plus, SendHorizontal, Smile, X } from "lucide-react";
-import { COMPOSER_EMOJIS, MAX_MESSAGE_LENGTH } from "./constants";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Loader2, Plus, SendHorizontal, X } from "lucide-react";
+import { MAX_MESSAGE_LENGTH } from "./constants";
 
 export function ChatComposer({
   text,
@@ -18,7 +12,6 @@ export function ChatComposer({
   onTextChange,
   onRemoveMedia,
   onFileSelected,
-  onInsertEmoji,
   onSend,
 }: {
   text: string;
@@ -28,7 +21,6 @@ export function ChatComposer({
   onTextChange: (v: string) => void;
   onRemoveMedia: () => void;
   onFileSelected: (file: File | null) => void;
-  onInsertEmoji: (emoji: string) => void;
   onSend: () => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -81,27 +73,6 @@ export function ChatComposer({
             className="hidden"
             onChange={(e) => onFileSelected(e.target.files?.[0] || null)}
           />
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="h-10 w-10 inline-flex items-center justify-center rounded-full text-[#94a3b8] hover:text-white hover:bg-white/[0.04] transition-colors"
-                aria-label="Insert emoji"
-                title="Emoji">
-                <Smile className="h-5 w-5" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="min-w-[180px]">
-              {COMPOSER_EMOJIS.map((emoji) => (
-                <DropdownMenuItem
-                  key={emoji}
-                  onClick={() => onInsertEmoji(emoji)}>
-                  <span className="text-base leading-none w-10">{emoji}</span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
 
           <input
             type="text"

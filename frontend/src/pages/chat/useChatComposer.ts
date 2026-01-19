@@ -5,15 +5,6 @@ import { UploadService } from "@/services/uploadService";
 import { ChatService } from "@/services/chatService";
 import type { ChatMedia, ChatMessage } from "@/types/chat";
 import { logError } from "@/lib/errorHandling";
-import { EMOJI_SHORTCODES } from "./constants";
-
-const replaceEmojiShortcodes = (input: string): string => {
-  // Replace :shortcode: with emoji. Example: "hello :joy:" -> "hello 😂"
-  return input.replace(/:([a-zA-Z0-9_+-]+):/g, (match, rawCode) => {
-    const code = typeof rawCode === "string" ? rawCode.toLowerCase() : "";
-    return EMOJI_SHORTCODES[code] ?? match;
-  });
-};
 
 export function useChatComposer({
   emitTypingStart,
@@ -32,19 +23,6 @@ export function useChatComposer({
 
   const handleTextChange = (v: string) => {
     setText(v);
-    if (typingTimerRef.current) window.clearTimeout(typingTimerRef.current);
-    emitTypingStart();
-    typingTimerRef.current = window.setTimeout(() => {
-      emitTypingStop();
-      typingTimerRef.current = null;
-    }, 1500);
-  };
-
-  const insertEmoji = (emoji: string) => {
-    setText((prev) => {
-      const next = `${prev}${emoji}`;
-      return next.slice(0, 2000);
-    });
     if (typingTimerRef.current) window.clearTimeout(typingTimerRef.current);
     emitTypingStart();
     typingTimerRef.current = window.setTimeout(() => {
@@ -78,7 +56,7 @@ export function useChatComposer({
     try {
       setSending(true);
 
-      const preparedText = text ? replaceEmojiShortcodes(text).trim() : "";
+      const preparedText = text ? text.trim() : "";
       const res = await ChatService.sendMessage({
         text: preparedText || undefined,
         media: media || undefined,
@@ -106,7 +84,6 @@ export function useChatComposer({
     sending,
     setMedia,
     handleTextChange,
-    insertEmoji,
     handleFileSelected,
     handleSend,
   };
