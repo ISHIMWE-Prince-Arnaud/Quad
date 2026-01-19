@@ -871,7 +871,9 @@ function MediaLightbox({
   onPrev,
 }: MediaLightboxProps) {
   const currentItem = media[currentIndex];
-  const mediaContainerRef = useRef<HTMLDivElement | null>(null);
+  const mediaElementRef = useRef<HTMLElement | null>(null);
+  const prevButtonRef = useRef<HTMLButtonElement | null>(null);
+  const nextButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -909,10 +911,15 @@ function MediaLightbox({
             const target = e.target as Node | null;
             if (!target) return;
 
-            const container = mediaContainerRef.current;
-            if (container && !container.contains(target)) {
-              onClose();
-            }
+            const mediaEl = mediaElementRef.current;
+            const prevEl = prevButtonRef.current;
+            const nextEl = nextButtonRef.current;
+
+            const clickedMedia = !!mediaEl && mediaEl.contains(target);
+            const clickedPrev = !!prevEl && prevEl.contains(target);
+            const clickedNext = !!nextEl && nextEl.contains(target);
+
+            if (!clickedMedia && !clickedPrev && !clickedNext) onClose();
           }}>
           {/* Navigation buttons */}
           {/* Media content */}
@@ -920,7 +927,6 @@ function MediaLightbox({
             className="relative z-10 w-full h-full flex items-center justify-center p-8"
             onMouseDown={(e) => e.stopPropagation()}>
             <div
-              ref={mediaContainerRef}
               className="relative flex items-center justify-center w-full h-full max-w-[1100px] max-h-[85vh]">
               {media.length > 1 && (
                 <>
@@ -928,6 +934,7 @@ function MediaLightbox({
                     variant="ghost"
                     size="icon"
                     className="absolute top-1/2 -translate-y-1/2 left-0 -translate-x-1/2 z-50 text-white hover:bg-white/20"
+                    ref={prevButtonRef}
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -939,6 +946,7 @@ function MediaLightbox({
                     variant="ghost"
                     size="icon"
                     className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 z-50 text-white hover:bg-white/20"
+                    ref={nextButtonRef}
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -953,15 +961,24 @@ function MediaLightbox({
                 <img
                   src={currentItem.url}
                   alt="Full size"
+                  ref={(node) => {
+                    mediaElementRef.current = node;
+                  }}
                   className="max-w-[1100px] max-h-[85vh] w-auto h-auto object-contain"
                 />
               ) : (
-                <VideoPlayer
-                  src={currentItem?.url}
-                  autoPlay
-                  containerClassName="w-full h-full max-w-[1100px] max-h-[85vh]"
-                  videoClassName="w-full h-full object-contain"
-                />
+                <div
+                  ref={(node) => {
+                    mediaElementRef.current = node;
+                  }}
+                  className="w-full h-full max-w-[1100px] max-h-[85vh]">
+                  <VideoPlayer
+                    src={currentItem?.url}
+                    autoPlay
+                    containerClassName="w-full h-full"
+                    videoClassName="w-full h-full object-contain"
+                  />
+                </div>
               )}
             </div>
           </div>
