@@ -54,7 +54,20 @@ export class PostService {
     id: string,
     data: Partial<CreatePostData>
   ): Promise<{ success: boolean; data: Post; message?: string }> {
-    const response = await endpoints.posts.update(id, data);
+    const payload: Partial<CreatePostData> = {
+      ...data,
+      ...(Array.isArray(data.media)
+        ? {
+            media: data.media.map((m) => ({
+              url: m.url,
+              type: m.type,
+              ...(m.aspectRatio ? { aspectRatio: m.aspectRatio } : {}),
+            })),
+          }
+        : {}),
+    };
+
+    const response = await endpoints.posts.update(id, payload);
     return response.data;
   }
 

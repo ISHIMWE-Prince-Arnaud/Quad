@@ -120,7 +120,11 @@ export default function EditPostPage() {
 
   const initialValues: CreatePostData = {
     text: post.text ?? "",
-    media: post.media ?? [],
+    media: (post.media ?? []).map((m) => ({
+      url: m.url,
+      type: m.type,
+      ...(m.aspectRatio ? { aspectRatio: m.aspectRatio } : {}),
+    })),
   };
 
   return (
