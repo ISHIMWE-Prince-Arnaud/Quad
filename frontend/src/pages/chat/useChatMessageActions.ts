@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import toast from "react-hot-toast";
 
@@ -20,7 +20,7 @@ export function useChatMessageActions({
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const toggleReaction = async (messageId: string, emoji: string) => {
+  const toggleReaction = useCallback(async (messageId: string, emoji: string) => {
     setMessages((prev) => {
       const idx = prev.findIndex((m) => m.id === messageId);
       if (idx === -1) return prev;
@@ -120,14 +120,14 @@ export function useChatMessageActions({
       });
       toast.error("Failed to update reaction");
     }
-  };
+  }, [messages, setMessages]);
 
-  const handleEdit = (m: ChatMessage) => {
+  const handleEdit = useCallback((m: ChatMessage) => {
     setEditingId(m.id);
     setEditText(m.text || "");
-  };
+  }, []);
 
-  const handleSaveEdit = async (id: string) => {
+  const handleSaveEdit = useCallback(async (id: string) => {
     try {
       const res = await ChatService.editMessage(id, { text: editText });
       if (res.success && res.data) {
@@ -145,14 +145,14 @@ export function useChatMessageActions({
       });
       toast.error("Failed to edit message");
     }
-  };
+  }, [editText, setMessages]);
 
-  const handleDeleteClick = (id: string) => {
+  const handleDeleteClick = useCallback((id: string) => {
     setMessageToDelete(id);
     setDeleteConfirmOpen(true);
-  };
+  }, []);
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (!messageToDelete) return;
     try {
       setDeleting(true);
@@ -171,11 +171,14 @@ export function useChatMessageActions({
         action: "deleteMessage",
         metadata: { messageId: messageToDelete },
       });
-      toast.error("Failed to delete message");
+      const serverMessage =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message;
+      toast.error(serverMessage || "Failed to delete message");
     } finally {
       setDeleting(false);
     }
-  };
+  }, [messageToDelete, setMessages]);
 
   return {
     editingId,

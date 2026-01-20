@@ -1,8 +1,9 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { ChatMedia } from "@/types/chat";
-import { Loader2, Plus, SendHorizontal, X } from "lucide-react";
+import { Loader2, Plus, SendHorizontal, X, Smile } from "lucide-react";
 import { MAX_MESSAGE_LENGTH } from "./constants";
+import { Button } from "@/components/ui/button";
 
 export function ChatComposer({
   text,
@@ -24,14 +25,31 @@ export function ChatComposer({
   onSend: () => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleAttachClick = () => fileInputRef.current?.click();
 
+  // Auto-resize textarea
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+  }, [text]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onSend();
+    }
+  };
+
   return (
-    <div className="p-4 bg-[#0a0c10]">
+    <div className="p-4 bg-background border-t border-border">
       {media && (
-        <div className="mb-4 relative inline-block group">
-          <div className="h-20 w-20 rounded-2xl overflow-hidden border border-white/10 shadow-xl">
+        <div className="mb-4 relative inline-block group animate-in slide-in-from-bottom-2 fade-in duration-200">
+          <div className="h-24 w-24 rounded-2xl overflow-hidden border border-border shadow-md bg-muted">
             {media.type === "image" ? (
               <img
                 src={media.url}
@@ -44,28 +62,28 @@ export function ChatComposer({
           </div>
           <button
             onClick={onRemoveMedia}
-            className="absolute -top-2 -right-2 p-1 bg-destructive text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
             aria-label="Remove media">
             <X className="h-3 w-3" />
           </button>
         </div>
       )}
 
-      <div className="flex items-center gap-3">
-        <div className="flex-1 flex items-center gap-3 rounded-full bg-[#1e293b]/50 border border-white/5 px-4 h-14 shadow-inner">
+      <div className="flex items-end gap-3">
+        <div className="flex-1 flex items-end gap-2 rounded-[24px] bg-secondary/50 border border-transparent focus-within:border-primary/20 focus-within:bg-secondary/70 focus-within:shadow-sm px-4 py-3 transition-all duration-200">
           <button
             type="button"
             onClick={handleAttachClick}
             disabled={uploading}
-            className="h-10 w-10 inline-flex items-center justify-center text-[#94a3b8] hover:text-white hover:bg-white/[0.06] rounded-full transition-colors"
-            aria-label="Attach media"
-            title="Attach media">
+            className="h-8 w-8 -ml-1 text-muted-foreground hover:text-foreground hover:bg-background/50 rounded-full flex items-center justify-center transition-colors shrink-0"
+            aria-label="Attach media">
             {uploading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <Plus className="h-5 w-5" />
             )}
           </button>
+
           <input
             ref={fileInputRef}
             type="file"
@@ -74,41 +92,43 @@ export function ChatComposer({
             onChange={(e) => onFileSelected(e.target.files?.[0] || null)}
           />
 
-          <input
-            type="text"
+          <textarea
+            ref={textareaRef}
             value={text}
             onChange={(e) => onTextChange(e.target.value)}
+            onKeyDown={handleKeyDown}
             maxLength={MAX_MESSAGE_LENGTH}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                onSend();
-              }
-            }}
             placeholder="Type a message..."
-            className="flex-1 bg-transparent border-none focus:ring-0 outline-none text-white placeholder-[#64748b] text-sm"
+            rows={1}
+            className="flex-1 bg-transparent border-none focus:ring-0 outline-none text-foreground placeholder:text-muted-foreground text-sm min-h-[24px] resize-none py-1 scrollbar-hide"
             aria-label="Message input"
           />
+
+          <button
+            type="button"
+            className="h-8 w-8 -mr-1 text-muted-foreground hover:text-foreground hover:bg-background/50 rounded-full flex items-center justify-center transition-colors shrink-0"
+            aria-label="Insert emoji">
+            <Smile className="h-5 w-5" />
+          </button>
         </div>
 
-        <button
+        <Button
           type="button"
+          size="icon"
           onClick={onSend}
           disabled={sending || (!text.trim() && !media)}
           className={cn(
-            "h-14 w-14 flex items-center justify-center rounded-full transition-all shadow-lg",
+            "h-12 w-12 rounded-full shrink-0 shadow-md transition-all",
             sending || (!text.trim() && !media)
-              ? "bg-[#2563eb]/50 text-white/50 cursor-not-allowed"
-              : "bg-[#2563eb] text-white hover:scale-105 active:scale-95"
-          )}
-          aria-label="Send message"
-          title="Send">
+              ? "opacity-80"
+              : "hover:scale-105 active:scale-95 hover:shadow-lg"
+          )}>
           {sending ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
-            <SendHorizontal className="h-5 w-5" />
+            <SendHorizontal className="h-5 w-5 ml-0.5" />
           )}
-        </button>
+        </Button>
       </div>
     </div>
   );

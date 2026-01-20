@@ -1,11 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { ChatMessage } from "@/types/chat";
-import { Loader2, MessageSquare, MoreVertical } from "lucide-react";
+import {
+  Loader2,
+  MessageSquare,
+  MoreVertical,
+  Edit2,
+  Trash2,
+} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 type MinimalUser = {
   clerkId: string;
@@ -49,8 +57,7 @@ const linkifyText = (text: string) => {
           href={part}
           target="_blank"
           rel="noreferrer noopener"
-          className="underline underline-offset-2 text-white/95 hover:text-white break-all"
-        >
+          className="underline underline-offset-2 text-primary hover:text-primary/80 break-all font-medium">
           {part}
         </a>
       );
@@ -65,86 +72,53 @@ const linkifyText = (text: string) => {
 
 function ChatMessageListSkeleton() {
   return (
-    <div className="py-6 space-y-6 animate-pulse">
-      <div className="flex items-start gap-3">
-        <div className="h-9 w-9 rounded-full bg-white/10 shrink-0" />
-        <div className="flex flex-col items-start max-w-[72%] w-full">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-3 w-28 rounded-full bg-white/10" />
-            <div className="h-3 w-14 rounded-full bg-white/10" />
-          </div>
-          <div className="rounded-3xl bg-white/10 px-4 py-3 w-full">
-            <div className="h-4 w-[85%] rounded bg-white/10" />
-            <div className="mt-2 h-4 w-[62%] rounded bg-white/10" />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-start justify-end gap-3">
-        <div className="flex flex-col items-end max-w-[72%] w-full">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-3 w-14 rounded-full bg-white/10" />
-            <div className="h-3 w-10 rounded-full bg-white/10" />
-          </div>
-          <div className="rounded-3xl bg-[#2563eb]/35 px-4 py-3 w-full">
-            <div className="h-4 w-[78%] rounded bg-white/15" />
-            <div className="mt-2 h-4 w-[55%] rounded bg-white/15" />
-          </div>
-        </div>
-        <div className="h-9 w-9 rounded-full bg-white/10 shrink-0" />
-      </div>
-
-      <div className="flex items-start gap-3">
-        <div className="h-9 w-9 rounded-full bg-white/10 shrink-0" />
-        <div className="flex flex-col items-start max-w-[72%] w-full">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-3 w-24 rounded-full bg-white/10" />
-            <div className="h-3 w-16 rounded-full bg-white/10" />
-          </div>
-          <div className="rounded-3xl bg-white/10 px-4 py-3 w-full">
-            <div className="-mx-4 -mt-3 rounded-t-3xl overflow-hidden">
-              <div className="h-44 w-full bg-white/10" />
+    <div className="py-6 space-y-6">
+      {[1, 2, 3].map((i) => (
+        <div key={`skel-${i}`}>
+          <div className="flex items-start gap-3">
+            <div className="h-9 w-9 rounded-full bg-muted animate-pulse shrink-0" />
+            <div className="flex flex-col items-start max-w-[72%] w-full">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-3 w-28 rounded-full bg-muted animate-pulse" />
+                <div className="h-3 w-14 rounded-full bg-muted animate-pulse" />
+              </div>
+              <div className="rounded-3xl bg-muted/50 px-4 py-3 w-full animate-pulse">
+                <div className="h-4 w-[85%] rounded bg-muted-foreground/10" />
+                <div className="mt-2 h-4 w-[62%] rounded bg-muted-foreground/10" />
+              </div>
             </div>
-            <div className="mt-3 h-4 w-[72%] rounded bg-white/10" />
+          </div>
+          <div className="flex items-start justify-end gap-3 mt-6">
+            <div className="flex flex-col items-end max-w-[72%] w-full">
+              <div className="rounded-3xl bg-primary/10 px-4 py-3 w-full animate-pulse">
+                <div className="h-4 w-[78%] rounded bg-primary/10" />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="flex items-start justify-end gap-3">
-        <div className="flex flex-col items-end max-w-[72%] w-full">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-3 w-16 rounded-full bg-white/10" />
-            <div className="h-3 w-10 rounded-full bg-white/10" />
-          </div>
-          <div className="rounded-3xl bg-[#2563eb]/35 px-4 py-3 w-full">
-            <div className="h-4 w-[66%] rounded bg-white/15" />
-          </div>
-        </div>
-        <div className="h-9 w-9 rounded-full bg-white/10 shrink-0" />
-      </div>
+      ))}
     </div>
   );
 }
 
 function ChatEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-16">
-      <div className="h-14 w-14 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-xl">
-        <MessageSquare className="h-7 w-7 text-white/70" />
+    <div className="flex flex-col items-center justify-center text-center py-16 animate-in fade-in duration-500">
+      <div className="h-16 w-16 rounded-3xl bg-muted/50 border border-border flex items-center justify-center shadow-sm mb-4">
+        <MessageSquare className="h-8 w-8 text-muted-foreground/70" />
       </div>
-      <h3 className="mt-5 text-base font-semibold text-white">No messages yet</h3>
-      <p className="mt-1 text-sm text-white/60 max-w-sm">
-        Start the conversation by sending your first message. Share an update, ask
-        a question, or drop a quick hello.
+      <h3 className="text-lg font-semibold text-foreground">No messages yet</h3>
+      <p className="mt-1 text-sm text-muted-foreground max-w-xs">
+        Start the conversation by sending your first message.
       </p>
-      <div className="mt-6 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs text-white/60">
+      <div className="mt-6 rounded-full bg-primary/10 border border-primary/20 px-4 py-1.5 text-xs font-medium text-primary">
         Tip: Press Enter to send
       </div>
     </div>
   );
 }
 
-export function ChatMessageList({
+export const ChatMessageList = memo(function ChatMessageList({
   listRef,
   loading,
   loadingOlder,
@@ -240,19 +214,37 @@ export function ChatMessageList({
           setLightboxOpen(open);
           if (!open) setLightboxMedia(null);
         }}>
-        <DialogContent className="max-w-4xl bg-[#0a0c10] border border-white/10">
-          <div className="flex items-center justify-center">
+        <DialogContent className="max-w-4xl bg-black/95 border-none p-0 overflow-hidden shadow-2xl">
+          <div className="flex items-center justify-center w-full h-full min-h-[50vh] relative">
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors z-50">
+              <span className="sr-only">Close</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+            </button>
             {lightboxMedia?.type === "image" ? (
               <img
                 src={lightboxMedia.url}
                 alt="Chat attachment"
-                className="max-h-[80vh] w-auto rounded-2xl"
+                className="max-h-[90vh] w-auto animate-in zoom-in-95 duration-200"
               />
             ) : lightboxMedia?.type === "video" ? (
               <video
                 src={lightboxMedia.url}
                 controls
-                className="max-h-[80vh] w-auto rounded-2xl"
+                className="max-h-[90vh] w-auto rounded-lg"
               />
             ) : null}
           </div>
@@ -269,16 +261,23 @@ export function ChatMessageList({
         {!loading && messages.length > 0 && (
           <div>
             {loadingOlder && (
-              <div className="flex items-center justify-center gap-2 py-2 text-white/50">
+              <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground animate-pulse">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Loading older messages...</span>
+                <span className="text-xs font-medium">
+                  Loading older messages...
+                </span>
               </div>
             )}
 
             {(() => {
               const items: Array<
                 | { type: "day"; key: string; label: string }
-                | { type: "msg"; key: string; message: ChatMessage; index: number }
+                | {
+                    type: "msg";
+                    key: string;
+                    message: ChatMessage;
+                    index: number;
+                  }
               > = [];
 
               for (let i = 0; i < messages.length; i += 1) {
@@ -304,8 +303,8 @@ export function ChatMessageList({
                   return (
                     <div
                       key={item.key}
-                      className="flex items-center justify-center py-3">
-                      <div className="rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs text-white/60">
+                      className="flex items-center justify-center py-6">
+                      <div className="rounded-full bg-muted/50 border border-border px-3 py-1 text-[10px] font-medium text-muted-foreground tracking-wide uppercase">
                         {item.label}
                       </div>
                     </div>
@@ -333,20 +332,29 @@ export function ChatMessageList({
                 const showAvatar = startsNewGroup;
                 const showHeader = startsNewGroup;
                 const showActions = isSelf && editingId !== m.id;
-                const bubbleBase = "relative rounded-3xl px-4 py-3";
+                const bubbleBase =
+                  "relative rounded-3xl px-4 py-3 shadow-sm transition-all duration-200 group-hover:shadow-md";
                 const bubbleClass = isSelf
-                  ? `${bubbleBase} bg-[#2563eb] text-white`
-                  : `${bubbleBase} bg-[#1A2433] text-white/90`;
+                  ? cn(bubbleBase, "bg-primary text-primary-foreground")
+                  : cn(
+                      bubbleBase,
+                      "bg-muted text-foreground hover:bg-muted/70"
+                    );
 
                 const headerName = isSelf ? "You" : m.author.username;
-                const headerTime = `${m.timestamp}${m.isEdited ? " • edited" : ""}`;
+                const headerTime = `${m.timestamp}${
+                  m.isEdited ? " • edited" : ""
+                }`;
                 const showReactionPill = m.reactionsCount > 0;
                 const reactionPillPosition = isSelf
                   ? "absolute -bottom-3 left-4"
                   : "absolute -bottom-3 right-4";
 
                 return (
-                  <div
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
                     key={item.key}
                     className={startsNewGroup ? "mt-6" : "mt-2"}>
                     <div
@@ -357,10 +365,11 @@ export function ChatMessageList({
                       }>
                       {!isSelf &&
                         (showAvatar ? (
-                          <Avatar className="h-9 w-9 shrink-0">
+                          <Avatar className="h-9 w-9 shrink-0 shadow-sm border border-border/40">
                             <AvatarImage
                               src={m.author.profileImage}
                               alt={m.author.username}
+                              className="object-cover"
                             />
                             <AvatarFallback>
                               {m.author.username?.[0]?.toUpperCase() || "U"}
@@ -384,15 +393,15 @@ export function ChatMessageList({
                                 : "flex items-center justify-start gap-2 mb-2 w-full"
                             }>
                             {!isSelf && (
-                              <span className="text-sm font-semibold text-white">
+                              <span className="text-sm font-semibold text-foreground">
                                 {headerName}
                               </span>
                             )}
-                            <span className="text-xs text-white/50">
+                            <span className="text-xs text-muted-foreground/60 tabular-nums">
                               {headerTime}
                             </span>
                             {isSelf && (
-                              <span className="text-sm font-semibold text-white">
+                              <span className="text-sm font-semibold text-foreground">
                                 {headerName}
                               </span>
                             )}
@@ -403,9 +412,11 @@ export function ChatMessageList({
                           {showActions && (
                             <div
                               ref={
-                                openActionsForId === m.id ? setActionsMenuEl : null
+                                openActionsForId === m.id
+                                  ? setActionsMenuEl
+                                  : null
                               }
-                              className="absolute top-2 right-2">
+                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
                               <button
                                 type="button"
                                 onClick={() =>
@@ -413,43 +424,51 @@ export function ChatMessageList({
                                     prevId === m.id ? null : m.id
                                   )
                                 }
-                                className={
+                                className={cn(
+                                  "inline-flex h-7 w-7 items-center justify-center rounded-full bg-background/20 backdrop-blur-sm transition-colors",
                                   openActionsForId === m.id
-                                    ? "inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/15"
-                                    : "inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 opacity-0 group-hover:opacity-100 hover:bg-white/15 transition"
-                                }
+                                    ? "bg-background/40"
+                                    : "hover:bg-background/30"
+                                )}
                                 aria-haspopup="menu"
                                 aria-expanded={openActionsForId === m.id}
                                 aria-label="Message actions">
-                                <MoreVertical className="h-4 w-4" />
+                                <MoreVertical className="h-3.5 w-3.5" />
                               </button>
 
-                              {openActionsForId === m.id && (
-                                <div
-                                  role="menu"
-                                  className="absolute right-0 mt-2 w-36 rounded-2xl bg-[#0B1220] border border-white/10 shadow-xl p-1 z-20">
-                                  <button
-                                    type="button"
-                                    role="menuitem"
-                                    className="w-full text-left rounded-xl px-3 py-2 text-sm text-white/85 hover:bg-white/5"
-                                    onClick={() => {
-                                      setOpenActionsForId(null);
-                                      onStartEdit(m);
-                                    }}>
-                                    Edit
-                                  </button>
-                                  <button
-                                    type="button"
-                                    role="menuitem"
-                                    className="w-full text-left rounded-xl px-3 py-2 text-sm text-white/85 hover:bg-white/5"
-                                    onClick={() => {
-                                      setOpenActionsForId(null);
-                                      onDeleteMessage(m.id);
-                                    }}>
-                                    Delete
-                                  </button>
-                                </div>
-                              )}
+                              <AnimatePresence>
+                                {openActionsForId === m.id && (
+                                  <motion.div
+                                    initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.9, y: 5 }}
+                                    role="menu"
+                                    className="absolute right-0 mt-1 w-32 rounded-xl bg-popover border border-border shadow-xl p-1 z-20 overflow-hidden">
+                                    <button
+                                      type="button"
+                                      role="menuitem"
+                                      className="w-full flex items-center gap-2 text-left rounded-lg px-2 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                                      onClick={() => {
+                                        setOpenActionsForId(null);
+                                        onStartEdit(m);
+                                      }}>
+                                      <Edit2 className="h-3 w-3" />
+                                      Edit
+                                    </button>
+                                    <button
+                                      type="button"
+                                      role="menuitem"
+                                      className="w-full flex items-center gap-2 text-left rounded-lg px-2 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                                      onClick={() => {
+                                        setOpenActionsForId(null);
+                                        onDeleteMessage(m.id);
+                                      }}>
+                                      <Trash2 className="h-3 w-3" />
+                                      Delete
+                                    </button>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
                             </div>
                           )}
 
@@ -461,7 +480,7 @@ export function ChatMessageList({
                                   onEditTextChange(e.target.value)
                                 }
                                 rows={2}
-                                className="w-full rounded-2xl bg-white/5 border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/10"
+                                className="w-full rounded-2xl bg-background border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                               />
                               <div className="flex items-center justify-end gap-2">
                                 <Button
@@ -520,13 +539,16 @@ export function ChatMessageList({
                             <button
                               type="button"
                               onClick={() => onToggleReaction(m.id, "❤️")}
-                              className={
-                                `${reactionPillPosition} inline-flex items-center gap-1 rounded-full ` +
-                                "bg-[#0F1623] border border-white/10 px-2 py-1 shadow-lg"
-                              }
+                              className={cn(
+                                reactionPillPosition,
+                                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 shadow-sm transition-transform hover:scale-105",
+                                isSelf
+                                  ? "bg-background border border-border"
+                                  : "bg-background border border-border"
+                              )}
                               aria-label={`Reactions: ${m.reactionsCount}`}>
-                              <span className="text-[13px] leading-none">❤️</span>
-                              <span className="text-xs tabular-nums text-white/80">
+                              <span className="text-xs leading-none">❤️</span>
+                              <span className="text-[10px] tabular-nums font-bold text-foreground">
                                 {m.reactionsCount}
                               </span>
                             </button>
@@ -549,7 +571,7 @@ export function ChatMessageList({
                           <div className="w-9 shrink-0" />
                         ))}
                     </div>
-                  </div>
+                  </motion.div>
                 );
               });
             })()}
@@ -558,4 +580,5 @@ export function ChatMessageList({
       </div>
     </>
   );
-}
+
+});

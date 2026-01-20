@@ -19,9 +19,10 @@ export default function ChatPage() {
 
   const pendingScrollBottomRef = useRef(false);
   const pendingRestoreAfterPrependRef = useRef(false);
-  const pendingPrependScrollRef = useRef<
-    { prevScrollHeight: number; prevScrollTop: number } | null
-  >(null);
+  const pendingPrependScrollRef = useRef<{
+    prevScrollHeight: number;
+    prevScrollTop: number;
+  } | null>(null);
 
   const nearBottom = useNearBottom(listRef);
 
@@ -108,6 +109,25 @@ export default function ChatPage() {
     handleDeleteConfirm,
   } = useChatMessageActions({ messages, setMessages });
 
+  const handleCancelEdit = useCallback(() => {
+    setEditingId(null);
+    setEditText("");
+  }, [setEditText, setEditingId]);
+
+  const handleSaveEditClick = useCallback(
+    (id: string) => {
+      void handleSaveEdit(id);
+    },
+    [handleSaveEdit]
+  );
+
+  const handleToggleReactionClick = useCallback(
+    (messageId: string, emoji: string) => {
+      void toggleReaction(messageId, emoji);
+    },
+    [toggleReaction]
+  );
+
   const {
     text,
     media,
@@ -130,7 +150,7 @@ export default function ChatPage() {
   });
 
   return (
-    <div className="flex flex-col h-[calc(100vh-47px)] max-w-4xl mx-auto overflow-hidden bg-[#0a0c10] rounded-3xl border border-white/5 shadow-2xl">
+    <div className="flex flex-col h-[calc(100vh-47px)] max-w-4xl mx-auto overflow-hidden bg-card rounded-3xl border border-border shadow-2xl">
       <ChatHeader />
 
       <div className="flex-1 flex flex-col min-h-0 relative">
@@ -146,14 +166,9 @@ export default function ChatPage() {
           editText={editText}
           onEditTextChange={setEditText}
           onStartEdit={handleEdit}
-          onCancelEdit={() => {
-            setEditingId(null);
-            setEditText("");
-          }}
-          onSaveEdit={(id) => void handleSaveEdit(id)}
-          onToggleReaction={(messageId, emoji) =>
-            void toggleReaction(messageId, emoji)
-          }
+          onCancelEdit={handleCancelEdit}
+          onSaveEdit={handleSaveEditClick}
+          onToggleReaction={handleToggleReactionClick}
           onDeleteMessage={handleDeleteClick}
         />
       </div>
