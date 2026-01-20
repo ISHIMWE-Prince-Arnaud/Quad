@@ -335,7 +335,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                 const bubbleBase =
                   "relative rounded-2xl px-4 py-2.5 shadow-sm transition-all duration-200 group-hover:shadow-md";
                 const bubbleClass = isSelf
-                  ? cn(bubbleBase, "bg-primary text-primary-foreground")
+                  ? cn(bubbleBase, "bg-primary/50 text-primary-foreground")
                   : cn(
                       bubbleBase,
                       "bg-muted text-foreground hover:bg-muted/70"
