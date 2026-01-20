@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import type { RefObject } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -8,11 +8,10 @@ import type { ChatMessage } from "@/types/chat";
 import {
   Loader2,
   MessageSquare,
-  MoreVertical,
   Edit2,
   Trash2,
 } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 type MinimalUser = {
@@ -157,13 +156,6 @@ export const ChatMessageList = memo(function ChatMessageList({
     type: "image" | "video";
   } | null>(null);
 
-  const [openActionsForId, setOpenActionsForId] = useState<string | null>(null);
-  const actionsMenuRef = useRef<HTMLDivElement | null>(null);
-
-  const setActionsMenuEl = useCallback((el: HTMLDivElement | null) => {
-    actionsMenuRef.current = el;
-  }, []);
-
   const openLightbox = (media: { url: string; type: "image" | "video" }) => {
     setLightboxMedia(media);
     setLightboxOpen(true);
@@ -184,27 +176,7 @@ export const ChatMessageList = memo(function ChatMessageList({
     return () => container.removeEventListener("scroll", handleScroll);
   }, [hasMoreOlder, loadingOlder, onLoadOlder, listRef]);
 
-  useEffect(() => {
-    if (!openActionsForId) return;
 
-    const onPointerDown = (e: MouseEvent) => {
-      const target = e.target as Node | null;
-      if (!target) return;
-      if (actionsMenuRef.current?.contains(target)) return;
-      setOpenActionsForId(null);
-    };
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpenActionsForId(null);
-    };
-
-    window.addEventListener("mousedown", onPointerDown);
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      window.removeEventListener("mousedown", onPointerDown);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [openActionsForId]);
 
   return (
     <>
@@ -410,65 +382,22 @@ export const ChatMessageList = memo(function ChatMessageList({
 
                         <div className={bubbleClass}>
                           {showActions && (
-                            <div
-                              ref={
-                                openActionsForId === m.id
-                                  ? setActionsMenuEl
-                                  : null
-                              }
-                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
+                            <div className="absolute -top-3 right-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-200 scale-95 group-hover:scale-100 flex items-center gap-0.5 bg-background border border-border shadow-sm rounded-full p-1 pr-2">
                               <button
-                                type="button"
-                                onClick={() =>
-                                  setOpenActionsForId((prevId) =>
-                                    prevId === m.id ? null : m.id
-                                  )
-                                }
-                                className={cn(
-                                  "inline-flex h-7 w-7 items-center justify-center rounded-full bg-background/20 backdrop-blur-sm transition-colors",
-                                  openActionsForId === m.id
-                                    ? "bg-background/40"
-                                    : "hover:bg-background/30"
-                                )}
-                                aria-haspopup="menu"
-                                aria-expanded={openActionsForId === m.id}
-                                aria-label="Message actions">
-                                <MoreVertical className="h-3.5 w-3.5" />
+                                onClick={() => onStartEdit(m)}
+                                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
+                                title="Edit message"
+                              >
+                                <Edit2 className="h-3.5 w-3.5" />
                               </button>
-
-                              <AnimatePresence>
-                                {openActionsForId === m.id && (
-                                  <motion.div
-                                    initial={{ opacity: 0, scale: 0.9, y: 5 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.9, y: 5 }}
-                                    role="menu"
-                                    className="absolute right-0 mt-1 w-32 rounded-xl bg-popover border border-border shadow-xl p-1 z-20 overflow-hidden">
-                                    <button
-                                      type="button"
-                                      role="menuitem"
-                                      className="w-full flex items-center gap-2 text-left rounded-lg px-2 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                                      onClick={() => {
-                                        setOpenActionsForId(null);
-                                        onStartEdit(m);
-                                      }}>
-                                      <Edit2 className="h-3 w-3" />
-                                      Edit
-                                    </button>
-                                    <button
-                                      type="button"
-                                      role="menuitem"
-                                      className="w-full flex items-center gap-2 text-left rounded-lg px-2 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
-                                      onClick={() => {
-                                        setOpenActionsForId(null);
-                                        onDeleteMessage(m.id);
-                                      }}>
-                                      <Trash2 className="h-3 w-3" />
-                                      Delete
-                                    </button>
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
+                              <div className="w-[1px] h-3 bg-border mx-0.5" />
+                              <button
+                                onClick={() => onDeleteMessage(m.id)}
+                                className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
+                                title="Delete message"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
                             </div>
                           )}
 

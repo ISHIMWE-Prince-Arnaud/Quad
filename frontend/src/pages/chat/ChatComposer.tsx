@@ -103,13 +103,6 @@ export function ChatComposer({
             className="flex-1 bg-transparent border-none focus:ring-0 outline-none text-foreground placeholder:text-muted-foreground text-sm min-h-[24px] resize-none py-1 scrollbar-hide"
             aria-label="Message input"
           />
-
-          <button
-            type="button"
-            className="h-8 w-8 -mr-1 text-muted-foreground hover:text-foreground hover:bg-background/50 rounded-full flex items-center justify-center transition-colors shrink-0"
-            aria-label="Insert emoji">
-            <Smile className="h-5 w-5" />
-          </button>
         </div>
 
         <Button
