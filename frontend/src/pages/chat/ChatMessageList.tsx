@@ -10,7 +10,6 @@ import {
   Edit2,
   Trash2,
 } from "lucide-react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 type MinimalUser = {
@@ -23,24 +22,6 @@ const isSameDay = (a: Date, b: Date) =>
   a.getFullYear() === b.getFullYear() &&
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate();
-
-const formatDayLabel = (date: Date) => {
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const yesterdayStart = new Date(todayStart);
-  yesterdayStart.setDate(todayStart.getDate() - 1);
-
-  if (isSameDay(date, todayStart)) return "Today";
-  if (isSameDay(date, yesterdayStart)) return "Yesterday";
-
-  const sameYear = date.getFullYear() === now.getFullYear();
-  const fmt = new Intl.DateTimeFormat(undefined, {
-    month: "short",
-    day: "numeric",
-    ...(sameYear ? {} : { year: "numeric" }),
-  });
-  return fmt.format(date);
-};
 
 const URL_REGEX =
   /(https?:\/\/(?:www\.)?[\w.-]+(?::[0-9]+)?(?:\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*)?)/gi;
@@ -184,51 +165,8 @@ export const ChatMessageList = memo(function ChatMessageList({
               </div>
             )}
 
-            {(() => {
-              const items: Array<
-                | { type: "day"; key: string; label: string }
-                | {
-                    type: "msg";
-                    key: string;
-                    message: ChatMessage;
-                    index: number;
-                  }
-              > = [];
-
-              for (let i = 0; i < messages.length; i += 1) {
-                const m = messages[i];
-                const prev = i > 0 ? messages[i - 1] : undefined;
-                const day = new Date(m.createdAt);
-                const prevDay = prev ? new Date(prev.createdAt) : null;
-                const startsNewDay = !prevDay || !isSameDay(day, prevDay);
-
-                if (startsNewDay) {
-                  items.push({
-                    type: "day",
-                    key: `day-${day.toISOString()}`,
-                    label: formatDayLabel(day),
-                  });
-                }
-
-                items.push({ type: "msg", key: m.id, message: m, index: i });
-              }
-
-              return items.map((item) => {
-                if (item.type === "day") {
-                  return (
-                    <div
-                      key={item.key}
-                      className="flex items-center justify-center py-6">
-                      <div className="rounded-full bg-muted/50 border border-border px-3 py-1 text-[10px] font-medium text-muted-foreground tracking-wide uppercase">
-                        {item.label}
-                      </div>
-                    </div>
-                  );
-                }
-
-                const m = item.message;
-                const i = item.index;
-                const prev = i > 0 ? messages[i - 1] : undefined;
+            {messages.map((m, i) => {
+              const prev = i > 0 ? messages[i - 1] : undefined;
                 const isSelf = m.author.clerkId === user?.clerkId;
 
                 const prevSameAuthor =
@@ -254,167 +192,161 @@ export const ChatMessageList = memo(function ChatMessageList({
                 const headerTime = `${m.timestamp}${
                   m.isEdited ? " • edited" : ""
                 }`;
+
                 const showReactionPill = m.reactionsCount > 0;
                 const reactionPillPosition = isSelf
                   ? "absolute -bottom-3 left-4"
                   : "absolute -bottom-3 right-4";
 
-                return (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                    key={item.key}
-                    className={startsNewGroup ? "mt-6" : "mt-2"}>
+              return (
+                <div key={m.id} className="py-0.5">
+                  <div
+                    className={cn(
+                      "flex items-start gap-3",
+                      isSelf ? "justify-end" : "justify-start"
+                    )}>
+                    {!isSelf &&
+                      (showAvatar ? (
+                        <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40">
+                          <AvatarImage
+                            src={m.author.profileImage}
+                            alt={m.author.username}
+                            className="object-cover"
+                          />
+                          <AvatarFallback>
+                            {m.author.username?.[0]?.toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <div className="w-9 shrink-0" />
+                      ))}
+
                     <div
                       className={
                         isSelf
-                          ? "flex justify-end items-start gap-3"
-                          : "flex justify-start items-start gap-3"
+                          ? "flex flex-col items-end max-w-[75%] md:max-w-[60%] group"
+                          : "flex flex-col items-start max-w-[75%] md:max-w-[60%] group"
                       }>
-                      {!isSelf &&
-                        (showAvatar ? (
-                          <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40">
-                            <AvatarImage
-                              src={m.author.profileImage}
-                              alt={m.author.username}
-                              className="object-cover"
-                            />
-                            <AvatarFallback>
-                              {m.author.username?.[0]?.toUpperCase() || "U"}
-                            </AvatarFallback>
-                          </Avatar>
-                        ) : (
-                          <div className="w-9 shrink-0" />
-                        ))}
-
-                      <div
-                        className={
-                          isSelf
-                            ? "flex flex-col items-end max-w-[75%] md:max-w-[60%] group"
-                            : "flex flex-col items-start max-w-[75%] md:max-w-[60%] group"
-                        }>
-                        {showHeader && (
-                          <div
-                            className={
-                              isSelf
-                                ? "flex items-center justify-end gap-2 mb-2 w-full"
-                                : "flex items-center justify-start gap-2 mb-2 w-full"
-                            }>
-                            {!isSelf && (
-                              <span className="text-sm font-semibold text-foreground">
-                                {headerName}
-                              </span>
-                            )}
-                            <span className="text-xs text-muted-foreground/60 tabular-nums">
-                              {headerTime}
+                      {showHeader && (
+                        <div
+                          className={
+                            isSelf
+                              ? "flex items-center justify-end gap-2 mb-2 w-full"
+                              : "flex items-center justify-start gap-2 mb-2 w-full"
+                          }>
+                          {!isSelf && (
+                            <span className="text-sm font-semibold text-foreground">
+                              {headerName}
                             </span>
-                            {isSelf && (
-                              <span className="text-sm font-semibold text-foreground">
-                                {headerName}
-                              </span>
-                            )}
+                          )}
+                          <span className="text-xs text-muted-foreground/60 tabular-nums">
+                            {headerTime}
+                          </span>
+                          {isSelf && (
+                            <span className="text-sm font-semibold text-foreground">
+                              {headerName}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      <div className={bubbleClass}>
+                        {showActions && (
+                          <div className="absolute -top-3 right-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-200 scale-95 group-hover:scale-100 flex items-center gap-0.5 bg-background border border-border shadow-sm rounded-full p-1 pr-2">
+                            <button
+                              onClick={() => onStartEdit(m)}
+                              className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
+                              title="Edit message"
+                            >
+                              <Edit2 className="h-3.5 w-3.5" />
+                            </button>
+                            <div className="w-[1px] h-3 bg-border mx-0.5" />
+                            <button
+                              onClick={() => onDeleteMessage(m.id)}
+                              className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
+                              title="Delete message"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
                           </div>
                         )}
 
-                        <div className={bubbleClass}>
-                          {showActions && (
-                            <div className="absolute -top-3 right-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-200 scale-95 group-hover:scale-100 flex items-center gap-0.5 bg-background border border-border shadow-sm rounded-full p-1 pr-2">
-                              <button
-                                onClick={() => onStartEdit(m)}
-                                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
-                                title="Edit message"
-                              >
-                                <Edit2 className="h-3.5 w-3.5" />
-                              </button>
-                              <div className="w-[1px] h-3 bg-border mx-0.5" />
-                              <button
-                                onClick={() => onDeleteMessage(m.id)}
-                                className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
-                                title="Delete message"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          )}
-
-                          {editingId === m.id ? (
-                            <div className="space-y-3">
-                              <textarea
-                                value={editText}
-                                onChange={(e) =>
-                                  onEditTextChange(e.target.value)
-                                }
-                                rows={2}
-                                className="w-full rounded-2xl bg-background border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                              />
-                              <div className="flex items-center justify-end gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  onClick={onCancelEdit}>
-                                  Cancel
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  onClick={() => onSaveEdit(m.id)}>
-                                  Save
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            <>
-                              {m.text && (
-                                <div
-                                  className={
-                                    "text-[15px] leading-relaxed whitespace-pre-wrap break-words"
-                                  }>
-                                  {linkifyText(m.text)}
-                                </div>
-                              )}
-                            </>
-                          )}
-
-                          {showReactionPill && (
-                            <button
-                              type="button"
-                              onClick={() => onToggleReaction(m.id, "❤️")}
-                              className={cn(
-                                reactionPillPosition,
-                                "inline-flex items-center gap-1 rounded-full px-2 py-0.5 shadow-sm transition-transform hover:scale-105",
-                                isSelf
-                                  ? "bg-background border border-border"
-                                  : "bg-background border border-border"
-                              )}
-                              aria-label={`Reactions: ${m.reactionsCount}`}>
-                              <span className="text-xs leading-none">❤️</span>
-                              <span className="text-[10px] tabular-nums font-bold text-foreground">
-                                {m.reactionsCount}
-                              </span>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {isSelf &&
-                        (showAvatar ? (
-                          <Avatar className="h-8 w-8 shrink-0">
-                            <AvatarImage
-                              src={user?.profileImage}
-                              alt={user?.username}
+                        {editingId === m.id ? (
+                          <div className="space-y-3">
+                            <textarea
+                              value={editText}
+                              onChange={(e) =>
+                                onEditTextChange(e.target.value)
+                              }
+                              rows={2}
+                              className="w-full rounded-2xl bg-background border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                             />
-                            <AvatarFallback>
-                              {user?.username?.[0]?.toUpperCase() || "U"}
-                            </AvatarFallback>
-                          </Avatar>
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={onCancelEdit}>
+                                Cancel
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => onSaveEdit(m.id)}>
+                                Save
+                              </Button>
+                            </div>
+                          </div>
                         ) : (
-                          <div className="w-9 shrink-0" />
-                        ))}
+                          <>
+                            {m.text && (
+                              <div
+                                className={
+                                  "text-[15px] leading-relaxed whitespace-pre-wrap break-words"
+                                }>
+                                {linkifyText(m.text)}
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {showReactionPill && (
+                          <button
+                            type="button"
+                            onClick={() => onToggleReaction(m.id, "❤️")}
+                            className={cn(
+                              reactionPillPosition,
+                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 shadow-sm transition-transform hover:scale-105",
+                              isSelf
+                                ? "bg-background border border-border"
+                                : "bg-background border border-border"
+                            )}
+                            aria-label={`Reactions: ${m.reactionsCount}`}>
+                            <span className="text-xs leading-none">❤️</span>
+                            <span className="text-[10px] tabular-nums font-bold text-foreground">
+                              {m.reactionsCount}
+                            </span>
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </motion.div>
-                );
-              });
-            })()}
+
+                    {isSelf &&
+                      (showAvatar ? (
+                        <Avatar className="h-8 w-8 shrink-0">
+                          <AvatarImage
+                            src={user?.profileImage}
+                            alt={user?.username}
+                          />
+                          <AvatarFallback>
+                            {user?.username?.[0]?.toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <div className="w-9 shrink-0" />
+                      ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
