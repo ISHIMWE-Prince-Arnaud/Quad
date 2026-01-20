@@ -26,6 +26,14 @@ export default function ChatPage() {
 
   const nearBottom = useNearBottom(listRef);
 
+  const handleInitialLoaded = useCallback(() => {
+    pendingScrollBottomRef.current = true;
+  }, []);
+
+  const handlePrepended = useCallback(() => {
+    pendingRestoreAfterPrependRef.current = true;
+  }, []);
+
   const {
     messages,
     setMessages,
@@ -35,12 +43,8 @@ export default function ChatPage() {
     newestMessageId,
     loadOlder,
   } = useChatHistory({
-    onInitialLoaded: () => {
-      pendingScrollBottomRef.current = true;
-    },
-    onPrepended: () => {
-      pendingRestoreAfterPrependRef.current = true;
-    },
+    onInitialLoaded: handleInitialLoaded,
+    onPrepended: handlePrepended,
   });
 
   const scrollToBottom = useCallback(() => {
