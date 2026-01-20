@@ -253,14 +253,6 @@ export const getValidationRules = (preset: UploadPresetType) => {
       maxSize: 10, // 10MB
       allowedTypes: imageTypes,
     },
-    CHAT_IMAGE: {
-      maxSize: 10, // 10MB
-      allowedTypes: imageTypes,
-    },
-    CHAT_VIDEO: {
-      maxSize: 1024, // 1GB
-      allowedTypes: videoTypes,
-    },
   };
 
   return rules[preset];

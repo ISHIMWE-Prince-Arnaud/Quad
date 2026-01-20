@@ -106,21 +106,6 @@ export const UPLOAD_PRESETS = {
       { width: 1200, height: 400, crop: "fill" }, // 3:1 aspect ratio for covers
     ],
   },
-  // Chat: Images and videos with any of the 3 aspect ratios
-  CHAT_IMAGE: {
-    folder: CLOUDINARY_FOLDERS.CHAT,
-    resource_type: "image" as const,
-    transformation: [
-      { quality: "auto", fetch_format: "auto" },
-    ],
-  },
-  CHAT_VIDEO: {
-    folder: CLOUDINARY_FOLDERS.CHAT,
-    resource_type: "video" as const,
-    transformation: [
-      { quality: "auto", fetch_format: "auto" },
-    ],
-  },
 } as const;
 
 // Helper to generate responsive image URLs based on aspect ratio

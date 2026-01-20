@@ -119,7 +119,7 @@ export async function compressImage(
  * Get optimal compression settings based on upload type
  */
 export function getCompressionSettings(
-  type: "profile" | "cover" | "post" | "story" | "chat"
+  type: "profile" | "cover" | "post" | "story"
 ): CompressionOptions {
   const settings: Record<string, CompressionOptions> = {
     profile: {
@@ -141,11 +141,6 @@ export function getCompressionSettings(
       maxWidth: 1080,
       maxHeight: 1920,
       quality: 0.85,
-    },
-    chat: {
-      maxWidth: 1920,
-      maxHeight: 1920,
-      quality: 0.8,
     },
   };
 
