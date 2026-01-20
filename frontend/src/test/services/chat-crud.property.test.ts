@@ -54,7 +54,10 @@ describe("Chat Message CRUD Property Tests", () => {
   });
 
   // Filter to ensure text is present
-  const validChatMessageArbitrary = chatMessageArbitrary.filter((msg) => msg.text);
+  const validChatMessageArbitrary = chatMessageArbitrary.filter(
+    (msg): msg is typeof msg & { text: string } =>
+      typeof msg.text === "string" && msg.text.length > 0
+  );
 
   it("Property 44: Messages can be edited and the edited version is returned", async () => {
     await fc.assert(

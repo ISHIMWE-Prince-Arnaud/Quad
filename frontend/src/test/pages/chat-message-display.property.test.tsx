@@ -56,7 +56,10 @@ describe("Chat Message Display Property Tests", () => {
   });
 
   // Filter to ensure text is present
-  const validChatMessageArbitrary = chatMessageArbitrary.filter((msg) => msg.text);
+  const validChatMessageArbitrary = chatMessageArbitrary.filter(
+    (msg): msg is typeof msg & { text: string } =>
+      typeof msg.text === "string" && msg.text.length > 0
+  );
 
   it("Property 40: All chat messages contain required fields (author, text, timestamp)", async () => {
     await fc.assert(

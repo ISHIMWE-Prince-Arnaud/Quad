@@ -128,7 +128,7 @@ describe("Chat Real-time Message Delivery Property Tests", () => {
   it("Property 3: chat:message:edited events are emitted and received for edited messages", async () => {
     await fc.assert(
       fc.asyncProperty(
-        validChatMessagePayloadArbitrary,
+        chatMessagePayloadArbitrary,
         async (messagePayload) => {
           // Ensure the message is marked as edited
           const editedPayload = {
@@ -194,7 +194,7 @@ describe("Chat Real-time Message Delivery Property Tests", () => {
   it("Property 3: Multiple messages can be received in sequence", async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.array(validChatMessagePayloadArbitrary, {
+        fc.array(chatMessagePayloadArbitrary, {
           minLength: 2,
           maxLength: 10,
         }),
@@ -231,7 +231,7 @@ describe("Chat Real-time Message Delivery Property Tests", () => {
   it("Property 3: Event listeners can be removed without affecting other listeners", async () => {
     await fc.assert(
       fc.asyncProperty(
-        validChatMessagePayloadArbitrary,
+        chatMessagePayloadArbitrary,
         async (messagePayload) => {
           const { getSocket } = await import("@/lib/socket");
           const socket = getSocket();

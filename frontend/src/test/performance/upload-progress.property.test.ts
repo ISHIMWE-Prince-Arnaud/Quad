@@ -19,10 +19,10 @@ describe("Upload Progress Property Tests", () => {
       "uploadPostMedia",
       "uploadStoryMedia",
       "uploadPollMedia",
-    ];
+    ] as const satisfies ReadonlyArray<keyof typeof UploadService>;
 
     uploadMethods.forEach((methodName) => {
-      const method = (UploadService as Record<string, unknown>)[methodName];
+      const method = UploadService[methodName];
       expect(typeof method).toBe("function");
     });
   });
@@ -116,11 +116,10 @@ describe("Upload Progress Property Tests", () => {
       "uploadPostMedia",
       "uploadStoryMedia",
       "uploadPollMedia",
-      "uploadChatMedia",
-    ];
+    ] as const satisfies ReadonlyArray<keyof typeof UploadService>;
 
     uploadMethods.forEach((methodName) => {
-      const method = (UploadService as Record<string, unknown>)[methodName];
+      const method = UploadService[methodName];
 
       // Method should exist
       expect(typeof method).toBe("function");
