@@ -1,9 +1,8 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect } from "react";
 import type { RefObject } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { ChatMessage } from "@/types/chat";
 import {
   Loader2,
@@ -150,17 +149,6 @@ export const ChatMessageList = memo(function ChatMessageList({
   onToggleReaction: (messageId: string, emoji: string) => void;
   onDeleteMessage: (id: string) => void;
 }) {
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxMedia, setLightboxMedia] = useState<{
-    url: string;
-    type: "image" | "video";
-  } | null>(null);
-
-  const openLightbox = (media: { url: string; type: "image" | "video" }) => {
-    setLightboxMedia(media);
-    setLightboxOpen(true);
-  };
-
   useEffect(() => {
     const container = listRef.current;
     if (!container || !hasMoreOlder || loadingOlder) return;
@@ -176,53 +164,8 @@ export const ChatMessageList = memo(function ChatMessageList({
     return () => container.removeEventListener("scroll", handleScroll);
   }, [hasMoreOlder, loadingOlder, onLoadOlder, listRef]);
 
-
-
   return (
     <>
-      <Dialog
-        open={lightboxOpen}
-        onOpenChange={(open) => {
-          setLightboxOpen(open);
-          if (!open) setLightboxMedia(null);
-        }}>
-        <DialogContent className="max-w-4xl bg-black/95 border-none p-0 overflow-hidden shadow-2xl">
-          <div className="flex items-center justify-center w-full h-full min-h-[50vh] relative">
-            <button
-              onClick={() => setLightboxOpen(false)}
-              className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors z-50">
-              <span className="sr-only">Close</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round">
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-              </svg>
-            </button>
-            {lightboxMedia?.type === "image" ? (
-              <img
-                src={lightboxMedia.url}
-                alt="Chat attachment"
-                className="max-h-[90vh] w-auto animate-in zoom-in-95 duration-200"
-              />
-            ) : lightboxMedia?.type === "video" ? (
-              <video
-                src={lightboxMedia.url}
-                controls
-                className="max-h-[90vh] w-auto rounded-lg"
-              />
-            ) : null}
-          </div>
-        </DialogContent>
-      </Dialog>
-
       <div
         ref={listRef}
         className="flex-1 overflow-y-auto scrollbar-hide px-6">
@@ -287,12 +230,6 @@ export const ChatMessageList = memo(function ChatMessageList({
                 const i = item.index;
                 const prev = i > 0 ? messages[i - 1] : undefined;
                 const isSelf = m.author.clerkId === user?.clerkId;
-                const media = m.media;
-                const hasMedia =
-                  !!media &&
-                  typeof media.url === "string" &&
-                  media.url.trim().length > 0 &&
-                  (media.type === "image" || media.type === "video");
 
                 const prevSameAuthor =
                   !!prev && prev.author.clerkId === m.author.clerkId;
@@ -427,36 +364,10 @@ export const ChatMessageList = memo(function ChatMessageList({
                             </div>
                           ) : (
                             <>
-                              {hasMedia && (
-                                <div
-                                  className={
-                                    (m.text
-                                      ? "-mx-4 -mt-2.5 rounded-t-2xl"
-                                      : "-mx-4 -mt-2.5 rounded-2xl") +
-                                    " overflow-hidden max-w-[320px]"
-                                  }>
-                                  {media.type === "image" ? (
-                                    <img
-                                      src={media.url}
-                                      alt="attachment"
-                                      className="w-full max-h-[240px] object-cover cursor-pointer aspect-video"
-                                      onClick={() => openLightbox(media)}
-                                    />
-                                  ) : (
-                                    <video
-                                      src={media.url}
-                                      controls
-                                      className="w-full max-h-[240px] object-contain aspect-video bg-black/50"
-                                    />
-                                  )}
-                                </div>
-                              )}
-
                               {m.text && (
                                 <div
                                   className={
-                                    "text-[15px] leading-relaxed whitespace-pre-wrap break-words" +
-                                    (hasMedia ? " mt-3" : "")
+                                    "text-[15px] leading-relaxed whitespace-pre-wrap break-words"
                                   }>
                                   {linkifyText(m.text)}
                                 </div>

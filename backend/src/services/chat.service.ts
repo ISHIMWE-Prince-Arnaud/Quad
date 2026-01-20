@@ -32,6 +32,9 @@ export class ChatService {
     }
 
     const sanitizedText = sanitizeMessageText(messageData.text);
+    if (!sanitizedText) {
+      throw new AppError("Message must have text", 400);
+    }
     const mentions = extractMentions(sanitizedText);
 
     const message = await ChatMessage.create({
@@ -44,8 +47,7 @@ export class ChatService {
           : {}),
         ...(user.bio !== undefined ? { bio: user.bio } : {}),
       },
-      ...(sanitizedText !== undefined ? { text: sanitizedText } : {}),
-      ...(messageData.media !== undefined ? { media: messageData.media } : {}),
+      text: sanitizedText,
       mentions,
       reactionsCount: 0,
       isEdited: false,
@@ -177,44 +179,18 @@ export class ChatService {
 
     if (updates.text !== undefined) {
       const sanitizedText = sanitizeMessageText(updates.text);
+      if (sanitizedText === undefined) {
+        throw new AppError("Message must have text after editing", 400);
+      }
       if (sanitizedText !== message.text) {
-        if (sanitizedText === undefined) {
-          message.set("text", undefined);
-        } else {
-          message.text = sanitizedText;
-        }
+        message.text = sanitizedText;
         message.mentions = extractMentions(sanitizedText);
         hasChanges = true;
       }
     }
 
-    if (updates.media !== undefined) {
-      if (updates.media === null) {
-        message.set("media", undefined);
-        hasChanges = true;
-      } else if (JSON.stringify(updates.media) !== JSON.stringify(message.media)) {
-        const nextMedia = updates.media;
-        if (nextMedia) {
-          const aspectRatio = nextMedia.aspectRatio;
-          if (aspectRatio) {
-            message.media = {
-              url: nextMedia.url,
-              type: nextMedia.type,
-              aspectRatio,
-            };
-          } else {
-            message.media = {
-              url: nextMedia.url,
-              type: nextMedia.type,
-            };
-          }
-        }
-        hasChanges = true;
-      }
-    }
-
-    if (!message.text && !message.media) {
-      throw new AppError("Message must have text or media after editing", 400);
+    if (!message.text) {
+      throw new AppError("Message must have text after editing", 400);
     }
 
     if (hasChanges) {

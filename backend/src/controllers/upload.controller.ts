@@ -289,66 +289,10 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
 // UPLOAD CHAT MEDIA (Image or Video)
 // =========================
 export const uploadChatMedia = async (req: Request, res: Response) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "No file uploaded",
-      });
-    }
-
-    const { buffer, mimetype, size } = req.file;
-    const aspectRatio = (req.body.aspectRatio as AspectRatio) || "1:1";
-
-    // Validate aspect ratio
-    if (!["1:1", "16:9", "9:16"].includes(aspectRatio)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid aspect ratio. Must be 1:1, 16:9, or 9:16",
-      });
-    }
-
-    // Determine if image or video
-    const isVideo = mimetype.startsWith("video/");
-    const preset = isVideo ? "CHAT_VIDEO" : "CHAT_IMAGE";
-    const rules = getValidationRules(preset);
-
-    // Validate file type
-    if (!validateFileType(mimetype, rules.allowedTypes)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid file type for chat",
-      });
-    }
-
-    // Validate file size
-    if (!validateFileSize(size, rules.maxSize)) {
-      return res.status(400).json({
-        success: false,
-        message: `File too large. Maximum size is ${rules.maxSize}MB`,
-      });
-    }
-
-    // Upload to Cloudinary
-    const result = await uploadToCloudinary(buffer, preset);
-
-    return res.status(200).json({
-      success: true,
-      message: "Chat media uploaded successfully",
-      data: {
-        ...result,
-        aspectRatio,
-      },
-    });
-  } catch (error: unknown) {
-    logger.error("Chat media upload error", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return res.status(500).json({
-      success: false,
-      message: "Failed to upload chat media",
-      error: message,
-    });
-  }
+  return res.status(410).json({
+    success: false,
+    message: "Chat media uploads are disabled",
+  });
 };
 
 // =========================

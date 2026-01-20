@@ -131,25 +131,6 @@ export class UploadService {
     return this.normalizeUploadResponse(raw);
   }
 
-  // Upload chat media
-  static async uploadChatMedia(
-    file: File,
-    onProgress?: (progress: number) => void
-  ): Promise<ApiUploadResponse> {
-    // Compress image before upload
-    const compressedFile = file.type.startsWith("image/")
-      ? await compressImage(file, getCompressionSettings("chat"))
-      : file;
-
-    if (onProgress) onProgress(10);
-
-    const response = await endpoints.upload.chat(compressedFile);
-    if (onProgress) onProgress(100);
-
-    const raw = response.data?.data ?? response.data;
-    return this.normalizeUploadResponse(raw);
-  }
-
   // Delete uploaded file
   static async deleteFile(url: string): Promise<{ success: boolean }> {
     const response = await endpoints.upload.delete(url);
@@ -159,13 +140,12 @@ export class UploadService {
   // Batch upload multiple files
   static async batchUpload(
     files: File[],
-    type: "post" | "story" | "poll" | "chat"
+    type: "post" | "story" | "poll"
   ): Promise<{ succeeded: ApiUploadResponse[]; failed: File[] }> {
     const uploadFn = {
       post: this.uploadPostMedia,
       story: this.uploadStoryMedia,
       poll: this.uploadPollMedia,
-      chat: this.uploadChatMedia,
     }[type];
 
     const results = await Promise.allSettled(

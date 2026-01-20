@@ -7,13 +7,11 @@ import type {
   ChatAddReactionResponse,
   ChatRemoveReactionResponse,
   ChatMarkAsReadResponse,
-  ChatMedia,
 } from "@/types/chat";
 
 export class ChatService {
   static async sendMessage(data: {
     text?: string;
-    media?: ChatMedia;
   }): Promise<ChatSendMessageResponse> {
     const response = await endpoints.chat.sendMessage(data);
     return response.data as ChatSendMessageResponse;
@@ -30,7 +28,7 @@ export class ChatService {
 
   static async editMessage(
     id: string,
-    data: { text?: string; media?: ChatMedia | null }
+    data: { text?: string }
   ): Promise<ChatEditMessageResponse> {
     const response = await endpoints.chat.editMessage(id, data);
     return response.data as ChatEditMessageResponse;

@@ -65,19 +65,7 @@ describe("Chat Real-time Message Delivery Property Tests", () => {
         nil: undefined,
       }),
     }),
-    text: fc.option(fc.string({ minLength: 1, maxLength: 2000 }), {
-      nil: undefined,
-    }),
-    media: fc.option(
-      fc.record({
-        url: fc.webUrl(),
-        type: fc.constantFrom("image", "video"),
-        aspectRatio: fc.option(fc.constantFrom("1:1", "16:9", "9:16"), {
-          nil: undefined,
-        }),
-      }),
-      { nil: undefined }
-    ),
+    text: fc.string({ minLength: 1, maxLength: 2000 }),
     mentions: fc.array(fc.uuid(), { maxLength: 5 }),
     reactionsCount: fc.integer({ min: 0, max: 1000 }),
     isEdited: fc.boolean(),
@@ -100,15 +88,10 @@ describe("Chat Real-time Message Delivery Property Tests", () => {
     ),
   });
 
-  // Filter to ensure at least text or media is present
-  const validChatMessagePayloadArbitrary = chatMessagePayloadArbitrary.filter(
-    (msg) => msg.text || msg.media
-  );
-
   it("Property 3: chat:message:new events are emitted and received for new messages", async () => {
     await fc.assert(
       fc.asyncProperty(
-        validChatMessagePayloadArbitrary,
+        chatMessagePayloadArbitrary,
         async (messagePayload) => {
           const { getSocket } = await import("@/lib/socket");
           const socket = getSocket();

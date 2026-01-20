@@ -1,11 +1,3 @@
-export type ChatMediaAspectRatio = "1:1" | "16:9" | "9:16";
-
-export interface ChatMedia {
-  url: string;
-  type: "image" | "video";
-  aspectRatio?: ChatMediaAspectRatio;
-}
-
 // Snapshot of the author embedded on each chat message
 export interface ChatAuthor {
   clerkId: string;
@@ -19,7 +11,6 @@ export interface ChatMessage {
   id: string;
   author: ChatAuthor;
   text?: string;
-  media?: ChatMedia;
   mentions: string[];
   reactionsCount: number;
   reactions?: Array<{ emoji: string; count: number }>;

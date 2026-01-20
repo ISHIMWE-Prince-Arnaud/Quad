@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import * as fc from "fast-check";
 import { ChatService } from "@/services/chatService";
 import { api } from "@/lib/api";
-import type { ChatMessage, ChatMedia } from "@/types/chat";
+import type { ChatMessage } from "@/types/chat";
 
 // Feature: quad-production-ready, Property 41: Message Send Success
-// For any valid message (text or media), the send operation should succeed and the message should appear in the chat.
+// For any valid message (text), the send operation should succeed and the message should appear in the chat.
 // Validates: Requirements 12.2
 
 describe("Chat Message Send Property Tests", () => {
@@ -24,37 +24,17 @@ describe("Chat Message Send Property Tests", () => {
     }),
   });
 
-  // Arbitrary for generating valid chat media
-  const chatMediaArbitrary = fc.record({
-    url: fc.webUrl(),
-    type: fc.constantFrom("image", "video"),
-    aspectRatio: fc.option(fc.constantFrom("1:1", "16:9", "9:16"), {
-      nil: undefined,
-    }),
-  });
-
-  // Arbitrary for generating valid message send data
-  const messageSendDataArbitrary = fc
-    .record({
-      text: fc.option(fc.string({ minLength: 1, maxLength: 2000 }), {
-        nil: undefined,
-      }),
-      media: fc.option(chatMediaArbitrary, { nil: undefined }),
-    })
-    .filter((data) => data.text || data.media); // At least one must be present
-
-  it("Property 41: Valid messages (text or media) send successfully", async () => {
+  it("Property 41: Valid messages (text) send successfully", async () => {
     await fc.assert(
       fc.asyncProperty(
-        messageSendDataArbitrary,
+        fc.string({ minLength: 1, maxLength: 2000 }),
         chatAuthorArbitrary,
-        async (sendData, author) => {
+        async (text, author) => {
           // Create the expected response message
           const responseMessage: ChatMessage = {
             id: fc.sample(fc.uuid(), 1)[0],
             author,
-            text: sendData.text,
-            media: sendData.media,
+            text,
             mentions: [],
             reactionsCount: 0,
             isEdited: false,
@@ -75,22 +55,14 @@ describe("Chat Message Send Property Tests", () => {
           });
 
           // Send message via service
-          const response = await ChatService.sendMessage(sendData);
+          const response = await ChatService.sendMessage({ text });
 
           // Verify response structure
           expect(response.success).toBe(true);
           expect(response.data).toBeDefined();
 
           // Verify the message was created with the correct content
-          if (sendData.text) {
-            expect(response.data!.text).toBe(sendData.text);
-          }
-
-          if (sendData.media) {
-            expect(response.data!.media).toBeDefined();
-            expect(response.data!.media!.url).toBe(sendData.media.url);
-            expect(response.data!.media!.type).toBe(sendData.media.type);
-          }
+          expect(response.data!.text).toBe(text);
 
           // Verify required fields are present
           expect(response.data!.id).toBeDefined();
@@ -102,7 +74,7 @@ describe("Chat Message Send Property Tests", () => {
           // Verify the API was called with correct data
           expect(api.post).toHaveBeenCalledWith(
             expect.stringContaining("/chat/messages"),
-            sendData
+            { text }
           );
         }
       ),
@@ -120,7 +92,6 @@ describe("Chat Message Send Property Tests", () => {
             id: fc.sample(fc.uuid(), 1)[0],
             author,
             text,
-            media: undefined,
             mentions: [],
             reactionsCount: 0,
             isEdited: false,
@@ -142,89 +113,6 @@ describe("Chat Message Send Property Tests", () => {
 
           expect(response.success).toBe(true);
           expect(response.data!.text).toBe(text);
-          expect(response.data!.media).toBeUndefined();
-        }
-      ),
-      { numRuns: 50 }
-    );
-  });
-
-  it("Property 41 (Edge Case): Media-only messages send successfully", async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        chatMediaArbitrary,
-        chatAuthorArbitrary,
-        async (media, author) => {
-          const responseMessage: ChatMessage = {
-            id: fc.sample(fc.uuid(), 1)[0],
-            author,
-            text: undefined,
-            media,
-            mentions: [],
-            reactionsCount: 0,
-            isEdited: false,
-            editedAt: null,
-            timestamp: "Just now",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            userReaction: null,
-          };
-
-          vi.spyOn(api, "post").mockResolvedValue({
-            data: {
-              success: true,
-              data: responseMessage,
-            },
-          });
-
-          const response = await ChatService.sendMessage({ media });
-
-          expect(response.success).toBe(true);
-          expect(response.data!.text).toBeUndefined();
-          expect(response.data!.media).toBeDefined();
-          expect(response.data!.media!.url).toBe(media.url);
-          expect(response.data!.media!.type).toBe(media.type);
-        }
-      ),
-      { numRuns: 50 }
-    );
-  });
-
-  it("Property 41 (Edge Case): Messages with both text and media send successfully", async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        fc.string({ minLength: 1, maxLength: 2000 }),
-        chatMediaArbitrary,
-        chatAuthorArbitrary,
-        async (text, media, author) => {
-          const responseMessage: ChatMessage = {
-            id: fc.sample(fc.uuid(), 1)[0],
-            author,
-            text,
-            media,
-            mentions: [],
-            reactionsCount: 0,
-            isEdited: false,
-            editedAt: null,
-            timestamp: "Just now",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            userReaction: null,
-          };
-
-          vi.spyOn(api, "post").mockResolvedValue({
-            data: {
-              success: true,
-              data: responseMessage,
-            },
-          });
-
-          const response = await ChatService.sendMessage({ text, media });
-
-          expect(response.success).toBe(true);
-          expect(response.data!.text).toBe(text);
-          expect(response.data!.media).toBeDefined();
-          expect(response.data!.media!.url).toBe(media.url);
         }
       ),
       { numRuns: 50 }
@@ -233,7 +121,7 @@ describe("Chat Message Send Property Tests", () => {
 
   it("Property 41 (Validation): Empty messages should not be sent", async () => {
     // Test that messages with no text and no media are rejected
-    const emptyData = { text: undefined, media: undefined };
+    const emptyData = { text: undefined };
 
     vi.spyOn(api, "post").mockResolvedValue({
       data: {

@@ -24,15 +24,6 @@ describe("Chat Message Display Property Tests", () => {
     }),
   });
 
-  // Arbitrary for generating valid chat media
-  const chatMediaArbitrary = fc.record({
-    url: fc.webUrl(),
-    type: fc.constantFrom("image", "video"),
-    aspectRatio: fc.option(fc.constantFrom("1:1", "16:9", "9:16"), {
-      nil: undefined,
-    }),
-  });
-
   // Arbitrary for generating valid chat messages
   const chatMessageArbitrary = fc.record({
     id: fc.uuid(),
@@ -40,7 +31,6 @@ describe("Chat Message Display Property Tests", () => {
     text: fc.option(fc.string({ minLength: 1, maxLength: 500 }), {
       nil: undefined,
     }),
-    media: fc.option(chatMediaArbitrary, { nil: undefined }),
     mentions: fc.array(fc.uuid(), { maxLength: 5 }),
     reactionsCount: fc.integer({ min: 0, max: 1000 }),
     isEdited: fc.boolean(),
@@ -65,12 +55,10 @@ describe("Chat Message Display Property Tests", () => {
     ),
   });
 
-  // Filter to ensure at least text or media is present
-  const validChatMessageArbitrary = chatMessageArbitrary.filter(
-    (msg) => msg.text || msg.media
-  );
+  // Filter to ensure text is present
+  const validChatMessageArbitrary = chatMessageArbitrary.filter((msg) => msg.text);
 
-  it("Property 40: All chat messages contain required fields (author, text/media, timestamp)", async () => {
+  it("Property 40: All chat messages contain required fields (author, text, timestamp)", async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.array(validChatMessageArbitrary, { minLength: 1, maxLength: 30 }),
@@ -111,22 +99,13 @@ describe("Chat Message Display Property Tests", () => {
             expect(typeof message.author.username).toBe("string");
             expect(message.author.username.length).toBeGreaterThan(0);
 
-            // Required field: either text or media must be present
-            const hasContent = message.text || message.media;
-            expect(hasContent).toBeTruthy();
+            // Required field: text must be present
+            expect(message.text).toBeTruthy();
 
             // If text is present, verify it's a non-empty string
             if (message.text) {
               expect(typeof message.text).toBe("string");
               expect(message.text.length).toBeGreaterThan(0);
-            }
-
-            // If media is present, verify it has required fields
-            if (message.media) {
-              expect(message.media.url).toBeDefined();
-              expect(typeof message.media.url).toBe("string");
-              expect(message.media.type).toBeDefined();
-              expect(["image", "video"]).toContain(message.media.type);
             }
 
             // Required field: timestamp
@@ -164,7 +143,6 @@ describe("Chat Message Display Property Tests", () => {
             id: fc.uuid(),
             author: chatAuthorArbitrary,
             text: fc.string({ minLength: 1, maxLength: 500 }),
-            media: fc.constant(undefined),
             mentions: fc.array(fc.uuid(), { maxLength: 5 }),
             reactionsCount: fc.integer({ min: 0, max: 1000 }),
             isEdited: fc.boolean(),
@@ -210,70 +188,6 @@ describe("Chat Message Display Property Tests", () => {
           for (const message of response.data) {
             expect(message.text).toBeDefined();
             expect(message.text!.length).toBeGreaterThan(0);
-            expect(message.media).toBeUndefined();
-          }
-        }
-      ),
-      { numRuns: 50 }
-    );
-  });
-
-  it("Property 40 (Edge Case): Messages with only media display correctly", async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        fc.array(
-          fc.record({
-            id: fc.uuid(),
-            author: chatAuthorArbitrary,
-            text: fc.constant(undefined),
-            media: chatMediaArbitrary,
-            mentions: fc.array(fc.uuid(), { maxLength: 5 }),
-            reactionsCount: fc.integer({ min: 0, max: 1000 }),
-            isEdited: fc.boolean(),
-            editedAt: fc.constant(null),
-            timestamp: fc.string({ minLength: 5, maxLength: 20 }),
-            createdAt: fc
-              .integer({
-                min: new Date("2020-01-01").getTime(),
-                max: Date.now(),
-              })
-              .map((timestamp) => new Date(timestamp).toISOString()),
-            updatedAt: fc
-              .integer({
-                min: new Date("2020-01-01").getTime(),
-                max: Date.now(),
-              })
-              .map((timestamp) => new Date(timestamp).toISOString()),
-            userReaction: fc.constant(null),
-          }),
-          { minLength: 1, maxLength: 10 }
-        ),
-        async (messages) => {
-          vi.spyOn(api, "get").mockResolvedValue({
-            data: {
-              success: true,
-              data: messages as ChatMessage[],
-              pagination: {
-                page: 1,
-                limit: 30,
-                total: messages.length,
-                pages: 1,
-                hasMore: false,
-              },
-            },
-          });
-
-          const response = await ChatService.getMessages({
-            page: 1,
-            limit: 30,
-          });
-
-          expect(response.success).toBe(true);
-          for (const message of response.data) {
-            expect(message.text).toBeUndefined();
-            expect(message.media).toBeDefined();
-            expect(message.media!.url).toBeDefined();
-            expect(["image", "video"]).toContain(message.media!.type);
           }
         }
       ),

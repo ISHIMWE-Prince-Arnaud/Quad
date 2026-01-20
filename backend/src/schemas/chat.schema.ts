@@ -1,27 +1,15 @@
 import { z } from "zod";
 
 // ===========================
-// MEDIA SCHEMA (reusable)
-// ===========================
-const mediaSchema = z
-  .object({
-    url: z.string().url("Invalid media URL"),
-    type: z.enum(["image", "video"]),
-    aspectRatio: z.enum(["1:1", "16:9", "9:16"]).optional(),
-  })
-  .strict();
-
-// ===========================
 // CREATE MESSAGE SCHEMA
 // ===========================
 export const createMessageSchema = z
   .object({
-    text: z.string().optional(),
-    media: mediaSchema.optional(),
+    text: z.string().min(1, "Message text is required"),
   })
   .strict()
-  .refine((data) => data.text || data.media, {
-    message: "Message must have text or media",
+  .refine((data) => data.text.trim().length > 0, {
+    message: "Message must have text",
   });
 
 export type CreateMessageSchemaType = z.infer<typeof createMessageSchema>;
@@ -32,11 +20,10 @@ export type CreateMessageSchemaType = z.infer<typeof createMessageSchema>;
 export const updateMessageSchema = z
   .object({
     text: z.string().optional(),
-    media: mediaSchema.nullable().optional(), // null = remove media
   })
   .strict()
-  .refine((data) => data.text !== undefined || data.media !== undefined, {
-    message: "Must provide text or media to update",
+  .refine((data) => data.text !== undefined, {
+    message: "Must provide text to update",
   });
 
 export type UpdateMessageSchemaType = z.infer<typeof updateMessageSchema>;

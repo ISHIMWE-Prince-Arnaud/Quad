@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import * as fc from "fast-check";
 import { ChatService } from "@/services/chatService";
 import { api } from "@/lib/api";
-import type { ChatMessage, ChatMedia } from "@/types/chat";
+import type { ChatMessage } from "@/types/chat";
 
 // Feature: quad-production-ready, Property 44: Message Edit and Delete
 // For any message owned by the current user, edit and delete operations should be available and functional.
@@ -24,15 +24,6 @@ describe("Chat Message CRUD Property Tests", () => {
     }),
   });
 
-  // Arbitrary for generating valid chat media
-  const chatMediaArbitrary = fc.record({
-    url: fc.webUrl(),
-    type: fc.constantFrom("image", "video"),
-    aspectRatio: fc.option(fc.constantFrom("1:1", "16:9", "9:16"), {
-      nil: undefined,
-    }),
-  });
-
   // Arbitrary for generating valid chat messages
   const chatMessageArbitrary = fc.record({
     id: fc.uuid(),
@@ -40,7 +31,6 @@ describe("Chat Message CRUD Property Tests", () => {
     text: fc.option(fc.string({ minLength: 1, maxLength: 2000 }), {
       nil: undefined,
     }),
-    media: fc.option(chatMediaArbitrary, { nil: undefined }),
     mentions: fc.array(fc.uuid(), { maxLength: 5 }),
     reactionsCount: fc.integer({ min: 0, max: 1000 }),
     isEdited: fc.boolean(),
@@ -63,10 +53,8 @@ describe("Chat Message CRUD Property Tests", () => {
     ),
   });
 
-  // Filter to ensure at least text or media is present
-  const validChatMessageArbitrary = chatMessageArbitrary.filter(
-    (msg) => msg.text || msg.media
-  );
+  // Filter to ensure text is present
+  const validChatMessageArbitrary = chatMessageArbitrary.filter((msg) => msg.text);
 
   it("Property 44: Messages can be edited and the edited version is returned", async () => {
     await fc.assert(
@@ -173,39 +161,6 @@ describe("Chat Message CRUD Property Tests", () => {
         }
       ),
       { numRuns: 100 }
-    );
-  });
-
-  it("Property 44: Editing a message updates the text but preserves media", async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        validChatMessageArbitrary.filter((msg) => msg.media !== undefined),
-        fc.string({ minLength: 1, maxLength: 2000 }),
-        async (originalMessage, newText) => {
-          const editedMessage: ChatMessage = {
-            ...originalMessage,
-            text: newText,
-            isEdited: true,
-            editedAt: new Date().toISOString(),
-          };
-
-          vi.spyOn(api, "put").mockResolvedValue({
-            data: {
-              success: true,
-              data: editedMessage,
-            },
-          });
-
-          const response = await ChatService.editMessage(originalMessage.id, {
-            text: newText,
-          });
-
-          expect(response.success).toBe(true);
-          expect(response.data!.text).toBe(newText);
-          expect(response.data!.media).toEqual(originalMessage.media);
-        }
-      ),
-      { numRuns: 50 }
     );
   });
 

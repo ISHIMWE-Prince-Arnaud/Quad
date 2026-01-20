@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
 import type { IUser } from "../types/user.types.js";
-import type { IMedia } from "../types/post.types.js";
 
 /**
  * ChatMessage Document Interface
@@ -8,7 +7,6 @@ import type { IMedia } from "../types/post.types.js";
 export interface IChatMessageDocument extends Document {
   author: IUser;
   text?: string;
-  media?: IMedia;
   mentions: string[];
   reactionsCount: number;
   isEdited: boolean;
@@ -29,21 +27,6 @@ const ChatMessageSchema = new Schema<IChatMessageDocument>(
     text: {
       type: String,
       required: false,
-    },
-
-    // Message media (optional image/video)
-    media: {
-      url: { type: String, required: false },
-      type: {
-        type: String,
-        enum: ["image", "video"],
-        required: false,
-      },
-      aspectRatio: {
-        type: String,
-        enum: ["1:1", "16:9", "9:16"],
-        required: false,
-      },
     },
 
     // Mentioned usernames
@@ -94,8 +77,8 @@ ChatMessageSchema.index({ mentions: 1, createdAt: -1 });
 
 // Ensure at least text or media is present
 ChatMessageSchema.pre("save", function (next) {
-  if (!this.text && !this.media) {
-    return next(new Error("Message must have text or media"));
+  if (!this.text) {
+    return next(new Error("Message must have text"));
   }
   next();
 });

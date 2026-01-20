@@ -52,7 +52,6 @@ export const formatMessageResponse = (
     id: message._id,
     author: message.author,
     text: message.text,
-    media: message.media,
     mentions: message.mentions,
     reactionsCount: message.reactionsCount,
     reactions: reactions ?? [],
@@ -80,5 +79,6 @@ export const sanitizeMessageText = (text?: string): string | undefined => {
   if (!text) return undefined;
 
   // Replace multiple spaces/newlines with single space
-  return text.replace(/\s+/g, " ").trim();
+  const next = text.replace(/\s+/g, " ").trim();
+  return next.length > 0 ? next : undefined;
 };

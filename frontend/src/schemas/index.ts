@@ -40,10 +40,8 @@ export {
 export {
   sendMessageSchema,
   editMessageSchema,
-  chatMediaSchema,
   type SendMessageData,
   type EditMessageData,
-  type ChatMediaData,
 } from "./chat.schema";
 
 // Search schemas

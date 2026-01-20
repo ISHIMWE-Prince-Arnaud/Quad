@@ -134,12 +134,8 @@ export default function ChatPage() {
 
   const {
     text,
-    media,
-    uploading,
     sending,
-    setMedia,
     handleTextChange,
-    handleFileSelected,
     handleSend,
   } = useChatComposer({
     emitTypingStart,
@@ -183,12 +179,8 @@ export default function ChatPage() {
 
       <ChatComposer
         text={text}
-        media={media}
-        uploading={uploading}
         sending={sending}
         onTextChange={handleTextChange}
-        onRemoveMedia={() => setMedia(null)}
-        onFileSelected={(file) => void handleFileSelected(file)}
         onSend={() => void handleSend()}
       />
 

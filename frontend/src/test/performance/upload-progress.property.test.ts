@@ -19,7 +19,6 @@ describe("Upload Progress Property Tests", () => {
       "uploadPostMedia",
       "uploadStoryMedia",
       "uploadPollMedia",
-      "uploadChatMedia",
     ];
 
     uploadMethods.forEach((methodName) => {

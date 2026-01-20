@@ -3,7 +3,6 @@ import {
   uploadPostMedia,
   uploadStoryMedia,
   uploadPollMedia,
-  uploadChatMedia,
   uploadProfileImage,
   uploadCoverImage,
   deleteFile,
@@ -54,20 +53,6 @@ router.post("/story", requireApiAuth, uploadSingle, uploadStoryMedia);
  * -------------------------
  */
 router.post("/poll", requireApiAuth, uploadSingle, uploadPollMedia);
-
-/**
- * -------------------------
- * UPLOAD CHAT MEDIA (Image or Video)
- * POST /api/upload/chat
- * Protected: User must be signed in
- * Body (multipart/form-data):
- *   - file: image or video file
- *   - aspectRatio: "1:1" | "16:9" | "9:16" (optional, default: "1:1")
- * Max: 10MB images, 1GB videos
- * Formats: JPEG, PNG, WebP, GIF, HEIC (images) | MP4, MOV, AVI, MKV, WebM (videos)
- * -------------------------
- */
-router.post("/chat", requireApiAuth, uploadSingle, uploadChatMedia);
 
 /**
  * -------------------------

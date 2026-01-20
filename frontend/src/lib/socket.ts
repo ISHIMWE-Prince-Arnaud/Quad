@@ -50,14 +50,6 @@ export type FeedContentDeletedPayload = {
 
 // Chat payloads
 
-export type ChatMediaAspectRatio = "1:1" | "16:9" | "9:16";
-
-export type ChatMedia = {
-  url: string;
-  type: "image" | "video";
-  aspectRatio?: ChatMediaAspectRatio;
-};
-
 export type ChatMessagePayload = {
   id: string;
   author: {
@@ -68,7 +60,6 @@ export type ChatMessagePayload = {
     bio?: string;
   };
   text?: string;
-  media?: ChatMedia;
   mentions: string[];
   reactionsCount: number;
   reactions?: Array<{ emoji: string; count: number }>;

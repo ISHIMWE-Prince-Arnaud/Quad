@@ -163,14 +163,6 @@ export const endpoints = {
         timeout: 60000,
       });
     },
-    chat: (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      return api.post("/upload/chat", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        timeout: 60000,
-      });
-    },
     profile: (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
