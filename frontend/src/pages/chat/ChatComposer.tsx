@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import type { ChatMedia } from "@/types/chat";
-import { Loader2, Plus, SendHorizontal, X, Smile } from "lucide-react";
+import { Loader2, Plus, SendHorizontal, X } from "lucide-react";
 import { MAX_MESSAGE_LENGTH } from "./constants";
 import { Button } from "@/components/ui/button";
 
@@ -69,7 +69,7 @@ export function ChatComposer({
         </div>
       )}
 
-      <div className="flex items-end gap-3">
+      <div className="flex gap-3 items-center">
         <div className="flex-1 flex items-end gap-2 rounded-[24px] bg-secondary/50 border border-transparent focus-within:border-primary/20 focus-within:bg-secondary/70 focus-within:shadow-sm px-4 py-3 transition-all duration-200">
           <button
             type="button"
