@@ -76,21 +76,21 @@ function ChatMessageListSkeleton() {
       {[1, 2, 3].map((i) => (
         <div key={`skel-${i}`}>
           <div className="flex items-start gap-3">
-            <div className="h-9 w-9 rounded-full bg-muted animate-pulse shrink-0" />
-            <div className="flex flex-col items-start max-w-[72%] w-full">
+            <div className="h-8 w-8 rounded-full bg-muted animate-pulse shrink-0" />
+            <div className="flex flex-col items-start max-w-[75%] md:max-w-[60%] w-full">
               <div className="flex items-center gap-2 mb-2">
                 <div className="h-3 w-28 rounded-full bg-muted animate-pulse" />
                 <div className="h-3 w-14 rounded-full bg-muted animate-pulse" />
               </div>
-              <div className="rounded-3xl bg-muted/50 px-4 py-3 w-full animate-pulse">
+              <div className="rounded-2xl bg-muted/50 px-4 py-2.5 w-full animate-pulse">
                 <div className="h-4 w-[85%] rounded bg-muted-foreground/10" />
                 <div className="mt-2 h-4 w-[62%] rounded bg-muted-foreground/10" />
               </div>
             </div>
           </div>
           <div className="flex items-start justify-end gap-3 mt-6">
-            <div className="flex flex-col items-end max-w-[72%] w-full">
-              <div className="rounded-3xl bg-primary/10 px-4 py-3 w-full animate-pulse">
+            <div className="flex flex-col items-end max-w-[75%] md:max-w-[60%] w-full">
+              <div className="rounded-2xl bg-primary/10 px-4 py-2.5 w-full animate-pulse">
                 <div className="h-4 w-[78%] rounded bg-primary/10" />
               </div>
             </div>
@@ -253,7 +253,7 @@ export const ChatMessageList = memo(function ChatMessageList({
 
       <div
         ref={listRef}
-        className="flex-1 overflow-y-auto scrollbar-hide px-6 py-5">
+        className="flex-1 overflow-y-auto scrollbar-hide px-6">
         {loading && <ChatMessageListSkeleton />}
 
         {!loading && messages.length === 0 && <ChatEmptyState />}
@@ -333,7 +333,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                 const showHeader = startsNewGroup;
                 const showActions = isSelf && editingId !== m.id;
                 const bubbleBase =
-                  "relative rounded-3xl px-4 py-3 shadow-sm transition-all duration-200 group-hover:shadow-md";
+                  "relative rounded-2xl px-4 py-2.5 shadow-sm transition-all duration-200 group-hover:shadow-md";
                 const bubbleClass = isSelf
                   ? cn(bubbleBase, "bg-primary text-primary-foreground")
                   : cn(
@@ -365,7 +365,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                       }>
                       {!isSelf &&
                         (showAvatar ? (
-                          <Avatar className="h-9 w-9 shrink-0 shadow-sm border border-border/40">
+                          <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40">
                             <AvatarImage
                               src={m.author.profileImage}
                               alt={m.author.username}
@@ -382,8 +382,8 @@ export const ChatMessageList = memo(function ChatMessageList({
                       <div
                         className={
                           isSelf
-                            ? "flex flex-col items-end max-w-[72%] group"
-                            : "flex flex-col items-start max-w-[72%] group"
+                            ? "flex flex-col items-end max-w-[75%] md:max-w-[60%] group"
+                            : "flex flex-col items-start max-w-[75%] md:max-w-[60%] group"
                         }>
                         {showHeader && (
                           <div
@@ -502,22 +502,22 @@ export const ChatMessageList = memo(function ChatMessageList({
                                 <div
                                   className={
                                     (m.text
-                                      ? "-mx-4 -mt-3 rounded-t-3xl"
-                                      : "-mx-4 -mt-3 rounded-3xl") +
-                                    " overflow-hidden"
+                                      ? "-mx-4 -mt-2.5 rounded-t-2xl"
+                                      : "-mx-4 -mt-2.5 rounded-2xl") +
+                                    " overflow-hidden max-w-[320px]"
                                   }>
                                   {media.type === "image" ? (
                                     <img
                                       src={media.url}
                                       alt="attachment"
-                                      className="w-full max-h-[360px] object-cover cursor-pointer"
+                                      className="w-full max-h-[240px] object-cover cursor-pointer aspect-video"
                                       onClick={() => openLightbox(media)}
                                     />
                                   ) : (
                                     <video
                                       src={media.url}
                                       controls
-                                      className="w-full max-h-[360px] object-contain"
+                                      className="w-full max-h-[240px] object-contain aspect-video bg-black/50"
                                     />
                                   )}
                                 </div>
@@ -558,7 +558,7 @@ export const ChatMessageList = memo(function ChatMessageList({
 
                       {isSelf &&
                         (showAvatar ? (
-                          <Avatar className="h-9 w-9 shrink-0">
+                          <Avatar className="h-8 w-8 shrink-0">
                             <AvatarImage
                               src={user?.profileImage}
                               alt={user?.username}
@@ -580,5 +580,4 @@ export const ChatMessageList = memo(function ChatMessageList({
       </div>
     </>
   );
-
 });
