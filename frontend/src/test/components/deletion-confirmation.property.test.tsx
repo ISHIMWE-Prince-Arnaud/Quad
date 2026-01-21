@@ -59,6 +59,7 @@ describe("Property 27: Content Deletion Confirmation", () => {
           });
 
           cleanup();
+          await new Promise((resolve) => setTimeout(resolve, 0));
         }
       ),
       { numRuns: 5 } // Reduced to avoid timeouts
@@ -103,6 +104,7 @@ describe("Property 27: Content Deletion Confirmation", () => {
           });
 
           cleanup();
+          await new Promise((resolve) => setTimeout(resolve, 0));
         }
       ),
       { numRuns: 5 }
@@ -145,6 +147,7 @@ describe("Property 27: Content Deletion Confirmation", () => {
           expect(alertIcon).toBeInTheDocument();
 
           cleanup();
+          await new Promise((resolve) => setTimeout(resolve, 0));
         }
       ),
       { numRuns: 3 }
@@ -191,6 +194,7 @@ describe("Property 27: Content Deletion Confirmation", () => {
           expect(cancelButton).toBeDisabled();
 
           cleanup();
+          await new Promise((resolve) => setTimeout(resolve, 0));
         }
       ),
       { numRuns: 10 }
@@ -249,6 +253,7 @@ describe("Property 27: Content Deletion Confirmation", () => {
           });
 
           cleanup();
+          await new Promise((resolve) => setTimeout(resolve, 0));
         }
       ),
       { numRuns: 3 }
@@ -297,6 +302,7 @@ describe("Property 27: Content Deletion Confirmation", () => {
           await (firstCallResult?.value as Promise<unknown>);
 
           cleanup();
+          await new Promise((resolve) => setTimeout(resolve, 0));
         }
       ),
       { numRuns: 5 }

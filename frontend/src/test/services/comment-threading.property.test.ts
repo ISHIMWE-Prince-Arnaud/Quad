@@ -97,7 +97,8 @@ describe("Property 29: Comment Thread Nesting", () => {
           // Verify the API was called
           expect(endpoints.comments.getByContent).toHaveBeenCalledWith(
             contentType,
-            contentId
+            contentId,
+            undefined
           );
         }
       ),

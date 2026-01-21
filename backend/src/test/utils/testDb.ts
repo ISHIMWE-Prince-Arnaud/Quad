@@ -5,7 +5,11 @@ let mongoServer: MongoMemoryServer | null = null;
 
 export const startTestDb = async (): Promise<string> => {
   if (!mongoServer) {
-    mongoServer = await MongoMemoryServer.create();
+    mongoServer = await MongoMemoryServer.create({
+      instance: {
+        launchTimeout: 60_000,
+      },
+    });
   }
 
   const uri = mongoServer.getUri("quad_test");

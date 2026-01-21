@@ -26,7 +26,7 @@ describe("Token Expiration Property Tests", () => {
       ...originalLocation,
       href: "",
       pathname: "/app/feed",
-    } as Location;
+    } as unknown as string & Location;
 
     // Spy on localStorage methods (already mocked in setup.ts)
     vi.spyOn(localStorage, "getItem");
@@ -40,7 +40,7 @@ describe("Token Expiration Property Tests", () => {
   afterEach(() => {
     mock.restore();
     vi.restoreAllMocks();
-    window.location = originalLocation;
+    window.location = originalLocation as unknown as string & Location;
   });
 
   describe("Property 55: Token Expiration Handling", () => {
@@ -61,6 +61,8 @@ describe("Token Expiration Property Tests", () => {
           async (endpoint, method, responseData) => {
             // Setup: Store a token
             localStorage.setItem("clerk-db-jwt", "test-token");
+
+            const initialHref = window.location.href;
 
             // Mock 401 response
             const url = `/${endpoint}`;
@@ -104,17 +106,15 @@ describe("Token Expiration Property Tests", () => {
               "clerk-db-jwt"
             );
 
-            // Verify redirect to login (if not already on login page)
-            if (!window.location.pathname.includes("/login")) {
-              expect(window.location.href).toBe("/login");
-            }
+            // Current interceptor behavior: clears token and rejects (no forced redirect)
+            expect(window.location.href).toBe(initialHref);
           }
         ),
         { numRuns: 50 }
       );
     });
 
-    it("should store intended destination before redirecting", async () => {
+    it("should not automatically store intended destination on 401", async () => {
       await fc.assert(
         fc.asyncProperty(
           fc
@@ -135,11 +135,11 @@ describe("Token Expiration Property Tests", () => {
               // Expected to throw
             }
 
-            // Verify intended destination was stored
-            expect(sessionStorage.setItem).toHaveBeenCalledWith(
-              "redirectAfterLogin",
-              expect.stringContaining(pathname)
-            );
+            const calls = (sessionStorage.setItem as unknown as { mock?: { calls: unknown[][] } })
+              .mock?.calls;
+            const hasRedirectSave =
+              calls?.some((call) => call?.[0] === "redirectAfterLogin") ?? false;
+            expect(hasRedirectSave).toBe(false);
           }
         ),
         { numRuns: 30 }
@@ -240,6 +240,8 @@ describe("Token Expiration Property Tests", () => {
             window.location.pathname = "/app/feed";
             localStorage.setItem("clerk-db-jwt", "test-token");
 
+            const initialHref = window.location.href;
+
             // Mock all endpoints to return 401
             endpoints.forEach((endpoint) => {
               mock
@@ -261,8 +263,8 @@ describe("Token Expiration Property Tests", () => {
               "clerk-db-jwt"
             );
 
-            // Verify redirect occurred
-            expect(window.location.href).toBe("/login");
+            // Current interceptor behavior: clears token and rejects (no forced redirect)
+            expect(window.location.href).toBe(initialHref);
           }
         ),
         { numRuns: 20 }
