@@ -111,7 +111,6 @@ export const ChatMessageList = memo(function ChatMessageList({
   onStartEdit,
   onCancelEdit,
   onSaveEdit,
-  onToggleReaction,
   onDeleteMessage,
 }: {
   listRef: RefObject<HTMLDivElement | null>;
@@ -127,7 +126,6 @@ export const ChatMessageList = memo(function ChatMessageList({
   onStartEdit: (m: ChatMessage) => void;
   onCancelEdit: () => void;
   onSaveEdit: (id: string) => void;
-  onToggleReaction: (messageId: string, emoji: string) => void;
   onDeleteMessage: (id: string) => void;
 }) {
   useEffect(() => {
@@ -192,11 +190,6 @@ export const ChatMessageList = memo(function ChatMessageList({
                 const headerTime = `${m.timestamp}${
                   m.isEdited ? " • edited" : ""
                 }`;
-
-                const showReactionPill = m.reactionsCount > 0;
-                const reactionPillPosition = isSelf
-                  ? "absolute -bottom-3 left-4"
-                  : "absolute -bottom-3 right-4";
 
               return (
                 <div key={m.id} className="py-0.5">
@@ -306,25 +299,6 @@ export const ChatMessageList = memo(function ChatMessageList({
                               </div>
                             )}
                           </>
-                        )}
-
-                        {showReactionPill && (
-                          <button
-                            type="button"
-                            onClick={() => onToggleReaction(m.id, "❤️")}
-                            className={cn(
-                              reactionPillPosition,
-                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 shadow-sm transition-transform hover:scale-105",
-                              isSelf
-                                ? "bg-background border border-border"
-                                : "bg-background border border-border"
-                            )}
-                            aria-label={`Reactions: ${m.reactionsCount}`}>
-                            <span className="text-xs leading-none">❤️</span>
-                            <span className="text-[10px] tabular-nums font-bold text-foreground">
-                              {m.reactionsCount}
-                            </span>
-                          </button>
                         )}
                       </div>
                     </div>

@@ -105,13 +105,12 @@ export default function ChatPage() {
     setEditText,
     handleEdit,
     handleSaveEdit,
-    toggleReaction,
     deleteConfirmOpen,
     setDeleteConfirmOpen,
     deleting,
     handleDeleteClick,
     handleDeleteConfirm,
-  } = useChatMessageActions({ messages, setMessages });
+  } = useChatMessageActions({ setMessages });
 
   const handleCancelEdit = useCallback(() => {
     setEditingId(null);
@@ -123,13 +122,6 @@ export default function ChatPage() {
       void handleSaveEdit(id);
     },
     [handleSaveEdit]
-  );
-
-  const handleToggleReactionClick = useCallback(
-    (messageId: string, emoji: string) => {
-      void toggleReaction(messageId, emoji);
-    },
-    [toggleReaction]
   );
 
   const {
@@ -168,7 +160,6 @@ export default function ChatPage() {
           onStartEdit={handleEdit}
           onCancelEdit={handleCancelEdit}
           onSaveEdit={handleSaveEditClick}
-          onToggleReaction={handleToggleReactionClick}
           onDeleteMessage={handleDeleteClick}
         />
       </div>

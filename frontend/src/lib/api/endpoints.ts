@@ -110,8 +110,6 @@ export const endpoints = {
     getMessages: (params?: unknown) => api.get("/chat/messages", { params }),
     editMessage: (id: string, data: unknown) => api.put(`/chat/messages/${id}`, data),
     deleteMessage: (id: string) => api.delete(`/chat/messages/${id}`),
-    addReaction: (id: string, data: unknown) => api.post(`/chat/messages/${id}/reactions`, data),
-    removeReaction: (id: string) => api.delete(`/chat/messages/${id}/reactions`),
     markAsRead: (data: unknown) => api.post("/chat/read", data),
   },
 

@@ -5,8 +5,6 @@ import type { ChatMessage } from "@/types/chat";
 import { getSocket } from "@/lib/socket";
 import type {
   ChatMessagePayload,
-  ChatReactionAddedPayload,
-  ChatReactionRemovedPayload,
   ChatTypingStartPayload,
   ChatTypingStopPayload,
 } from "@/lib/socket";
@@ -64,34 +62,6 @@ export function useChatSocket({
       setMessages((prev) => prev.filter((m) => m.id !== id));
     };
 
-    const onReactionAdded = (p: ChatReactionAddedPayload) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === p.messageId
-            ? {
-                ...m,
-                reactionsCount: p.reactionsCount,
-                ...(p.reactions ? { reactions: p.reactions } : {}),
-              }
-            : m
-        )
-      );
-    };
-
-    const onReactionRemoved = (p: ChatReactionRemovedPayload) => {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === p.messageId
-            ? {
-                ...m,
-                reactionsCount: p.reactionsCount,
-                ...(p.reactions ? { reactions: p.reactions } : {}),
-              }
-            : m
-        )
-      );
-    };
-
     const onTypingStart = (p: ChatTypingStartPayload) => {
       if (p.userId === user?.clerkId) return;
       setTypingUsers((prev) => ({ ...prev, [p.userId]: p.username }));
@@ -120,8 +90,6 @@ export function useChatSocket({
     socket.on("chat:message:new", onNew);
     socket.on("chat:message:edited", onEdited);
     socket.on("chat:message:deleted", onDeleted);
-    socket.on("chat:reaction:added", onReactionAdded);
-    socket.on("chat:reaction:removed", onReactionRemoved);
     socket.on("chat:typing:start", onTypingStart);
     socket.on("chat:typing:stop", onTypingStop);
 
@@ -134,8 +102,6 @@ export function useChatSocket({
       socket.off("chat:message:new", onNew);
       socket.off("chat:message:edited", onEdited);
       socket.off("chat:message:deleted", onDeleted);
-      socket.off("chat:reaction:added", onReactionAdded);
-      socket.off("chat:reaction:removed", onReactionRemoved);
       socket.off("chat:typing:start", onTypingStart);
       socket.off("chat:typing:stop", onTypingStop);
     };

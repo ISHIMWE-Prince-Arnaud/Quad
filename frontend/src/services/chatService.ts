@@ -4,8 +4,6 @@ import type {
   ChatEditMessageResponse,
   ChatSendMessageResponse,
   ChatDeleteMessageResponse,
-  ChatAddReactionResponse,
-  ChatRemoveReactionResponse,
   ChatMarkAsReadResponse,
 } from "@/types/chat";
 
@@ -37,19 +35,6 @@ export class ChatService {
   static async deleteMessage(id: string): Promise<ChatDeleteMessageResponse> {
     const response = await endpoints.chat.deleteMessage(id);
     return response.data as ChatDeleteMessageResponse;
-  }
-
-  static async addReaction(
-    id: string,
-    emoji: string
-  ): Promise<ChatAddReactionResponse> {
-    const response = await endpoints.chat.addReaction(id, { emoji });
-    return response.data as ChatAddReactionResponse;
-  }
-
-  static async removeReaction(id: string): Promise<ChatRemoveReactionResponse> {
-    const response = await endpoints.chat.removeReaction(id);
-    return response.data as ChatRemoveReactionResponse;
   }
 
   static async markAsRead(

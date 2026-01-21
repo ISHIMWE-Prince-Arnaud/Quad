@@ -12,15 +12,11 @@ export interface ChatMessage {
   author: ChatAuthor;
   text?: string;
   mentions: string[];
-  reactionsCount: number;
-  reactions?: Array<{ emoji: string; count: number }>;
   isEdited: boolean;
   editedAt?: string | null;
   timestamp: string; // e.g. "Tue 2:13 PM"
   createdAt: string;
   updatedAt: string;
-  // Emoji string for the current user's reaction on this message, if any
-  userReaction?: string | null;
 }
 
 export interface ChatMessagesPagination {
@@ -52,29 +48,6 @@ export interface ChatEditMessageResponse {
 
 export interface ChatDeleteMessageResponse {
   success: boolean;
-  message?: string;
-}
-
-export interface ChatReactionBreakdown {
-  emoji: string;
-  count: number;
-}
-
-export interface ChatReactionData {
-  emoji: string;
-  reactionsCount: number;
-  reactions?: ChatReactionBreakdown[];
-}
-
-export interface ChatAddReactionResponse {
-  success: boolean;
-  data?: ChatReactionData;
-  message?: string;
-}
-
-export interface ChatRemoveReactionResponse {
-  success: boolean;
-  data?: { reactionsCount: number; reactions?: ChatReactionBreakdown[] };
   message?: string;
 }
 
