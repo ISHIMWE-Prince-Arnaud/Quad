@@ -74,7 +74,7 @@ describe("Chat API", () => {
     expect(okDelete.status).toBe(200);
   });
 
-  it("adds and removes reaction", async () => {
+  it("does not support reactions", async () => {
     const app = createTestApp();
     const authorId = "chat_user_4";
     const reactorId = "chat_user_5";
@@ -93,13 +93,13 @@ describe("Chat API", () => {
       .set(getAuthHeaders(reactorId))
       .send({ emoji: "❤️" });
 
-    expect(add.status).toBe(200);
+    expect(add.status).toBe(404);
 
     const remove = await request(app)
       .delete(`/api/chat/messages/${messageId}/reactions`)
       .set(getAuthHeaders(reactorId));
 
-    expect(remove.status).toBe(200);
+    expect(remove.status).toBe(404);
   });
 
   it("marks as read", async () => {

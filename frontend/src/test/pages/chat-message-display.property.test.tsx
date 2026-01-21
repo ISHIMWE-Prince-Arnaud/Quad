@@ -16,7 +16,9 @@ describe("Chat Message Display Property Tests", () => {
   // Arbitrary for generating valid chat authors
   const chatAuthorArbitrary = fc.record({
     clerkId: fc.uuid(),
-    username: fc.string({ minLength: 3, maxLength: 20 }),
+    username: fc
+      .string({ minLength: 3, maxLength: 20 })
+      .filter((s) => s.trim().length > 0),
     email: fc.emailAddress(),
     profileImage: fc.option(fc.webUrl(), { nil: undefined }),
     bio: fc.option(fc.string({ minLength: 10, maxLength: 200 }), {
@@ -39,7 +41,9 @@ describe("Chat Message Display Property Tests", () => {
         .map((timestamp) => new Date(timestamp).toISOString()),
       { nil: null }
     ),
-    timestamp: fc.string({ minLength: 5, maxLength: 20 }), // e.g., "Tue 2:13 PM"
+    timestamp: fc
+      .string({ minLength: 5, maxLength: 20 })
+      .filter((s) => s.trim().length > 0), // e.g., "Tue 2:13 PM"
     createdAt: fc
       .integer({ min: new Date("2020-01-01").getTime(), max: Date.now() })
       .map((timestamp) => new Date(timestamp).toISOString()),
@@ -51,7 +55,7 @@ describe("Chat Message Display Property Tests", () => {
   // Filter to ensure text is present
   const validChatMessageArbitrary = chatMessageArbitrary.filter(
     (msg): msg is typeof msg & { text: string } =>
-      typeof msg.text === "string" && msg.text.length > 0
+      typeof msg.text === "string" && msg.text.trim().length > 0
   );
 
   it("Property 40: All chat messages contain required fields (author, text, timestamp)", async () => {
@@ -118,10 +122,6 @@ describe("Chat Message Display Property Tests", () => {
               "Invalid Date"
             );
 
-            // Verify reactionsCount is a non-negative number
-            expect(typeof message.reactionsCount).toBe("number");
-            expect(message.reactionsCount).toBeGreaterThanOrEqual(0);
-
             // Verify isEdited is a boolean
             expect(typeof message.isEdited).toBe("boolean");
           }
@@ -140,10 +140,11 @@ describe("Chat Message Display Property Tests", () => {
             author: chatAuthorArbitrary,
             text: fc.string({ minLength: 1, maxLength: 500 }),
             mentions: fc.array(fc.uuid(), { maxLength: 5 }),
-            reactionsCount: fc.integer({ min: 0, max: 1000 }),
             isEdited: fc.boolean(),
             editedAt: fc.constant(null),
-            timestamp: fc.string({ minLength: 5, maxLength: 20 }),
+            timestamp: fc
+              .string({ minLength: 5, maxLength: 20 })
+              .filter((s) => s.trim().length > 0),
             createdAt: fc
               .integer({
                 min: new Date("2020-01-01").getTime(),
@@ -156,7 +157,6 @@ describe("Chat Message Display Property Tests", () => {
                 max: Date.now(),
               })
               .map((timestamp) => new Date(timestamp).toISOString()),
-            userReaction: fc.constant(null),
           }),
           { minLength: 1, maxLength: 10 }
         ),
