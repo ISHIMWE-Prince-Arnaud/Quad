@@ -383,7 +383,7 @@ describe("Property 7: Request Payload Schema Validation", () => {
       );
     });
 
-    it("should validate valid message with media", () => {
+    it("should reject message with media", () => {
       fc.assert(
         fc.property(
           fc.webUrl(),
@@ -392,7 +392,7 @@ describe("Property 7: Request Payload Schema Validation", () => {
             const result = sendMessageSchema.safeParse({
               media: { url, type },
             });
-            expect(result.success).toBe(true);
+            expect(result.success).toBe(false);
           }
         ),
         { numRuns: 100 }
