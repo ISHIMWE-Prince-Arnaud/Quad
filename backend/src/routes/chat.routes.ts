@@ -4,7 +4,6 @@ import { requireApiAuth } from "../middlewares/auth.middleware.js";
 import {
   createMessageSchema,
   updateMessageSchema,
-  addReactionSchema,
   messageIdSchema,
   getMessagesQuerySchema,
   markAsReadSchema,
@@ -14,8 +13,6 @@ import {
   getMessages,
   editMessage,
   deleteMessage,
-  addReaction,
-  removeReaction,
   markAsRead,
 } from "../controllers/chat.controller.js";
 
@@ -56,27 +53,6 @@ router.delete(
   requireApiAuth,
   validateSchema(messageIdSchema, "params"),
   deleteMessage
-);
-
-// ===========================
-// REACTION ROUTES
-// ===========================
-
-// Add reaction
-router.post(
-  "/messages/:id/reactions",
-  requireApiAuth,
-  validateSchema(messageIdSchema, "params"),
-  validateSchema(addReactionSchema, "body"),
-  addReaction
-);
-
-// Remove reaction
-router.delete(
-  "/messages/:id/reactions",
-  requireApiAuth,
-  validateSchema(messageIdSchema, "params"),
-  removeReaction
 );
 
 // ===========================

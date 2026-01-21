@@ -2,11 +2,8 @@ import mongoose from "mongoose";
 
 import { ChatMessage } from "../models/ChatMessage.model.js";
 import type { IChatMessageDocument } from "../models/ChatMessage.model.js";
-import { MessageReaction } from "../models/MessageReaction.model.js";
-import type { IMessageReactionDocument } from "../models/MessageReaction.model.js";
 import { User } from "../models/User.model.js";
 import type {
-  AddReactionSchemaType,
   CreateMessageSchemaType,
   GetMessagesQuerySchemaType,
   UpdateMessageSchemaType,
@@ -49,7 +46,6 @@ export class ChatService {
       },
       text: sanitizedText,
       mentions,
-      reactionsCount: 0,
       isEdited: false,
     });
 
@@ -95,63 +91,7 @@ export class ChatService {
       ChatMessage.countDocuments(filter),
     ]);
 
-    const messageIds = messages
-      .map((m) => m._id)
-      .filter((id): id is mongoose.Types.ObjectId => !!id);
-
-    type ReactionsAggRow = {
-      _id: mongoose.Types.ObjectId;
-      reactions: Array<{ emoji: string; count: number }>;
-    };
-
-    const reactionsAgg: ReactionsAggRow[] =
-      messageIds.length > 0
-        ? await MessageReaction.aggregate<ReactionsAggRow>([
-            { $match: { messageId: { $in: messageIds } } },
-            {
-              $group: {
-                _id: { messageId: "$messageId", emoji: "$emoji" },
-                count: { $sum: 1 },
-              },
-            },
-            {
-              $group: {
-                _id: "$_id.messageId",
-                reactions: {
-                  $push: { emoji: "$_id.emoji", count: "$count" },
-                },
-              },
-            },
-          ])
-        : [];
-
-    const reactionsByMessageId: Record<
-      string,
-      Array<{ emoji: string; count: number }>
-    > = Object.fromEntries(
-      reactionsAgg.map((r) => [String(r._id), r.reactions])
-    );
-
-    let userReactions: Record<string, IMessageReactionDocument> = {};
-    if (userId) {
-      const reactions = await MessageReaction.find({
-        userId,
-        messageId: { $in: messageIds },
-      });
-      userReactions = Object.fromEntries(
-        reactions.map((r) => [r.messageId.toString(), r])
-      );
-    }
-
-    const formattedMessages = messages.map((message) => {
-      const messageId = message._id ? message._id.toString() : "";
-      const userReaction = userReactions[messageId];
-      return formatMessageResponse(
-        message,
-        userReaction,
-        reactionsByMessageId[messageId] ?? []
-      );
-    });
+    const formattedMessages = messages.map((message) => formatMessageResponse(message));
 
     return {
       messages: formattedMessages.reverse(),
@@ -198,15 +138,7 @@ export class ChatService {
       message.editedAt = new Date();
       await message.save();
 
-      const [userReaction, reactions] = await Promise.all([
-        MessageReaction.findOne({ messageId: id, userId }),
-        MessageReaction.aggregate([
-          { $match: { messageId: new mongoose.Types.ObjectId(id) } },
-          { $group: { _id: "$emoji", count: { $sum: 1 } } },
-          { $project: { _id: 0, emoji: "$_id", count: 1 } },
-        ]),
-      ]);
-      const formattedMessage = formatMessageResponse(message, userReaction ?? undefined, reactions);
+      const formattedMessage = formatMessageResponse(message);
       getSocketIO().emit("chat:message:edited", formattedMessage);
 
       return {
@@ -231,99 +163,9 @@ export class ChatService {
       throw new AppError("Only the author can delete this message", 403);
     }
 
-    await Promise.all([
-      ChatMessage.findByIdAndDelete(id),
-      MessageReaction.deleteMany({ messageId: id }),
-    ]);
+    await ChatMessage.findByIdAndDelete(id);
 
     getSocketIO().emit("chat:message:deleted", id);
-  }
-
-  static async addReaction(userId: string, id: string, body: AddReactionSchemaType) {
-    const { emoji } = body;
-
-    const message = await ChatMessage.findById(id);
-    if (!message) {
-      throw new AppError("Message not found", 404);
-    }
-
-    const existingReaction = await MessageReaction.findOne({
-      messageId: id,
-      userId,
-      emoji,
-    });
-
-    if (existingReaction) {
-      throw new AppError("You have already reacted with this emoji", 400);
-    }
-
-    await MessageReaction.deleteMany({ messageId: id, userId });
-
-    const reaction = await MessageReaction.create({
-      messageId: id,
-      userId,
-      emoji,
-    });
-
-    const reactionCount = await MessageReaction.countDocuments({ messageId: id });
-    message.reactionsCount = reactionCount;
-    await message.save();
-
-    const reactions = await MessageReaction.aggregate([
-      { $match: { messageId: new mongoose.Types.ObjectId(id) } },
-      { $group: { _id: "$emoji", count: { $sum: 1 } } },
-      { $project: { _id: 0, emoji: "$_id", count: 1 } },
-    ]);
-
-    getSocketIO().emit("chat:reaction:added", {
-      messageId: id,
-      emoji,
-      reactionsCount: reactionCount,
-      reactions,
-    });
-
-    return {
-      emoji: reaction.emoji,
-      reactionsCount: message.reactionsCount,
-      reactions,
-    };
-  }
-
-  static async removeReaction(userId: string, id: string) {
-    const message = await ChatMessage.findById(id);
-    if (!message) {
-      throw new AppError("Message not found", 404);
-    }
-
-    const reaction = await MessageReaction.findOneAndDelete({
-      messageId: id,
-      userId,
-    });
-
-    if (!reaction) {
-      throw new AppError("No reaction found", 404);
-    }
-
-    const reactionCount = await MessageReaction.countDocuments({ messageId: id });
-    message.reactionsCount = reactionCount;
-    await message.save();
-
-    const reactions = await MessageReaction.aggregate([
-      { $match: { messageId: new mongoose.Types.ObjectId(id) } },
-      { $group: { _id: "$emoji", count: { $sum: 1 } } },
-      { $project: { _id: 0, emoji: "$_id", count: 1 } },
-    ]);
-
-    getSocketIO().emit("chat:reaction:removed", {
-      messageId: id,
-      reactionsCount: reactionCount,
-      reactions,
-    });
-
-    return {
-      reactionsCount: message.reactionsCount,
-      reactions,
-    };
   }
 
   static async markAsRead(userId: string, lastReadMessageId: string) {

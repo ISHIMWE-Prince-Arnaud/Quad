@@ -8,7 +8,6 @@ export interface IChatMessageDocument extends Document {
   author: IUser;
   text?: string;
   mentions: string[];
-  reactionsCount: number;
   isEdited: boolean;
   editedAt?: Date;
   createdAt: Date;
@@ -33,13 +32,6 @@ const ChatMessageSchema = new Schema<IChatMessageDocument>(
     mentions: {
       type: [String],
       default: [],
-    },
-
-    // Cached reaction count
-    reactionsCount: {
-      type: Number,
-      default: 0,
-      min: 0,
     },
 
     // Edit tracking

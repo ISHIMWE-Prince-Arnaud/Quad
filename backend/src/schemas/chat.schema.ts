@@ -29,17 +29,6 @@ export const updateMessageSchema = z
 export type UpdateMessageSchemaType = z.infer<typeof updateMessageSchema>;
 
 // ===========================
-// ADD REACTION SCHEMA
-// ===========================
-export const addReactionSchema = z
-  .object({
-    emoji: z.literal("❤️"),
-  })
-  .strict();
-
-export type AddReactionSchemaType = z.infer<typeof addReactionSchema>;
-
-// ===========================
 // MESSAGE ID SCHEMA
 // ===========================
 export const messageIdSchema = z

@@ -2,7 +2,6 @@ import type { Request, Response } from "express";
 import type {
   CreateMessageSchemaType,
   UpdateMessageSchemaType,
-  AddReactionSchemaType,
   GetMessagesQuerySchemaType,
 } from "../schemas/chat.schema.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
@@ -85,51 +84,6 @@ export const deleteMessage = asyncHandler(async (req: Request, res: Response) =>
   return res.json({
     success: true,
     message: "Message deleted successfully",
-  });
-});
-
-// =========================
-// ADD REACTION
-// =========================
-export const addReaction = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const userId = req.auth?.userId;
-  if (!userId) {
-    throw new AppError("Unauthorized", 401);
-  }
-  if (!id) {
-    throw new AppError("Message ID is required", 400);
-  }
-
-  const body = req.body as AddReactionSchemaType;
-  const data = await ChatService.addReaction(userId, id, body);
-
-  return res.json({
-    success: true,
-    message: "Reaction added successfully",
-    data,
-  });
-});
-
-// =========================
-// REMOVE REACTION
-// =========================
-export const removeReaction = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const userId = req.auth?.userId;
-  if (!userId) {
-    throw new AppError("Unauthorized", 401);
-  }
-  if (!id) {
-    throw new AppError("Message ID is required", 400);
-  }
-
-  const data = await ChatService.removeReaction(userId, id);
-
-  return res.json({
-    success: true,
-    message: "Reaction removed successfully",
-    data,
   });
 });
 

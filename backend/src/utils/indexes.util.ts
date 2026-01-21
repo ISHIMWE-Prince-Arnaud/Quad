@@ -4,7 +4,6 @@ import { logger } from "./logger.util.js";
 import { Story } from "../models/Story.model.js";
 import { Poll } from "../models/Poll.model.js";
 import { ChatMessage } from "../models/ChatMessage.model.js";
-import { MessageReaction } from "../models/MessageReaction.model.js";
 import { Follow } from "../models/Follow.model.js";
 import { Notification } from "../models/Notification.model.js";
 import { Reaction } from "../models/Reaction.model.js";
@@ -52,10 +51,6 @@ export const ensureIndexes = async (): Promise<void> => {
     // Create indexes for ChatMessage model
     await ChatMessage.createIndexes();
     logger.info("ChatMessage model indexes created");
-    
-    // Create indexes for MessageReaction model
-    await MessageReaction.createIndexes();
-    logger.info("MessageReaction model indexes created");
     
     // Create indexes for Follow model
     await Follow.createIndexes();
@@ -124,9 +119,6 @@ export const listIndexes = async (): Promise<void> => {
     
     const chatMessageIndexes = await ChatMessage.collection.getIndexes();
     logger.info("ChatMessage Model Indexes:", chatMessageIndexes);
-    
-    const messageReactionIndexes = await MessageReaction.collection.getIndexes();
-    logger.info("MessageReaction Model Indexes:", messageReactionIndexes);
     
     const followIndexes = await Follow.collection.getIndexes();
     logger.info("Follow Model Indexes:", followIndexes);

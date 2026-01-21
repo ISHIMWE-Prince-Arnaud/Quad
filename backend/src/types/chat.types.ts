@@ -10,22 +10,10 @@ export interface IChatMessage {
   text?: string;
   media?: IMedia;
   mentions: string[]; // Array of mentioned usernames
-  reactionsCount: number;
   isEdited: boolean;
   editedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
-}
-
-/**
- * Message Reaction Interface
- */
-export interface IMessageReaction {
-  id: string;
-  messageId: string;
-  userId: string;
-  emoji: string;
-  createdAt: Date;
 }
 
 /**
@@ -50,19 +38,4 @@ export interface ICreateMessage {
 export interface IUpdateMessage {
   text?: string;
   media?: IMedia | null; // null = remove media
-}
-
-/**
- * Add Reaction DTO
- */
-export interface IAddReaction {
-  emoji: string;
-}
-
-/**
- * Message with Reactions Response
- */
-export interface IMessageWithReactions extends IChatMessage {
-  userReaction?: string; // Current user's reaction emoji if they reacted
-  reactions?: Array<{ emoji: string; count: number }>;
 }

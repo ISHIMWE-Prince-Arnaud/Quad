@@ -1,5 +1,4 @@
 import type { IChatMessageDocument } from "../models/ChatMessage.model.js";
-import type { IMessageReactionDocument } from "../models/MessageReaction.model.js";
 
 /**
  * Format timestamp as "Tue 2:13 PM", "Wed 10:00 AM"
@@ -41,26 +40,21 @@ export const extractMentions = (text?: string): string[] => {
 
 /**
  * Format message for response
- * Includes user's reaction if they reacted
+ * 
  */
 export const formatMessageResponse = (
   message: IChatMessageDocument,
-  userReaction?: IMessageReactionDocument,
-  reactions?: Array<{ emoji: string; count: number }>
 ) => {
   return {
     id: message._id,
     author: message.author,
     text: message.text,
     mentions: message.mentions,
-    reactionsCount: message.reactionsCount,
-    reactions: reactions ?? [],
     isEdited: message.isEdited,
     editedAt: message.editedAt,
     timestamp: formatChatTimestamp(message.createdAt),
     createdAt: message.createdAt,
     updatedAt: message.updatedAt,
-    userReaction: userReaction?.emoji,
   };
 };
 
