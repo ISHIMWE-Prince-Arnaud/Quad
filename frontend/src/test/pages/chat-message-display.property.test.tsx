@@ -32,7 +32,6 @@ describe("Chat Message Display Property Tests", () => {
       nil: undefined,
     }),
     mentions: fc.array(fc.uuid(), { maxLength: 5 }),
-    reactionsCount: fc.integer({ min: 0, max: 1000 }),
     isEdited: fc.boolean(),
     editedAt: fc.option(
       fc
@@ -47,12 +46,6 @@ describe("Chat Message Display Property Tests", () => {
     updatedAt: fc
       .integer({ min: new Date("2020-01-01").getTime(), max: Date.now() })
       .map((timestamp) => new Date(timestamp).toISOString()),
-    userReaction: fc.option(
-      fc.constantFrom("👍", "❤️", "😂", "😮", "😢", "😡"),
-      {
-        nil: null,
-      }
-    ),
   });
 
   // Filter to ensure text is present

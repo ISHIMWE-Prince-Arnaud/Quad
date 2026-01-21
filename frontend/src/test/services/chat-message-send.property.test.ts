@@ -36,13 +36,11 @@ describe("Chat Message Send Property Tests", () => {
             author,
             text,
             mentions: [],
-            reactionsCount: 0,
             isEdited: false,
             editedAt: null,
             timestamp: "Just now",
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            userReaction: null,
           };
 
           // Mock the API response
@@ -93,13 +91,11 @@ describe("Chat Message Send Property Tests", () => {
             author,
             text,
             mentions: [],
-            reactionsCount: 0,
             isEdited: false,
             editedAt: null,
             timestamp: "Just now",
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            userReaction: null,
           };
 
           vi.spyOn(api, "post").mockResolvedValue({

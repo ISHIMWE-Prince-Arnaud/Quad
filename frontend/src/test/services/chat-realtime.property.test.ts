@@ -67,7 +67,6 @@ describe("Chat Real-time Message Delivery Property Tests", () => {
     }),
     text: fc.string({ minLength: 1, maxLength: 2000 }),
     mentions: fc.array(fc.uuid(), { maxLength: 5 }),
-    reactionsCount: fc.integer({ min: 0, max: 1000 }),
     isEdited: fc.boolean(),
     editedAt: fc.option(
       fc
@@ -82,10 +81,6 @@ describe("Chat Real-time Message Delivery Property Tests", () => {
     updatedAt: fc
       .integer({ min: new Date("2020-01-01").getTime(), max: Date.now() })
       .map((timestamp) => new Date(timestamp).toISOString()),
-    userReaction: fc.option(
-      fc.constantFrom("👍", "❤️", "😂", "😮", "😢", "😡"),
-      { nil: null }
-    ),
   });
 
   it("Property 3: chat:message:new events are emitted and received for new messages", async () => {
