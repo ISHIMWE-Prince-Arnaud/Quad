@@ -8,14 +8,7 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { AppError } from "../utils/appError.util.js";
 import { PostService } from "../services/post.service.js";
 
-const normalizeMedia = (
-  media: Array<{ url: string; type: "image" | "video"; aspectRatio?: "1:1" | "16:9" | "9:16" | undefined }>
-) =>
-  media.map(({ url, type, aspectRatio }) => ({
-    url,
-    type,
-    ...(aspectRatio !== undefined ? { aspectRatio } : {}),
-  }));
+import { PostMapper } from "../utils/mappers/post.mapper.js";
 
 // =========================
 // CREATE POST
@@ -29,7 +22,7 @@ export const createPost = asyncHandler(async (req: Request, res: Response) => {
 
   const post = await PostService.createPost(userId, {
     ...(data.text !== undefined ? { text: data.text } : {}),
-    media: normalizeMedia(data.media),
+    media: PostMapper.normalizeMedia(data.media),
   });
   return res.status(201).json({ success: true, data: post });
 });
@@ -91,7 +84,7 @@ export const updatePost = asyncHandler(async (req: Request, res: Response) => {
   const updatedPost = await PostService.updatePost(userId, id, {
     ...(updates.text !== undefined ? { text: updates.text } : {}),
     ...(updates.media !== undefined
-      ? { media: normalizeMedia(updates.media) }
+      ? { media: PostMapper.normalizeMedia(updates.media) }
       : {}),
   });
   return res.status(200).json({ success: true, data: updatedPost });

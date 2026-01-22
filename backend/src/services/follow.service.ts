@@ -74,71 +74,44 @@ export class FollowService {
     });
   }
 
-  static async getFollowers(targetUserId: string, query: GetFollowListQuerySchemaType) {
-    const { page, limit } = query;
+import { getPaginatedData } from "../utils/pagination.util.js";
 
+export class FollowService {
+...
+  static async getFollowers(targetUserId: string, query: GetFollowListQuerySchemaType) {
     const user = await User.findOne({ clerkId: targetUserId });
     if (!user) {
       throw new AppError("User not found", 404);
     }
 
-    const skip = (page - 1) * limit;
+    const result = await getPaginatedData(Follow, { followingId: targetUserId }, query);
 
-    const [follows, total] = await Promise.all([
-      Follow.find({ followingId: targetUserId })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit),
-      Follow.countDocuments({ followingId: targetUserId }),
-    ]);
-
-    const followerIds = follows.map((f) => f.userId);
+    const followerIds = result.data.map((f: any) => f.userId);
     const followers = await User.find({ clerkId: { $in: followerIds } });
 
     return {
       data: followers,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-        hasMore: page < Math.ceil(total / limit),
-      },
+      pagination: result.pagination,
     };
   }
 
   static async getFollowing(targetUserId: string, query: GetFollowListQuerySchemaType) {
-    const { page, limit } = query;
-
     const user = await User.findOne({ clerkId: targetUserId });
     if (!user) {
       throw new AppError("User not found", 404);
     }
 
-    const skip = (page - 1) * limit;
+    const result = await getPaginatedData(Follow, { userId: targetUserId }, query);
 
-    const [follows, total] = await Promise.all([
-      Follow.find({ userId: targetUserId })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit),
-      Follow.countDocuments({ userId: targetUserId }),
-    ]);
-
-    const followingIds = follows.map((f) => f.followingId);
+    const followingIds = result.data.map((f: any) => f.followingId);
     const following = await User.find({ clerkId: { $in: followingIds } });
 
     return {
       data: following,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-        hasMore: page < Math.ceil(total / limit),
-      },
+      pagination: result.pagination,
     };
   }
+}
 
   static async checkFollowing(currentUserId: string, targetUserId: string) {
     if (currentUserId === targetUserId) {

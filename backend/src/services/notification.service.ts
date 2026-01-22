@@ -8,21 +8,19 @@ import {
 } from "../utils/notification.util.js";
 import { AppError } from "../utils/appError.util.js";
 
+import { getPaginatedData } from "../utils/pagination.util.js";
+
 export class NotificationService {
   static async getNotifications(userId: string, query: GetNotificationsQuerySchemaType) {
-    const { page, limit, unreadOnly } = query;
+    const { unreadOnly } = query;
 
     const filter: Record<string, unknown> = { userId };
     if (unreadOnly) {
       filter.isRead = false;
     }
 
-    const skip = (page - 1) * limit;
-
-    const [notifications, total] = await Promise.all([
-      Notification.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
-      Notification.countDocuments(filter),
-    ]);
+    const result = await getPaginatedData(Notification, filter, query);
+    const notifications = result.data;
 
     const actorIds = [
       ...new Set(
@@ -53,13 +51,7 @@ export class NotificationService {
 
     return {
       notifications: formattedNotifications,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-        hasMore: page < Math.ceil(total / limit),
-      },
+      pagination: result.pagination,
     };
   }
 
