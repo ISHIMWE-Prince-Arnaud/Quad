@@ -26,7 +26,24 @@ const router = Router();
 // POLL CRUD ROUTES
 // ===========================
 
-// Create poll
+/**
+ * @openapi
+ * /polls:
+ *   post:
+ *     summary: Create a new poll
+ *     tags: [Polls]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreatePoll'
+ *     responses:
+ *       201:
+ *         description: Poll created successfully
+ */
 router.post(
   "/",
   requireApiAuth,
@@ -34,7 +51,32 @@ router.post(
   createPoll
 );
 
-// Get all polls (with filters, search, pagination)
+/**
+ * @openapi
+ * /polls:
+ *   get:
+ *     summary: Get all polls
+ *     tags: [Polls]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, expired, closed, all]
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of polls
+ */
 router.get(
   "/",
   requireApiAuth,

@@ -12,6 +12,33 @@ const mediaSchema = z
 // ---------------------
 // CREATE POST
 // ---------------------
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     CreatePost:
+ *       type: object
+ *       required:
+ *         - media
+ *       properties:
+ *         text:
+ *           type: string
+ *           maxLength: 1000
+ *         media:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               url:
+ *                 type: string
+ *                 format: uri
+ *               type:
+ *                 type: string
+ *                 enum: [image, video]
+ *               aspectRatio:
+ *                 type: string
+ *                 enum: ["1:1", "16:9", "9:16"]
+ */
 export const createPostSchema = z
   .object({
     text: z.string().max(1000).optional(),

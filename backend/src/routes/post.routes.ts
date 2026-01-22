@@ -19,21 +19,49 @@ import { requireApiAuth } from "../middlewares/auth.middleware.js";
 const router = Router();
 
 /**
- * -------------------------
- * CREATE POST
- * POST /api/posts
- * Protected: User must be signed in
- * -------------------------
+ * @openapi
+ * /posts:
+ *   post:
+ *     summary: Create a new post
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreatePost'
+ *     responses:
+ *       201:
+ *         description: Post created successfully
+ *       400:
+ *         description: Invalid input
  */
 router.post("/", requireApiAuth, validateSchema(createPostSchema), createPost);
 
 /**
- * -------------------------
- * GET ALL POSTS
- * GET /api/posts
- * Protected: Any signed-in user can access
- * Query params: limit (default: 20), skip (default: 0)
- * -------------------------
+ * @openapi
+ * /posts:
+ *   get:
+ *     summary: Get all posts
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *     responses:
+ *       200:
+ *         description: List of posts
  */
 router.get("/", requireApiAuth, getAllPosts);
 

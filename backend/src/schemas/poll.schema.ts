@@ -11,9 +11,35 @@ const mediaSchema = z
   })
   .strict();
 
-// ===========================
-// CREATE POLL SCHEMA
-// ===========================
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     CreatePoll:
+ *       type: object
+ *       required:
+ *         - question
+ *         - options
+ *       properties:
+ *         question:
+ *           type: string
+ *           minLength: 10
+ *           maxLength: 500
+ *         options:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               text:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 200
+ *           minItems: 2
+ *           maxItems: 5
+ *         expiresAt:
+ *           type: string
+ *           format: date-time
+ */
 export const createPollSchema = z
   .object({
   question: z

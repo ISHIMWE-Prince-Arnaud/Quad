@@ -19,12 +19,22 @@ import { requireApiAuth } from "../middlewares/auth.middleware.js";
 const router = Router();
 
 /**
- * -------------------------
- * CREATE STORY (Draft or Published)
- * POST /api/stories
- * Protected: User must be signed in
- * Body: { title, content, excerpt?, coverImage?, status?, tags? }
- * -------------------------
+ * @openapi
+ * /stories:
+ *   post:
+ *     summary: Create a new story
+ *     tags: [Stories]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateStory'
+ *     responses:
+ *       201:
+ *         description: Story created successfully
  */
 router.post(
   "/",
@@ -34,19 +44,31 @@ router.post(
 );
 
 /**
- * -------------------------
- * GET ALL PUBLISHED STORIES
- * GET /api/stories
- * Protected: User must be signed in
- * Query params:
- *   - status: "draft" | "published" (default: published)
- *   - tag: string (filter by tag)
- *   - authorId: string (filter by author)
- *   - search: string (full-text search)
- *   - sortBy: "newest" | "oldest" | "popular" | "views" (default: newest)
- *   - limit: number (default: 20, max: 100)
- *   - skip: number (default: 0)
- * -------------------------
+ * @openapi
+ * /stories:
+ *   get:
+ *     summary: Get all published stories
+ *     tags: [Stories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [draft, published]
+ *       - in: query
+ *         name: tag
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *     responses:
+ *       200:
+ *         description: List of stories
  */
 router.get(
   "/",

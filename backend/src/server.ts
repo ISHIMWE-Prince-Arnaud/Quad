@@ -22,6 +22,8 @@ import webhookRoutes from "./routes/webhook.routes.js";
 import healthRoutes from "./routes/health.routes.js";
 import apiRouter from "./routes/index.js";
 import { clerkMiddleware } from "@clerk/express";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.config.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { requestLogger } from "./middlewares/requestLogger.middleware.js";
 
@@ -39,6 +41,9 @@ app.use(requestLogger);
 
 // Health check routes (no auth required, before body parsing)
 app.use("/health", healthRoutes);
+
+// API Documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //
 // because Clerk webhooks need raw body for signature verification

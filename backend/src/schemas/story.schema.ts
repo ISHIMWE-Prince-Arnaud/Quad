@@ -6,8 +6,37 @@ import { z } from "zod";
 const storyStatusSchema = z.enum(["draft", "published"]);
 
 /**
- * CREATE STORY SCHEMA
- * Validates data when creating a new story
+ * @openapi
+ * components:
+ *   schemas:
+ *     CreateStory:
+ *       type: object
+ *       required:
+ *         - title
+ *         - content
+ *       properties:
+ *         title:
+ *           type: string
+ *           minLength: 1
+ *           maxLength: 200
+ *         content:
+ *           type: string
+ *           minLength: 1
+ *         excerpt:
+ *           type: string
+ *           maxLength: 500
+ *         coverImage:
+ *           type: string
+ *           format: uri
+ *         status:
+ *           type: string
+ *           enum: [draft, published]
+ *           default: draft
+ *         tags:
+ *           type: array
+ *           items:
+ *             type: string
+ *           maxItems: 10
  */
 export const createStorySchema = z
   .object({
