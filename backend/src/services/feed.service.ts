@@ -3,347 +3,294 @@ import type { IFeedResponse, IRawContentItem } from "../types/feed.types.js";
 import {
   applyAuthorDiversity,
   applyContentTypeDiversity,
-  fetchPolls,
-  fetchPosts,
-  fetchStories,
   getUserFollowing,
   scoreAndRankContent,
 } from "../utils/feed.util.js";
-import { Poll } from "../models/Poll.model.js";
-import { Post } from "../models/Post.model.js";
-import { Story } from "../models/Story.model.js";
+import { FEED_CONFIG } from "../config/feed.config.js";
+import { PostSource } from "./feed/PostSource.js";
+import { PollSource } from "./feed/PollSource.js";
+import { StorySource } from "./feed/StorySource.js";
+import type { FeedSource } from "./feed/FeedSource.interface.js";
 
-const getContentAuthorId = (content: unknown): string => {
-  if (!content || typeof content !== "object") return "";
-  const obj = content as Record<string, unknown>;
-  const author = obj.author;
-  if (author && typeof author === "object") {
-    const clerkId = (author as Record<string, unknown>).clerkId;
-    if (typeof clerkId === "string") return clerkId;
-  }
-  const userId = obj.userId;
-  return typeof userId === "string" ? userId : "";
+// Initialize sources
+const postSource = new PostSource();
+const pollSource = new PollSource();
+const storySource = new StorySource();
+
+const sources: Record<string, FeedSource> = {
+  posts: postSource,
+  polls: pollSource,
+  stories: storySource,
 };
 
 export class FeedService {
-  static async getFollowingFeed(userId: string, query: FeedQuerySchemaType): Promise<IFeedResponse> {
+  /**
+   * Get Feed for Following Tab (Only content from followed users)
+   */
+  static async getFollowingFeed(
+    userId: string,
+    query: FeedQuerySchemaType
+  ): Promise<IFeedResponse> {
     const { tab, cursor, limit, sort } = query;
 
     const followingSet = await getUserFollowing(userId);
     const followingIds = Array.from(followingSet);
 
     if (followingIds.length === 0) {
-      return {
-        items: [],
-        pagination: {
-          nextCursor: undefined,
-          hasMore: false,
-          count: 0,
-        },
-        metadata: {
-          feedType: "following",
-          tab,
-          sort,
-        },
-      };
+      return this.emptyResponse(tab, sort);
     }
 
     let items: IRawContentItem[] = [];
-
     const baseQuery: Record<string, unknown> = {};
+
     if (cursor) {
       baseQuery._id = { $lt: cursor };
     }
 
-    switch (tab) {
-      case "posts": {
-        const posts = await Post.find({
-          ...baseQuery,
-          userId: { $in: followingIds },
-        })
-          .sort({ createdAt: -1 })
-          .limit(limit)
-          .lean();
+    if (tab === "home") {
+      // Mixed content from following
+      const postsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POSTS_RATIO);
+      const pollsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POLLS_RATIO);
+      const storiesLimit = Math.ceil(
+        limit * FEED_CONFIG.CONTENT_MIX.STORIES_RATIO
+      );
 
-        items = posts.map((post) => ({
-          _id: post._id,
-          type: "post" as const,
-          content: post,
-          createdAt: post.createdAt || new Date(),
-          authorId: getContentAuthorId(post),
-          reactionsCount: post.reactionsCount || 0,
-          commentsCount: post.commentsCount || 0,
-        }));
-        break;
-      }
-
-      case "polls": {
-        const polls = await Poll.find({
-          ...baseQuery,
-          "author.clerkId": { $in: followingIds },
-          status: { $ne: "closed" },
-        })
-          .sort({ createdAt: -1 })
-          .limit(limit)
-          .lean();
-
-        items = polls.map((poll) => ({
-          _id: poll._id,
-          type: "poll" as const,
-          content: poll,
-          createdAt: poll.createdAt,
-          authorId: getContentAuthorId(poll),
-          reactionsCount: poll.reactionsCount || 0,
-          commentsCount: poll.commentsCount || 0,
-          totalVotes: poll.totalVotes || 0,
-        }));
-        break;
-      }
-
-      case "stories": {
-        const stories = await Story.find({
-          ...baseQuery,
-          userId: { $in: followingIds },
-          status: "published",
-        })
-          .sort({ createdAt: -1 })
-          .limit(limit)
-          .lean();
-
-        items = stories.map((story) => ({
-          _id: story._id,
-          type: "story" as const,
-          content: story,
-          createdAt: story.createdAt || new Date(),
-          authorId: getContentAuthorId(story),
-          reactionsCount: story.reactionsCount || 0,
-          commentsCount: story.commentsCount || 0,
-        }));
-        break;
-      }
-
-      case "home":
-      default: {
-        const [posts, polls, stories] = await Promise.all([
-          Post.find({
-            ...baseQuery,
-            userId: { $in: followingIds },
-          })
-            .sort({ createdAt: -1 })
-            .limit(Math.ceil(limit * 0.5))
-            .lean(),
-
-          Poll.find({
+      const [posts, polls, stories] = await Promise.all([
+        postSource.fetch(
+          { ...baseQuery, userId: { $in: followingIds } },
+          postsLimit
+        ),
+        pollSource.fetch(
+          {
             ...baseQuery,
             "author.clerkId": { $in: followingIds },
             status: { $ne: "closed" },
-          })
-            .sort({ createdAt: -1 })
-            .limit(Math.ceil(limit * 0.3))
-            .lean(),
-
-          Story.find({
+          },
+          pollsLimit
+        ),
+        storySource.fetch(
+          {
             ...baseQuery,
             userId: { $in: followingIds },
             status: "published",
-          })
-            .sort({ createdAt: -1 })
-            .limit(Math.ceil(limit * 0.2))
-            .lean(),
-        ]);
+          },
+          storiesLimit
+        ),
+      ]);
 
-        items = [
-          ...posts.map((post) => ({
-            _id: post._id,
-            type: "post" as const,
-            content: post,
-            createdAt: post.createdAt || new Date(),
-            authorId: getContentAuthorId(post),
-            reactionsCount: post.reactionsCount || 0,
-            commentsCount: post.commentsCount || 0,
-          })),
-          ...polls.map((poll) => ({
-            _id: poll._id,
-            type: "poll" as const,
-            content: poll,
-            createdAt: poll.createdAt,
-            authorId: getContentAuthorId(poll),
-            reactionsCount: poll.reactionsCount || 0,
-            commentsCount: poll.commentsCount || 0,
-            totalVotes: poll.totalVotes || 0,
-          })),
-          ...stories.map((story) => ({
-            _id: story._id,
-            type: "story" as const,
-            content: story,
-            createdAt: story.createdAt || new Date(),
-            authorId: getContentAuthorId(story),
-            reactionsCount: story.reactionsCount || 0,
-            commentsCount: story.commentsCount || 0,
-          })),
-        ];
-        break;
+      items = [...posts, ...polls, ...stories];
+    } else {
+      // Specific content type
+      const source = sources[tab];
+      if (source) {
+        // Construct query based on type
+        const typeQuery = { ...baseQuery };
+        if (tab === "posts") {
+          typeQuery.userId = { $in: followingIds };
+        } else if (tab === "polls") {
+          typeQuery["author.clerkId"] = { $in: followingIds };
+          typeQuery.status = { $ne: "closed" };
+        } else if (tab === "stories") {
+          typeQuery.userId = { $in: followingIds };
+          typeQuery.status = "published";
+        }
+
+        items = await source.fetch(typeQuery, limit);
       }
     }
 
-    let scoredItems = await scoreAndRankContent(items, userId, sort);
-
-    if (tab === "home") {
-      scoredItems = applyContentTypeDiversity(scoredItems);
-      scoredItems = applyAuthorDiversity(scoredItems);
-    }
-
-    const resultItems = scoredItems.slice(0, limit);
-
-    const nextCursor =
-      resultItems.length > 0 ? resultItems[resultItems.length - 1]?._id : undefined;
-    const hasMore = scoredItems.length > limit;
-
-    return {
-      items: resultItems,
-      pagination: {
-        nextCursor,
-        hasMore,
-        count: resultItems.length,
-      },
-      metadata: {
-        feedType: "following",
-        tab,
-        sort,
-      },
-    };
+    return this.processAndReturnFeed(items, userId, query);
   }
 
-  static async getForYouFeed(userId: string, query: FeedQuerySchemaType): Promise<IFeedResponse> {
-    const { tab, cursor, limit, sort } = query;
+  /**
+   * Get Feed for For You Tab (Discovery + Following mix)
+   */
+  static async getForYouFeed(
+    userId: string,
+    query: FeedQuerySchemaType
+  ): Promise<IFeedResponse> {
+    const { tab, cursor, limit } = query;
 
     const followingSet = await getUserFollowing(userId);
     const followingIds = Array.from(followingSet);
 
     let items: IRawContentItem[] = [];
+    const baseQuery: Record<string, unknown> = {};
+    if (cursor) {
+      baseQuery._id = { $lt: cursor };
+    }
 
-    const followingLimit = Math.ceil(limit * 0.7);
-    const discoverLimit = Math.ceil(limit * 0.3);
+    const followingLimit = Math.ceil(limit * FEED_CONFIG.FOR_YOU.FOLLOWING_RATIO);
+    const discoverLimit = Math.ceil(limit * FEED_CONFIG.FOR_YOU.DISCOVERY_RATIO);
 
-    switch (tab) {
-      case "posts": {
-        const [followingPosts, discoverPosts] = await Promise.all([
-          Post.find({
-            ...(cursor ? { _id: { $lt: cursor } } : {}),
-            ...(followingIds.length > 0 ? { userId: { $in: followingIds } } : {}),
-          })
-            .sort({ createdAt: -1 })
-            .limit(followingLimit)
-            .lean(),
-
-          Post.find({
-            ...(cursor ? { _id: { $lt: cursor } } : {}),
-            ...(followingIds.length > 0 ? { userId: { $nin: followingIds } } : {}),
-          })
-            .sort({ createdAt: -1 })
-            .limit(discoverLimit)
-            .lean(),
-        ]);
-
-        items = [...followingPosts, ...discoverPosts].map((post) => ({
-          _id: post._id,
-          type: "post" as const,
-          content: post,
-          createdAt: post.createdAt || new Date(),
-          authorId: getContentAuthorId(post),
-          reactionsCount: post.reactionsCount || 0,
-          commentsCount: post.commentsCount || 0,
-        }));
-        break;
+    // Helper to fetch mixed (following + discover) for a specific source
+    const fetchMixedForSource = async (
+      source: FeedSource,
+      typeLimit: number,
+      authorField: string,
+      extraQuery: Record<string, unknown> = {}
+    ) => {
+      // If user follows no one, everything is discovery
+      if (followingIds.length === 0) {
+        return source.fetch({ ...baseQuery, ...extraQuery }, typeLimit);
       }
 
-      case "polls": {
-        const [followingPolls, discoverPolls] = await Promise.all([
-          Poll.find({
-            ...(cursor ? { _id: { $lt: cursor } } : {}),
-            ...(followingIds.length > 0
-              ? { "author.clerkId": { $in: followingIds } }
-              : {}),
-            status: { $ne: "closed" },
-          })
-            .sort({ createdAt: -1 })
-            .limit(followingLimit)
-            .lean(),
+      const fLimit = Math.ceil(
+        typeLimit * FEED_CONFIG.FOR_YOU.FOLLOWING_RATIO
+      );
+      const dLimit = Math.ceil(
+        typeLimit * FEED_CONFIG.FOR_YOU.DISCOVERY_RATIO
+      );
 
-          Poll.find({
-            ...(cursor ? { _id: { $lt: cursor } } : {}),
-            ...(followingIds.length > 0
-              ? { "author.clerkId": { $nin: followingIds } }
-              : {}),
-            status: { $ne: "closed" },
-          })
-            .sort({ createdAt: -1 })
-            .limit(discoverLimit)
-            .lean(),
-        ]);
+      const [followingItems, discoverItems] = await Promise.all([
+        source.fetch(
+          {
+            ...baseQuery,
+            ...extraQuery,
+            [authorField]: { $in: followingIds },
+          },
+          fLimit
+        ),
+        source.fetch(
+          {
+            ...baseQuery,
+            ...extraQuery,
+            [authorField]: { $nin: followingIds },
+          },
+          dLimit
+        ),
+      ]);
+      return [...followingItems, ...discoverItems];
+    };
 
-        items = [...followingPolls, ...discoverPolls].map((poll) => ({
-          _id: poll._id,
-          type: "poll" as const,
-          content: poll,
-          createdAt: poll.createdAt,
-          authorId: getContentAuthorId(poll),
-          reactionsCount: poll.reactionsCount || 0,
-          commentsCount: poll.commentsCount || 0,
-          totalVotes: poll.totalVotes || 0,
-        }));
-        break;
-      }
+    if (tab === "home") {
+      const postsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POSTS_RATIO);
+      const pollsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POLLS_RATIO);
+      const storiesLimit = Math.ceil(
+        limit * FEED_CONFIG.CONTENT_MIX.STORIES_RATIO
+      );
 
-      case "stories": {
-        const [followingStories, discoverStories] = await Promise.all([
-          Story.find({
-            ...(cursor ? { _id: { $lt: cursor } } : {}),
-            ...(followingIds.length > 0 ? { userId: { $in: followingIds } } : {}),
-            status: "published",
-          })
-            .sort({ createdAt: -1 })
-            .limit(followingLimit)
-            .lean(),
+      const [posts, polls, stories] = await Promise.all([
+        fetchMixedForSource(postSource, postsLimit, "userId"),
+        fetchMixedForSource(pollSource, pollsLimit, "author.clerkId", {
+          status: { $ne: "closed" },
+        }),
+        fetchMixedForSource(storySource, storiesLimit, "userId", {
+          status: "published",
+        }),
+      ]);
 
-          Story.find({
-            ...(cursor ? { _id: { $lt: cursor } } : {}),
-            ...(followingIds.length > 0 ? { userId: { $nin: followingIds } } : {}),
-            status: "published",
-          })
-            .sort({ createdAt: -1 })
-            .limit(discoverLimit)
-            .lean(),
-        ]);
-
-        items = [...followingStories, ...discoverStories].map((story) => ({
-          _id: story._id,
-          type: "story" as const,
-          content: story,
-          createdAt: story.createdAt || new Date(),
-          authorId: getContentAuthorId(story),
-          reactionsCount: story.reactionsCount || 0,
-          commentsCount: story.commentsCount || 0,
-        }));
-        break;
-      }
-
-      case "home":
-      default: {
-        const postsLimit = Math.ceil(limit * 0.5);
-        const pollsLimit = Math.ceil(limit * 0.3);
-        const storiesLimit = Math.ceil(limit * 0.2);
-
-        const [posts, polls, stories] = await Promise.all([
-          fetchPosts(cursor, postsLimit),
-          fetchPolls(cursor, pollsLimit),
-          fetchStories(cursor, storiesLimit),
-        ]);
-
-        items = [...posts, ...polls, ...stories];
-        break;
+      items = [...posts, ...polls, ...stories];
+    } else {
+      // Specific tab
+      if (tab === "posts") {
+        items = await fetchMixedForSource(postSource, limit, "userId");
+      } else if (tab === "polls") {
+        items = await fetchMixedForSource(
+          pollSource,
+          limit,
+          "author.clerkId",
+          { status: { $ne: "closed" } }
+        );
+      } else if (tab === "stories") {
+        items = await fetchMixedForSource(storySource, limit, "userId", {
+          status: "published",
+        });
       }
     }
+
+    return this.processAndReturnFeed(items, userId, query, "foryou");
+  }
+
+  /**
+   * Get Count of New Content
+   */
+  static async getNewContentCount(
+    userId: string,
+    query: NewCountQuerySchemaType
+  ) {
+    const { feedType, tab, since } = query;
+    const baseQuery: Record<string, unknown> = { _id: { $gt: since } };
+
+    let followingIds: string[] = [];
+    if (feedType === "following") {
+      const followingSet = await getUserFollowing(userId);
+      followingIds = Array.from(followingSet);
+      if (followingIds.length === 0) return { count: 0 };
+    }
+
+    // Helper to get count for a specific source
+    const getCountForSource = async (
+      source: FeedSource,
+      authorField: string,
+      extraQuery: Record<string, unknown> = {}
+    ) => {
+      const q = { ...baseQuery, ...extraQuery };
+      if (feedType === "following") {
+        q[authorField] = { $in: followingIds };
+      }
+      return source.count(q);
+    };
+
+    let count = 0;
+
+    if (tab === "home") {
+      const [postCount, pollCount, storyCount] = await Promise.all([
+        getCountForSource(postSource, "userId"),
+        getCountForSource(pollSource, "author.clerkId", {
+          status: { $ne: "closed" },
+        }),
+        getCountForSource(storySource, "userId", { status: "published" }),
+      ]);
+      count = postCount + pollCount + storyCount;
+    } else {
+      if (tab === "posts") {
+        count = await getCountForSource(postSource, "userId");
+      } else if (tab === "polls") {
+        count = await getCountForSource(pollSource, "author.clerkId", {
+          status: { $ne: "closed" },
+        });
+      } else if (tab === "stories") {
+        count = await getCountForSource(storySource, "userId", {
+          status: "published",
+        });
+      }
+    }
+
+    return { count };
+  }
+
+  // ==========================================
+  // Private Helpers
+  // ==========================================
+
+  private static emptyResponse(
+    tab: string,
+    sort: string,
+    feedType: "following" | "foryou" = "following"
+  ): IFeedResponse {
+    return {
+      items: [],
+      pagination: {
+        nextCursor: undefined,
+        hasMore: false,
+        count: 0,
+      },
+      metadata: {
+        feedType,
+        tab: tab as any,
+        sort: sort as any,
+      },
+    };
+  }
+
+  private static async processAndReturnFeed(
+    items: IRawContentItem[],
+    userId: string,
+    query: FeedQuerySchemaType,
+    feedType: "following" | "foryou" = "following"
+  ): Promise<IFeedResponse> {
+    const { tab, limit, sort } = query;
 
     let scoredItems = await scoreAndRankContent(items, userId, sort);
 
@@ -353,9 +300,10 @@ export class FeedService {
     }
 
     const resultItems = scoredItems.slice(0, limit);
-
     const nextCursor =
-      resultItems.length > 0 ? resultItems[resultItems.length - 1]?._id : undefined;
+      resultItems.length > 0
+        ? (resultItems[resultItems.length - 1]?._id as string)
+        : undefined;
     const hasMore = scoredItems.length > limit;
 
     return {
@@ -366,115 +314,10 @@ export class FeedService {
         count: resultItems.length,
       },
       metadata: {
-        feedType: "foryou",
+        feedType,
         tab,
         sort,
       },
     };
-  }
-
-  static async getNewContentCount(userId: string, query: NewCountQuerySchemaType) {
-    const { feedType, tab, since } = query;
-
-    const baseQuery: Record<string, unknown> = {
-      _id: { $gt: since },
-    };
-
-    let followingIds: string[] = [];
-    if (feedType === "following") {
-      const followingSet = await getUserFollowing(userId);
-      followingIds = Array.from(followingSet);
-
-      if (followingIds.length === 0) {
-        return { count: 0 };
-      }
-    }
-
-    let count = 0;
-
-    switch (tab) {
-      case "posts":
-        if (feedType === "following") {
-          count = await Post.countDocuments({
-            ...baseQuery,
-            userId: { $in: followingIds },
-          });
-        } else {
-          count = await Post.countDocuments(baseQuery);
-        }
-        break;
-
-      case "polls":
-        if (feedType === "following") {
-          count = await Poll.countDocuments({
-            ...baseQuery,
-            "author.clerkId": { $in: followingIds },
-            status: { $ne: "closed" },
-          });
-        } else {
-          count = await Poll.countDocuments({
-            ...baseQuery,
-            status: { $ne: "closed" },
-          });
-        }
-        break;
-
-      case "stories": {
-        if (feedType === "following") {
-          count = await Story.countDocuments({
-            ...baseQuery,
-            userId: { $in: followingIds },
-            status: "published",
-          });
-        } else {
-          count = await Story.countDocuments({
-            ...baseQuery,
-            status: "published",
-          });
-        }
-        break;
-      }
-
-      case "home":
-      default: {
-        let postCount, pollCount, storyCount;
-
-        if (feedType === "following") {
-          [postCount, pollCount, storyCount] = await Promise.all([
-            Post.countDocuments({
-              ...baseQuery,
-              userId: { $in: followingIds },
-            }),
-            Poll.countDocuments({
-              ...baseQuery,
-              "author.clerkId": { $in: followingIds },
-              status: { $ne: "closed" },
-            }),
-            Story.countDocuments({
-              ...baseQuery,
-              userId: { $in: followingIds },
-              status: "published",
-            }),
-          ]);
-        } else {
-          [postCount, pollCount, storyCount] = await Promise.all([
-            Post.countDocuments(baseQuery),
-            Poll.countDocuments({
-              ...baseQuery,
-              status: { $ne: "closed" },
-            }),
-            Story.countDocuments({
-              ...baseQuery,
-              status: "published",
-            }),
-          ]);
-        }
-
-        count = postCount + pollCount + storyCount;
-        break;
-      }
-    }
-
-    return { count };
   }
 }
