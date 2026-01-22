@@ -516,7 +516,7 @@ export const debugAuth = (req: Request, res: Response) => {
 ### **Common Auth Errors**
 
 ```typescript
-export const authErrorHandler = (error: any, req: Request, res: Response) => {
+export const authErrorHandler = (error: Error & { code?: string }, req: Request, res: Response) => {
   switch (error.code) {
     case "unauthenticated":
       return res.status(401).json({

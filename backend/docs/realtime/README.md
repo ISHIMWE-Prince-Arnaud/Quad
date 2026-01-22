@@ -250,7 +250,7 @@ export const setupNotificationSocket = (io: SocketIOServer) => {
 };
 
 // Utility function to send notifications
-export const emitNotification = (io: SocketIOServer, notification: any) => {
+export const emitNotification = (io: SocketIOServer, notification: INotificationDocument) => {
   io.to(`user:${notification.userId}`).emit('notification:new', notification);
 };
 ```

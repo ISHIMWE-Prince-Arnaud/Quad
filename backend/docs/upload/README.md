@@ -96,7 +96,7 @@ import multer from "multer";
 import path from "path";
 
 // File filter function
-const fileFilter = (req: any, file: Express.Multer.File, cb: any) => {
+const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   // Allowed file types
   const allowedTypes = /jpeg|jpg|png|gif|mp4|mov|avi|webm|webp/;
   const extname = allowedTypes.test(
@@ -212,7 +212,7 @@ export interface UploadResult {
 
 export const uploadToCloudinary = async (
   file: Express.Multer.File,
-  options: any = {}
+  options: Record<string, unknown> = {}
 ): Promise<UploadResult> => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
@@ -333,12 +333,13 @@ export const uploadPostMedia = async (req: Request, res: Response) => {
       message: "Media uploaded successfully",
       data: uploadResults,
     });
-  } catch (error: any) {
-    logger.error("Post media upload error", error);
+  } catch (error) {
+    const err = error as Error;
+    logger.error("Post media upload error", err);
     return res.status(500).json({
       success: false,
       message: "Failed to upload media",
-      error: error.message,
+      error: err.message,
     });
   }
 };

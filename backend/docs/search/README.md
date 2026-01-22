@@ -112,7 +112,7 @@ export const searchUsers = async (
     } = options;
 
     // Build search query
-    const searchQuery: any = {
+    const searchQuery: Record<string, unknown> = {
       $text: { $search: query },
     };
 

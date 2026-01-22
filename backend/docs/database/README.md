@@ -252,7 +252,7 @@ interface ISearchHistoryDocument {
   query: string;            // Search query
   searchType: 'users' | 'posts' | 'stories' | 'polls' | 'global';
   resultsCount: number;     // Number of results
-  filters?: any;            // Applied filters
+  filters?: Record<string, unknown>;            // Applied filters
   createdAt: Date;
 }
 ```

@@ -18,10 +18,8 @@ vi.spyOn(logger, "error").mockImplementation(() => {});
 
 vi.mock("@clerk/express", () => {
   return {
-    getAuth: (req: unknown) => ({
-      userId:
-        (req as { auth?: { userId?: string | null } } | null | undefined)?.auth
-          ?.userId ?? null,
+    getAuth: (req: any) => ({
+      userId: req.auth?.userId || null,
     }),
     clerkMiddleware: () => (_req: unknown, _res: unknown, next: () => void) => next(),
     clerkClient: {
