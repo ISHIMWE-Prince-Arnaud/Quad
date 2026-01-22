@@ -58,6 +58,7 @@ export type FeedType = "following" | "foryou";
 interface FeedState {
   // Feed data
   feedItems: FeedItem[];
+  itemIds: Set<string>;
   feedType: FeedType;
   isLoading: boolean;
   hasMore: boolean;
@@ -77,6 +78,7 @@ interface FeedState {
 
 export const useFeedStore = create<FeedState>((set, get) => ({
   feedItems: [],
+  itemIds: new Set(),
   feedType: "following",
   isLoading: false,
   hasMore: true,
@@ -88,16 +90,24 @@ export const useFeedStore = create<FeedState>((set, get) => ({
   },
 
   setFeedItems: (items) => {
-    set({ feedItems: items });
+    set({ 
+      feedItems: items,
+      itemIds: new Set(items.map(item => item._id))
+    });
   },
 
   addFeedItems: (items) => {
-    const currentItems = get().feedItems;
-    const existingIds = new Set(currentItems.map((item) => item._id));
-    const newItems = items.filter((item) => !existingIds.has(item._id));
+    const { feedItems, itemIds } = get();
+    const newItems = items.filter((item) => !itemIds.has(item._id));
     
     if (newItems.length > 0) {
-      set({ feedItems: [...currentItems, ...newItems] });
+      const nextItemIds = new Set(itemIds);
+      newItems.forEach(item => nextItemIds.add(item._id));
+      
+      set({ 
+        feedItems: [...feedItems, ...newItems],
+        itemIds: nextItemIds
+      });
     }
   },
 
@@ -110,9 +120,15 @@ export const useFeedStore = create<FeedState>((set, get) => ({
   },
 
   removeFeedItem: (id) => {
-    const items = get().feedItems;
-    const filteredItems = items.filter((item) => item._id !== id);
-    set({ feedItems: filteredItems });
+    const { feedItems, itemIds } = get();
+    const filteredItems = feedItems.filter((item) => item._id !== id);
+    const nextItemIds = new Set(itemIds);
+    nextItemIds.delete(id);
+    
+    set({ 
+      feedItems: filteredItems,
+      itemIds: nextItemIds
+    });
   },
 
   setLoading: (loading) => {
@@ -130,6 +146,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
   clearFeed: () => {
     set({
       feedItems: [],
+      itemIds: new Set(),
       cursor: null,
       hasMore: true,
     });
