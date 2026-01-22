@@ -15,34 +15,13 @@ import { ensureIndexes } from "./utils/indexes.util.js";
 import { startPollExpiryJob } from "./jobs/poll.cron.js";
 import { startAnalyticsCronJob } from "./jobs/analytics.cron.js";
 import { logger } from "./utils/logger.util.js";
-import {
-  generalRateLimiter,
-  searchRateLimiter,
-  uploadRateLimiter,
-  writeRateLimiter,
-  authRateLimiter,
-} from "./middlewares/rateLimiter.middleware.js";
 import { setupChatSocket } from "./sockets/chat.socket.js";
 import { setupNotificationSocket } from "./sockets/notification.socket.js";
 import { setupFeedSocket } from "./sockets/feed.socket.js";
-import userRoutes from "./routes/user.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import healthRoutes from "./routes/health.routes.js";
+import apiRouter from "./routes/index.js";
 import { clerkMiddleware } from "@clerk/express";
-import postRoutes from "./routes/post.routes.js";
-import storyRoutes from "./routes/story.routes.js";
-import pollRoutes from "./routes/poll.routes.js";
-import chatRoutes from "./routes/chat.routes.js";
-import profileRoutes from "./routes/profile.routes.js";
-import followRoutes from "./routes/follow.routes.js";
-import notificationRoutes from "./routes/notification.routes.js";
-import feedRoutes from "./routes/feed.routes.js";
-import reactionRoutes from "./routes/reaction.routes.js";
-import commentRoutes from "./routes/comment.routes.js";
-import uploadRoutes from "./routes/upload.routes.js";
-import searchRoutes from "./routes/search.routes.js";
-import bookmarkRoutes from "./routes/bookmark.routes.js";
-import analyticsRoutes from "./routes/analytics.routes.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { requestLogger } from "./middlewares/requestLogger.middleware.js";
 
@@ -71,24 +50,8 @@ app.use(express.json());
 // 🔐 Clerk middleware
 app.use(clerkMiddleware());
 
-//routes with rate limiting
-app.use("/api/", generalRateLimiter); // Apply general rate limiting to all API routes
-
-app.use("/api/users", userRoutes);
-app.use("/api/posts", writeRateLimiter, postRoutes);
-app.use("/api/stories", writeRateLimiter, storyRoutes);
-app.use("/api/polls", writeRateLimiter, pollRoutes);
-app.use("/api/chat", writeRateLimiter, chatRoutes);
-app.use("/api/profile", profileRoutes);
-app.use("/api/follow", writeRateLimiter, followRoutes);
-app.use("/api/notifications", notificationRoutes);
-app.use("/api/feed", feedRoutes);
-app.use("/api/reactions", writeRateLimiter, reactionRoutes);
-app.use("/api/comments", writeRateLimiter, commentRoutes);
-app.use("/api/bookmarks", writeRateLimiter, bookmarkRoutes);
-app.use("/api/analytics", analyticsRoutes);
-app.use("/api/upload", uploadRateLimiter, uploadRoutes);
-app.use("/api/search", searchRateLimiter, searchRoutes);
+// Centralized API Routes
+app.use("/api", apiRouter);
 
 // --- Simple test route ---
 app.get("/", (_, res) => {
