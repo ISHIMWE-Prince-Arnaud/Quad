@@ -62,11 +62,11 @@ export class PostService {
     return newPost;
   }
 
-  static async getAllPosts(limit = "20", skip = "0") {
+  static async getAllPosts(limit: number = 20, skip: number = 0) {
     const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .limit(Number(limit))
-      .skip(Number(skip));
+      .limit(limit)
+      .skip(skip);
 
     const total = await Post.countDocuments();
 
@@ -74,9 +74,9 @@ export class PostService {
       posts,
       pagination: {
         total,
-        limit: Number(limit),
-        skip: Number(skip),
-        hasMore: Number(skip) + posts.length < total,
+        limit,
+        skip,
+        hasMore: skip + posts.length < total,
       },
     };
   }

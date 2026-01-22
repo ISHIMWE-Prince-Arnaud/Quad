@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
-import type {
-  CreatePostSchemaType,
-  UpdatePostSchemaType,
+import {
+  type CreatePostSchemaType,
+  type UpdatePostSchemaType,
+  getPostsQuerySchema,
 } from "../schemas/post.schema.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { AppError } from "../utils/appError.util.js";
@@ -37,10 +38,18 @@ export const createPost = asyncHandler(async (req: Request, res: Response) => {
 // GET ALL POSTS
 // =========================
 export const getAllPosts = asyncHandler(async (req: Request, res: Response) => {
-  const { limit = "20", skip = "0" } = req.query as {
-    limit?: string;
-    skip?: string;
-  };
+  const validation = getPostsQuerySchema.safeParse(req.query);
+
+  if (!validation.success) {
+    throw new AppError(
+      `Invalid query parameters: ${validation.error.errors
+        .map((e) => e.message)
+        .join(", ")}`,
+      400
+    );
+  }
+
+  const { limit, skip } = validation.data;
 
   const result = await PostService.getAllPosts(limit, skip);
 
