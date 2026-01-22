@@ -1,9 +1,11 @@
 import "../types/global.d.ts";
 import type { Request, Response } from "express";
-import type {
-  CreateStorySchemaType,
-  UpdateStorySchemaType,
-  GetStoriesQuerySchemaType,
+import {
+  type CreateStorySchemaType,
+  type UpdateStorySchemaType,
+  type GetStoriesQuerySchemaType,
+  getStoriesQuerySchema,
+  storyIdSchema,
 } from "../schemas/story.schema.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { AppError } from "../utils/appError.util.js";
@@ -33,7 +35,7 @@ export const createStory = asyncHandler(async (req: Request, res: Response) => {
 // =========================
 export const getAllStories = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.auth?.userId;
-  const query = req.query as unknown as GetStoriesQuerySchemaType;
+  const query = getStoriesQuerySchema.parse(req.query);
 
   const result = await StoryService.getAllStories(userId, query);
 
@@ -48,10 +50,7 @@ export const getAllStories = asyncHandler(async (req: Request, res: Response) =>
 // GET SINGLE STORY
 // =========================
 export const getStory = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("Story ID is required", 400);
-  }
+  const { id } = storyIdSchema.parse(req.params);
 
   const userId = req.auth?.userId;
   const story = await StoryService.getStory(id, userId);
@@ -63,10 +62,7 @@ export const getStory = asyncHandler(async (req: Request, res: Response) => {
 // UPDATE STORY
 // =========================
 export const updateStory = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("Story ID is required", 400);
-  }
+  const { id } = storyIdSchema.parse(req.params);
 
   const userId = req.auth?.userId;
   if (!userId) {
@@ -87,10 +83,7 @@ export const updateStory = asyncHandler(async (req: Request, res: Response) => {
 // DELETE STORY
 // =========================
 export const deleteStory = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("Story ID is required", 400);
-  }
+  const { id } = storyIdSchema.parse(req.params);
 
   const userId = req.auth?.userId;
   if (!userId) {

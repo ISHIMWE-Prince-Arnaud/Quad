@@ -14,6 +14,7 @@ import type {
 import { calculateProfileStats, formatUserProfile } from "../utils/profile.util.js";
 import { propagateUserSnapshotUpdates } from "../utils/userSnapshotPropagation.util.js";
 import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
+import { getPaginatedData } from "../utils/pagination.util.js";
 import { AppError } from "../utils/appError.util.js";
 import { logger } from "../utils/logger.util.js";
 
@@ -253,27 +254,7 @@ export class ProfileService {
       throw new AppError("User not found", 404);
     }
 
-    const { page, limit } = query;
-    const skip = (page - 1) * limit;
-
-    const [posts, total] = await Promise.all([
-      Post.find({ "author.clerkId": user.clerkId })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit),
-      Post.countDocuments({ "author.clerkId": user.clerkId }),
-    ]);
-
-    return {
-      data: posts,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-        hasMore: page < Math.ceil(total / limit),
-      },
-    };
+    return getPaginatedData(Post, { "author.clerkId": user.clerkId }, query);
   }
 
   static async getUserStories(
@@ -290,27 +271,7 @@ export class ProfileService {
       throw new AppError("User not found", 404);
     }
 
-    const { page, limit } = query;
-    const skip = (page - 1) * limit;
-
-    const [stories, total] = await Promise.all([
-      Story.find({ "author.clerkId": user.clerkId })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit),
-      Story.countDocuments({ "author.clerkId": user.clerkId }),
-    ]);
-
-    return {
-      data: stories,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-        hasMore: page < Math.ceil(total / limit),
-      },
-    };
+    return getPaginatedData(Story, { "author.clerkId": user.clerkId }, query);
   }
 
   static async getUserPolls(
@@ -327,26 +288,6 @@ export class ProfileService {
       throw new AppError("User not found", 404);
     }
 
-    const { page, limit } = query;
-    const skip = (page - 1) * limit;
-
-    const [polls, total] = await Promise.all([
-      Poll.find({ "author.clerkId": user.clerkId })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit),
-      Poll.countDocuments({ "author.clerkId": user.clerkId }),
-    ]);
-
-    return {
-      data: polls,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-        hasMore: page < Math.ceil(total / limit),
-      },
-    };
+    return getPaginatedData(Poll, { "author.clerkId": user.clerkId }, query);
   }
 }

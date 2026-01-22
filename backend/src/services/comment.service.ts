@@ -14,6 +14,7 @@ import {
 } from "../utils/notification.util.js";
 import { extractMentions } from "../utils/chat.util.js";
 import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
+import { getPaginatedData } from "../utils/pagination.util.js";
 import { AppError } from "../utils/appError.util.js";
 
 export interface CreateCommentInput {
@@ -178,29 +179,17 @@ export class CommentService {
   static async getCommentsByContent(
     contentType: string,
     contentId: string,
-    opts: { limit?: string; skip?: string }
+    opts: { page?: number; limit?: number }
   ) {
-    const { limit = "20", skip = "0" } = opts;
+    const { page = 1, limit = 20 } = opts;
+    const query = { contentType, contentId };
 
-    const query: Record<string, unknown> = { contentType, contentId };
-
-    const comments = await Comment.find(query)
-      .populate("author", "username displayName profileImage")
-      .sort({ createdAt: -1 })
-      .limit(Number(limit))
-      .skip(Number(skip));
-
-    const total = await Comment.countDocuments(query);
-
-    return {
-      comments,
-      pagination: {
-        total,
-        limit: Number(limit),
-        skip: Number(skip),
-        hasMore: Number(skip) + comments.length < total,
-      },
-    };
+    return getPaginatedData(Comment, query, {
+      page,
+      limit,
+      sort: { createdAt: -1 },
+      populate: { path: "author", select: "username displayName profileImage" },
+    });
   }
 
   static async getComment(id: string) {

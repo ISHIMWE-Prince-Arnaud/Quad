@@ -6,6 +6,24 @@ import sanitizeHtml from "sanitize-html";
 
 import type { ReactableContentType } from "../types/reaction.types.js";
 import type { CommentableContentType } from "../types/comment.types.js";
+import type { IPost } from "../types/post.types.js";
+import type { IStory } from "../types/story.types.js";
+import type { IPoll } from "../types/poll.types.js";
+
+/**
+ * Type guards for content types
+ */
+export const isPost = (content: any): content is IPost => {
+  return content && (content.type === "post" || (content.media && !content.question && !content.title));
+};
+
+export const isStory = (content: any): content is IStory => {
+  return content && (content.type === "story" || content.title !== undefined);
+};
+
+export const isPoll = (content: any): content is IPoll => {
+  return content && (content.type === "poll" || content.question !== undefined);
+};
 
 /**
  * Verify that content exists for reactions

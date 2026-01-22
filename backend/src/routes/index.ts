@@ -5,7 +5,6 @@ import {
   uploadRateLimiter,
   writeRateLimiter,
 } from "../middlewares/rateLimiter.middleware.js";
-
 import userRoutes from "./user.routes.js";
 import postRoutes from "./post.routes.js";
 import storyRoutes from "./story.routes.js";
@@ -17,17 +16,16 @@ import notificationRoutes from "./notification.routes.js";
 import feedRoutes from "./feed.routes.js";
 import reactionRoutes from "./reaction.routes.js";
 import commentRoutes from "./comment.routes.js";
-import uploadRoutes from "./upload.routes.js";
-import searchRoutes from "./search.routes.js";
 import bookmarkRoutes from "./bookmark.routes.js";
 import analyticsRoutes from "./analytics.routes.js";
+import uploadRoutes from "./upload.routes.js";
+import searchRoutes from "./search.routes.js";
 
 const router = Router();
 
 // Apply general rate limiting to all API routes
 router.use(generalRateLimiter);
 
-// Mount routes
 router.use("/users", userRoutes);
 router.use("/posts", writeRateLimiter, postRoutes);
 router.use("/stories", writeRateLimiter, storyRoutes);

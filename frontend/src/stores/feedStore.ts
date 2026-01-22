@@ -93,10 +93,12 @@ export const useFeedStore = create<FeedState>((set, get) => ({
 
   addFeedItems: (items) => {
     const currentItems = get().feedItems;
-    const newItems = items.filter(
-      (item) => !currentItems.some((existing) => existing._id === item._id)
-    );
-    set({ feedItems: [...currentItems, ...newItems] });
+    const existingIds = new Set(currentItems.map((item) => item._id));
+    const newItems = items.filter((item) => !existingIds.has(item._id));
+    
+    if (newItems.length > 0) {
+      set({ feedItems: [...currentItems, ...newItems] });
+    }
   },
 
   updateFeedItem: (id, updates) => {
