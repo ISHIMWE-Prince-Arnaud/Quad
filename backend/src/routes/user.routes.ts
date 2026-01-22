@@ -16,6 +16,7 @@ import {
 
 import { validateSchema } from "../utils/validation.util.js";
 import { requireApiAuth } from "../middlewares/auth.middleware.js";
+import { authRateLimiter } from "../middlewares/rateLimiter.middleware.js";
 
 const router = Router();
 
@@ -28,6 +29,7 @@ const router = Router();
  */
 router.post(
   "/",
+  authRateLimiter, // Rate limit user creation
   requireApiAuth, // API authentication using Clerk session
   validateSchema(createUserSchema), // Validate request body
   createUser // Controller handles creation

@@ -5,12 +5,9 @@ import { z } from "zod";
 // ===========================
 export const createMessageSchema = z
   .object({
-    text: z.string().min(1, "Message text is required"),
+    text: z.string().trim().min(1, "Message text is required"),
   })
-  .strict()
-  .refine((data) => data.text.trim().length > 0, {
-    message: "Message must have text",
-  });
+  .strict();
 
 export type CreateMessageSchemaType = z.infer<typeof createMessageSchema>;
 

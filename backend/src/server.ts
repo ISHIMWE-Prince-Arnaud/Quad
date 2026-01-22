@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { env } from "./config/env.config.js";
@@ -19,6 +20,7 @@ import {
   searchRateLimiter,
   uploadRateLimiter,
   writeRateLimiter,
+  authRateLimiter,
 } from "./middlewares/rateLimiter.middleware.js";
 import { setupChatSocket } from "./sockets/chat.socket.js";
 import { setupNotificationSocket } from "./sockets/notification.socket.js";
@@ -46,6 +48,9 @@ import { requestLogger } from "./middlewares/requestLogger.middleware.js";
 
 // --- Initialize Express ---
 const app = express();
+
+// Security Headers
+app.use(helmet());
 
 // Configure CORS (imported from cors.config.ts)
 app.use(cors(corsOptions));
