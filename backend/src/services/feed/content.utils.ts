@@ -38,8 +38,9 @@ export const getContentAuthorId = (content: ContentItem | unknown): string => {
 
   if (isPost(content)) {
     // Post model has top-level userId
-    if ("userId" in content && typeof (content as any).userId === "string") {
-      return (content as any).userId;
+    const userId = (content as unknown as { userId?: unknown }).userId;
+    if (typeof userId === "string") {
+      return userId;
     }
     // Fallback to author object if userId missing (unlikely in DB)
     return content.author?.clerkId || "";
@@ -47,8 +48,9 @@ export const getContentAuthorId = (content: ContentItem | unknown): string => {
 
   if (isStory(content)) {
     // Story model has top-level userId
-    if ("userId" in content && typeof (content as any).userId === "string") {
-      return (content as any).userId;
+    const userId = (content as unknown as { userId?: unknown }).userId;
+    if (typeof userId === "string") {
+      return userId;
     }
     return content.author?.clerkId || "";
   }

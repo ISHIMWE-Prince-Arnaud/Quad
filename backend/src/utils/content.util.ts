@@ -13,16 +13,27 @@ import type { IPoll } from "../types/poll.types.js";
 /**
  * Type guards for content types
  */
-export const isPost = (content: any): content is IPost => {
-  return content && (content.type === "post" || (content.media && !content.question && !content.title));
+export const isPost = (content: unknown): content is IPost => {
+  if (typeof content !== "object" || content === null) return false;
+  const c = content as Record<string, unknown>;
+
+  const isTypedPost = c.type === "post";
+  const looksLikePost =
+    !!c.media && c.question === undefined && c.title === undefined;
+
+  return isTypedPost || looksLikePost;
 };
 
-export const isStory = (content: any): content is IStory => {
-  return content && (content.type === "story" || content.title !== undefined);
+export const isStory = (content: unknown): content is IStory => {
+  if (typeof content !== "object" || content === null) return false;
+  const c = content as Record<string, unknown>;
+  return c.type === "story" || c.title !== undefined;
 };
 
-export const isPoll = (content: any): content is IPoll => {
-  return content && (content.type === "poll" || content.question !== undefined);
+export const isPoll = (content: unknown): content is IPoll => {
+  if (typeof content !== "object" || content === null) return false;
+  const c = content as Record<string, unknown>;
+  return c.type === "poll" || c.question !== undefined;
 };
 
 /**
