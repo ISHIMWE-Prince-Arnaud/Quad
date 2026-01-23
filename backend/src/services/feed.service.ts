@@ -1,5 +1,10 @@
 import type { FeedQuerySchemaType, NewCountQuerySchemaType } from "../schemas/feed.schema.js";
-import type { IFeedResponse, IRawContentItem } from "../types/feed.types.js";
+import type {
+  ContentTab,
+  FeedSort,
+  IFeedResponse,
+  IRawContentItem,
+} from "../types/feed.types.js";
 import {
   applyAuthorDiversity,
   applyContentTypeDiversity,
@@ -119,9 +124,6 @@ export class FeedService {
     if (cursor) {
       baseQuery._id = { $lt: cursor };
     }
-
-    const followingLimit = Math.ceil(limit * FEED_CONFIG.FOR_YOU.FOLLOWING_RATIO);
-    const discoverLimit = Math.ceil(limit * FEED_CONFIG.FOR_YOU.DISCOVERY_RATIO);
 
     // Helper to fetch mixed (following + discover) for a specific source
     const fetchMixedForSource = async (
@@ -265,8 +267,8 @@ export class FeedService {
   // ==========================================
 
   private static emptyResponse(
-    tab: string,
-    sort: string,
+    tab: ContentTab,
+    sort: FeedSort,
     feedType: "following" | "foryou" = "following"
   ): IFeedResponse {
     return {
@@ -278,8 +280,8 @@ export class FeedService {
       },
       metadata: {
         feedType,
-        tab: tab as any,
-        sort: sort as any,
+        tab,
+        sort,
       },
     };
   }

@@ -2,11 +2,12 @@ import { Follow } from "../models/Follow.model.js";
 import { User } from "../models/User.model.js";
 import type { GetFollowListQuerySchemaType } from "../schemas/follow.schema.js";
 import {
-  getFollowStats,
+  getFollowStats as computeFollowStats,
   getMutualFollowIds,
   isFollowing,
   updateFollowCounts,
 } from "../utils/follow.util.js";
+import { getPaginatedData } from "../utils/pagination.util.js";
 import { getSocketIO } from "../config/socket.config.js";
 import {
   createNotification,
@@ -74,10 +75,6 @@ export class FollowService {
     });
   }
 
-import { getPaginatedData } from "../utils/pagination.util.js";
-
-export class FollowService {
-...
   static async getFollowers(targetUserId: string, query: GetFollowListQuerySchemaType) {
     const user = await User.findOne({ clerkId: targetUserId });
     if (!user) {
@@ -86,7 +83,7 @@ export class FollowService {
 
     const result = await getPaginatedData(Follow, { followingId: targetUserId }, query);
 
-    const followerIds = result.data.map((f: any) => f.userId);
+    const followerIds = result.data.map((f: { userId: string }) => f.userId);
     const followers = await User.find({ clerkId: { $in: followerIds } });
 
     return {
@@ -103,7 +100,7 @@ export class FollowService {
 
     const result = await getPaginatedData(Follow, { userId: targetUserId }, query);
 
-    const followingIds = result.data.map((f: any) => f.followingId);
+    const followingIds = result.data.map((f: { followingId: string }) => f.followingId);
     const following = await User.find({ clerkId: { $in: followingIds } });
 
     return {
@@ -111,7 +108,6 @@ export class FollowService {
       pagination: result.pagination,
     };
   }
-}
 
   static async checkFollowing(currentUserId: string, targetUserId: string) {
     if (currentUserId === targetUserId) {
@@ -152,6 +148,6 @@ export class FollowService {
   }
 
   static async getFollowStats(currentUserId: string, targetUserId: string) {
-    return await getFollowStats(targetUserId, currentUserId);
+    return await computeFollowStats(targetUserId, currentUserId);
   }
 }

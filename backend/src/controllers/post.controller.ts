@@ -35,8 +35,8 @@ export const getAllPosts = asyncHandler(async (req: Request, res: Response) => {
 
   if (!validation.success) {
     throw new AppError(
-      `Invalid query parameters: ${validation.error.errors
-        .map((e) => e.message)
+      `Invalid query parameters: ${validation.error.issues
+        .map((e: { message: string }) => e.message)
         .join(", ")}`,
       400
     );

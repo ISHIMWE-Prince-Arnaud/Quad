@@ -3,7 +3,6 @@ import type { Request, Response } from "express";
 import {
   type CreateStorySchemaType,
   type UpdateStorySchemaType,
-  type GetStoriesQuerySchemaType,
   getStoriesQuerySchema,
   storyIdSchema,
 } from "../schemas/story.schema.js";
