@@ -45,14 +45,22 @@ export const getCommentsByContent = asyncHandler(
       throw new AppError("contentType and contentId are required", 400);
     }
 
+    const parsedLimit = Number(limit);
+    const parsedSkip = Number(skip);
+
+    const effectiveLimit = Number.isFinite(parsedLimit) ? parsedLimit : 20;
+    const effectiveSkip = Number.isFinite(parsedSkip) ? parsedSkip : 0;
+
+    const page = Math.floor(effectiveSkip / effectiveLimit) + 1;
+
     const result = await CommentService.getCommentsByContent(contentType, contentId, {
-      limit,
-      skip,
+      page,
+      limit: effectiveLimit,
     });
 
     return res.status(200).json({
       success: true,
-      data: result.comments,
+      data: result.data,
       pagination: result.pagination,
     });
   }
