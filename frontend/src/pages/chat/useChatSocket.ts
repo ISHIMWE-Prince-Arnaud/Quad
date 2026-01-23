@@ -21,11 +21,13 @@ export function useChatSocket({
   nearBottom,
   scrollToBottom,
   setMessages,
+  onIncomingMessage,
 }: {
   user: MinimalUser | null | undefined;
   nearBottom: boolean;
   scrollToBottom: () => void;
   setMessages: Dispatch<SetStateAction<ChatMessage[]>>;
+  onIncomingMessage?: () => void;
 }) {
   const [connection, setConnection] = useState<ConnectionStatus>(() => {
     const socket = getSocket();
@@ -42,11 +44,15 @@ export function useChatSocket({
     const onReconnectAttempt = () => setConnection("connecting");
 
     const onNew = (payload: ChatMessagePayload) => {
+      let appended = false;
       setMessages((prev) => {
         if (prev.some((m) => m.id === payload.id)) return prev;
-        const next = [...prev, payload as unknown as ChatMessage];
-        return next;
+        appended = true;
+        return [...prev, payload as unknown as ChatMessage];
       });
+
+      if (!appended) return;
+      onIncomingMessage?.();
       if (nearBottom) requestAnimationFrame(() => scrollToBottom());
     };
 
@@ -105,7 +111,7 @@ export function useChatSocket({
       socket.off("chat:typing:start", onTypingStart);
       socket.off("chat:typing:stop", onTypingStop);
     };
-  }, [user?.clerkId, nearBottom, scrollToBottom, setMessages]);
+  }, [user?.clerkId, nearBottom, scrollToBottom, setMessages, onIncomingMessage]);
 
   const emitTypingStart = () => {
     const socket = getSocket();

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAuthStore } from "@/stores/authStore";
 import { ChatComposer } from "./chat/ChatComposer";
@@ -17,6 +18,9 @@ export default function ChatPage() {
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
+  const [unseenCount, setUnseenCount] = useState(0);
+  const nearBottomRef = useRef(true);
+
   const pendingScrollBottomRef = useRef(false);
   const pendingRestoreAfterPrependRef = useRef(false);
   const pendingPrependScrollRef = useRef<{
@@ -24,7 +28,12 @@ export default function ChatPage() {
     prevScrollTop: number;
   } | null>(null);
 
-  const nearBottom = useNearBottom(listRef);
+  const handleNearBottomChange = useCallback((isNear: boolean) => {
+    nearBottomRef.current = isNear;
+    if (isNear) setUnseenCount(0);
+  }, []);
+
+  const nearBottom = useNearBottom(listRef, 120, handleNearBottomChange);
 
   const handleInitialLoaded = useCallback(() => {
     pendingScrollBottomRef.current = true;
@@ -52,6 +61,15 @@ export default function ChatPage() {
     if (!el) return;
     el.scrollTop = el.scrollHeight;
   }, []);
+
+  const handleIncomingMessage = useCallback(() => {
+    if (!nearBottomRef.current) setUnseenCount((c) => c + 1);
+  }, []);
+
+  const handleJumpToBottom = useCallback(() => {
+    scrollToBottom();
+    setUnseenCount(0);
+  }, [scrollToBottom]);
 
   useEffect(() => {
     if (!pendingScrollBottomRef.current) return;
@@ -94,6 +112,7 @@ export default function ChatPage() {
     nearBottom,
     scrollToBottom,
     setMessages,
+    onIncomingMessage: handleIncomingMessage,
   });
 
   useChatReadMarker({ newestMessageId, nearBottom });
@@ -162,6 +181,21 @@ export default function ChatPage() {
           onSaveEdit={handleSaveEditClick}
           onDeleteMessage={handleDeleteClick}
         />
+
+        {!nearBottom && (
+          <button
+            type="button"
+            onClick={handleJumpToBottom}
+            className="absolute bottom-4 right-6 z-20 flex items-center gap-2 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-background transition-colors"
+            aria-label="Scroll to bottom">
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            <span className="tabular-nums">
+              {unseenCount > 0
+                ? `${unseenCount > 99 ? "99+" : unseenCount} new`
+                : "Scroll to bottom"}
+            </span>
+          </button>
+        )}
       </div>
 
       <div className="px-6 pb-2">

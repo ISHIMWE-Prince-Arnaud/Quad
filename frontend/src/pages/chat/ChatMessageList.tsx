@@ -23,6 +23,29 @@ const isSameDay = (a: Date, b: Date) =>
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate();
 
+const formatDayLabel = (d: Date) => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDays = Math.round(
+    (today.getTime() - day.getTime()) / (1000 * 60 * 60 * 24)
+  );
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  return d.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: d.getFullYear() === now.getFullYear() ? undefined : "numeric",
+  });
+};
+
+const formatTimeOnly = (d: Date) =>
+  d.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
 const URL_REGEX =
   /(https?:\/\/(?:www\.)?[\w.-]+(?::[0-9]+)?(?:\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*)?)/gi;
 
@@ -147,7 +170,7 @@ export const ChatMessageList = memo(function ChatMessageList({
     <>
       <div
         ref={listRef}
-        className="flex-1 overflow-y-auto scrollbar-hide px-6 pt-4">
+        className="flex-1 overflow-y-auto scrollbar-hide px-6 pt-4 pb-6">
         {loading && <ChatMessageListSkeleton />}
 
         {!loading && messages.length === 0 && <ChatEmptyState />}
@@ -174,6 +197,9 @@ export const ChatMessageList = memo(function ChatMessageList({
                   isSameDay(new Date(prev.createdAt), new Date(m.createdAt));
                 const startsNewGroup = !prevSameAuthor || !prevSameDay;
 
+                const showDaySeparator = !prevSameDay;
+                const dayLabel = formatDayLabel(new Date(m.createdAt));
+
                 const showAvatar = startsNewGroup;
                 const showHeader = startsNewGroup;
                 const showActions = isSelf && editingId !== m.id;
@@ -187,12 +213,21 @@ export const ChatMessageList = memo(function ChatMessageList({
                     );
 
                 const headerName = isSelf ? "You" : m.author.username;
-                const headerTime = `${m.timestamp}${
+                const headerTime = `${formatTimeOnly(new Date(m.createdAt))}${
                   m.isEdited ? " • edited" : ""
                 }`;
 
               return (
                 <div key={m.id} className="py-0.5">
+                  {showDaySeparator && (
+                    <div className="flex items-center justify-center py-3">
+                      <div className="h-px flex-1 bg-border/60" />
+                      <div className="mx-3 text-[11px] font-medium text-muted-foreground/70 bg-background/70 border border-border/50 px-3 py-1 rounded-full tabular-nums">
+                        {dayLabel}
+                      </div>
+                      <div className="h-px flex-1 bg-border/60" />
+                    </div>
+                  )}
                   <div
                     className={cn(
                       "flex items-start gap-3",
