@@ -12,7 +12,6 @@ import { logError } from "@/lib/errorHandling";
 
 export default function CreateStoryPage() {
   const [title, setTitle] = useState("");
-  const [excerpt, setExcerpt] = useState("");
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -22,7 +21,6 @@ export default function CreateStoryPage() {
   const [loadingMine, setLoadingMine] = useState(true);
   const [validationErrors, setValidationErrors] = useState<{
     title?: string;
-    excerpt?: string;
     content?: string;
   }>({});
   const [autoSaving, setAutoSaving] = useState(false);
@@ -60,7 +58,6 @@ export default function CreateStoryPage() {
           const payload: CreateStoryInput = {
             title: title.trim(),
             content,
-            excerpt: excerpt.trim() || undefined,
             coverImage,
             status: "draft",
           };
@@ -75,7 +72,7 @@ export default function CreateStoryPage() {
     }, 30000); // 30 seconds
 
     return () => clearInterval(autoSaveInterval);
-  }, [canSubmit, submitting, autoSaving, title, excerpt, coverImage, editor]);
+  }, [canSubmit, submitting, autoSaving, title, coverImage, editor]);
 
   useEffect(() => {
     let cancelled = false;
@@ -147,18 +144,15 @@ export default function CreateStoryPage() {
     const validation = createStorySchema.safeParse({
       title: title.trim(),
       content,
-      excerpt: excerpt.trim() || undefined,
       coverImage,
       status,
     });
 
     if (!validation.success) {
-      const errors: { title?: string; excerpt?: string; content?: string } = {};
+      const errors: { title?: string; content?: string } = {};
       validation.error.issues.forEach((err) => {
         if (err.path[0] === "title") {
           errors.title = err.message;
-        } else if (err.path[0] === "excerpt") {
-          errors.excerpt = err.message;
         } else if (err.path[0] === "content") {
           errors.content = err.message;
         }
@@ -173,7 +167,6 @@ export default function CreateStoryPage() {
       const payload: CreateStoryInput = {
         title: title.trim(),
         content,
-        excerpt: excerpt.trim() || undefined,
         coverImage,
         status,
       };
@@ -186,7 +179,6 @@ export default function CreateStoryPage() {
 
       // Clear form
       setTitle("");
-      setExcerpt("");
       setCoverImage(undefined);
       editor?.commands.clearContent();
       setValidationErrors({});
@@ -224,7 +216,6 @@ export default function CreateStoryPage() {
         <div className="md:col-span-2">
           <CreateStoryForm
             title={title}
-            excerpt={excerpt}
             coverImage={coverImage}
             uploadingCover={uploadingCover}
             validationErrors={validationErrors}
@@ -239,15 +230,6 @@ export default function CreateStoryPage() {
                 setValidationErrors((prev) => ({
                   ...prev,
                   title: undefined,
-                }));
-              }
-            }}
-            onExcerptChange={(value) => {
-              setExcerpt(value);
-              if (validationErrors.excerpt) {
-                setValidationErrors((prev) => ({
-                  ...prev,
-                  excerpt: undefined,
                 }));
               }
             }}

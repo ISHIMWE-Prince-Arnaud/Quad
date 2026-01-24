@@ -10,7 +10,6 @@ import { StoryEditorToolbar } from "./StoryEditorToolbar";
 
 export function CreateStoryForm({
   title,
-  excerpt,
   coverImage,
   uploadingCover,
   validationErrors,
@@ -20,7 +19,6 @@ export function CreateStoryForm({
   lastSaved,
   editor,
   onTitleChange,
-  onExcerptChange,
   onUploadCover,
   onRemoveCover,
   onSaveDraft,
@@ -29,17 +27,15 @@ export function CreateStoryForm({
   onMention,
 }: {
   title: string;
-  excerpt: string;
   coverImage: string | undefined;
   uploadingCover: boolean;
-  validationErrors: { title?: string; excerpt?: string; content?: string };
+  validationErrors: { title?: string; content?: string };
   canSubmit: boolean;
   submitting: boolean;
   autoSaving: boolean;
   lastSaved: Date | null;
   editor: Editor | null;
   onTitleChange: (value: string) => void;
-  onExcerptChange: (value: string) => void;
   onUploadCover: (file: File | null) => void;
   onRemoveCover: () => void;
   onSaveDraft: () => void;
@@ -122,32 +118,6 @@ export function CreateStoryForm({
             onUploadCover={onUploadCover}
             onRemoveCover={onRemoveCover}
           />
-        </div>
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <h3 className="text-sm font-bold text-[#64748b] uppercase tracking-wider">
-              Description
-            </h3>
-            <textarea
-              value={excerpt}
-              onChange={(e) => onExcerptChange(e.target.value)}
-              placeholder="Add your story description..."
-              className={cn(
-                "w-full bg-white/5 border border-white/5 focus:border-[#2563eb]/50 focus:ring-0 rounded-2xl text-[#f1f5f9] placeholder-[#64748b] p-4 min-h-[120px] resize-none transition-all",
-                validationErrors.excerpt && "border-destructive/50"
-              )}
-              maxLength={500}
-            />
-            <div className="flex justify-between items-center text-[10px] font-bold text-[#64748b]">
-              <span>{excerpt.length}/500 characters</span>
-              {validationErrors.excerpt && (
-                <span className="text-destructive uppercase">
-                  {validationErrors.excerpt}
-                </span>
-              )}
-            </div>
-          </div>
         </div>
 
         <div className="space-y-2">
