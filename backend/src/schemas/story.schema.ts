@@ -22,9 +22,6 @@ const storyStatusSchema = z.enum(["draft", "published"]);
  *         content:
  *           type: string
  *           minLength: 1
- *         excerpt:
- *           type: string
- *           maxLength: 500
  *         coverImage:
  *           type: string
  *           format: uri
@@ -49,12 +46,6 @@ export const createStorySchema = z
   content: z
     .string()
     .min(1, "Content is required"),
-  
-  excerpt: z
-    .string()
-    .max(500, "Excerpt must be less than 500 characters")
-    .trim()
-    .optional(),
   
   coverImage: z
     .string()
@@ -91,12 +82,6 @@ export const updateStorySchema = z
   content: z
     .string()
     .min(1, "Content cannot be empty")
-    .optional(),
-  
-  excerpt: z
-    .string()
-    .max(500, "Excerpt must be less than 500 characters")
-    .trim()
     .optional(),
   
   coverImage: z

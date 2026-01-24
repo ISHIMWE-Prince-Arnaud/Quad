@@ -147,8 +147,7 @@ describe("Property 1: CRUD Operations Preserve Data Integrity", () => {
         fc.record({
           title: fc.string({ minLength: 1, maxLength: 200 }),
           content: fc.string({ minLength: 10, maxLength: 5000 }),
-          excerpt: fc.option(fc.string({ maxLength: 300 })),
-          coverImage: fc.option(fc.webUrl()),
+          coverImage: fc.option(fc.webUrl(), { nil: undefined }),
           status: fc.constantFrom("draft" as const, "published" as const),
           tags: fc.array(fc.string({ minLength: 1, maxLength: 20 }), {
             maxLength: 5,
@@ -164,7 +163,6 @@ describe("Property 1: CRUD Operations Preserve Data Integrity", () => {
             },
             title: storyData.title,
             content: storyData.content,
-            excerpt: storyData.excerpt,
             coverImage: storyData.coverImage,
             status: storyData.status,
             tags: storyData.tags,

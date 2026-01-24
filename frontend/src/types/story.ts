@@ -13,7 +13,6 @@ export interface Story {
   author: StoryAuthor;
   title: string;
   content: string; // sanitized HTML
-  excerpt?: string;
   coverImage?: string;
   status: StoryStatus;
   tags?: string[];
@@ -49,7 +48,6 @@ export interface StoryResponse {
 export interface CreateStoryInput {
   title: string;
   content: string;
-  excerpt?: string;
   coverImage?: string;
   status?: StoryStatus; // default draft
   tags?: string[];
@@ -58,7 +56,6 @@ export interface CreateStoryInput {
 export interface UpdateStoryInput {
   title?: string;
   content?: string;
-  excerpt?: string;
   coverImage?: string | null; // null to remove
   status?: StoryStatus;
   tags?: string[];

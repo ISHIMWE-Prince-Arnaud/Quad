@@ -25,12 +25,6 @@ export const createStorySchema = z.object({
       }
     ),
 
-  excerpt: z
-    .string()
-    .max(500, "Excerpt must be less than 500 characters")
-    .trim()
-    .optional(),
-
   coverImage: z.string().url("Cover image must be a valid URL").optional(),
 
   status: z.enum(["draft", "published"]).optional().default("draft"),
