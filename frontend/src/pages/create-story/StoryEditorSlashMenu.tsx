@@ -12,6 +12,7 @@ import {
   Minus,
   Table2,
   Lightbulb,
+  Trash2,
 } from "lucide-react";
 import { useEffect, useMemo, useState, type ComponentType } from "react";
 
@@ -74,6 +75,10 @@ export function StoryEditorSlashMenu({
   const [tableWithHeaderRow, setTableWithHeaderRow] = useState(true);
   const TABLE_MAX = 8;
 
+  const isInTable = Boolean(editor?.isActive("table"));
+  const isInCallout = Boolean(editor?.isActive("callout"));
+  const isInCodeBlock = Boolean(editor?.isActive("codeBlock"));
+
   const items: SlashItem[] = useMemo(
     () => [
       {
@@ -125,6 +130,17 @@ export function StoryEditorSlashMenu({
         icon: Table2,
         run: () => setTablePickerOpen(true),
       },
+      ...(isInTable
+        ? [
+            {
+              id: "delete-table",
+              label: "Delete table",
+              keywords: "delete remove table",
+              icon: Trash2,
+              run: (ed) => ed.chain().focus().deleteTable().run(),
+            } satisfies SlashItem,
+          ]
+        : []),
       ...(onMention
         ? [
             {
@@ -168,8 +184,30 @@ export function StoryEditorSlashMenu({
         icon: Lightbulb,
         run: (ed) => ed.chain().focus().insertCallout("tip").run(),
       },
+      ...(isInCallout
+        ? [
+            {
+              id: "delete-callout",
+              label: "Delete callout",
+              keywords: "delete remove callout",
+              icon: Trash2,
+              run: (ed) => ed.chain().focus().unsetCallout().run(),
+            } satisfies SlashItem,
+          ]
+        : []),
+      ...(isInCodeBlock
+        ? [
+            {
+              id: "delete-codeblock",
+              label: "Remove code block",
+              keywords: "delete remove code block",
+              icon: Trash2,
+              run: (ed) => ed.chain().focus().toggleCodeBlock().run(),
+            } satisfies SlashItem,
+          ]
+        : []),
     ],
-    [onInsertLink, onMention]
+    [onInsertLink, onMention, isInTable, isInCallout, isInCodeBlock]
   );
 
   const filtered = useMemo(() => {
