@@ -36,7 +36,7 @@ export class StoryService {
     }
 
     const readTime = calculateReadingTime(sanitizedContent);
-    const excerpt = storyData.excerpt || generateExcerpt(sanitizedContent, 200);
+    const excerpt = generateExcerpt(sanitizedContent, 200);
 
     const newStory = await Story.create({
       userId,
@@ -203,10 +203,7 @@ export class StoryService {
     if (sanitizedContent) {
       updates.content = sanitizedContent;
       updates.readTime = calculateReadingTime(sanitizedContent);
-
-      if (!inputUpdates.excerpt) {
-        updates.excerpt = generateExcerpt(sanitizedContent, 200);
-      }
+      updates.excerpt = generateExcerpt(sanitizedContent, 200);
     }
 
     const wasPublished = story.status === "published";
