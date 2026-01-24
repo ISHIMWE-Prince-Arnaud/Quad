@@ -43,18 +43,20 @@ export function StoryCardBody({
       {/* Cover image */}
       {coverImage && (
         <Link to={`/app/stories/${storyId}`} className="block">
-          <div className="aspect-video w-full overflow-hidden">
-            <img
-              src={coverImage}
-              alt={title}
-              className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
-            />
+          <div className="p-3">
+            <div className="aspect-video w-full overflow-hidden rounded-xl">
+              <img
+                src={coverImage}
+                alt={title}
+                className="h-full w-full object-cover"
+              />
+            </div>
           </div>
         </Link>
       )}
 
       {/* Title and excerpt */}
-      <div className="p-4 space-y-2">
+      <div className="px-4 pb-4 space-y-2">
         <Link to={`/app/stories/${storyId}`} className="block space-y-2">
           <h3 className="font-semibold text-lg line-clamp-2 leading-tight">{title}</h3>
           {snippet && (

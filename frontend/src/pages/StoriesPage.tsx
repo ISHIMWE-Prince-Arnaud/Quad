@@ -1,10 +1,12 @@
 ﻿import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
 import { SkeletonPost } from "@/components/ui/loading";
 import { StoryCard } from "@/components/stories/StoryCard";
 import { logError } from "@/lib/errorHandling";
+import { Plus } from "lucide-react";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -72,12 +74,22 @@ export default function StoriesPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-4 flex flex-col gap-3">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <h1 className="text-xl font-semibold">Stories</h1>
+    <div className="w-full px-4 py-6">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-lg font-semibold text-white">Stories</h1>
+            <p className="text-xs text-[#64748b]">Explore latest happenings on campus</p>
           </div>
+
+          <Button asChild className="h-9 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white">
+            <Link to="/app/create/story" className="flex items-center gap-2">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/15">
+                <Plus className="h-3.5 w-3.5" />
+              </span>
+              <span className="text-sm font-semibold">Create Story</span>
+            </Link>
+          </Button>
         </div>
 
         {error && (
@@ -100,12 +112,14 @@ export default function StoriesPage() {
           </div>
         )}
 
-        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 items-start">
           {stories.map((story) => (
             <StoryCard
               key={story._id}
               story={story}
               onDelete={handleDeleteStory}
+              hideHeader
+              className="bg-[#0f121a] border border-white/5 rounded-[1.4rem] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.35)]"
             />
           ))}
         </div>

@@ -23,9 +23,10 @@ interface StoryCardProps {
   story: Story;
   onDelete?: (storyId: string) => void;
   className?: string;
+  hideHeader?: boolean;
 }
 
-export function StoryCard({ story, onDelete, className }: StoryCardProps) {
+export function StoryCard({ story, onDelete, className, hideHeader }: StoryCardProps) {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const isOwner = user?.clerkId === story.author.clerkId;
@@ -62,16 +63,18 @@ export function StoryCard({ story, onDelete, className }: StoryCardProps) {
             "hover:shadow-lg",
             className
           )}>
-          <CardHeader className="pb-2 px-4 pt-3">
-            <StoryCardHeader
-              storyId={story._id}
-              createdAt={story.createdAt}
-              isOwner={!!isOwner}
-              onCopyLink={handleCopyLink}
-              onEdit={handleEdit}
-              onDelete={() => setIsDeleteDialogOpen(true)}
-            />
-          </CardHeader>
+          {!hideHeader && (
+            <CardHeader className="pb-2 px-4 pt-3">
+              <StoryCardHeader
+                storyId={story._id}
+                createdAt={story.createdAt}
+                isOwner={!!isOwner}
+                onCopyLink={handleCopyLink}
+                onEdit={handleEdit}
+                onDelete={() => setIsDeleteDialogOpen(true)}
+              />
+            </CardHeader>
+          )}
 
           {/* Story content */}
           <CardContent className="p-0">
@@ -87,7 +90,7 @@ export function StoryCard({ story, onDelete, className }: StoryCardProps) {
           </CardContent>
 
           {/* Interaction buttons */}
-          <CardFooter className="px-4 pb-3 pt-2 flex items-center justify-between text-xs text-muted-foreground border-t">
+          <CardFooter className="p-0">
             <StoryCardFooter
               storyId={story._id}
               reactionPending={reactionPending}
