@@ -1,5 +1,18 @@
 .ProseMirror {
   outline: none;
+  line-height: 1.45 !important;
+}
+
+.ProseMirror p {
+  margin: 0.25rem 0 !important;
+}
+
+.ProseMirror p:first-child {
+  margin-top: 0;
+}
+
+.ProseMirror p:last-child {
+  margin-bottom: 0;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
@@ -27,20 +40,20 @@
 .ProseMirror h3 {
   font-size: 1.25em;
   font-weight: 600;
-  margin-top: 0.75em;
-  margin-bottom: 0.5em;
+  margin-top: 0.6em;
+  margin-bottom: 0.4em;
 }
 
 .ProseMirror h4 {
   font-size: 1.1em;
   font-weight: 600;
-  margin-top: 0.6em;
-  margin-bottom: 0.4em;
+  margin-top: 0.5em;
+  margin-bottom: 0.3em;
 }
 
 .ProseMirror blockquote {
   border-left: 3px solid hsl(var(--border));
-  padding-left: 1rem;
+  padding-left: 0.8rem;
   margin-left: 0;
   font-style: italic;
   color: hsl(var(--muted-foreground));
@@ -48,12 +61,12 @@
 
 .ProseMirror ul,
 .ProseMirror ol {
-  padding-left: 1.5rem;
-  margin: 0.5rem 0;
+  padding-left: 1.2rem;
+  margin: 0.4rem 0;
 }
 
 .ProseMirror li {
-  margin: 0.25rem 0;
+  margin: 0.2rem 0;
 }
 
 .ProseMirror a {
@@ -74,7 +87,7 @@
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   border-radius: 0.75rem;
-  padding: 1rem;
+  padding: 0.75rem !important;
   overflow-x: auto;
 }
 
@@ -87,7 +100,7 @@
 .ProseMirror hr {
   border: none;
   border-top: 1px solid hsl(var(--border));
-  margin: 1.25rem 0;
+  margin: 0.9rem 0 !important;
 }
 
 .ProseMirror table {
@@ -96,13 +109,13 @@
   overflow: hidden;
   border-radius: 0.75rem;
   border: 1px solid hsl(var(--border));
-  margin: 1rem 0;
+  margin: 0.75rem 0 !important;
 }
 
 .ProseMirror th,
 .ProseMirror td {
   border: 1px solid hsl(var(--border));
-  padding: 0.6rem 0.75rem;
+  padding: 0.45rem 0.6rem !important;
   vertical-align: top;
 }
 
@@ -114,8 +127,8 @@
 .ProseMirror .callout {
   border: 1px solid hsl(var(--border));
   border-radius: 0.9rem;
-  padding: 0.9rem 1rem;
-  margin: 1rem 0;
+  padding: 0.65rem 0.8rem !important;
+  margin: 0.75rem 0 !important;
   background: hsl(var(--card));
 }
 
@@ -137,8 +150,8 @@
 .prose .callout {
   border: 1px solid hsl(var(--border));
   border-radius: 0.9rem;
-  padding: 0.9rem 1rem;
-  margin: 1rem 0;
+  padding: 0.65rem 0.8rem !important;
+  margin: 0.75rem 0 !important;
   background: hsl(var(--card));
 }
 
@@ -157,6 +170,23 @@
   background: hsl(var(--success) / 0.08);
 }
 
+.prose {
+  line-height: 1.55 !important;
+}
+
+.prose p {
+  margin-top: 0.45em !important;
+  margin-bottom: 0.45em !important;
+}
+
+.prose p:first-child {
+  margin-top: 0;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
 .prose code {
   background: hsl(var(--muted));
   border: 1px solid hsl(var(--border));
@@ -169,7 +199,7 @@
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   border-radius: 0.75rem;
-  padding: 1rem;
+  padding: 0.75rem !important;
   overflow-x: auto;
 }
 
@@ -182,7 +212,7 @@
 .prose hr {
   border: none;
   border-top: 1px solid hsl(var(--border));
-  margin: 1.25rem 0;
+  margin: 0.9rem 0 !important;
 }
 
 .prose table {
@@ -191,13 +221,13 @@
   overflow: hidden;
   border-radius: 0.75rem;
   border: 1px solid hsl(var(--border));
-  margin: 1rem 0;
+  margin: 0.75rem 0 !important;
 }
 
 .prose th,
 .prose td {
   border: 1px solid hsl(var(--border));
-  padding: 0.6rem 0.75rem;
+  padding: 0.45rem 0.6rem !important;
   vertical-align: top;
 }
 
@@ -210,7 +240,7 @@
   max-width: 100%;
   height: auto;
   border-radius: 0.5rem;
-  margin: 1rem 0;
+  margin: 0.75rem 0 !important;
 }
 
 .ProseMirror strong {
