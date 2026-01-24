@@ -66,7 +66,7 @@ export function CreateStoryForm({
         <div className="flex items-center gap-3">
           <Button
             variant="secondary"
-            disabled={!canSubmit || submitting}
+            disabled={submitting}
             onClick={onSaveDraft}
             className="h-8 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold px-4">
             {submitting ? (
@@ -89,6 +89,12 @@ export function CreateStoryForm({
           </Button>
         </div>
       </div>
+
+      {!canSubmit && (
+        <p className="text-[11px] font-semibold text-[#64748b]">
+          Add a title and some content to enable publishing.
+        </p>
+      )}
 
       <StoryCoverSection
         coverImage={coverImage}

@@ -83,37 +83,50 @@ export function StoryCoverSection({
                   Drag & drop or click to upload (1200×500px)
                 </p>
               </div>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  openFilePicker();
-                }}
-                className="h-8 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold px-6">
-                Upload
-              </Button>
             </>
           )}
         </div>
       </div>
 
       {coverImage && (
-        <div className="relative overflow-hidden rounded-[2rem] border border-white/5 bg-white/[0.01]">
+        <div
+          className="group relative overflow-hidden rounded-[2rem] border border-white/5 bg-white/[0.01]"
+          tabIndex={0}>
           <img
             src={coverImage}
             alt="cover"
             className="w-full max-h-80 object-cover"
           />
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            className="absolute top-3 right-3"
-            onClick={onRemoveCover}>
-            <X className="h-4 w-4" />
-          </Button>
+
+          <div className="absolute inset-0 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100" />
+
+          <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="h-8 rounded-full border border-white/10 bg-white/10 hover:bg-white/15 text-white font-semibold px-4"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openFilePicker();
+              }}>
+              Change
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="h-8 rounded-full px-4"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onRemoveCover();
+              }}>
+              <X className="h-4 w-4 mr-2" />
+              Remove
+            </Button>
+          </div>
         </div>
       )}
     </div>
