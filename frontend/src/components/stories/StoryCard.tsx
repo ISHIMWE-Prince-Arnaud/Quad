@@ -79,7 +79,7 @@ export function StoryCard({ story, onDelete, className }: StoryCardProps) {
               storyId={story._id}
               coverImage={story.coverImage}
               title={story.title}
-              excerpt={story.excerpt}
+              content={story.content}
               authorUsername={story.author.username}
               authorProfileImage={story.author.profileImage}
               readTime={story.readTime}

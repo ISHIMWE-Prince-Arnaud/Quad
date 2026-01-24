@@ -2,11 +2,28 @@ import { Link } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+function getStorySnippet(content: string, maxLength: number = 140) {
+  const plainText = content
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (plainText.length <= maxLength) return plainText;
+
+  const truncated = plainText.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(" ");
+  if (lastSpace > maxLength * 0.7) {
+    return truncated.slice(0, lastSpace) + "...";
+  }
+
+  return truncated + "...";
+}
+
 export function StoryCardBody({
   storyId,
   coverImage,
   title,
-  excerpt,
+  content,
   authorUsername,
   authorProfileImage,
   readTime,
@@ -14,11 +31,13 @@ export function StoryCardBody({
   storyId: string;
   coverImage?: string;
   title: string;
-  excerpt?: string;
+  content: string;
   authorUsername: string;
   authorProfileImage?: string;
   readTime?: number;
 }) {
+  const snippet = getStorySnippet(content);
+
   return (
     <>
       {/* Cover image */}
@@ -38,7 +57,9 @@ export function StoryCardBody({
       <div className="p-4 space-y-2">
         <Link to={`/app/stories/${storyId}`} className="block space-y-2">
           <h3 className="font-semibold text-lg line-clamp-2 leading-tight">{title}</h3>
-          {excerpt && <p className="text-sm text-muted-foreground line-clamp-2">{excerpt}</p>}
+          {snippet && (
+            <p className="text-sm text-muted-foreground line-clamp-2">{snippet}</p>
+          )}
         </Link>
 
         {/* Author info and metadata */}
