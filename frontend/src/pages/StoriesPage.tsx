@@ -118,8 +118,7 @@ export default function StoriesPage() {
               key={story._id}
               story={story}
               onDelete={handleDeleteStory}
-              hideHeader
-              className="bg-[#0f121a] border border-white/5 rounded-[1.4rem] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.35)]"
+              variant="grid"
             />
           ))}
         </div>
