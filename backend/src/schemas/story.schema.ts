@@ -122,23 +122,6 @@ export type StoryIdSchemaType = z.infer<typeof storyIdSchema>;
  */
 export const getStoriesQuerySchema = z
   .object({
-  status: storyStatusSchema.optional(),
-  
-  tag: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .optional(),
-  
-  authorId: z
-    .string()
-    .optional(),
-  
-  search: z
-    .string()
-    .trim()
-    .optional(),
-  
   limit: z
     .string()
     .optional()
@@ -154,11 +137,6 @@ export const getStoriesQuerySchema = z
     .refine((val) => /^\d+$/.test(val), "Skip must be a number")
     .transform(Number)
     .refine((val) => val >= 0, "Skip must be non-negative"),
-  
-  sortBy: z
-    .enum(["newest", "oldest", "popular", "views"])
-    .optional()
-    .default("newest"),
   })
   .strict();
 

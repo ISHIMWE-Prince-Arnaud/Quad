@@ -53,19 +53,15 @@ router.post(
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *           enum: [draft, published]
- *       - in: query
- *         name: tag
- *         schema:
- *           type: string
- *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *           default: 20
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 0
  *     responses:
  *       200:
  *         description: List of stories

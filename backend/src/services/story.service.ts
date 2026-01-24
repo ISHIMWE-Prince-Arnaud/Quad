@@ -8,7 +8,6 @@ import type {
 import { getSocketIO } from "../config/socket.config.js";
 import { emitContentDeleted, emitNewContent } from "../sockets/feed.socket.js";
 import { extractMentions } from "../utils/chat.util.js";
-import type { SortOrder } from "mongoose";
 import {
   createNotification,
   generateNotificationMessage,
@@ -93,46 +92,12 @@ export class StoryService {
     _userId: string | undefined,
     query: GetStoriesQuerySchemaType
   ) {
-    const filter: Record<string, unknown> = {};
-
-    if (query.status) {
-      filter.status = query.status;
-    } else {
-      filter.status = "published";
-    }
-
-    if (query.tag) {
-      filter.tags = query.tag;
-    }
-
-    if (query.authorId) {
-      filter["author.clerkId"] = query.authorId;
-    }
-
-    if (query.search) {
-      filter.$text = { $search: query.search };
-    }
-
-    let sort: Record<string, SortOrder> = {};
-    switch (query.sortBy) {
-      case "newest":
-        sort = { publishedAt: -1, createdAt: -1 };
-        break;
-      case "oldest":
-        sort = { publishedAt: 1, createdAt: 1 };
-        break;
-      case "popular":
-        sort = { reactionsCount: -1, publishedAt: -1 };
-        break;
-      case "views":
-        sort = { viewsCount: -1, publishedAt: -1 };
-        break;
-      default:
-        sort = { publishedAt: -1, createdAt: -1 };
-    }
+    const filter: Record<string, unknown> = {
+      status: "published",
+    };
 
     const stories = await Story.find(filter)
-      .sort(sort)
+      .sort({ publishedAt: -1, createdAt: -1 })
       .limit(query.limit)
       .skip(query.skip)
       .lean();
