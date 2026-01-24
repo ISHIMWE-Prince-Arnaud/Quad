@@ -265,7 +265,7 @@ export function StoryEditorSlashMenu({
         <div className="px-3 py-2 text-[11px] font-semibold text-[#64748b] border-b border-white/5">
           Commands
         </div>
-        <div className="overflow-hidden py-1">
+        <div className="max-h-64 overflow-y-auto scrollbar-hide py-1">
           {filtered.map((item, idx) => {
             const Icon = item.icon;
             return (
@@ -273,7 +273,7 @@ export function StoryEditorSlashMenu({
                 key={item.id}
                 type="button"
                 className={cn(
-                  "w-full flex items-center gap-2 px-3 py-2 text-left text-sm transition-colors",
+                  "w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors",
                   idx === activeIndex
                     ? "bg-white/5 text-white"
                     : "text-[#cbd5e1] hover:bg-white/5"
@@ -287,7 +287,7 @@ export function StoryEditorSlashMenu({
                   item.run(editor);
                   setOpen(false);
                 }}>
-                <span className="h-8 w-8 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
+                <span className="h-7 w-7 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
                   <Icon className="h-4 w-4 text-[#94a3b8]" />
                 </span>
                 <span className="font-semibold">{item.label}</span>
