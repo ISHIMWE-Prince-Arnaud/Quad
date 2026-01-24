@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { UploadService } from "@/services/uploadService";
 import { StoryService } from "@/services/storyService";
-import type { CreateStoryInput, Story, StoryStatus } from "@/types/story";
+import type { CreateStoryInput, StoryStatus } from "@/types/story";
 import { createStorySchema } from "@/schemas/story.schema";
 import { getErrorMessage } from "./create-story/getErrorMessage";
 import { CreateStoryForm } from "./create-story/CreateStoryForm";
-import { MyStoriesSidebar } from "./create-story/MyStoriesSidebar";
 import { useStoryEditor } from "./create-story/useStoryEditor";
 import toast from "react-hot-toast";
 import { logError } from "@/lib/errorHandling";
@@ -16,9 +15,6 @@ export default function CreateStoryPage() {
   const [uploadingCover, setUploadingCover] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [editorHtml, setEditorHtml] = useState<string>("");
-  const [myDrafts, setMyDrafts] = useState<Story[]>([]);
-  const [myPublished, setMyPublished] = useState<Story[]>([]);
-  const [loadingMine, setLoadingMine] = useState(true);
   const [validationErrors, setValidationErrors] = useState<{
     title?: string;
     content?: string;
@@ -73,36 +69,6 @@ export default function CreateStoryPage() {
 
     return () => clearInterval(autoSaveInterval);
   }, [canSubmit, submitting, autoSaving, title, coverImage, editor]);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        setLoadingMine(true);
-        const drafts = await StoryService.getMine({
-          status: "draft",
-          limit: 10,
-          skip: 0,
-        });
-        const published = await StoryService.getMine({
-          status: "published",
-          limit: 10,
-          skip: 0,
-        });
-        if (!cancelled) {
-          setMyDrafts(Array.isArray(drafts.data) ? drafts.data : []);
-          setMyPublished(Array.isArray(published.data) ? published.data : []);
-        }
-      } catch (err) {
-        logError(err, { component: "CreateStoryPage", action: "loadMyStories" });
-      } finally {
-        if (!cancelled) setLoadingMine(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -183,25 +149,6 @@ export default function CreateStoryPage() {
       editor?.commands.clearContent();
       setValidationErrors({});
       setLastSaved(null);
-
-      // Refresh story lists
-      try {
-        const drafts = await StoryService.getMine({
-          status: "draft",
-          limit: 10,
-          skip: 0,
-        });
-        const published = await StoryService.getMine({
-          status: "published",
-          limit: 10,
-          skip: 0,
-        });
-        setMyDrafts(Array.isArray(drafts.data) ? drafts.data : []);
-        setMyPublished(Array.isArray(published.data) ? published.data : []);
-      } catch (e) {
-        // ignore refresh errors
-        logError(e, { component: "CreateStoryPage", action: "refreshStoryLists" });
-      }
     } catch (err) {
       logError(err, { component: "CreateStoryPage", action: "submitStory" });
       toast.error(getErrorMessage(err));
@@ -212,49 +159,40 @@ export default function CreateStoryPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
-        <div className="md:col-span-2">
-          <CreateStoryForm
-            title={title}
-            coverImage={coverImage}
-            uploadingCover={uploadingCover}
-            validationErrors={validationErrors}
-            canSubmit={canSubmit}
-            submitting={submitting}
-            autoSaving={autoSaving}
-            lastSaved={lastSaved}
-            editor={editor}
-            onTitleChange={(value) => {
-              setTitle(value);
-              if (validationErrors.title) {
-                setValidationErrors((prev) => ({
-                  ...prev,
-                  title: undefined,
-                }));
-              }
-            }}
-            onUploadCover={(file) => void handleUploadCover(file)}
-            onRemoveCover={() => setCoverImage(undefined)}
-            onSaveDraft={() => void handleSubmit("draft")}
-            onPublish={() => void handleSubmit("published")}
-            onInsertLink={handleInsertLink}
-            onMention={() => {
-              const username = window.prompt(
-                "Enter username to mention (without @)"
-              );
-              if (username) {
-                editor?.chain().focus().insertContent(`@${username} `).run();
-              }
-            }}
-          />
-        </div>
-        <div className="md:col-span-1">
-          <MyStoriesSidebar
-            loadingMine={loadingMine}
-            myDrafts={myDrafts}
-            myPublished={myPublished}
-          />
-        </div>
+      <div className="mx-auto max-w-3xl">
+        <CreateStoryForm
+          title={title}
+          coverImage={coverImage}
+          uploadingCover={uploadingCover}
+          validationErrors={validationErrors}
+          canSubmit={canSubmit}
+          submitting={submitting}
+          autoSaving={autoSaving}
+          lastSaved={lastSaved}
+          editor={editor}
+          onTitleChange={(value) => {
+            setTitle(value);
+            if (validationErrors.title) {
+              setValidationErrors((prev) => ({
+                ...prev,
+                title: undefined,
+              }));
+            }
+          }}
+          onUploadCover={(file) => void handleUploadCover(file)}
+          onRemoveCover={() => setCoverImage(undefined)}
+          onSaveDraft={() => void handleSubmit("draft")}
+          onPublish={() => void handleSubmit("published")}
+          onInsertLink={handleInsertLink}
+          onMention={() => {
+            const username = window.prompt(
+              "Enter username to mention (without @)"
+            );
+            if (username) {
+              editor?.chain().focus().insertContent(`@${username} `).run();
+            }
+          }}
+        />
       </div>
     </div>
   );

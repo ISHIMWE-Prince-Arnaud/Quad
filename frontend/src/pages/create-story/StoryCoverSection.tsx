@@ -18,10 +18,10 @@ export function StoryCoverSection({
     <div className="space-y-3">
       <div
         className={cn(
-          "relative border-2 border-dashed rounded-[2rem] p-12 text-center transition-all duration-300 group",
+          "relative border border-dashed rounded-[2rem] px-6 py-10 text-center transition-all duration-300",
           uploadingCover
             ? "border-[#2563eb] bg-[#2563eb]/5"
-            : "border-white/10 hover:border-[#2563eb]/50 hover:bg-white/[0.02]"
+            : "border-white/10 bg-white/[0.01] hover:border-[#2563eb]/50"
         )}
         onDragOver={(e) => {
           e.preventDefault();
@@ -35,34 +35,42 @@ export function StoryCoverSection({
             onUploadCover(file);
           }
         }}>
-        <label className="cursor-pointer">
+        <label className="cursor-pointer block">
           <input
             type="file"
             accept="image/*"
             className="hidden"
             onChange={(e) => onUploadCover(e.target.files?.[0] || null)}
           />
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-3">
             {uploadingCover ? (
               <>
-                <Loader2 className="h-10 w-10 animate-spin text-[#2563eb]" />
+                <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
+                  <Loader2 className="h-5 w-5 animate-spin text-[#2563eb]" />
+                </div>
                 <p className="text-sm font-semibold text-[#64748b]">
                   Uploading cover image...
                 </p>
               </>
             ) : (
               <>
-                <div className="p-4 bg-[#2563eb]/10 rounded-2xl group-hover:bg-[#2563eb]/20 transition-colors">
-                  <ImageIcon className="h-8 w-8 text-[#2563eb]" />
+                <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
+                  <ImageIcon className="h-5 w-5 text-[#2563eb]" />
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-white mb-1">
-                    {coverImage ? "Change Cover Image" : "Upload Image"}
+                  <p className="text-sm font-semibold text-white">
+                    {coverImage ? "Change Cover Image" : "Add a Cover Image"}
                   </p>
-                  <p className="text-xs font-medium text-[#64748b]">
-                    PNG, JPG or GIF (max. 800x400px)
+                  <p className="text-[11px] font-medium text-[#64748b] mt-1">
+                    Drag & drop or click to upload (1200×500px)
                   </p>
                 </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="h-8 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold px-6">
+                  Upload
+                </Button>
               </>
             )}
           </div>

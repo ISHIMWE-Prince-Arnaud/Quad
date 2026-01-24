@@ -20,14 +20,14 @@ export function useStoryEditor() {
         },
       }),
       Placeholder.configure({
-        placeholder: "Write your story content here...",
+        placeholder: "Start writing your story here...",
       }),
     ],
     content: "",
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none min-h-[300px] max-w-none p-4",
+          "prose prose-invert prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none min-h-[360px] max-w-none",
       },
     },
   });

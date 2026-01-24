@@ -25,7 +25,7 @@ export function StoryEditorToolbar({
   onMention: () => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-1 bg-white/[0.02] border border-white/5 rounded-2xl p-2 mb-4">
+    <div className="flex flex-wrap items-center gap-1 bg-[#0f121a]/70 border border-white/10 rounded-full px-2 py-1 shadow-lg shadow-black/20">
       <Button
         type="button"
         variant="ghost"
@@ -34,7 +34,7 @@ export function StoryEditorToolbar({
           editor?.chain().focus().toggleHeading({ level: 2 }).run()
         }
         className={cn(
-          "h-10 px-3 rounded-xl transition-all",
+          "h-8 px-3 rounded-full transition-all",
           editor?.isActive("heading", { level: 2 })
             ? "bg-[#2563eb] text-white"
             : "text-[#64748b] hover:text-white hover:bg-white/5"
@@ -49,7 +49,7 @@ export function StoryEditorToolbar({
           editor?.chain().focus().toggleHeading({ level: 3 }).run()
         }
         className={cn(
-          "h-10 px-3 rounded-xl transition-all",
+          "h-8 px-3 rounded-full transition-all",
           editor?.isActive("heading", { level: 3 })
             ? "bg-[#2563eb] text-white"
             : "text-[#64748b] hover:text-white hover:bg-white/5"
@@ -63,7 +63,7 @@ export function StoryEditorToolbar({
         size="sm"
         onClick={() => editor?.chain().focus().toggleBold().run()}
         className={cn(
-          "h-10 w-10 p-0 rounded-xl transition-all",
+          "h-8 w-8 p-0 rounded-full transition-all",
           editor?.isActive("bold")
             ? "bg-[#2563eb] text-white"
             : "text-[#64748b] hover:text-white hover:bg-white/5"
@@ -76,7 +76,7 @@ export function StoryEditorToolbar({
         size="sm"
         onClick={() => editor?.chain().focus().toggleItalic().run()}
         className={cn(
-          "h-10 w-10 p-0 rounded-xl transition-all",
+          "h-8 w-8 p-0 rounded-full transition-all",
           editor?.isActive("italic")
             ? "bg-[#2563eb] text-white"
             : "text-[#64748b] hover:text-white hover:bg-white/5"
@@ -89,7 +89,7 @@ export function StoryEditorToolbar({
         size="sm"
         onClick={() => editor?.chain().focus().toggleUnderline().run()}
         className={cn(
-          "h-10 w-10 p-0 rounded-xl transition-all",
+          "h-8 w-8 p-0 rounded-full transition-all",
           editor?.isActive("underline")
             ? "bg-[#2563eb] text-white"
             : "text-[#64748b] hover:text-white hover:bg-white/5"
@@ -103,7 +103,7 @@ export function StoryEditorToolbar({
         size="sm"
         onClick={() => editor?.chain().focus().toggleBulletList().run()}
         className={cn(
-          "h-10 w-10 p-0 rounded-xl transition-all",
+          "h-8 w-8 p-0 rounded-full transition-all",
           editor?.isActive("bulletList")
             ? "bg-[#2563eb] text-white"
             : "text-[#64748b] hover:text-white hover:bg-white/5"
@@ -116,7 +116,7 @@ export function StoryEditorToolbar({
         size="sm"
         onClick={() => editor?.chain().focus().toggleOrderedList().run()}
         className={cn(
-          "h-10 w-10 p-0 rounded-xl transition-all",
+          "h-8 w-8 p-0 rounded-full transition-all",
           editor?.isActive("orderedList")
             ? "bg-[#2563eb] text-white"
             : "text-[#64748b] hover:text-white hover:bg-white/5"
@@ -130,7 +130,7 @@ export function StoryEditorToolbar({
         size="sm"
         onClick={() => editor?.chain().focus().toggleBlockquote().run()}
         className={cn(
-          "h-10 w-10 p-0 rounded-xl transition-all",
+          "h-8 w-8 p-0 rounded-full transition-all",
           editor?.isActive("blockquote")
             ? "bg-[#2563eb] text-white"
             : "text-[#64748b] hover:text-white hover:bg-white/5"
@@ -142,7 +142,7 @@ export function StoryEditorToolbar({
         variant="ghost"
         size="sm"
         onClick={onInsertLink}
-        className="h-10 w-10 p-0 rounded-xl text-[#64748b] hover:text-white hover:bg-white/5 transition-all">
+        className="h-8 w-8 p-0 rounded-full text-[#64748b] hover:text-white hover:bg-white/5 transition-all">
         <LinkIcon className="h-4 w-4" />
       </Button>
       <Button
@@ -150,7 +150,7 @@ export function StoryEditorToolbar({
         variant="ghost"
         size="sm"
         onClick={onMention}
-        className="h-10 w-10 p-0 rounded-xl text-[#64748b] hover:text-white hover:bg-white/5 transition-all"
+        className="h-8 w-8 p-0 rounded-full text-[#64748b] hover:text-white hover:bg-white/5 transition-all"
         title="Mention user">
         <AtSign className="h-4 w-4" />
       </Button>
