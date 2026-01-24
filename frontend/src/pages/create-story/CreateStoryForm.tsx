@@ -132,7 +132,7 @@ export function CreateStoryForm({
             <StoryEditorToolbar editor={editor} />
           </div>
 
-          <div className="px-6 pt-14 pb-12">
+          <div className="p-4">
             <StoryEditorBubbleMenu editor={editor} onInsertLink={onInsertLink} />
             <StoryEditorSlashMenu
               editor={editor}
