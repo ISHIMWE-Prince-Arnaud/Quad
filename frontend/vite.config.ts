@@ -80,9 +80,13 @@ export default defineConfig(({ mode }) => {
         "axios",
         "socket.io-client",
         "zustand",
+        "@tiptap/react",
+        "@tiptap/starter-kit",
+        "fast-deep-equal",
+        "fast-deep-equal/es6/react.js",
       ],
       // Exclude large dependencies that should be loaded on demand
-      exclude: ["@tiptap/react", "@tiptap/starter-kit"],
+      exclude: [],
     },
     // Performance optimizations
     esbuild: {
