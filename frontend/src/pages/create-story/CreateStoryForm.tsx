@@ -128,7 +128,7 @@ export function CreateStoryForm({
             "relative rounded-[2rem] border border-white/5 bg-gradient-to-b from-[#0b1020]/70 to-[#070a12]/80 shadow-xl overflow-hidden focus-within:border-[#2563eb]/40 focus-within:ring-2 focus-within:ring-[#2563eb]/20 transition-colors",
             validationErrors.content && "border-destructive/60"
           )}>
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
             <StoryEditorToolbar editor={editor} />
           </div>
 
