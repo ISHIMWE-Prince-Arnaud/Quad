@@ -69,6 +69,10 @@ export function StoryEditorSlashMenu({
   );
   const [range, setRange] = useState<{ from: number; to: number } | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [tablePickerOpen, setTablePickerOpen] = useState(false);
+  const [tableHover, setTableHover] = useState({ rows: 3, cols: 3 });
+  const [tableWithHeaderRow, setTableWithHeaderRow] = useState(true);
+  const TABLE_MAX = 8;
 
   const items: SlashItem[] = useMemo(
     () => [
@@ -116,15 +120,10 @@ export function StoryEditorSlashMenu({
       },
       {
         id: "table",
-        label: "Table (3×3)",
+        label: "Table",
         keywords: "table grid",
         icon: Table2,
-        run: (ed) =>
-          ed
-            .chain()
-            .focus()
-            .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-            .run(),
+        run: () => setTablePickerOpen(true),
       },
       ...(onMention
         ? [
@@ -189,6 +188,7 @@ export function StoryEditorSlashMenu({
       const res = getSlashQuery(editor);
       if (!res.isActive) {
         setOpen(false);
+        setTablePickerOpen(false);
         return;
       }
 
@@ -221,6 +221,7 @@ export function StoryEditorSlashMenu({
       if (e.key === "Escape") {
         e.preventDefault();
         setOpen(false);
+        setTablePickerOpen(false);
         return;
       }
 
@@ -240,6 +241,11 @@ export function StoryEditorSlashMenu({
         if (!filtered[activeIndex]) return;
         e.preventDefault();
         const item = filtered[activeIndex];
+
+        if (item.id === "table") {
+          setTablePickerOpen(true);
+          return;
+        }
 
         if (range) {
           editor.chain().focus().deleteRange(range).run();
@@ -263,38 +269,119 @@ export function StoryEditorSlashMenu({
       style={{ top: coords.top, left: coords.left }}>
       <div className="w-[260px] overflow-hidden rounded-2xl border border-white/10 bg-[#0f121a]/95 shadow-xl shadow-black/40">
         <div className="px-3 py-2 text-[11px] font-semibold text-[#64748b] border-b border-white/5">
-          Commands
+          {tablePickerOpen ? "Insert table" : "Commands"}
         </div>
-        <div className="max-h-64 overflow-y-auto scrollbar-hide py-1">
-          {filtered.map((item, idx) => {
-            const Icon = item.icon;
-            return (
+        {tablePickerOpen ? (
+          <div className="p-3">
+            <div className="flex items-center justify-between gap-3">
               <button
-                key={item.id}
                 type="button"
-                className={cn(
-                  "w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors",
-                  idx === activeIndex
-                    ? "bg-white/5 text-white"
-                    : "text-[#cbd5e1] hover:bg-white/5"
-                )}
-                onMouseEnter={() => setActiveIndex(idx)}
+                className="text-xs font-semibold text-[#94a3b8] hover:text-white transition-colors"
                 onMouseDown={(e) => {
                   e.preventDefault();
-                  if (range) {
-                    editor.chain().focus().deleteRange(range).run();
-                  }
-                  item.run(editor);
-                  setOpen(false);
+                  setTablePickerOpen(false);
                 }}>
-                <span className="h-7 w-7 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
-                  <Icon className="h-4 w-4 text-[#94a3b8]" />
-                </span>
-                <span className="font-semibold">{item.label}</span>
+                Back
               </button>
-            );
-          })}
-        </div>
+              <div className="text-xs font-semibold text-[#cbd5e1]">
+                {tableHover.rows}×{tableHover.cols}
+              </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-8 gap-1">
+              {Array.from({ length: TABLE_MAX }).map((_, r) =>
+                Array.from({ length: TABLE_MAX }).map((__, c) => {
+                  const rows = r + 1;
+                  const cols = c + 1;
+                  const active = rows <= tableHover.rows && cols <= tableHover.cols;
+                  return (
+                    <button
+                      key={`${rows}-${cols}`}
+                      type="button"
+                      className={cn(
+                        "h-5 w-5 rounded-md border transition-colors",
+                        active
+                          ? "bg-[#2563eb]/30 border-[#2563eb]/60"
+                          : "bg-white/5 border-white/10 hover:bg-white/10"
+                      )}
+                      onMouseEnter={() => setTableHover({ rows, cols })}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+
+                        if (range) {
+                          editor.chain().focus().deleteRange(range).run();
+                        }
+
+                        editor
+                          .chain()
+                          .focus()
+                          .insertTable({
+                            rows,
+                            cols,
+                            withHeaderRow: tableWithHeaderRow,
+                          })
+                          .run();
+                        setOpen(false);
+                      }}
+                    />
+                  );
+                })
+              )}
+            </div>
+
+            <button
+              type="button"
+              className={cn(
+                "mt-3 w-full rounded-xl border px-3 py-2 text-left text-xs font-semibold transition-colors",
+                tableWithHeaderRow
+                  ? "bg-white/5 border-white/10 text-white"
+                  : "bg-transparent border-white/10 text-[#94a3b8] hover:text-white hover:bg-white/5"
+              )}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setTableWithHeaderRow((prev) => !prev);
+              }}>
+              Header row: {tableWithHeaderRow ? "On" : "Off"}
+            </button>
+          </div>
+        ) : (
+          <div className="max-h-64 overflow-y-auto scrollbar-hide py-1">
+            {filtered.map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={cn(
+                    "w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors",
+                    idx === activeIndex
+                      ? "bg-white/5 text-white"
+                      : "text-[#cbd5e1] hover:bg-white/5"
+                  )}
+                  onMouseEnter={() => setActiveIndex(idx)}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+
+                    if (item.id === "table") {
+                      setTablePickerOpen(true);
+                      return;
+                    }
+
+                    if (range) {
+                      editor.chain().focus().deleteRange(range).run();
+                    }
+                    item.run(editor);
+                    setOpen(false);
+                  }}>
+                  <span className="h-7 w-7 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
+                    <Icon className="h-4 w-4 text-[#94a3b8]" />
+                  </span>
+                  <span className="font-semibold">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
