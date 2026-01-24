@@ -100,6 +100,17 @@ export function StoryCoverSection({
             className="w-full max-h-80 object-cover"
           />
 
+          {uploadingCover && (
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+              <div className="flex items-center gap-3 rounded-full border border-white/10 bg-[#0f121a]/70 px-4 py-2">
+                <Loader2 className="h-4 w-4 animate-spin text-[#2563eb]" />
+                <span className="text-xs font-semibold text-white">
+                  Uploading...
+                </span>
+              </div>
+            </div>
+          )}
+
           <div className="absolute inset-0 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100" />
 
           <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
@@ -107,6 +118,7 @@ export function StoryCoverSection({
               type="button"
               variant="secondary"
               size="sm"
+              disabled={uploadingCover}
               className="h-8 rounded-full border border-white/10 bg-white/10 hover:bg-white/15 text-white font-semibold px-4"
               onClick={(e) => {
                 e.preventDefault();
@@ -119,6 +131,7 @@ export function StoryCoverSection({
               type="button"
               variant="destructive"
               size="sm"
+              disabled={uploadingCover}
               className="h-8 rounded-full px-4"
               onClick={(e) => {
                 e.preventDefault();
