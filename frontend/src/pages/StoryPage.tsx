@@ -52,6 +52,7 @@ export default function StoryPage() {
         />
 
         <StoryPageBody
+          storyId={controller.story._id}
           title={controller.story.title}
           coverImage={controller.story.coverImage}
           contentHtml={controller.story.content}

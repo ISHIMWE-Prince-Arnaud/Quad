@@ -5,6 +5,7 @@ import { ReactionService, type ReactionType } from "@/services/reactionService";
 import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
 import { logError } from "@/lib/errorHandling";
+import { copyToClipboard } from "@/lib/utils";
 
 import { getErrorMessage } from "./getErrorMessage";
 
@@ -84,15 +85,23 @@ export function useStoryPageController({
 
   const handleShare = useCallback(async () => {
     try {
-      const url = window.location.href;
-      if (navigator.share) {
-        await navigator.share({ title: story?.title ?? "Story", url });
+      if (!id) return;
+      const path = `/app/stories/${id}`;
+      const url = `${window.location.origin}${path}`;
+
+      const ok = await copyToClipboard(url);
+      if (ok) {
+        toast.success("Story link copied to clipboard");
       } else {
-        await navigator.clipboard.writeText(url);
-        toast.success("Link copied to clipboard");
+        toast.error("Failed to copy link");
       }
     } catch (err) {
-      logError(err, { component: "StoryPage", action: "shareStory", metadata: { id } });
+      logError(err, {
+        component: "StoryPage",
+        action: "copyLink",
+        metadata: { id, title: story?.title },
+      });
+      toast.error("Failed to copy link");
     }
   }, [story?.title, id]);
 
