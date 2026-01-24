@@ -17,6 +17,7 @@ export function StoryCardFooter({
   onCopyLink,
   bookmarked,
   onToggleBookmark,
+  bookmarkPending,
 }: {
   storyId: string;
   reactionPending: boolean;
@@ -27,7 +28,11 @@ export function StoryCardFooter({
   onCopyLink: () => void;
   bookmarked: boolean;
   onToggleBookmark: () => void;
+  bookmarkPending?: boolean;
 }) {
+  const actionBase =
+    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[#64748b] transition-all";
+
   return (
     <div className="px-4 pb-3 pt-2 flex items-center justify-between text-xs text-muted-foreground border-t">
       <div className="flex items-center gap-3">
@@ -37,7 +42,8 @@ export function StoryCardFooter({
           pending={reactionPending}
           onToggle={() => void onSelectReaction("love")}
           className={cn(
-            "flex items-center gap-1 hover:text-pink-600 transition-colors",
+            actionBase,
+            "hover:bg-white/5",
             userReaction && "text-pink-600"
           )}
           iconClassName="h-3.5 w-3.5"
@@ -47,7 +53,7 @@ export function StoryCardFooter({
 
         <Link
           to={`/app/stories/${storyId}`}
-          className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+          className={cn(actionBase, "hover:bg-white/5 hover:text-[#3b82f6]")}>
           <CommentCountIcon count={commentsCount} className="h-3.5 w-3.5" />
           <span>{commentsCount}</span>
         </Link>
@@ -57,18 +63,22 @@ export function StoryCardFooter({
         <button
           type="button"
           onClick={onCopyLink}
-          className="hover:text-green-600 transition-colors">
+          className={cn(actionBase, "hover:bg-white/5 hover:text-[#10b981]")}>
           <Share2 className="h-3.5 w-3.5" />
         </button>
 
         <button
           type="button"
           onClick={onToggleBookmark}
+          disabled={bookmarkPending}
           className={cn(
-            "transition-colors",
-            bookmarked ? "text-amber-600" : "hover:text-amber-600"
+            "p-2 rounded-xl transition-all",
+            "disabled:opacity-50 disabled:cursor-not-allowed",
+            bookmarked
+              ? "text-[#f59e0b] bg-[#f59e0b]/10"
+              : "text-[#64748b] hover:text-[#f59e0b] hover:bg-[#f59e0b]/5"
           )}>
-          <Bookmark className="h-3.5 w-3.5" />
+          <Bookmark className={cn("h-3.5 w-3.5", bookmarked && "fill-current")} />
         </button>
       </div>
     </div>

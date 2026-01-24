@@ -29,7 +29,7 @@ export default function StoryPage() {
   if (controller.error) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-3xl rounded-md border border-destructive/40 bg-destructive/10 p-4 text-destructive">
+        <div className="mx-auto max-w-2xl rounded-md border border-destructive/40 bg-destructive/10 p-4 text-destructive">
           {controller.error}
         </div>
       </div>
@@ -42,7 +42,7 @@ export default function StoryPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="mx-auto max-w-3xl space-y-6">
+      <div className="mx-auto max-w-2xl space-y-6">
         <StoryPageHeader
           title={controller.story.title}
           isOwner={isOwner}

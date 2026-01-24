@@ -5,6 +5,7 @@ import { BookmarkService } from "@/services/bookmarkService";
 
 export function useStoryBookmark(storyId: string) {
   const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarkPending, setBookmarkPending] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -22,14 +23,25 @@ export function useStoryBookmark(storyId: string) {
   }, [storyId]);
 
   const handleToggleBookmark = useCallback(async () => {
+    if (bookmarkPending) return;
+
+    const prev = bookmarked;
+    const nextOptimistic = !prev;
+
     try {
+      setBookmarkPending(true);
+      setBookmarked(nextOptimistic);
+
       const next = await BookmarkService.toggle("story", storyId);
       setBookmarked(next);
       toast.success(next ? "Saved to bookmarks" : "Removed from bookmarks");
     } catch {
+      setBookmarked(prev);
       toast.error("Failed to update bookmark");
+    } finally {
+      setBookmarkPending(false);
     }
-  }, [storyId]);
+  }, [bookmarked, bookmarkPending, storyId]);
 
-  return { bookmarked, handleToggleBookmark };
+  return { bookmarked, bookmarkPending, handleToggleBookmark };
 }

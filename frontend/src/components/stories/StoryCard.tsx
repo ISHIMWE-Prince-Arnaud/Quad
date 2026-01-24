@@ -66,7 +66,7 @@ export function StoryCard({
   const { user } = useAuthStore();
   const isOwner = user?.clerkId === story.author.clerkId;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const { bookmarked, handleToggleBookmark } = useStoryBookmark(story._id);
+  const { bookmarked, bookmarkPending, handleToggleBookmark } = useStoryBookmark(story._id);
   const { userReaction, reactionPending, reactionCount, handleSelectReaction } =
     useStoryReactions({ storyId: story._id, initialTotal: story.reactionsCount || 0 });
   const handleCopyLink = useStoryShare({ storyId: story._id, title: story.title });
@@ -186,11 +186,15 @@ export function StoryCard({
               <button
                 type="button"
                 onClick={handleToggleBookmark}
+                disabled={bookmarkPending}
                 className={cn(
-                  "text-[#94a3b8] transition-colors",
-                  bookmarked ? "text-amber-500" : "hover:text-amber-500"
+                  "p-2 rounded-xl transition-all",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  bookmarked
+                    ? "text-[#f59e0b] bg-[#f59e0b]/10"
+                    : "text-[#94a3b8] hover:text-[#f59e0b] hover:bg-[#f59e0b]/5"
                 )}>
-                <Bookmark className="h-4 w-4" />
+                <Bookmark className={cn("h-4 w-4", bookmarked && "fill-current")} />
               </button>
             </div>
           </CardFooter>
@@ -253,6 +257,7 @@ export function StoryCard({
               commentsCount={story.commentsCount || 0}
               onCopyLink={handleCopyLink}
               bookmarked={bookmarked}
+              bookmarkPending={bookmarkPending}
               onToggleBookmark={handleToggleBookmark}
             />
           </CardFooter>
