@@ -8,13 +8,11 @@ export function StoryCoverSection({
   uploadingCover,
   onUploadCover,
   onRemoveCover,
-  onInsertInlineImage,
 }: {
   coverImage: string | undefined;
   uploadingCover: boolean;
   onUploadCover: (file: File | null) => void;
   onRemoveCover: () => void;
-  onInsertInlineImage: (file: File | null) => void;
 }) {
   return (
     <div className="space-y-3">
@@ -70,19 +68,6 @@ export function StoryCoverSection({
           </div>
         </label>
       </div>
-
-      <label className="inline-flex items-center gap-2">
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => onInsertInlineImage(e.target.files?.[0] || null)}
-        />
-        <Button type="button" variant="outline" size="sm">
-          <ImageIcon className="h-4 w-4 mr-2" />
-          Insert Inline Image
-        </Button>
-      </label>
 
       {coverImage && (
         <div className="relative overflow-hidden rounded-lg">

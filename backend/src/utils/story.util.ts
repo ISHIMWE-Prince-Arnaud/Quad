@@ -101,7 +101,7 @@ export const sanitizeHtmlContent = (content: string): string => {
       // Tables
       "table", "thead", "tbody", "tr", "th", "td",
       // Misc
-      "hr", "span", "div", "img"
+      "hr", "span", "div"
     ],
     
     // Allowed attributes
@@ -111,7 +111,6 @@ export const sanitizeHtmlContent = (content: string): string => {
       "pre": ["class"],
       "span": ["class", "style"],
       "div": ["class", "style"],
-      "img": ["src", "alt", "title", "width", "height"],
       "*": ["id"]
     },
     
@@ -161,8 +160,7 @@ export const sanitizeHtmlContent = (content: string): string => {
 export const validateHtmlContent = (content: string): boolean => {
   const sanitized = sanitizeHtmlContent(content);
   const textOnly = stripHtml(sanitized).trim();
-  if (textOnly.length > 0) return true;
-  return /<(img)\b/i.test(sanitized);
+  return textOnly.length > 0;
 };
 
 /**

@@ -23,7 +23,6 @@ export function CreateStoryForm({
   onExcerptChange,
   onUploadCover,
   onRemoveCover,
-  onInsertInlineImage,
   onPreview,
   onSaveDraft,
   onPublish,
@@ -44,7 +43,6 @@ export function CreateStoryForm({
   onExcerptChange: (value: string) => void;
   onUploadCover: (file: File | null) => void;
   onRemoveCover: () => void;
-  onInsertInlineImage: (file: File | null) => void;
   onPreview: () => void;
   onSaveDraft: () => void;
   onPublish: () => void;
@@ -132,7 +130,6 @@ export function CreateStoryForm({
             uploadingCover={uploadingCover}
             onUploadCover={onUploadCover}
             onRemoveCover={onRemoveCover}
-            onInsertInlineImage={onInsertInlineImage}
           />
         </div>
 

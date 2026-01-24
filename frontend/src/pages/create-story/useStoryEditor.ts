@@ -1,7 +1,6 @@
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
 
@@ -18,11 +17,6 @@ export function useStoryEditor() {
         openOnClick: false,
         HTMLAttributes: {
           class: "text-blue-500 underline",
-        },
-      }),
-      Image.configure({
-        HTMLAttributes: {
-          class: "max-w-full h-auto rounded-lg my-4",
         },
       }),
       Placeholder.configure({

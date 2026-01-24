@@ -52,8 +52,7 @@ export default function CreateStoryPage() {
 
   const canSubmit = useMemo(() => {
     const textContent = activeHtml.replace(/<[^>]*>/g, "").trim();
-    const hasImage = /<(img)\b/i.test(activeHtml);
-    return title.trim().length > 0 && (textContent.length > 0 || hasImage);
+    return title.trim().length > 0 && textContent.length > 0;
   }, [title, activeHtml]);
 
   useEffect(() => {
@@ -139,19 +138,6 @@ export default function CreateStoryPage() {
       toast.error(getErrorMessage(err));
     } finally {
       setUploadingCover(false);
-    }
-  };
-
-  const handleInsertInlineImage = async (file: File | null) => {
-    if (!file) return;
-    try {
-      const res = await UploadService.uploadStoryMedia(file);
-      if (!editor) return;
-      editor.chain().focus().setImage({ src: res.url }).run();
-      toast.success("Image inserted");
-    } catch (err) {
-      logError(err, { component: "CreateStoryPage", action: "insertInlineImage" });
-      toast.error(getErrorMessage(err));
     }
   };
 
@@ -297,7 +283,6 @@ export default function CreateStoryPage() {
             }}
             onUploadCover={(file) => void handleUploadCover(file)}
             onRemoveCover={() => setCoverImage(undefined)}
-            onInsertInlineImage={(file) => void handleInsertInlineImage(file)}
             onPreview={() => setPreviewOpen(true)}
             onSaveDraft={() => void handleSubmit("draft")}
             onPublish={() => void handleSubmit("published")}
