@@ -24,69 +24,71 @@ export function StoryCoverSection({
 
   return (
     <div className="space-y-3">
-      <div
-        className={cn(
-          "relative border border-dashed rounded-[2rem] px-6 py-10 text-center transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/40",
-          uploadingCover
-            ? "border-[#2563eb] bg-[#2563eb]/5"
-            : "border-white/10 bg-white/[0.01] hover:border-[#2563eb]/50"
-        )}
-        role="button"
-        tabIndex={0}
-        onClick={openFilePicker}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            openFilePicker();
-          }
-        }}
-        onDragOver={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const file = e.dataTransfer.files?.[0];
-          if (file && file.type.startsWith("image/")) {
-            onUploadCover(file);
-          }
-        }}>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => onUploadCover(e.target.files?.[0] || null)}
-        />
-
-        <div className="flex flex-col items-center gap-3">
-          {uploadingCover ? (
-            <>
-              <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-[#2563eb]" />
-              </div>
-              <p className="text-sm font-semibold text-[#64748b]">
-                Uploading cover image...
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
-                <ImageIcon className="h-5 w-5 text-[#2563eb]" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-white">
-                  {coverImage ? "Change Cover Image" : "Add a Cover Image"}
-                </p>
-                <p className="text-[11px] font-medium text-[#64748b] mt-1">
-                  Drag & drop or click to upload (1200×500px)
-                </p>
-              </div>
-            </>
+      {!coverImage && (
+        <div
+          className={cn(
+            "relative border border-dashed rounded-[2rem] px-6 py-10 text-center transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/40",
+            uploadingCover
+              ? "border-[#2563eb] bg-[#2563eb]/5"
+              : "border-white/10 bg-white/[0.01] hover:border-[#2563eb]/50"
           )}
+          role="button"
+          tabIndex={0}
+          onClick={openFilePicker}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              openFilePicker();
+            }
+          }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const file = e.dataTransfer.files?.[0];
+            if (file && file.type.startsWith("image/")) {
+              onUploadCover(file);
+            }
+          }}>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => onUploadCover(e.target.files?.[0] || null)}
+          />
+
+          <div className="flex flex-col items-center gap-3">
+            {uploadingCover ? (
+              <>
+                <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
+                  <Loader2 className="h-5 w-5 animate-spin text-[#2563eb]" />
+                </div>
+                <p className="text-sm font-semibold text-[#64748b]">
+                  Uploading cover image...
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
+                  <ImageIcon className="h-5 w-5 text-[#2563eb]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    Add a Cover Image
+                  </p>
+                  <p className="text-[11px] font-medium text-[#64748b] mt-1">
+                    Drag & drop or click to upload (1200×500px)
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {coverImage && (
         <div
