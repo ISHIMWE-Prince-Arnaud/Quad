@@ -5,6 +5,8 @@ import { Clock, Loader2, Save, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { StoryCoverSection } from "./StoryCoverSection";
+import { StoryEditorBubbleMenu } from "./StoryEditorBubbleMenu";
+import { StoryEditorSlashMenu } from "./StoryEditorSlashMenu";
 import { StoryEditorToolbar } from "./StoryEditorToolbar";
 
 function getAutosaveLabel(autoSaving: boolean, lastSaved: Date | null) {
@@ -127,14 +129,16 @@ export function CreateStoryForm({
             validationErrors.content && "border-destructive/60"
           )}>
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
-            <StoryEditorToolbar
+            <StoryEditorToolbar editor={editor} />
+          </div>
+
+          <div className="px-6 pt-14 pb-12">
+            <StoryEditorBubbleMenu editor={editor} onInsertLink={onInsertLink} />
+            <StoryEditorSlashMenu
               editor={editor}
               onInsertLink={onInsertLink}
               onMention={onMention}
             />
-          </div>
-
-          <div className="px-6 pt-14 pb-12">
             <EditorContent editor={editor} />
           </div>
 
