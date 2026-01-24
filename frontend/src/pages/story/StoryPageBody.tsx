@@ -41,8 +41,7 @@ export function StoryPageBody({
         </div>
       )}
 
-      <div className="relative">
-        <Card className="bg-[#0f121a] border border-white/5 rounded-[1.5rem] overflow-hidden">
+      <Card className="bg-[#0f121a] border border-white/5 rounded-[1.5rem] overflow-hidden">
           <CardContent className="p-4 md:p-6">
             <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
               <span className="text-sm font-semibold text-white">{authorUsername}</span>
@@ -59,34 +58,32 @@ export function StoryPageBody({
               <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
             </div>
 
-            <div className="mt-8">
+            <div className="mt-8 flex items-center justify-between gap-3">
               <HeartReactionButton
                 liked={Boolean(userReaction)}
                 count={totalReactions}
                 onToggle={() => onSelectReaction("love")}
                 ariaLabel={`React to story. ${totalReactions} reactions`}
               />
+
+              <button
+                type="button"
+                onClick={handleToggleBookmark}
+                disabled={bookmarkPending}
+                className={cn(
+                  "p-2 rounded-xl transition-all",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  bookmarked
+                    ? "text-[#f59e0b] bg-[#f59e0b]/10"
+                    : "text-[#64748b] hover:text-[#f59e0b] hover:bg-[#f59e0b]/5"
+                )}
+                aria-label={bookmarked ? "Remove bookmark" : "Bookmark story"}
+                title={bookmarked ? "Remove bookmark" : "Bookmark"}>
+                <Bookmark className={cn("h-4 w-4", bookmarked && "fill-current")} />
+              </button>
             </div>
           </CardContent>
-        </Card>
-
-        <button
-          type="button"
-          onClick={handleToggleBookmark}
-          disabled={bookmarkPending}
-          className={cn(
-            "absolute -bottom-4 right-4 z-10",
-            "p-3 rounded-xl transition-all",
-            "disabled:opacity-50 disabled:cursor-not-allowed",
-            bookmarked
-              ? "text-[#f59e0b] bg-[#0f121a] border border-white/10 shadow-lg"
-              : "text-[#94a3b8] bg-[#0f121a] border border-white/10 shadow-lg hover:text-[#f59e0b]"
-          )}
-          aria-label={bookmarked ? "Remove bookmark" : "Bookmark story"}
-          title={bookmarked ? "Remove bookmark" : "Bookmark"}>
-          <Bookmark className={cn("h-5 w-5", bookmarked && "fill-current")} />
-        </button>
-      </div>
+      </Card>
     </>
   );
 }
