@@ -1,4 +1,4 @@
-import { endpoints } from "@/lib/api";
+import { endpoints, invalidateCache } from "@/lib/api";
 import type {
   StoriesListResponse,
   StoryResponse,
@@ -69,6 +69,7 @@ export class StoryService {
     data: UpdateStoryInput
   ): Promise<StoryResponse> {
     const response = await endpoints.stories.update(id, data);
+    invalidateCache(/^\/stories(\/|\?|$)/);
     return response.data;
   }
 

@@ -12,12 +12,16 @@ import { getErrorMessage } from "./getErrorMessage";
 export function useStoryPageController({
   id,
   onNavigate,
+  initialStory,
+  refreshKey,
 }: {
   id?: string;
   onNavigate: (path: string) => void;
+  initialStory?: Story;
+  refreshKey?: number;
 }) {
-  const [story, setStory] = useState<Story | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [story, setStory] = useState<Story | null>(initialStory ?? null);
+  const [loading, setLoading] = useState(!initialStory);
   const [error, setError] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -39,7 +43,7 @@ export function useStoryPageController({
 
     (async () => {
       try {
-        setLoading(true);
+        if (!story || story._id !== id) setLoading(true);
         setError(null);
         const res = await StoryService.getById(id);
         if (!cancelled && res.success && res.data) {
@@ -56,7 +60,7 @@ export function useStoryPageController({
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, refreshKey, story]);
 
   useEffect(() => {
     if (!id) return;

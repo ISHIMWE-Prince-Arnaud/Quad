@@ -97,8 +97,7 @@ export function StoryCard({
         transition={{ duration: 0.3, ease: "easeOut" }}>
         <Card
           className={cn(
-            "w-full overflow-hidden border border-white/5 rounded-[2rem] bg-[#0f121a]",
-            "shadow-[0_16px_40px_rgba(0,0,0,0.35)]",
+            "w-full overflow-hidden border border-white/5 rounded-2xl bg-[#0f121a]",
             className
           )}>
           {story.coverImage && (

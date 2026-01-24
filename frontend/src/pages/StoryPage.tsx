@@ -1,7 +1,9 @@
-import { Loader2 } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Loader2, ArrowLeft } from "lucide-react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { CommentsSection } from "@/components/comments/CommentsSection";
 import { useAuthStore } from "@/stores/authStore";
+import type { Story } from "@/types/story";
+import { Button } from "@/components/ui/button";
 
 import { StoryDeleteDialog } from "./story/StoryDeleteDialog";
 import { StoryPageBody } from "./story/StoryPageBody";
@@ -11,11 +13,17 @@ import { useStoryPageController } from "./story/useStoryPageController";
 export default function StoryPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuthStore();
+
+  const initialStory = (location.state as { story?: Story } | null)?.story;
+  const refreshKey = (location.state as { refreshKey?: number } | null)?.refreshKey;
 
   const controller = useStoryPageController({
     id,
     onNavigate: (path) => navigate(path),
+    initialStory,
+    refreshKey,
   });
 
   if (controller.loading) {
@@ -43,6 +51,18 @@ export default function StoryPage() {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-2xl space-y-6">
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/app/stories")}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Stories
+          </Button>
+        </div>
+
         <StoryPageHeader
           title={controller.story.title}
           isOwner={isOwner}

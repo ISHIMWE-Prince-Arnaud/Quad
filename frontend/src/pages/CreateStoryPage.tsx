@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { UploadService } from "@/services/uploadService";
 import { StoryService } from "@/services/storyService";
 import type { CreateStoryInput, StoryStatus } from "@/types/story";
@@ -8,8 +10,10 @@ import { CreateStoryForm } from "./create-story/CreateStoryForm";
 import { useStoryEditor } from "./create-story/useStoryEditor";
 import toast from "react-hot-toast";
 import { logError } from "@/lib/errorHandling";
+import { Button } from "@/components/ui/button";
 
 export default function CreateStoryPage() {
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -160,6 +164,18 @@ export default function CreateStoryPage() {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-2xl">
+        <div className="mb-6 flex items-center gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/app/stories")}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Stories
+          </Button>
+        </div>
+
         <CreateStoryForm
           title={title}
           coverImage={coverImage}

@@ -170,7 +170,9 @@ export default function EditStoryPage() {
       }
 
       toast.success(status === "published" ? "Story updated" : "Draft updated");
-      navigate(`/app/stories/${id}`);
+      navigate(`/app/stories/${id}`, {
+        state: { story: res.data, refreshKey: Date.now() },
+      });
     } catch (err) {
       logError(err, { component: "EditStoryPage", action: "updateStory", metadata: { id } });
       toast.error(getErrorMessage(err));
