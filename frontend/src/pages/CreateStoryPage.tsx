@@ -8,9 +8,6 @@ import { getErrorMessage } from "./create-story/getErrorMessage";
 import { CreateStoryForm } from "./create-story/CreateStoryForm";
 import { MyStoriesSidebar } from "./create-story/MyStoriesSidebar";
 import { useStoryEditor } from "./create-story/useStoryEditor";
-import CanvasStoryEditor from "./create-story/CanvasStoryEditor";
-import type { CanvasElement } from "./create-story/canvasStory.types";
-import { canvasElementsToHtml } from "./create-story/canvasStoryHtml";
 import toast from "react-hot-toast";
 import { logError } from "@/lib/errorHandling";
 
@@ -32,8 +29,6 @@ export default function CreateStoryPage() {
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [editorMode, setEditorMode] = useState<"rich" | "canvas">("rich");
-  const [canvasElements, setCanvasElements] = useState<CanvasElement[]>([]);
 
   const editor = useStoryEditor();
 
@@ -51,13 +46,9 @@ export default function CreateStoryPage() {
     };
   }, [editor]);
 
-  const canvasHtml = useMemo(() => {
-    return canvasElementsToHtml(canvasElements);
-  }, [canvasElements]);
-
   const activeHtml = useMemo(() => {
-    return editorMode === "canvas" ? canvasHtml : editorHtml;
-  }, [canvasHtml, editorHtml, editorMode]);
+    return editorHtml;
+  }, [editorHtml]);
 
   const canSubmit = useMemo(() => {
     const textContent = activeHtml.replace(/<[^>]*>/g, "").trim();
@@ -72,7 +63,7 @@ export default function CreateStoryPage() {
       void (async () => {
         try {
           setAutoSaving(true);
-          const content = editorMode === "canvas" ? canvasHtml : editor?.getHTML() || "";
+          const content = editor?.getHTML() || "";
           const payload: CreateStoryInput = {
             title: title.trim(),
             content,
@@ -91,7 +82,7 @@ export default function CreateStoryPage() {
     }, 30000); // 30 seconds
 
     return () => clearInterval(autoSaveInterval);
-  }, [canSubmit, submitting, autoSaving, title, excerpt, coverImage, editor, editorMode, canvasHtml]);
+  }, [canSubmit, submitting, autoSaving, title, excerpt, coverImage, editor]);
 
   useEffect(() => {
     let cancelled = false;
@@ -155,27 +146,9 @@ export default function CreateStoryPage() {
     if (!file) return;
     try {
       const res = await UploadService.uploadStoryMedia(file);
-      if (editorMode === "canvas") {
-        setCanvasElements((prev) => [
-          ...prev,
-          {
-            id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-            kind: "image",
-            src: res.url,
-            x: 24,
-            y: 24,
-            width: 260,
-            height: 180,
-            zIndex: prev.length + 1,
-            rotationDeg: 0,
-          },
-        ]);
-        toast.success("Image added to canvas");
-      } else {
-        if (!editor) return;
-        editor.chain().focus().setImage({ src: res.url }).run();
-        toast.success("Image inserted");
-      }
+      if (!editor) return;
+      editor.chain().focus().setImage({ src: res.url }).run();
+      toast.success("Image inserted");
     } catch (err) {
       logError(err, { component: "CreateStoryPage", action: "insertInlineImage" });
       toast.error(getErrorMessage(err));
@@ -188,7 +161,7 @@ export default function CreateStoryPage() {
     // Clear previous validation errors
     setValidationErrors({});
 
-    const content = editorMode === "canvas" ? canvasHtml : editor?.getHTML() || "";
+    const content = editor?.getHTML() || "";
 
     // Validate using Zod schema
     const validation = createStorySchema.safeParse({
@@ -235,11 +208,7 @@ export default function CreateStoryPage() {
       setTitle("");
       setExcerpt("");
       setCoverImage(undefined);
-      if (editorMode === "canvas") {
-        setCanvasElements([]);
-      } else {
-        editor?.commands.clearContent();
-      }
+      editor?.commands.clearContent();
       setValidationErrors({});
       setLastSaved(null);
 
@@ -308,24 +277,6 @@ export default function CreateStoryPage() {
             autoSaving={autoSaving}
             lastSaved={lastSaved}
             editor={editor}
-            editorMode={editorMode}
-            onEditorModeChange={setEditorMode}
-            canvasEditor={
-              <CanvasStoryEditor
-                elements={canvasElements}
-                onChange={setCanvasElements}
-                onRequestAddImage={() => {
-                  const input = document.createElement("input");
-                  input.type = "file";
-                  input.accept = "image/*";
-                  input.onchange = () => {
-                    const file = input.files?.[0] || null;
-                    void handleInsertInlineImage(file);
-                  };
-                  input.click();
-                }}
-              />
-            }
             onTitleChange={(value) => {
               setTitle(value);
               if (validationErrors.title) {
@@ -356,27 +307,7 @@ export default function CreateStoryPage() {
                 "Enter username to mention (without @)"
               );
               if (username) {
-                if (editorMode === "canvas") {
-                  setCanvasElements((prev) => [
-                    ...prev,
-                    {
-                      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-                      kind: "text",
-                      text: `@${username}`,
-                      x: 24,
-                      y: 24,
-                      width: 220,
-                      height: 60,
-                      zIndex: prev.length + 1,
-                      rotationDeg: 0,
-                      fontSize: 20,
-                      color: "#ffffff",
-                      fontWeight: "bold",
-                    },
-                  ]);
-                } else {
-                  editor?.chain().focus().insertContent(`@${username} `).run();
-                }
+                editor?.chain().focus().insertContent(`@${username} `).run();
               }
             }}
           />
