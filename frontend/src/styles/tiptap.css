@@ -17,11 +17,25 @@
   margin-bottom: 0.5em;
 }
 
+.ProseMirror h1 {
+  font-size: 1.85em;
+  font-weight: 800;
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+}
+
 .ProseMirror h3 {
   font-size: 1.25em;
   font-weight: 600;
   margin-top: 0.75em;
   margin-bottom: 0.5em;
+}
+
+.ProseMirror h4 {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin-top: 0.6em;
+  margin-bottom: 0.4em;
 }
 
 .ProseMirror blockquote {
@@ -46,6 +60,150 @@
   color: hsl(var(--primary));
   text-decoration: underline;
   cursor: pointer;
+}
+
+.ProseMirror code {
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.4rem;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.9em;
+}
+
+.ProseMirror pre {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.ProseMirror pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.ProseMirror hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 1.25rem 0;
+}
+
+.ProseMirror table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid hsl(var(--border));
+  margin: 1rem 0;
+}
+
+.ProseMirror th,
+.ProseMirror td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.6rem 0.75rem;
+  vertical-align: top;
+}
+
+.ProseMirror th {
+  background: hsl(var(--muted));
+  font-weight: 700;
+}
+
+.ProseMirror .callout {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.9rem;
+  padding: 0.9rem 1rem;
+  margin: 1rem 0;
+  background: hsl(var(--card));
+}
+
+.ProseMirror .callout.callout-info {
+  border-color: hsl(var(--ring));
+  background: hsl(var(--ring) / 0.08);
+}
+
+.ProseMirror .callout.callout-warning {
+  border-color: hsl(var(--warning));
+  background: hsl(var(--warning) / 0.08);
+}
+
+.ProseMirror .callout.callout-tip {
+  border-color: hsl(var(--success));
+  background: hsl(var(--success) / 0.08);
+}
+
+.prose .callout {
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.9rem;
+  padding: 0.9rem 1rem;
+  margin: 1rem 0;
+  background: hsl(var(--card));
+}
+
+.prose .callout.callout-info {
+  border-color: hsl(var(--ring));
+  background: hsl(var(--ring) / 0.08);
+}
+
+.prose .callout.callout-warning {
+  border-color: hsl(var(--warning));
+  background: hsl(var(--warning) / 0.08);
+}
+
+.prose .callout.callout-tip {
+  border-color: hsl(var(--success));
+  background: hsl(var(--success) / 0.08);
+}
+
+.prose code {
+  background: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.4rem;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.9em;
+}
+
+.prose pre {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 1.25rem 0;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid hsl(var(--border));
+  margin: 1rem 0;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.6rem 0.75rem;
+  vertical-align: top;
+}
+
+.prose th {
+  background: hsl(var(--muted));
+  font-weight: 700;
 }
 
 .ProseMirror img {
