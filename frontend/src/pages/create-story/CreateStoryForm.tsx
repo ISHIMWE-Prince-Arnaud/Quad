@@ -1,6 +1,6 @@
 import { EditorContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
-import { Eye, Loader2, Save, Send } from "lucide-react";
+import { Loader2, Save, Send } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,7 +23,6 @@ export function CreateStoryForm({
   onExcerptChange,
   onUploadCover,
   onRemoveCover,
-  onPreview,
   onSaveDraft,
   onPublish,
   onInsertLink,
@@ -43,7 +42,6 @@ export function CreateStoryForm({
   onExcerptChange: (value: string) => void;
   onUploadCover: (file: File | null) => void;
   onRemoveCover: () => void;
-  onPreview: () => void;
   onSaveDraft: () => void;
   onPublish: () => void;
   onInsertLink: () => void;
@@ -74,13 +72,6 @@ export function CreateStoryForm({
             )}
           </div>
           <div className="flex gap-4">
-            <button
-              disabled={!canSubmit || submitting}
-              onClick={onPreview}
-              className="p-3 text-[#64748b] hover:text-white transition-colors"
-              title="Preview Story">
-              <Eye className="h-6 w-6" />
-            </button>
             <Button
               variant="secondary"
               disabled={!canSubmit || submitting}
