@@ -109,9 +109,11 @@ export const sanitizeHtmlContent = (content: string): string => {
       "a": ["href", "title", "target", "rel"],
       "code": ["class"],  // For syntax highlighting
       "pre": ["class"],
+      "th": ["colspan", "rowspan", "colwidth"],
+      "td": ["colspan", "rowspan", "colwidth"],
       "span": ["class", "style"],
       "div": ["class", "style"],
-      "*": ["id"]
+      "*": ["id", "style"]
     },
     
     // URL schemes allowed in links
@@ -147,7 +149,8 @@ export const sanitizeHtmlContent = (content: string): string => {
     // Remove all classes except for code highlighting
     allowedClasses: {
       "code": ["language-*"],
-      "pre": ["language-*"]
+      "pre": ["language-*"],
+      "div": ["callout", "callout-*"]
     }
   });
 };
