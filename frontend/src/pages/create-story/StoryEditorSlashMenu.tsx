@@ -265,7 +265,7 @@ export function StoryEditorSlashMenu({
         <div className="px-3 py-2 text-[11px] font-semibold text-[#64748b] border-b border-white/5">
           Commands
         </div>
-        <div className="max-h-64 overflow-auto py-1">
+        <div className="overflow-hidden py-1">
           {filtered.map((item, idx) => {
             const Icon = item.icon;
             return (

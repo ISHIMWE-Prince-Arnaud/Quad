@@ -159,7 +159,7 @@ export default function CreateStoryPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-2xl">
         <CreateStoryForm
           title={title}
           coverImage={coverImage}
