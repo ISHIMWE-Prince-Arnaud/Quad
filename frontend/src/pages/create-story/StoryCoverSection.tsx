@@ -24,6 +24,14 @@ export function StoryCoverSection({
 
   return (
     <div className="space-y-3">
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => onUploadCover(e.target.files?.[0] || null)}
+      />
+
       {!coverImage && (
         <div
           className={cn(
@@ -53,14 +61,6 @@ export function StoryCoverSection({
               onUploadCover(file);
             }
           }}>
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => onUploadCover(e.target.files?.[0] || null)}
-          />
-
           <div className="flex flex-col items-center gap-3">
             {uploadingCover ? (
               <>
