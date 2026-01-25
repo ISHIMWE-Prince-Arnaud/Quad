@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
-import { timeAgo } from "@/lib/timeUtils";
+import { timeLeft } from "@/lib/timeUtils";
 import { cn } from "@/lib/utils";
 import type { Poll } from "@/types/poll";
 
@@ -150,7 +150,7 @@ export function PollVotingSection({
               <span>·</span>
               <span>
                 {new Date(localPoll.expiresAt) > new Date()
-                  ? `${timeAgo(localPoll.expiresAt)} left`
+                  ? `${timeLeft(localPoll.expiresAt)} left`
                   : "Expired"}
               </span>
             </>

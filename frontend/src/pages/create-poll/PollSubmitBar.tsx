@@ -18,7 +18,7 @@ export function PollSubmitBar({
         disabled={!canSubmit || submitting}
         onClick={onSubmit}
         className={cn(
-          "w-full h-12 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold shadow-lg shadow-[#2563eb]/20 transition-all active:scale-95",
+          "w-full h-12 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold shadow-lg shadow-[#2563eb]/20 transition-all active:scale-95",
           !canSubmit && "opacity-70"
         )}>
         {submitting ? (

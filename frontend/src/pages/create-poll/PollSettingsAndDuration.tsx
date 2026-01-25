@@ -1,9 +1,22 @@
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import type { Dispatch, SetStateAction } from "react";
 
 import type { PollDuration, PollSettingsState, ValidationErrors } from "./types";
+
+const durationLabel: Record<PollDuration, string> = {
+  none: "none",
+  "1d": "1 day",
+  "1w": "1 week",
+  "1m": "1 month",
+};
 
 export function PollSettingsAndDuration({
   settings,
@@ -50,27 +63,42 @@ export function PollSettingsAndDuration({
             className="sr-only">
             Duration
           </Label>
-          <select
-            id="poll-duration"
-            className={cn(
-              "h-10 w-full rounded-xl border border-white/10 bg-[#0f121a] px-4 text-sm font-bold text-white focus:outline-none focus:ring-1 focus:ring-[#2563eb]/50 transition-all appearance-none cursor-pointer",
-              validationErrors.expiresAt && "border-destructive/50"
-            )}
+          <Select
             value={duration}
-            onChange={(e) => {
-              setDuration(e.target.value as PollDuration);
+            onValueChange={(v) => {
+              setDuration(v as PollDuration);
               if (validationErrors.expiresAt) {
                 setValidationErrors((prev) => ({
                   ...prev,
                   expiresAt: undefined,
                 }));
               }
-            }}>
-            <option value="none">none</option>
-            <option value="1d">1 day</option>
-            <option value="1w">1 week</option>
-            <option value="1m">1 month</option>
-          </select>
+            }}
+            className="w-full">
+            <SelectTrigger
+              id="poll-duration"
+              className={cn(
+                "h-11 w-full rounded-2xl border border-white/15 bg-[#0f121a] px-4 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]/25 focus:border-[#2563eb]/40 transition-all",
+                validationErrors.expiresAt && "border-destructive/50"
+              )}
+            >
+              {durationLabel[duration]}
+            </SelectTrigger>
+            <SelectContent className="mt-2 rounded-2xl border border-white/10 bg-[#0f121a] p-2 shadow-xl">
+              <SelectItem className="rounded-xl" value="none">
+                none
+              </SelectItem>
+              <SelectItem className="rounded-xl" value="1d">
+                1 day
+              </SelectItem>
+              <SelectItem className="rounded-xl" value="1w">
+                1 week
+              </SelectItem>
+              <SelectItem className="rounded-xl" value="1m">
+                1 month
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

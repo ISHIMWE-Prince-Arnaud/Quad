@@ -5,12 +5,12 @@ import { UploadService } from "@/services/uploadService";
 import { PollService } from "@/services/pollService";
 import type {
   PollMedia,
-  PollOptionInput,
+  CreatePollInput,
 } from "@/types/poll";
-import { toast } from "react-hot-toast";
-import { z } from "zod";
-import { pollSchema } from "@/schemas/poll.schema";
+import toast from "react-hot-toast";
+import { ZodError } from "zod";
 import type { ZodIssue } from "zod";
+import { createPollSchema } from "@/schemas/poll.schema";
 import { CreatePollForm } from "./create-poll/CreatePollForm";
 import { getErrorMessage } from "./create-poll/getErrorMessage";
 import { mapFileToMedia } from "./create-poll/pollUtils";
@@ -73,24 +73,36 @@ export default function CreatePollPage() {
     try {
       setUploadingQuestionMedia(true);
       const res = await UploadService.uploadPollMedia(file);
-      setQuestionMedia(mapFileToMedia(file, res.data.url));
+      setQuestionMedia(mapFileToMedia(file, res.url));
+      toast.success("Question media attached");
     } catch (error) {
-      logError(error, "Upload poll media");
-      toast.error("Failed to upload media");
+      logError(error, {
+        component: "CreatePollPage",
+        action: "uploadQuestionMedia",
+      });
+      toast.error(getErrorMessage(error));
     } finally {
       setUploadingQuestionMedia(false);
     }
   };
 
   const handleSubmit = async () => {
+    if (submitting) return;
+
+    // Clear previous validation errors
+    setValidationErrors({});
+
     try {
       setSubmitting(true);
-      setValidationErrors({});
 
-      const finalOptions = options.filter((o) => o.text.trim().length > 0);
+      const trimmedQuestion = question.trim();
+      const finalOptions = options
+        .map((o) => ({ ...o, text: o.text.trim() }))
+        .filter((o) => o.text.length > 0)
+        .slice(0, 5);
 
-      const pollData = {
-        question: question.trim(),
+      const payload: CreatePollInput = {
+        question: trimmedQuestion,
         questionMedia,
         options: finalOptions.map((o) => ({ text: o.text })),
         settings: {
@@ -110,48 +122,58 @@ export default function CreatePollPage() {
       };
 
       // Validate with Zod schema
-      const result = pollSchema.safeParse(pollData);
+      try {
+        createPollSchema.parse(payload);
+      } catch (validationError) {
+        if (validationError instanceof ZodError) {
+          const errors: ValidationErrors = {};
+          validationError.issues.forEach((issue: ZodIssue) => {
+            const path0 = issue.path[0];
+            if (path0 === "question") {
+              errors.question = issue.message;
+            } else if (path0 === "options") {
+              errors.options = issue.message;
+            } else if (path0 === "expiresAt") {
+              errors.expiresAt = issue.message;
+            } else {
+              errors.general = issue.message;
+            }
+          });
+          setValidationErrors(errors);
+          toast.error(
+            errors.general || "Please fix validation errors before submitting"
+          );
+          return;
+        }
+        throw validationError;
+      }
 
-      if (!result.success) {
-        const errors: ValidationErrors = {};
-        result.error.issues.forEach((issue: ZodIssue) => {
-          const path = issue.path[0] as string;
-          if (path === "question") errors.question = issue.message;
-          if (path === "options") errors.options = issue.message;
-          if (path === "expiresAt") errors.expiresAt = issue.message;
-        });
-        setValidationErrors(errors);
-
-        // Show toast for the first error
-        const firstError = result.error.issues[0];
-        toast.error(getErrorMessage(firstError));
+      const res = await PollService.create(payload);
+      if (!res.success || !res.data) {
+        toast.error(res.message || "Failed to create poll");
         return;
       }
 
-      const res = await PollService.createPoll({
-        question: pollData.question,
-        questionMedia: pollData.questionMedia,
-        options: pollData.options as PollOptionInput[],
-        settings: pollData.settings,
-        expiresAt: pollData.expiresAt,
-      });
-
-      if (res.success) {
-        toast.success("Poll created successfully!");
-        navigate("/app/polls");
-      }
+      toast.success("Poll created successfully!");
+      navigate("/app/polls");
     } catch (error) {
-      logError(error, "Create poll");
-      toast.error("Failed to create poll");
+      logError(error, { component: "CreatePollPage", action: "submitPoll" });
+      toast.error(getErrorMessage(error));
     } finally {
       setSubmitting(false);
     }
   };
 
   const canSubmit = useMemo(() => {
+    const q = question.trim();
+    const filledOptions = options
+      .map((o) => o.text.trim())
+      .filter((t) => t.length > 0);
     return (
-      question.trim().length >= 5 &&
-      options.filter((o) => o.text.trim().length > 0).length >= 2
+      q.length >= 10 &&
+      q.length <= 500 &&
+      filledOptions.length >= 2 &&
+      filledOptions.length <= 5
     );
   }, [question, options]);
 

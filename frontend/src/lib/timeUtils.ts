@@ -52,6 +52,40 @@ export function timeAgo(date: string | Date): string {
 }
 
 /**
+ * Format a future date as time remaining (e.g., "12h left", "2d left")
+ */
+export function timeLeft(date: string | Date): string {
+  const now = new Date();
+  const future = new Date(date);
+  const diffInSeconds = Math.floor((future.getTime() - now.getTime()) / 1000);
+
+  if (diffInSeconds <= 0) {
+    return "Expired";
+  }
+
+  // Less than a minute
+  if (diffInSeconds < 60) {
+    return `${diffInSeconds}s`;
+  }
+
+  // Less than an hour
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes}m`;
+  }
+
+  // Less than a day
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    return `${diffInHours}h`;
+  }
+
+  // Days
+  const diffInDays = Math.floor(diffInHours / 24);
+  return `${diffInDays}d`;
+}
+
+/**
  * Format a date as "Jan 15, 2025"
  */
 export function formatDate(date: string | Date): string {
