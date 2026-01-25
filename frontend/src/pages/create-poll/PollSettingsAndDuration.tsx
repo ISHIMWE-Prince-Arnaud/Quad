@@ -39,17 +39,19 @@ export function PollSettingsAndDuration({
         <h3 className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
           Anonymity
         </h3>
-        <div className="rounded-2xl bg-white/[0.02] border border-white/5 px-4 py-3 flex items-center justify-between">
-          <span className="text-sm font-bold text-white">Vote Anonymously</span>
-          <Switch
-            checked={settings.anonymousVoting}
-            onChange={(e) =>
-              setSettings((prev) => ({
-                ...prev,
-                anonymousVoting: e.target.checked,
-              }))
-            }
-          />
+        <div className="rounded-2xl bg-white/[0.02] border border-white/5 px-4 py-3">
+          <div className="h-11 w-full rounded-2xl border border-white/15 bg-[#0f121a] px-4 flex items-center justify-between">
+            <span className="text-sm font-bold text-white">Vote Anonymously</span>
+            <Switch
+              checked={settings.anonymousVoting}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  anonymousVoting: e.target.checked,
+                }))
+              }
+            />
+          </div>
         </div>
       </div>
 
