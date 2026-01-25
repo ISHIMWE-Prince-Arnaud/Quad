@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -30,11 +29,7 @@ export function PollVotingSection({
     <CardContent className="pb-3 space-y-3">
       <div className="space-y-3">
         {/* Question */}
-        <Link to={`/app/polls/${poll.id}`}>
-          <h3 className="font-semibold text-base hover:underline">
-            {poll.question}
-          </h3>
-        </Link>
+        <h3 className="font-semibold text-base">{poll.question}</h3>
 
         {/* Question media */}
         {poll.questionMedia && (

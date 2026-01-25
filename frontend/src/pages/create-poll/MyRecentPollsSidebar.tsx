@@ -8,7 +8,7 @@ export function MyRecentPollsSidebar({
 }: {
   loading: boolean;
   polls: Poll[];
-  onSelectPoll: (pollId: string) => void;
+  onSelectPoll: () => void;
 }) {
   return (
     <Card className="bg-[#0f121a] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
@@ -36,7 +36,7 @@ export function MyRecentPollsSidebar({
               <button
                 key={p.id}
                 type="button"
-                onClick={() => onSelectPoll(p.id)}
+                onClick={onSelectPoll}
                 className="block w-full text-left p-2 rounded-xl text-[13px] font-medium text-[#f1f5f9] hover:bg-white/5 hover:text-[#2563eb] transition-all truncate group">
                 <span className="opacity-50 group-hover:opacity-100 transition-opacity">
                   #{" "}

@@ -194,7 +194,7 @@ export default function CreatePollPage() {
       }
 
       toast.success("Poll created successfully!");
-      navigate(`/app/polls/${res.data.id}`);
+      navigate("/app/polls");
     } catch (err) {
       logError(err, { component: "CreatePollPage", action: "submitPoll" });
       toast.error(getErrorMessage(err));
@@ -239,7 +239,7 @@ export default function CreatePollPage() {
           <MyRecentPollsSidebar
             loading={loadingMyPolls}
             polls={myPolls}
-            onSelectPoll={(pollId) => navigate(`/app/polls/${pollId}`)}
+            onSelectPoll={() => navigate("/app/polls")}
           />
         </div>
       </div>

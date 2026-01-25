@@ -1,12 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import toast from "react-hot-toast";
 
 import { Card, CardHeader } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
-import { copyToClipboard } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import type { PollCardProps } from "./poll-card/types";
 import { PollCardHeader } from "./poll-card/PollCardHeader";
@@ -15,7 +12,6 @@ import { PollCardFooter } from "./poll-card/PollCardFooter";
 import { usePollReactions } from "./poll-card/usePollReactions";
 import { usePollBookmark } from "./poll-card/usePollBookmark";
 import { usePollVoting } from "./poll-card/usePollVoting";
-import { logError } from "@/lib/errorHandling";
 
 export function PollCard({
   poll,
@@ -23,7 +19,6 @@ export function PollCard({
   onUpdate,
   className,
 }: PollCardProps) {
-  const navigate = useNavigate();
   const { user } = useAuthStore();
   const isOwner = user?.clerkId === poll.author.clerkId;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -54,27 +49,6 @@ export function PollCard({
     setIsDeleteDialogOpen(false);
   };
 
-  const handleCopyLink = async () => {
-    const path = `/app/polls/${poll.id}`;
-    const url = `${window.location.origin}${path}`;
-
-    try {
-      const ok = await copyToClipboard(url);
-      if (ok) {
-        toast.success("Poll link copied to clipboard");
-      } else {
-        toast.error("Failed to copy link");
-      }
-    } catch (e) {
-      logError(e, { component: "PollCard", action: "copyLink", metadata: { pollId: poll.id } });
-      toast.error("Failed to copy link");
-    }
-  };
-
-  const handleEdit = () => {
-    navigate(`/app/polls/${poll.id}/edit`);
-  };
-
   return (
     <>
       <motion.div
@@ -87,8 +61,7 @@ export function PollCard({
               poll={poll}
               displayName={displayName}
               isOwner={isOwner}
-              onCopyLink={() => void handleCopyLink()}
-              onEdit={handleEdit}
+              canDelete={Boolean(onDelete)}
               onRequestDelete={() => setIsDeleteDialogOpen(true)}
             />
           </CardHeader>
@@ -104,9 +77,6 @@ export function PollCard({
           />
 
           <PollCardFooter
-            pollId={poll.id}
-            commentsCount={poll.commentsCount || 0}
-            onCopyLink={() => void handleCopyLink()}
             bookmarked={bookmarked}
             onToggleBookmark={toggleBookmark}
             userReaction={userReaction}

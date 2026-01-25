@@ -21,7 +21,6 @@ const StoryPage = lazy(() => import("@/pages/StoryPage"));
 const CreateStoryPage = lazy(() => import("@/pages/CreateStoryPage"));
 const EditStoryPage = lazy(() => import("@/pages/EditStoryPage"));
 const PollsPage = lazy(() => import("@/pages/PollsPage"));
-const PollPage = lazy(() => import("@/pages/PollPage"));
 const CreatePollPage = lazy(() => import("@/pages/CreatePollPage"));
 const ChatPage = lazy(() => import("@/pages/ChatPage"));
 const CreatePage = lazy(() => import("@/pages/app/CreatePage"));
@@ -171,14 +170,6 @@ export const router = createBrowserRouter([
             element: (
               <LazyRoute>
                 <PollsPage />
-              </LazyRoute>
-            ),
-          },
-          {
-            path: "polls/:id",
-            element: (
-              <LazyRoute>
-                <PollPage />
               </LazyRoute>
             ),
           },

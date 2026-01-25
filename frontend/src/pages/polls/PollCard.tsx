@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,9 +14,7 @@ export function PollCard({ poll }: { poll: Poll }) {
       <Card className="shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="flex flex-col gap-1 text-base font-medium">
-            <Link to={`/app/polls/${poll.id}`} className="hover:underline">
-              {poll.question}
-            </Link>
+            {poll.question}
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span>by {poll.author.username}</span>
               <span>

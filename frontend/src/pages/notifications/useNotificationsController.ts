@@ -167,7 +167,7 @@ export function useNotificationsController({
 
     if (normalizedContentType === "post" && contentId) return `/app/posts/${contentId}`;
     if (normalizedContentType === "story" && contentId) return `/app/stories/${contentId}`;
-    if (normalizedContentType === "poll" && contentId) return `/app/polls/${contentId}`;
+    if (normalizedContentType === "poll" && contentId) return "/app/polls";
     if (
       normalizedContentType &&
       ["chat", "conversation", "chatmessage"].includes(normalizedContentType) &&

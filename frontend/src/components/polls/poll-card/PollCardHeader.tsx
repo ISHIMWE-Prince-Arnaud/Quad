@@ -16,15 +16,13 @@ export function PollCardHeader({
   poll,
   displayName,
   isOwner,
-  onCopyLink,
-  onEdit,
+  canDelete,
   onRequestDelete,
 }: {
   poll: Poll;
   displayName: string;
   isOwner: boolean;
-  onCopyLink: () => void;
-  onEdit: () => void;
+  canDelete: boolean;
   onRequestDelete: () => void;
 }) {
   return (
@@ -52,29 +50,22 @@ export function PollCardHeader({
       </Link>
 
       {/* More options */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem asChild>
-            <Link to={`/app/polls/${poll.id}`}>View poll</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={onCopyLink}>Copy link</DropdownMenuItem>
-          {isOwner && (
-            <>
-              <DropdownMenuItem onClick={onEdit}>Edit poll</DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive"
-                onClick={onRequestDelete}>
-                Delete poll
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {isOwner && canDelete && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={onRequestDelete}>
+              Delete poll
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   );
 }

@@ -143,11 +143,7 @@ export function FeaturedPoll({ className }: FeaturedPollProps) {
     return (
       <>
         <div className="space-y-2">
-          <Link
-            to={`/app/polls/${poll.id}`}
-            className="text-base font-semibold hover:text-primary transition-colors">
-            {poll.question}
-          </Link>
+          <div className="text-base font-semibold">{poll.question}</div>
           <p className="text-xs text-muted-foreground">
             {poll.totalVotes} vote{poll.totalVotes === 1 ? "" : "s"}
             {poll.expiresAt && (
