@@ -16,7 +16,6 @@ import {
   updateProfileSchema,
   createCommentSchema,
   sendMessageSchema,
-  searchQuerySchema,
 } from "@/schemas";
 
 describe("Property 7: Request Payload Schema Validation", () => {
@@ -412,39 +411,6 @@ describe("Property 7: Request Payload Schema Validation", () => {
         }),
         { numRuns: 100 }
       );
-    });
-  });
-
-  describe("Search Query Schema", () => {
-    it("should validate valid search query", () => {
-      fc.assert(
-        fc.property(fc.string({ minLength: 1, maxLength: 200 }), (query) => {
-          const result = searchQuerySchema.safeParse({ query });
-          expect(result.success).toBe(true);
-        }),
-        { numRuns: 100 }
-      );
-    });
-
-    it("should reject search query exceeding 200 characters", () => {
-      fc.assert(
-        fc.property(fc.string({ minLength: 201, maxLength: 300 }), (query) => {
-          const result = searchQuerySchema.safeParse({ query });
-          expect(result.success).toBe(false);
-        }),
-        { numRuns: 100 }
-      );
-    });
-
-    it("should apply default values for optional fields", () => {
-      const result = searchQuerySchema.safeParse({ query: "test" });
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.type).toBe("all");
-        expect(result.data.sortBy).toBe("relevance");
-        expect(result.data.limit).toBe(20);
-        expect(result.data.page).toBe(1);
-      }
     });
   });
 });

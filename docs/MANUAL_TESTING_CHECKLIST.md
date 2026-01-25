@@ -164,34 +164,6 @@ This document provides a comprehensive checklist for manually testing the Quad a
 - [ ] Mutual follow indicator shows
 - [ ] Can follow/unfollow from lists
 
-## Search
-
-### Search Bar
-
-- [ ] Autocomplete suggestions appear
-- [ ] Can search for users
-- [ ] Can search for posts
-- [ ] Can search for stories
-- [ ] Can search for polls
-
-### Search Results
-
-- [ ] Results display in correct tabs
-- [ ] Filters work (date, type, sort)
-- [ ] Pagination works
-- [ ] Empty state shows when no results
-
-### Search History
-
-- [ ] Previous searches saved
-- [ ] Can delete individual history item
-- [ ] Can clear all history
-
-### Trending
-
-- [ ] Trending content displays
-- [ ] Popular searches display
-
 ## Notifications
 
 ### Notification Display
@@ -288,7 +260,6 @@ This document provides a comprehensive checklist for manually testing the Quad a
 ### Empty States
 
 - [ ] Empty feed message shows
-- [ ] Empty search results message shows
 - [ ] Empty notifications message shows
 
 ## Accessibility

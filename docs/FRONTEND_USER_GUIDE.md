@@ -3,7 +3,7 @@
 This document explains how end-users interact with Quad’s main features:
 
 - Onboarding and first-time setup
-- Using core features (posts, chat, stories, polls, notifications, search, analytics)
+- Using core features (posts, chat, stories, polls, notifications, analytics)
 - Frequently asked questions & troubleshooting
 - Accessibility and keyboard usage
 

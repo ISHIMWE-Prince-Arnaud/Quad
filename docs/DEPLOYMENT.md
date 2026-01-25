@@ -178,7 +178,6 @@ Build output will be in `backend/dist/`
    ```
 
 3. **Configure Environment Variables**
-
    - Go to Vercel dashboard → Project Settings → Environment Variables
    - Add all variables from `.env.production`
    - Redeploy if needed
@@ -248,7 +247,6 @@ Build output will be in `backend/dist/`
    ```
 
 4. **Create CloudFront Distribution**
-
    - Origin: S3 bucket
    - Default root object: `index.html`
    - Error pages: Redirect 404 to `/index.html` (for SPA routing)
@@ -260,7 +258,6 @@ Build output will be in `backend/dist/`
 #### Deploy Backend to EC2
 
 1. **Launch EC2 Instance**
-
    - AMI: Ubuntu 22.04 LTS
    - Instance type: t3.small or larger
    - Security group: Allow ports 22 (SSH), 80 (HTTP), 443 (HTTPS), 4000 (API)
@@ -444,7 +441,6 @@ curl https://yourproductiondomain.com
 - [ ] Upload image
 - [ ] Real-time chat
 - [ ] Notifications
-- [ ] Search functionality
 
 ### 2. Configure DNS
 

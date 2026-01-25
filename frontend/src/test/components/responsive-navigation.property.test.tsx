@@ -36,11 +36,6 @@ vi.mock("@/components/auth/UserMenu", () => ({
   UserAvatar: () => <div data-testid="user-avatar">User Avatar</div>,
 }));
 
-// Mock GlobalSearchBar component
-vi.mock("@/components/search/GlobalSearchBar", () => ({
-  GlobalSearchBar: () => <div data-testid="search-bar">Search</div>,
-}));
-
 vi.mock("@/components/theme/ThemeSelector", () => ({
   ThemeSelector: () => <div role="group" aria-label="Theme selector" />,
 }));

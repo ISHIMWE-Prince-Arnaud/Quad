@@ -97,7 +97,6 @@ Task 17 "Prepare for production deployment" has been completed with all 8 subtas
 - User property tracking
 - Content interaction tracking
 - Social interaction tracking
-- Search tracking
 - Error tracking
 - Performance timing
 

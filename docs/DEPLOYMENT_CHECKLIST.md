@@ -198,14 +198,6 @@ Use this checklist to ensure all steps are completed before and after deployment
 - [ ] Feed updates in real-time
 - [ ] Poll votes update in real-time
 
-#### Search
-
-- [ ] Search works
-- [ ] Autocomplete works
-- [ ] Filters work
-- [ ] Search history saves
-- [ ] Trending content displays
-
 ### Monitoring Setup
 
 - [ ] Error tracking active (Sentry)
