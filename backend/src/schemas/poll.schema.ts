@@ -79,16 +79,11 @@ export const createPollSchema = z
   settings: z
     .object({
       anonymousVoting: z.boolean().optional().default(false),
-      showResults: z
-        .enum(["always", "afterVote", "afterExpiry"])
-        .optional()
-        .default("afterVote"),
     })
     .strict()
     .optional()
     .default({
       anonymousVoting: false,
-      showResults: "afterVote"
     }),
   
   expiresAt: z

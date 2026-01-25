@@ -1,22 +1,21 @@
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import type { ResultsVisibility } from "@/types/poll";
 import type { Dispatch, SetStateAction } from "react";
 
-import type { PollSettingsState, ValidationErrors } from "./types";
+import type { PollDuration, PollSettingsState, ValidationErrors } from "./types";
 
 export function PollSettingsAndDuration({
   settings,
   setSettings,
-  expiresAt,
-  setExpiresAt,
+  duration,
+  setDuration,
   validationErrors,
   setValidationErrors,
 }: {
   settings: PollSettingsState;
   setSettings: Dispatch<SetStateAction<PollSettingsState>>;
-  expiresAt: string | "";
-  setExpiresAt: (v: string | "") => void;
+  duration: PollDuration;
+  setDuration: (v: PollDuration) => void;
   validationErrors: ValidationErrors;
   setValidationErrors: Dispatch<SetStateAction<ValidationErrors>>;
 }) {
@@ -50,28 +49,6 @@ export function PollSettingsAndDuration({
               </p>
             </div>
           </label>
-
-          <div className="space-y-3 pt-2 border-t border-white/5">
-            <Label
-              htmlFor="results-visibility"
-              className="text-[11px] font-bold text-[#64748b] uppercase tracking-wide">
-              Results visibility
-            </Label>
-            <select
-              id="results-visibility"
-              className="h-11 w-full rounded-xl border border-white/10 bg-[#0f121a] px-4 text-sm font-bold text-white focus:outline-none focus:ring-1 focus:ring-[#2563eb]/50 transition-all appearance-none cursor-pointer"
-              value={settings.showResults}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  showResults: e.target.value as ResultsVisibility,
-                }))
-              }>
-              <option value="always">Always visible</option>
-              <option value="afterVote">After user votes</option>
-              <option value="afterExpiry">After poll expires</option>
-            </select>
-          </div>
         </div>
       </div>
 
@@ -82,29 +59,32 @@ export function PollSettingsAndDuration({
         <div className="space-y-4 rounded-[2rem] bg-white/[0.02] border border-white/5 p-6 shadow-inner">
           <div className="space-y-3">
             <Label
-              htmlFor="poll-expiry"
+              htmlFor="poll-duration"
               className="text-[11px] font-bold text-[#64748b] uppercase tracking-wide">
-              Closing Date & Time (Optional)
+              Duration
             </Label>
             <div className="relative">
-              <input
-                id="poll-expiry"
-                type="datetime-local"
-                value={expiresAt}
+              <select
+                id="poll-duration"
+                className={cn(
+                  "h-12 w-full rounded-xl border border-white/10 bg-[#0f121a] px-4 text-sm font-bold text-white focus:outline-none focus:ring-1 focus:ring-[#2563eb]/50 transition-all appearance-none cursor-pointer",
+                  validationErrors.expiresAt && "border-destructive/50"
+                )}
+                value={duration}
                 onChange={(e) => {
-                  setExpiresAt(e.target.value);
+                  setDuration(e.target.value as PollDuration);
                   if (validationErrors.expiresAt) {
                     setValidationErrors((prev) => ({
                       ...prev,
                       expiresAt: undefined,
                     }));
                   }
-                }}
-                className={cn(
-                  "h-12 w-full rounded-xl border border-white/10 bg-[#0f121a] px-4 text-sm font-bold text-white focus:outline-none focus:ring-1 focus:ring-[#2563eb]/50 transition-all cursor-pointer",
-                  validationErrors.expiresAt && "border-destructive/50"
-                )}
-              />
+                }}>
+                <option value="none">None</option>
+                <option value="1d">1 day</option>
+                <option value="1w">1 week</option>
+                <option value="1m">1 month</option>
+              </select>
             </div>
             <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wide">
               <span
@@ -113,7 +93,7 @@ export function PollSettingsAndDuration({
                     ? "text-destructive"
                     : "text-[#64748b]"
                 }>
-                {validationErrors.expiresAt || "Leave empty for no expiry"}
+                {validationErrors.expiresAt || "Select none for no expiry"}
               </span>
             </div>
           </div>

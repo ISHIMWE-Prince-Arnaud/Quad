@@ -9,13 +9,6 @@ import type { IMedia } from "./post.types.js";
  */
 export type PollStatus = "active" | "expired" | "closed";
 
-/**
- * Results Visibility Setting
- * - always: Results visible to everyone immediately
- * - afterVote: Results visible only after user votes
- * - afterExpiry: Results visible only after poll expires
- */
-export type ResultsVisibility = "always" | "afterVote" | "afterExpiry";
 
 /**
  * Poll Option
@@ -32,7 +25,6 @@ export interface IPollOption {
  */
 export interface IPollSettings {
   anonymousVoting: boolean;     // Hide voter identities (votes remain anonymous)
-  showResults: ResultsVisibility; // When to show results
 }
 
 /**
@@ -89,7 +81,6 @@ export interface ICreatePoll {
   }>;
   settings?: {
     anonymousVoting?: boolean;
-    showResults?: ResultsVisibility;
   };
   expiresAt?: Date;
 }

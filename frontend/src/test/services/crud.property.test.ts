@@ -249,11 +249,6 @@ describe("Property 1: CRUD Operations Preserve Data Integrity", () => {
           ),
           settings: fc.record({
             anonymousVoting: fc.boolean(),
-            showResults: fc.constantFrom(
-              "always" as const,
-              "afterVote" as const,
-              "afterExpiry" as const
-            ),
           }),
         }),
         async (pollData) => {
