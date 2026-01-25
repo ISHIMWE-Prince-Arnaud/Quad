@@ -56,7 +56,6 @@ export class PollService {
       options,
       settings: pollData.settings || {
         anonymousVoting: false,
-        showResults: "afterVote",
       },
       status: "active",
       ...(pollData.expiresAt !== undefined ? { expiresAt: pollData.expiresAt } : {}),

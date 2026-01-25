@@ -6,7 +6,7 @@ import { z } from "zod";
 const mediaSchema = z
   .object({
     url: z.string().url("Invalid media URL"),
-    type: z.enum(["image", "video"]),
+    type: z.enum(["image"]),
     aspectRatio: z.enum(["1:1", "16:9", "9:16"]).optional(),
   })
   .strict();
@@ -79,16 +79,11 @@ export const createPollSchema = z
   settings: z
     .object({
       anonymousVoting: z.boolean().optional().default(false),
-      showResults: z
-        .enum(["always", "afterVote", "afterExpiry"])
-        .optional()
-        .default("afterVote"),
     })
     .strict()
     .optional()
     .default({
       anonymousVoting: false,
-      showResults: "afterVote"
     }),
   
   expiresAt: z

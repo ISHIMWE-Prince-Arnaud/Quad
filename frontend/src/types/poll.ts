@@ -2,11 +2,9 @@ import type { ApiUser } from "./api";
 
 export type PollStatus = "active" | "expired" | "closed";
 
-export type ResultsVisibility = "always" | "afterVote" | "afterExpiry";
-
 export type PollMediaAspectRatio = "1:1" | "16:9" | "9:16";
 
-export type PollMediaType = "image" | "video";
+export type PollMediaType = "image";
 
 export interface PollMedia {
   url: string;
@@ -23,7 +21,6 @@ export interface PollOption {
 
 export interface PollSettings {
   anonymousVoting: boolean;
-  showResults: ResultsVisibility;
 }
 
 export type PollAuthor = ApiUser;
@@ -77,7 +74,6 @@ export interface CreatePollInput {
   options: CreatePollOptionInput[];
   settings?: {
     anonymousVoting?: boolean;
-    showResults?: ResultsVisibility;
   };
   expiresAt?: string; // ISO string
 }

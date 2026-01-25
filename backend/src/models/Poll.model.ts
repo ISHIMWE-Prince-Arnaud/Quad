@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import type { IUser } from "../types/user.types.js";
-import type { PollStatus, ResultsVisibility } from "../types/poll.types.js";
+import type { PollStatus } from "../types/poll.types.js";
 import type { IMedia } from "../types/post.types.js";
 
 /**
@@ -17,7 +17,6 @@ export interface IPollDocument extends Document {
   }>;
   settings: {
     anonymousVoting: boolean;
-    showResults: ResultsVisibility;
   };
   status: PollStatus;
   expiresAt?: Date;
@@ -92,11 +91,6 @@ const PollSchema = new Schema<IPollDocument>(
         type: Boolean,
         default: false,
       },
-      showResults: { 
-        type: String, 
-        enum: ["always", "afterVote", "afterExpiry"],
-        default: "afterVote"
-      }
     },
     
     // Status

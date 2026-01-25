@@ -33,24 +33,7 @@ export const canViewResults = (
   poll: IPollDocument,
   hasUserVoted: boolean
 ): boolean => {
-  const { showResults } = poll.settings;
-  
-  switch (showResults) {
-    case "always":
-      // Always visible
-      return true;
-    
-    case "afterVote":
-      // Visible only after user votes
-      return hasUserVoted;
-    
-    case "afterExpiry":
-      // Visible only after poll expires or closes
-      return poll.status === "expired" || poll.status === "closed";
-    
-    default:
-      return false;
-  }
+  return hasUserVoted;
 };
 
 /**

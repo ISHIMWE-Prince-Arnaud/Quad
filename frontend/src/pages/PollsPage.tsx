@@ -85,12 +85,9 @@ export default function PollsPage() {
       setPolls((prevPolls) =>
         prevPolls.map((poll) => {
           if (poll.id !== pollId) return poll;
-          const shouldRevealResults =
-            poll.settings.showResults === "afterExpiry" || poll.settings.showResults === "always";
           return {
             ...poll,
             status: "expired",
-            canViewResults: shouldRevealResults ? true : poll.canViewResults,
           };
         })
       );

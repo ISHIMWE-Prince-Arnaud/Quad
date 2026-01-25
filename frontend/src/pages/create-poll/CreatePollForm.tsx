@@ -2,7 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Dispatch, SetStateAction } from "react";
 import type { PollMedia } from "@/types/poll";
 
-import type { LocalOption, PollSettingsState, ValidationErrors } from "./types";
+import type {
+  LocalOption,
+  PollDuration,
+  PollSettingsState,
+  ValidationErrors,
+} from "./types";
 import { PollOptionsEditor } from "./PollOptionsEditor";
 import { PollQuestionSection } from "./PollQuestionSection";
 import { PollSettingsAndDuration } from "./PollSettingsAndDuration";
@@ -23,8 +28,8 @@ export function CreatePollForm({
 
   settings,
   setSettings,
-  expiresAt,
-  setExpiresAt,
+  duration,
+  setDuration,
 
   canSubmit,
   submitting,
@@ -47,8 +52,8 @@ export function CreatePollForm({
 
   settings: PollSettingsState;
   setSettings: (next: PollSettingsState | ((prev: PollSettingsState) => PollSettingsState)) => void;
-  expiresAt: string | "";
-  setExpiresAt: (v: string | "") => void;
+  duration: PollDuration;
+  setDuration: (v: PollDuration) => void;
 
   canSubmit: boolean;
   submitting: boolean;
@@ -89,8 +94,8 @@ export function CreatePollForm({
         <PollSettingsAndDuration
           settings={settings}
           setSettings={setSettings}
-          expiresAt={expiresAt}
-          setExpiresAt={setExpiresAt}
+          duration={duration}
+          setDuration={setDuration}
           validationErrors={validationErrors}
           setValidationErrors={setValidationErrors}
         />

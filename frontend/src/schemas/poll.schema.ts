@@ -5,8 +5,8 @@ import { z } from "zod";
  */
 export const pollMediaSchema = z.object({
   url: z.string().url("Invalid media URL"),
-  type: z.enum(["image", "video"], {
-    message: "Media type must be either image or video",
+  type: z.enum(["image"], {
+    message: "Media type must be image",
   }),
   aspectRatio: z.enum(["1:1", "16:9", "9:16"]).optional(),
 });
@@ -27,10 +27,6 @@ export const createPollOptionSchema = z.object({
  */
 export const pollSettingsSchema = z.object({
   anonymousVoting: z.boolean().optional().default(false),
-  showResults: z
-    .enum(["always", "afterVote", "afterExpiry"])
-    .optional()
-    .default("afterVote"),
 });
 
 /**

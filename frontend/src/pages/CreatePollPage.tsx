@@ -13,7 +13,12 @@ import type { ZodIssue } from "zod";
 import { CreatePollForm } from "./create-poll/CreatePollForm";
 import { getErrorMessage } from "./create-poll/getErrorMessage";
 import { mapFileToMedia } from "./create-poll/pollUtils";
-import type { LocalOption, PollSettingsState, ValidationErrors } from "./create-poll/types";
+import type {
+  LocalOption,
+  PollDuration,
+  PollSettingsState,
+  ValidationErrors,
+} from "./create-poll/types";
 import { logError } from "@/lib/errorHandling";
 
 export default function CreatePollPage() {
@@ -29,9 +34,8 @@ export default function CreatePollPage() {
   ]);
   const [settings, setSettings] = useState<PollSettingsState>({
     anonymousVoting: false,
-    showResults: "afterVote",
   });
-  const [expiresAt, setExpiresAt] = useState<string | "">("");
+  const [duration, setDuration] = useState<PollDuration>("none");
 
   const [submitting, setSubmitting] = useState(false);
   const [uploadingQuestionMedia, setUploadingQuestionMedia] = useState(false);
@@ -70,6 +74,10 @@ export default function CreatePollPage() {
 
   const handleUploadQuestionMedia = async (file: File | null) => {
     if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only images are allowed for polls");
+      return;
+    }
     try {
       setUploadingQuestionMedia(true);
       const res = await UploadService.uploadPollMedia(file);
@@ -103,9 +111,18 @@ export default function CreatePollPage() {
         options: finalOptions.map((o) => ({ text: o.text })),
         settings: {
           anonymousVoting: settings.anonymousVoting,
-          showResults: settings.showResults,
         },
-        expiresAt: expiresAt || undefined,
+        expiresAt:
+          duration === "none"
+            ? undefined
+            : new Date(
+                Date.now() +
+                  (duration === "1d"
+                    ? 24 * 60 * 60 * 1000
+                    : duration === "1w"
+                      ? 7 * 24 * 60 * 60 * 1000
+                      : 30 * 24 * 60 * 60 * 1000)
+              ).toISOString(),
       };
 
       // Validate with Zod schema
@@ -167,8 +184,8 @@ export default function CreatePollPage() {
           onOptionChange={handleOptionChange}
           settings={settings}
           setSettings={setSettings}
-          expiresAt={expiresAt}
-          setExpiresAt={setExpiresAt}
+          duration={duration}
+          setDuration={setDuration}
           canSubmit={canSubmit}
           submitting={submitting}
           onSubmit={() => void handleSubmit()}
