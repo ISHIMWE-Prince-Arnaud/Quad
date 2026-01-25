@@ -10,7 +10,7 @@ import { logError } from "@/lib/errorHandling";
 
 import { getErrorMessage } from "./polls/getErrorMessage";
 import { PollCard } from "./polls/PollCard";
-import { PollsFiltersBar } from "./polls/PollsFiltersBar";
+import { PollsHeader } from "./polls/PollsHeader";
 
 export default function PollsPage() {
   const [polls, setPolls] = useState<Poll[]>([]);
@@ -111,7 +111,7 @@ export default function PollsPage() {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-4xl space-y-4">
-        <PollsFiltersBar />
+        <PollsHeader />
 
         {error && (
           <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">

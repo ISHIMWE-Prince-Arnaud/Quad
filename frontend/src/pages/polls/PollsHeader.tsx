@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 
-export function PollsFiltersBar() {
+export function PollsHeader() {
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <h1 className="text-xl font-semibold">Polls</h1>
