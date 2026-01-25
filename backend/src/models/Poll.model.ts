@@ -13,11 +13,9 @@ export interface IPollDocument extends Document {
   questionMedia?: IMedia;
   options: Array<{
     text: string;
-    media?: IMedia;
     votesCount: number;
   }>;
   settings: {
-    allowMultiple: boolean;
     anonymousVoting: boolean;
     showResults: ResultsVisibility;
   };
@@ -72,19 +70,6 @@ const PollSchema = new Schema<IPollDocument>(
             minlength: 1,
             maxlength: 200
           },
-          media: {
-            url: { type: String, required: false },
-            type: { 
-              type: String, 
-              enum: ["image", "video"], 
-              required: false 
-            },
-            aspectRatio: { 
-              type: String, 
-              enum: ["1:1", "16:9", "9:16"], 
-              required: false 
-            },
-          },
           votesCount: { 
             type: Number, 
             default: 0,
@@ -103,10 +88,6 @@ const PollSchema = new Schema<IPollDocument>(
     
     // Settings
     settings: {
-      allowMultiple: { 
-        type: Boolean, 
-        default: false 
-      },
       anonymousVoting: {
         type: Boolean,
         default: false,

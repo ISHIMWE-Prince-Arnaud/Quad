@@ -75,6 +75,13 @@ export const validateVoteIndices = (
   poll: IPollDocument,
   optionIndices: number[]
 ): { valid: boolean; error?: string } => {
+  if (optionIndices.length !== 1) {
+    return {
+      valid: false,
+      error: "Must select exactly one option",
+    };
+  }
+
   // Check if indices are within range
   const maxIndex = poll.options.length - 1;
   const invalidIndices = optionIndices.filter(idx => idx < 0 || idx > maxIndex);
@@ -83,14 +90,6 @@ export const validateVoteIndices = (
     return {
       valid: false,
       error: `Invalid option indices: ${invalidIndices.join(", ")}. Poll has ${poll.options.length} options (0-${maxIndex})`
-    };
-  }
-  
-  // Check if multiple selection is allowed
-  if (optionIndices.length > 1 && !poll.settings.allowMultiple) {
-    return {
-      valid: false,
-      error: "This poll does not allow multiple selections"
     };
   }
   
@@ -147,7 +146,6 @@ export const formatPollResponse = (
     response.options = poll.options.map((opt, index) => ({
       index,
       text: opt.text,
-      media: opt.media,
       votesCount: opt.votesCount,
       percentage: poll.totalVotes > 0 
         ? Math.round((opt.votesCount / poll.totalVotes) * 100) 
@@ -158,7 +156,6 @@ export const formatPollResponse = (
     response.options = poll.options.map((opt, index) => ({
       index,
       text: opt.text,
-      media: opt.media,
     }));
   }
   

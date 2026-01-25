@@ -23,7 +23,6 @@ export type ResultsVisibility = "always" | "afterVote" | "afterExpiry";
  */
 export interface IPollOption {
   text: string;                 // Option text (1-200 chars)
-  media?: IMedia;               // Optional image or video
   votesCount: number;           // Cached vote count
 }
 
@@ -32,7 +31,6 @@ export interface IPollOption {
  * Configuration for poll behavior
  */
 export interface IPollSettings {
-  allowMultiple: boolean;       // Allow multiple option selection
   anonymousVoting: boolean;     // Hide voter identities (votes remain anonymous)
   showResults: ResultsVisibility; // When to show results
 }
@@ -88,10 +86,8 @@ export interface ICreatePoll {
   questionMedia?: IMedia;
   options: Array<{
     text: string;
-    media?: IMedia;
   }>;
   settings?: {
-    allowMultiple?: boolean;
     anonymousVoting?: boolean;
     showResults?: ResultsVisibility;
   };

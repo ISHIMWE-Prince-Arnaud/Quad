@@ -38,7 +38,7 @@ describe("Poll Voting", () => {
     expect(voteRes.body?.data?.userVote?.length).toBe(1);
   });
 
-  it("allows multiple selections when enabled", async () => {
+  it("rejects multiple selections", async () => {
     const app = createTestApp();
     const authorId = "pv_user_3";
     const voterId = "pv_user_4";
@@ -51,7 +51,7 @@ describe("Poll Voting", () => {
       .send({
         question: "Multiple selection question?",
         options: [{ text: "A" }, { text: "B" }, { text: "C" }],
-        settings: { allowMultiple: true, anonymousVoting: true, showResults: "afterVote" },
+        settings: { anonymousVoting: true, showResults: "afterVote" },
       });
 
     const pollId = createRes.body?.data?._id as string;
@@ -61,8 +61,7 @@ describe("Poll Voting", () => {
       .set(getAuthHeaders(voterId))
       .send({ optionIndices: [0, 2] });
 
-    expect(voteRes.status).toBe(200);
-    expect(voteRes.body?.data?.userVote?.length).toBe(2);
+    expect(voteRes.status).toBe(400);
   });
 
   it("prevents voting on expired poll", async () => {

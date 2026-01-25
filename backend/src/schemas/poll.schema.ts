@@ -59,7 +59,6 @@ export const createPollSchema = z
             .min(1, "Option text is required")
             .max(200, "Option text must be at most 200 characters")
             .trim(),
-          media: mediaSchema.optional(),
         })
         .strict()
     )
@@ -79,7 +78,6 @@ export const createPollSchema = z
   
   settings: z
     .object({
-      allowMultiple: z.boolean().optional().default(false),
       anonymousVoting: z.boolean().optional().default(false),
       showResults: z
         .enum(["always", "afterVote", "afterExpiry"])
@@ -89,7 +87,6 @@ export const createPollSchema = z
     .strict()
     .optional()
     .default({
-      allowMultiple: false,
       anonymousVoting: false,
       showResults: "afterVote"
     }),
@@ -136,18 +133,7 @@ export const voteOnPollSchema = z
   .object({
     optionIndices: z
       .array(z.number().int().nonnegative())
-      .min(1, "Must select at least 1 option")
-      .max(5, "Cannot select more than 5 options")
-      .refine(
-        (indices) => {
-          // Check for duplicate indices
-          const uniqueIndices = new Set(indices);
-          return indices.length === uniqueIndices.size;
-        },
-        {
-          message: "Cannot select the same option multiple times"
-        }
-      ),
+      .length(1, "Must select exactly 1 option"),
   })
   .strict();
 

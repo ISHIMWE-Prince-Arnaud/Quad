@@ -33,7 +33,6 @@ export class PollService {
 
     const options = pollData.options.map((opt) => ({
       text: opt.text,
-      ...(opt.media !== undefined ? { media: opt.media } : {}),
       votesCount: 0,
     }));
 
@@ -56,7 +55,6 @@ export class PollService {
         : {}),
       options,
       settings: pollData.settings || {
-        allowMultiple: false,
         anonymousVoting: false,
         showResults: "afterVote",
       },
