@@ -153,16 +153,6 @@ class Analytics {
   }
 
   /**
-   * Track search
-   */
-  trackSearch(searchTerm: string, resultCount?: number): void {
-    this.event("search", {
-      search_term: searchTerm,
-      result_count: resultCount,
-    });
-  }
-
-  /**
    * Track errors
    */
   trackError(errorMessage: string, errorType?: string, fatal = false): void {
@@ -253,5 +243,3 @@ export const trackPollVoted = (pollId: string) =>
   analytics.trackContentInteraction("poll", "vote", pollId);
 export const trackUserFollowed = (userId: string) =>
   analytics.trackSocialInteraction("follow", userId);
-export const trackSearch = (query: string, count?: number) =>
-  analytics.trackSearch(query, count);

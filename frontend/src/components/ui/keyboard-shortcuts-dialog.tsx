@@ -17,7 +17,6 @@ const shortcuts: Shortcut[] = [
   { key: "N", description: "Create new post" },
   { key: "H", description: "Go to home/feed" },
   { key: "P", description: "Go to your profile" },
-  { key: "S", description: "Focus search bar" },
   { key: "B", description: "Go to notifications (Bell)" },
   { key: "/", description: "Show this help dialog" },
   { key: "Esc", description: "Close dialogs/modals" },

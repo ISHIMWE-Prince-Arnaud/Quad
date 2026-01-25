@@ -95,18 +95,6 @@ export function useAppKeyboardShortcuts() {
       },
     },
     {
-      key: "s",
-      description: "Focus search",
-      action: () => {
-        const searchInput = document.querySelector<HTMLInputElement>(
-          "[data-search-input]"
-        );
-        if (searchInput) {
-          searchInput.focus();
-        }
-      },
-    },
-    {
       key: "b",
       description: "Go to notifications",
       action: () => navigate("/app/notifications"),
