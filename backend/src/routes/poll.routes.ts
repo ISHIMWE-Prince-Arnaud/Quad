@@ -12,7 +12,6 @@ import {
   createPoll,
   getAllPolls,
   getMyPolls,
-  getPoll,
   updatePoll,
   deletePoll,
   voteOnPoll,
@@ -86,14 +85,6 @@ router.get(
 
 // Get my polls (polls created by current user)
 router.get("/me", requireApiAuth, getMyPolls);
-
-// Get single poll
-router.get(
-  "/:id",
-  requireApiAuth,
-  validateSchema(pollIdSchema, "params"),
-  getPoll
-);
 
 // Update poll (author only)
 router.put(
