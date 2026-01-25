@@ -134,14 +134,6 @@ export interface ApiUploadResponse {
   bytes?: number;
 }
 
-export interface ApiSearchResult<T> {
-  results: T[];
-  total: number;
-  page: number;
-  limit: number;
-  hasMore: boolean;
-}
-
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -162,18 +154,8 @@ export interface PaginationParams {
 }
 
 // Search params
-export interface UserSearchParams extends PaginationParams {
-  q: string;
-  sortBy?: "relevance" | "date" | "followers";
-  fuzzy?: boolean;
-  dateFrom?: string;
-  dateTo?: string;
-}
-
 // Follow list params
-export interface FollowListParams extends PaginationParams {
-  search?: string;
-}
+export type FollowListParams = PaginationParams;
 
 // Profile update data
 export interface ProfileUpdateData {
@@ -216,11 +198,3 @@ export interface ContentItem {
   question?: string;
 }
 
-// Global search result type
-export interface GlobalSearchResult {
-  users: ApiProfile[];
-  posts: ApiPost[];
-  stories: ApiStory[];
-  polls: ApiPoll[];
-  total: number;
-}

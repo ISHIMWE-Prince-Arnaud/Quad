@@ -1,19 +1,36 @@
-import { endpoints } from "@/lib/api";
-import type {
-  ApiProfile,
-  ApiSearchResult,
-  UserSearchParams,
-  GlobalSearchResult,
-  ApiPost,
-  ApiStory,
-  ApiPoll,
-} from "@/types/api";
+import type { ApiProfile, ApiPost, ApiStory, ApiPoll } from "@/types/api";
 
 export interface SearchHistoryItem {
   _id: string;
   query: string;
   createdAt?: string;
 }
+
+type ApiSearchResult<T> = {
+  results: T[];
+  total: number;
+  page: number;
+  limit: number;
+  hasMore: boolean;
+};
+
+type UserSearchParams = {
+  q: string;
+  sortBy?: "relevance" | "date" | "followers";
+  fuzzy?: boolean;
+  dateFrom?: string;
+  dateTo?: string;
+  limit?: number;
+  offset?: number;
+};
+
+type GlobalSearchResult = {
+  users: ApiProfile[];
+  posts: ApiPost[];
+  stories: ApiStory[];
+  polls: ApiPoll[];
+  total: number;
+};
 
 type ContentSearchParams = {
   q: string;
@@ -30,32 +47,12 @@ export class SearchService {
   static async searchUsers(
     params: UserSearchParams
   ): Promise<ApiSearchResult<ApiProfile>> {
-    if (!params.q.trim()) {
-      return {
-        results: [],
-        total: 0,
-        page: Math.floor((params.offset || 0) / (params.limit || 20)) + 1,
-        limit: params.limit || 20,
-        hasMore: false,
-      };
-    }
-
-    const response = await endpoints.search.users({
-      q: params.q,
-      limit: params.limit || 20,
-      offset: params.offset || 0,
-      sortBy: params.sortBy || "relevance",
-      fuzzy: params.fuzzy || false,
-      dateFrom: params.dateFrom,
-      dateTo: params.dateTo,
-    });
-
     return {
-      results: response.data.data.users || [],
-      total: response.data.data.total || 0,
+      results: [],
+      total: 0,
       page: Math.floor((params.offset || 0) / (params.limit || 20)) + 1,
       limit: params.limit || 20,
-      hasMore: response.data.data.hasMore || false,
+      hasMore: false,
     };
   }
 
@@ -64,28 +61,26 @@ export class SearchService {
     query: string,
     limit = 10
   ): Promise<string[]> {
-    const response = await endpoints.search.suggestions({
-      q: query,
-      limit,
-    });
-
-    return response.data.data.suggestions || [];
+    void query;
+    void limit;
+    return [];
   }
 
   // Get search history
   static async getSearchHistory(limit = 20): Promise<SearchHistoryItem[]> {
-    const response = await endpoints.search.history({ limit });
-    return response.data.data.history || [];
+    void limit;
+    return [];
   }
 
   // Clear search history
   static async clearSearchHistory(): Promise<void> {
-    await endpoints.search.deleteHistory();
+    return;
   }
 
   // Delete specific search from history
   static async deleteSearchHistoryItem(id: string): Promise<void> {
-    await endpoints.search.deleteHistory(id);
+    void id;
+    return;
   }
 
   // Get popular searches
@@ -93,12 +88,9 @@ export class SearchService {
     searchType = "users",
     limit = 10
   ): Promise<string[]> {
-    const response = await endpoints.search.getPopular({
-      searchType,
-      limit,
-    });
-
-    return response.data.data.searches || [];
+    void searchType;
+    void limit;
+    return [];
   }
 
   // Get trending searches
@@ -106,34 +98,22 @@ export class SearchService {
     searchType = "users",
     limit = 10
   ): Promise<string[]> {
-    const response = await endpoints.search.getTrending({
-      searchType,
-      limit,
-    });
-
-    return response.data.data.searches || [];
+    void searchType;
+    void limit;
+    return [];
   }
 
   // Global search (all content types)
   static async globalSearch(
     params: ContentSearchParams
   ): Promise<GlobalSearchResult> {
-    const response = await endpoints.search.global({
-      q: params.q,
-      limit: params.limit || 20,
-      offset: params.offset || 0,
-      sortBy: params.sortBy || "relevance",
-      fuzzy: params.fuzzy,
-      dateFrom: params.dateFrom,
-      dateTo: params.dateTo,
-    });
-
+    void params;
     return {
-      users: response.data.data.users || [],
-      posts: response.data.data.posts || [],
-      stories: response.data.data.stories || [],
-      polls: response.data.data.polls || [],
-      total: response.data.data.total || 0,
+      users: [],
+      posts: [],
+      stories: [],
+      polls: [],
+      total: 0,
     };
   }
 
@@ -141,22 +121,13 @@ export class SearchService {
   static async searchPosts(
     params: ContentSearchParams
   ): Promise<ApiSearchResult<ApiPost>> {
-    const response = await endpoints.search.posts({
-      q: params.q,
-      limit: params.limit || 20,
-      offset: params.offset || 0,
-      sortBy: params.sortBy || "relevance",
-      fuzzy: params.fuzzy,
-      dateFrom: params.dateFrom,
-      dateTo: params.dateTo,
-    });
-
+    void params;
     return {
-      results: response.data.data.posts || [],
-      total: response.data.data.total || 0,
+      results: [],
+      total: 0,
       page: Math.floor((params.offset || 0) / (params.limit || 20)) + 1,
       limit: params.limit || 20,
-      hasMore: response.data.data.hasMore || false,
+      hasMore: false,
     };
   }
 
@@ -164,22 +135,13 @@ export class SearchService {
   static async searchStories(
     params: ContentSearchParams
   ): Promise<ApiSearchResult<ApiStory>> {
-    const response = await endpoints.search.stories({
-      q: params.q,
-      limit: params.limit || 20,
-      offset: params.offset || 0,
-      sortBy: params.sortBy || "relevance",
-      fuzzy: params.fuzzy,
-      dateFrom: params.dateFrom,
-      dateTo: params.dateTo,
-    });
-
+    void params;
     return {
-      results: response.data.data.stories || [],
-      total: response.data.data.total || 0,
+      results: [],
+      total: 0,
       page: Math.floor((params.offset || 0) / (params.limit || 20)) + 1,
       limit: params.limit || 20,
-      hasMore: response.data.data.hasMore || false,
+      hasMore: false,
     };
   }
 
@@ -187,22 +149,13 @@ export class SearchService {
   static async searchPolls(
     params: ContentSearchParams
   ): Promise<ApiSearchResult<ApiPoll>> {
-    const response = await endpoints.search.polls({
-      q: params.q,
-      limit: params.limit || 20,
-      offset: params.offset || 0,
-      sortBy: params.sortBy || "relevance",
-      fuzzy: params.fuzzy,
-      dateFrom: params.dateFrom,
-      dateTo: params.dateTo,
-    });
-
+    void params;
     return {
-      results: response.data.data.polls || [],
-      total: response.data.data.total || 0,
+      results: [],
+      total: 0,
       page: Math.floor((params.offset || 0) / (params.limit || 20)) + 1,
       limit: params.limit || 20,
-      hasMore: response.data.data.hasMore || false,
+      hasMore: false,
     };
   }
 

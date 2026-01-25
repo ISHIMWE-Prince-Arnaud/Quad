@@ -43,11 +43,3 @@ export {
   type SendMessageData,
   type EditMessageData,
 } from "./chat.schema";
-
-// Search schemas
-export {
-  searchQuerySchema,
-  searchFilterSchema,
-  type SearchQueryData,
-  type SearchFilterData,
-} from "./search.schema";

@@ -30,7 +30,6 @@ export class FollowService {
     const response = await endpoints.follow.getFollowers(userId, {
       page: params.page || 1,
       limit: params.limit || 20,
-      search: params.search,
       ...params,
     });
     const payload = response.data;
@@ -54,7 +53,6 @@ export class FollowService {
     const response = await endpoints.follow.getFollowing(userId, {
       page: params.page || 1,
       limit: params.limit || 20,
-      search: params.search,
       ...params,
     });
     const payload = response.data;
