@@ -25,11 +25,7 @@ describe("Poll Creation Form Completeness Property Tests", () => {
             { minLength: 2, maxLength: 5 }
           ),
           settings: fc.record({
-            showResults: fc.constantFrom(
-              "always" as const,
-              "afterVote" as const,
-              "afterExpiry" as const
-            ),
+            anonymousVoting: fc.boolean(),
           }),
           expiresAt: fc.option(
             fc
@@ -60,9 +56,7 @@ describe("Poll Creation Form Completeness Property Tests", () => {
 
           // Property 4: Settings field should exist
           expect(formData.settings).toBeDefined();
-          expect(["always", "afterVote", "afterExpiry"]).toContain(
-            formData.settings.showResults
-          );
+          expect(typeof formData.settings.anonymousVoting).toBe("boolean");
 
           // Property 5: Duration field (expiresAt) should be optional
           if (formData.expiresAt) {
@@ -85,7 +79,7 @@ describe("Poll Creation Form Completeness Property Tests", () => {
         fc.option(
           fc.record({
             url: fc.webUrl(),
-            type: fc.constantFrom("image" as const, "video" as const),
+            type: fc.constant("image" as const),
           })
         ),
         async (questionMedia) => {
@@ -93,7 +87,7 @@ describe("Poll Creation Form Completeness Property Tests", () => {
           if (questionMedia) {
             expect(questionMedia.url).toBeDefined();
             expect(typeof questionMedia.url).toBe("string");
-            expect(["image", "video"]).toContain(questionMedia.type);
+            expect(["image"]).toContain(questionMedia.type);
           } else {
             // Media can be undefined or null
             expect(questionMedia == null).toBe(true);
@@ -122,28 +116,11 @@ describe("Poll Creation Form Completeness Property Tests", () => {
     );
   });
 
-  it("Property 23: Poll creation form has results visibility settings", async () => {
+  it("Property 23: Poll creation form supports anonymous voting setting", async () => {
     await fc.assert(
-      fc.asyncProperty(
-        fc.constantFrom(
-          "always" as const,
-          "afterVote" as const,
-          "afterExpiry" as const
-        ),
-        async (showResults) => {
-          // Property: showResults must be one of three valid values
-          expect(["always", "afterVote", "afterExpiry"]).toContain(showResults);
-
-          // Property: Each value has specific meaning
-          if (showResults === "always") {
-            expect(showResults).toBe("always");
-          } else if (showResults === "afterVote") {
-            expect(showResults).toBe("afterVote");
-          } else if (showResults === "afterExpiry") {
-            expect(showResults).toBe("afterExpiry");
-          }
-        }
-      ),
+      fc.asyncProperty(fc.boolean(), async (anonymousVoting) => {
+        expect(typeof anonymousVoting).toBe("boolean");
+      }),
       { numRuns: 30 }
     );
   });

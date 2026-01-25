@@ -81,13 +81,6 @@ export const UPLOAD_PRESETS = {
       { quality: "auto", fetch_format: "auto" },
     ],
   },
-  POLL_VIDEO: {
-    folder: CLOUDINARY_FOLDERS.POLLS,
-    resource_type: "video" as const,
-    transformation: [
-      { quality: "auto", fetch_format: "auto" },
-    ],
-  },
   // Profile: Images only (no videos)
   PROFILE: {
     folder: CLOUDINARY_FOLDERS.PROFILES,

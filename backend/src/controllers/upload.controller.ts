@@ -167,9 +167,14 @@ export const uploadPollMedia = async (req: Request, res: Response) => {
       });
     }
 
-    // Determine if image or video
-    const isVideo = mimetype.startsWith("video/");
-    const preset = isVideo ? "POLL_VIDEO" : "POLL_IMAGE";
+    if (mimetype.startsWith("video/")) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid file type. Only images are allowed for polls",
+      });
+    }
+
+    const preset = "POLL_IMAGE";
     const rules = getValidationRules(preset);
 
     // Validate file type

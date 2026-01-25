@@ -16,7 +16,7 @@ describe("Poll Display Property Tests", () => {
     const pollMediaArb = fc
       .record({
         url: fc.webUrl(),
-        type: fc.constantFrom("image" as const, "video" as const),
+        type: fc.constant("image" as const),
         aspectRatio: fc.option(
           fc.constantFrom("1:1" as const, "16:9" as const, "9:16" as const),
           { nil: undefined }
@@ -62,11 +62,6 @@ describe("Poll Display Property Tests", () => {
           .map((opts) => opts.map((opt, idx) => ({ ...opt, index: idx }))),
         settings: fc.record({
           anonymousVoting: fc.boolean(),
-          showResults: fc.constantFrom(
-            "always" as const,
-            "afterVote" as const,
-            "afterExpiry" as const
-          ),
         }),
         status: fc.constantFrom(
           "active" as const,
@@ -171,9 +166,7 @@ describe("Poll Display Property Tests", () => {
 
           // Property 9: Poll must have settings
           expect(poll.settings).toBeDefined();
-          expect(["always", "afterVote", "afterExpiry"]).toContain(
-            poll.settings.showResults
-          );
+          expect(typeof poll.settings.anonymousVoting).toBe("boolean");
 
           // Property 10: Poll must have canViewResults flag
           expect(typeof poll.canViewResults).toBe("boolean");

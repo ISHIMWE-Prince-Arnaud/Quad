@@ -69,7 +69,7 @@ export function PollQuestionSection({
           <label className="cursor-pointer group">
             <input
               type="file"
-              accept="image/*,video/*"
+              accept="image/*"
               className="hidden"
               onChange={(e) =>
                 onUploadQuestionMedia(e.target.files?.[0] || null)
@@ -89,7 +89,7 @@ export function PollQuestionSection({
                 <ImageIcon className="h-5 w-5 text-[#64748b] group-hover:text-white transition-colors" />
               )}
               <span className="text-sm font-bold text-[#f1f5f9]">
-                {questionMedia ? "Change Media" : "Add Image or Video"}
+                {questionMedia ? "Change Image" : "Add Image"}
               </span>
             </div>
           </label>
@@ -97,9 +97,7 @@ export function PollQuestionSection({
           {questionMedia && (
             <div className="flex items-center gap-3 bg-white/5 px-4 py-2.5 rounded-2xl border border-white/5 animate-in fade-in slide-in-from-left-2">
               <span className="text-xs font-bold text-[#64748b]">
-                {questionMedia.type === "video"
-                  ? "Video attached"
-                  : "Image attached"}
+                Image attached
               </span>
               <button
                 type="button"

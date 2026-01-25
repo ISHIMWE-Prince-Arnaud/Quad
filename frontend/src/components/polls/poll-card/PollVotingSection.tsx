@@ -34,19 +34,11 @@ export function PollVotingSection({
         {/* Question media */}
         {poll.questionMedia && (
           <div className="w-full">
-            {poll.questionMedia.type === "image" ? (
-              <img
-                src={poll.questionMedia.url}
-                alt="Poll media"
-                className="w-full h-48 object-cover rounded-md"
-              />
-            ) : (
-              <video
-                src={poll.questionMedia.url}
-                className="w-full h-48 object-cover rounded-md"
-                controls
-              />
-            )}
+            <img
+              src={poll.questionMedia.url}
+              alt="Poll media"
+              className="w-full h-48 object-cover rounded-md"
+            />
           </div>
         )}
 

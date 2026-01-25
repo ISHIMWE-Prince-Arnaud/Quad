@@ -51,7 +51,7 @@ describe("Poll Voting", () => {
       .send({
         question: "Multiple selection question?",
         options: [{ text: "A" }, { text: "B" }, { text: "C" }],
-        settings: { anonymousVoting: true, showResults: "afterVote" },
+        settings: { anonymousVoting: true },
       });
 
     const pollId = createRes.body?.data?._id as string;

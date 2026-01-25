@@ -241,10 +241,6 @@ export const getValidationRules = (preset: UploadPresetType) => {
       maxSize: 10, // 10MB
       allowedTypes: imageTypes,
     },
-    POLL_VIDEO: {
-      maxSize: 1024, // 1GB
-      allowedTypes: videoTypes,
-    },
     PROFILE: {
       maxSize: 10, // 10MB
       allowedTypes: imageTypes,

@@ -117,6 +117,9 @@ export class UploadService {
     file: File,
     onProgress?: (progress: number) => void
   ): Promise<ApiUploadResponse> {
+    if (!file.type.startsWith("image/")) {
+      throw new Error("Only images are allowed for polls");
+    }
     // Compress image before upload
     const compressedFile = file.type.startsWith("image/")
       ? await compressImage(file, getCompressionSettings("post"))
