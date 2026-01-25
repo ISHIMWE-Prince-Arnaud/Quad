@@ -178,8 +178,8 @@ export default function CreatePollPage() {
   }, [question, options]);
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mx-auto max-w-md space-y-4">
+    <div className="mx-auto w-full px-3 py-4 sm:px-4 sm:py-6">
+      <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
           <button
             type="button"
