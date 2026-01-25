@@ -8,7 +8,6 @@ import { logger } from "../utils/logger.util.js";
 import { env } from "../config/env.config.js";
 
 const generalRetryAfterSeconds = Math.ceil(env.RATE_LIMIT_GENERAL_WINDOW_MS / 1000);
-const searchRetryAfterSeconds = Math.ceil(env.RATE_LIMIT_SEARCH_WINDOW_MS / 1000);
 const uploadRetryAfterSeconds = Math.ceil(env.RATE_LIMIT_UPLOAD_WINDOW_MS / 1000);
 const authRetryAfterSeconds = Math.ceil(env.RATE_LIMIT_AUTH_WINDOW_MS / 1000);
 const writeRetryAfterSeconds = Math.ceil(env.RATE_LIMIT_WRITE_WINDOW_MS / 1000);
@@ -33,27 +32,6 @@ export const generalRateLimiter = rateLimit({
       success: false,
       message: "Too many requests from this IP, please try again later.",
       retryAfter: generalRetryAfterSeconds,
-    });
-  },
-});
-
-/**
- * Strict rate limiter for search endpoints
- */
-export const searchRateLimiter = rateLimit({
-  windowMs: env.RATE_LIMIT_SEARCH_WINDOW_MS, // 15 minutes
-  max: env.RATE_LIMIT_SEARCH_MAX, // limit each IP to 50 search requests per windowMs
-  message: {
-    success: false,
-    message: "Too many search requests, please slow down.",
-    retryAfter: searchRetryAfterSeconds,
-  },
-  handler: (req: Request, res: Response) => {
-    logger.warn(`Search rate limit exceeded for IP: ${req.ip} on ${req.path}`);
-    res.status(429).json({
-      success: false,
-      message: "Too many search requests, please slow down.",
-      retryAfter: searchRetryAfterSeconds,
     });
   },
 });

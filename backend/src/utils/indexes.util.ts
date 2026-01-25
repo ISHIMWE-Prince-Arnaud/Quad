@@ -7,8 +7,6 @@ import { ChatMessage } from "../models/ChatMessage.model.js";
 import { Follow } from "../models/Follow.model.js";
 import { Notification } from "../models/Notification.model.js";
 import { Reaction } from "../models/Reaction.model.js";
-import { SearchHistory } from "../models/SearchHistory.model.js";
-import { SearchAnalytics } from "../models/SearchAnalytics.model.js";
 import { Comment } from "../models/Comment.model.js";
 import { CommentLike } from "../models/CommentLike.model.js";
 import { Bookmark } from "../models/Bookmark.model.js";
@@ -73,14 +71,6 @@ export const ensureIndexes = async (): Promise<void> => {
 
     await FollowerHistory.createIndexes();
     logger.info("FollowerHistory model indexes created");
-    
-    // Create indexes for SearchHistory model
-    await SearchHistory.createIndexes();
-    logger.info("SearchHistory model indexes created");
-    
-    // Create indexes for SearchAnalytics model
-    await SearchAnalytics.createIndexes();
-    logger.info("SearchAnalytics model indexes created");
     
     // Create indexes for Comment model
     await Comment.createIndexes();

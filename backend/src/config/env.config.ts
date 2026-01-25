@@ -27,8 +27,6 @@ const envSchema = z.object({
   SENTRY_ENVIRONMENT: z.string().optional(),
   RATE_LIMIT_GENERAL_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   RATE_LIMIT_GENERAL_MAX: z.coerce.number().int().positive().default(500),
-  RATE_LIMIT_SEARCH_WINDOW_MS: z.coerce.number().int().positive().default(900_000),
-  RATE_LIMIT_SEARCH_MAX: z.coerce.number().int().positive().default(200),
   RATE_LIMIT_UPLOAD_WINDOW_MS: z.coerce.number().int().positive().default(900_000),
   RATE_LIMIT_UPLOAD_MAX: z.coerce.number().int().positive().default(60),
   RATE_LIMIT_AUTH_WINDOW_MS: z.coerce.number().int().positive().default(900_000),

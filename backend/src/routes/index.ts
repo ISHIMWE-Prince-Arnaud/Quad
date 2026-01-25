@@ -1,7 +1,6 @@
 import { Router } from "express";
 import {
   generalRateLimiter,
-  searchRateLimiter,
   uploadRateLimiter,
   writeRateLimiter,
 } from "../middlewares/rateLimiter.middleware.js";
@@ -19,7 +18,6 @@ import commentRoutes from "./comment.routes.js";
 import bookmarkRoutes from "./bookmark.routes.js";
 import analyticsRoutes from "./analytics.routes.js";
 import uploadRoutes from "./upload.routes.js";
-import searchRoutes from "./search.routes.js";
 
 const router = Router();
 
@@ -40,6 +38,5 @@ router.use("/comments", writeRateLimiter, commentRoutes);
 router.use("/bookmarks", writeRateLimiter, bookmarkRoutes);
 router.use("/analytics", analyticsRoutes);
 router.use("/upload", uploadRateLimiter, uploadRoutes);
-router.use("/search", searchRateLimiter, searchRoutes);
 
 export default router;
