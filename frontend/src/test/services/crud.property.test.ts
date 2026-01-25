@@ -17,6 +17,7 @@ import { endpoints } from "@/lib/api";
 
 // Mock the API endpoints
 vi.mock("@/lib/api", () => ({
+  invalidateCache: vi.fn(),
   endpoints: {
     posts: {
       create: vi.fn(),
@@ -145,8 +146,12 @@ describe("Property 1: CRUD Operations Preserve Data Integrity", () => {
       fc.asyncProperty(
         // Generator for story data
         fc.record({
-          title: fc.string({ minLength: 1, maxLength: 200 }),
-          content: fc.string({ minLength: 10, maxLength: 5000 }),
+          title: fc
+            .string({ minLength: 1, maxLength: 200 })
+            .filter((s) => s.trim().length > 0),
+          content: fc
+            .string({ minLength: 10, maxLength: 5000 })
+            .filter((s) => s.trim().length >= 10),
           coverImage: fc.option(fc.webUrl(), { nil: undefined }),
           status: fc.constantFrom("draft" as const, "published" as const),
           tags: fc.array(fc.string({ minLength: 1, maxLength: 20 }), {

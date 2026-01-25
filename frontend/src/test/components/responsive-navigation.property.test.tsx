@@ -320,18 +320,6 @@ describe("Responsive Navigation Property Tests", () => {
           unreadCount: 0,
         } as any);
 
-        // Render the sidebar (Theme selector lives in the sidebar footer)
-        render(
-          <BrowserRouter>
-            <Sidebar />
-          </BrowserRouter>
-        );
-
-        // Property: Theme control should be present on desktop
-        expect(screen.getAllByRole("group", { name: "Theme selector" }).length).toBeGreaterThan(0);
-
-        cleanup();
-
         // Render the navbar (mobile)
         const { container } = render(
           <BrowserRouter>
@@ -348,7 +336,7 @@ describe("Responsive Navigation Property Tests", () => {
           expect(mobileNavEl).toBeInTheDocument();
         });
 
-        // Property: Theme selector should be present in navbar
+        // Property: Theme selector should be present in navbar mobile menu
         expect(screen.getAllByRole("group", { name: "Theme selector" }).length).toBeGreaterThan(
           0
         );

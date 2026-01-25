@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import { render, screen, cleanup } from "@testing-library/react";
 import * as fc from "fast-check";
 import { CreatePostModal } from "@/components/forms/CreatePostModal";
 
@@ -59,15 +59,15 @@ describe("Upload Progress Indicator Property Tests", () => {
       />
     );
 
-    // Create a mock file
-    const file = new File(["test"], "test.jpg", { type: "image/jpeg" });
 
     // Trigger file upload by simulating file input change
-    const uploadArea = screen.getByText(/Add photos or videos/i);
+    const uploadArea = screen.getByText(/Add Media/i);
     expect(uploadArea).toBeInTheDocument();
 
     // Property: Upload area should be present for initiating uploads
-    expect(uploadArea.parentElement).toHaveClass("cursor-pointer");
+    const uploadCta = screen.getByText(/Click to upload or drag and drop/i);
+    const uploadContainer = uploadCta.closest(".cursor-pointer");
+    expect(uploadContainer).toBeInTheDocument();
   });
 
   it("Property 18: Progress percentage is displayed", async () => {
@@ -98,11 +98,12 @@ describe("Upload Progress Indicator Property Tests", () => {
     );
 
     // Property: Modal should have upload functionality available
-    const uploadArea = screen.getByText(/Add photos or videos/i);
+    const uploadArea = screen.getByText(/Add Media/i);
     expect(uploadArea).toBeInTheDocument();
 
     // Property: Upload area should be clickable
-    const uploadContainer = uploadArea.closest(".cursor-pointer");
+    const uploadCta = screen.getByText(/Click to upload or drag and drop/i);
+    const uploadContainer = uploadCta.closest(".cursor-pointer");
     expect(uploadContainer).toBeInTheDocument();
   });
 

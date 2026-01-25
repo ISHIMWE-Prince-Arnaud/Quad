@@ -53,12 +53,12 @@ describe("Post Creation Modal Property Tests", () => {
     );
 
     // Property 1: Modal should contain a text input
-    const textarea = screen.getByPlaceholderText("What's happening?");
+    const textarea = screen.getByPlaceholderText("Share your thoughts...");
     expect(textarea).toBeInTheDocument();
     expect(textarea.tagName).toBe("TEXTAREA");
 
     // Property 2: Modal should contain media uploader
-    const mediaUploadArea = screen.getByText(/Add photos or videos/i);
+    const mediaUploadArea = screen.getByText(/Add Media/i);
     expect(mediaUploadArea).toBeInTheDocument();
 
     // Property 3: Modal should contain action buttons (Cancel and Post)
@@ -88,7 +88,7 @@ describe("Post Creation Modal Property Tests", () => {
     );
 
     // When modal is closed, elements should not be visible
-    const textarea = screen.queryByPlaceholderText("What's happening?");
+    const textarea = screen.queryByPlaceholderText("Share your thoughts...");
     expect(textarea).not.toBeInTheDocument();
   });
 
