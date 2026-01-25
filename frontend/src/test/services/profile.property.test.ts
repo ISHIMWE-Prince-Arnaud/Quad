@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as fc from "fast-check";
 import { ProfileService } from "@/services/profileService";
 import { endpoints } from "@/lib/api";
+import type { ApiProfile } from "@/types/api";
 
 /**
  * Feature: quad-production-ready, Property 21: Profile Content Tab Pagination
@@ -67,7 +68,6 @@ describe("Property 21: Profile Content Tab Pagination", () => {
           const returnedPostIds = new Set<string>();
 
           // Mock paginated responses
-          let currentPage = 1;
           vi.mocked(endpoints.profiles.getUserPosts).mockImplementation(
             async (_username: string, params?: any) => {
               const page = params?.page || 1;
@@ -357,9 +357,9 @@ describe("Property 18: Profile Update Validation", () => {
           username: fc
             .string({ minLength: 3, maxLength: 30 })
             .filter((s) => /^[a-zA-Z0-9_]+$/.test(s)),
-          bio: fc.option(fc.string({ maxLength: 500 })),
-          profileImage: fc.option(fc.webUrl()),
-          coverImage: fc.option(fc.webUrl()),
+          bio: fc.option(fc.string({ maxLength: 500 }), { nil: undefined }),
+          profileImage: fc.option(fc.webUrl(), { nil: undefined }),
+          coverImage: fc.option(fc.webUrl(), { nil: undefined }),
         }),
         async (originalUsername, updateData) => {
           // Create original profile
@@ -448,7 +448,7 @@ describe("Property 18: Profile Update Validation", () => {
         fc.record({
           firstName: fc.string({ minLength: 1, maxLength: 50 }),
           lastName: fc.string({ minLength: 1, maxLength: 50 }),
-          bio: fc.option(fc.string({ maxLength: 500 })),
+          bio: fc.option(fc.string({ maxLength: 500 }), { nil: undefined }),
         }),
         async (username, updateData) => {
           const originalId = "test-user-id";
