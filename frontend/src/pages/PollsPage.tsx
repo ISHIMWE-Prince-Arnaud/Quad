@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PollService } from "@/services/pollService";
@@ -13,6 +14,7 @@ import { PollCard } from "./polls/PollCard";
 import { PollsHeader } from "./polls/PollsHeader";
 
 export default function PollsPage() {
+  const location = useLocation();
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +37,17 @@ export default function PollsPage() {
   );
 
   useEffect(() => {
+    const createdPoll = (location.state as { createdPoll?: Poll } | null)
+      ?.createdPoll;
+    if (!createdPoll) return;
+
+    setPolls((prev) => {
+      if (prev.some((p) => p.id === createdPoll.id)) return prev;
+      return [createdPoll, ...prev];
+    });
+  }, [location.state]);
+
+  useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
@@ -42,7 +55,13 @@ export default function PollsPage() {
         setError(null);
         const res = await PollService.getAll(queryParams);
         if (!cancelled && res.success) {
-          setPolls(res.data || []);
+          const fetched = res.data || [];
+          setPolls((prev) => {
+            if (prev.length === 0) return fetched;
+            const fetchedIds = new Set(fetched.map((p) => p.id));
+            const extras = prev.filter((p) => !fetchedIds.has(p.id));
+            return [...fetched, ...extras];
+          });
           setHasMore(res.pagination?.hasMore ?? false);
         }
       } catch (err) {

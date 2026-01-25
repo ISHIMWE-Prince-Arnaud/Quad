@@ -155,7 +155,7 @@ export default function CreatePollPage() {
       }
 
       toast.success("Poll created successfully!");
-      navigate("/app/polls");
+      navigate("/app/polls", { replace: true, state: { createdPoll: res.data } });
     } catch (error) {
       logError(error, { component: "CreatePollPage", action: "submitPoll" });
       toast.error(getErrorMessage(error));
