@@ -2,14 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PollService } from "@/services/pollService";
-import type { Poll, PollQueryParams, PollStatus } from "@/types/poll";
+import type { Poll, PollQueryParams } from "@/types/poll";
 import { SkeletonPost } from "@/components/ui/loading";
 import { getSocket } from "@/lib/socket";
 import type { FeedEngagementUpdatePayload } from "@/lib/socket";
 import { logError } from "@/lib/errorHandling";
 
 import { getErrorMessage } from "./polls/getErrorMessage";
-import type { SortKey, VotedFilter } from "./polls/types";
 import { PollCard } from "./polls/PollCard";
 import { PollsFiltersBar } from "./polls/PollsFiltersBar";
 
@@ -21,10 +20,6 @@ export default function PollsPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
-  const [status, setStatus] = useState<PollStatus | "all">("all");
-  const [sort, setSort] = useState<SortKey>("newest");
-  const [voted, setVoted] = useState<VotedFilter>("all");
-
   // const handlePollUpdate = (updatedPoll: Poll) => {
   //   setPolls((prevPolls) =>
   //     prevPolls.map((poll) => (poll.id === updatedPoll.id ? updatedPoll : poll))
@@ -35,11 +30,8 @@ export default function PollsPage() {
     () => ({
       page,
       limit: 10,
-      status,
-      sort,
-      voted: voted === "all" ? undefined : voted === "voted" ? true : false,
     }),
-    [page, status, sort, voted]
+    [page]
   );
 
   useEffect(() => {
@@ -116,28 +108,10 @@ export default function PollsPage() {
     setPage(next);
   };
 
-  const handleFilterChange = (
-    next: Partial<{
-      status: PollStatus | "all";
-      sort: SortKey;
-      voted: VotedFilter;
-    }>
-  ) => {
-    if (next.status !== undefined) setStatus(next.status);
-    if (next.sort !== undefined) setSort(next.sort);
-    if (next.voted !== undefined) setVoted(next.voted);
-    setPage(1);
-  };
-
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-4xl space-y-4">
-        <PollsFiltersBar
-          status={status}
-          sort={sort}
-          voted={voted}
-          onFilterChange={handleFilterChange}
-        />
+        <PollsFiltersBar />
 
         {error && (
           <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
