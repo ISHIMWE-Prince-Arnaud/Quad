@@ -22,29 +22,20 @@ export function PollOptionsEditor({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-[#64748b] uppercase tracking-wider">
-          Poll Options
+        <h3 className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
+          Options
         </h3>
-        <button
-          onClick={onAddOption}
-          disabled={options.length >= 5}
-          className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all",
-            options.length >= 5
-              ? "text-[#64748b] cursor-not-allowed opacity-50"
-              : "text-[#2563eb] hover:bg-[#2563eb]/10"
-          )}>
-          <Plus className="h-4 w-4" />
-          Add Option
-        </button>
+        <span className="text-[11px] font-bold text-[#64748b]">
+          Add up to 5 options
+        </span>
       </div>
 
       <div className="space-y-4">
         {options.map((opt, index) => (
           <div
             key={opt.id}
-            className="group flex items-start gap-4 p-4 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-[#2563eb]/30 transition-all duration-300">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#0f121a] border border-white/5 text-xs font-bold text-[#2563eb] shadow-inner">
+            className="group flex items-center gap-4 p-3 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-[#2563eb]/30 transition-all duration-300">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#0f121a] border border-white/5 font-bold text-[#2563eb] shadow-inner">
               {index + 1}
             </div>
 
@@ -62,7 +53,7 @@ export function PollOptionsEditor({
                 }}
                 placeholder={`Option ${index + 1}`}
                 maxLength={200}
-                className="w-full bg-transparent border-none focus:ring-0 text-lg font-bold text-white placeholder-white/10 p-0"
+                className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-white/10 p-0"
               />
             </div>
 
@@ -89,6 +80,22 @@ export function PollOptionsEditor({
           {validationErrors.options || "2 to 5 options required"}
         </span>
       </div>
+
+      <button
+        type="button"
+        onClick={onAddOption}
+        disabled={options.length >= 5}
+        className={cn(
+          "w-full rounded-2xl border border-dashed border-white/10 bg-white/[0.01] px-4 py-3 text-center text-sm font-bold transition-all",
+          options.length >= 5
+            ? "text-[#64748b] cursor-not-allowed opacity-50"
+            : "text-[#2563eb] hover:border-[#2563eb]/50 hover:bg-[#2563eb]/5"
+        )}>
+        <span className="inline-flex items-center justify-center gap-2">
+          <Plus className="h-4 w-4" />
+          Add another option
+        </span>
+      </button>
     </div>
   );
 }

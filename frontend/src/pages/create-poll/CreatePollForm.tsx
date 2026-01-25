@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Dispatch, SetStateAction } from "react";
 import type { PollMedia } from "@/types/poll";
 
@@ -63,14 +62,8 @@ export function CreatePollForm({
   setValidationErrors: Dispatch<SetStateAction<ValidationErrors>>;
 }) {
   return (
-    <Card className="shadow-md">
-      <CardHeader className="border-b">
-        <CardTitle className="text-2xl">Create Poll</CardTitle>
-        <p className="text-sm text-muted-foreground mt-1">
-          Ask a question and let your community vote
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-6 pt-6">
+    <div className="space-y-6">
+      <div className="rounded-[2rem] border border-white/5 bg-gradient-to-b from-[#0b1020]/70 to-[#070a12]/80 p-5 space-y-6">
         <PollQuestionSection
           question={question}
           setQuestion={setQuestion}
@@ -99,13 +92,9 @@ export function CreatePollForm({
           validationErrors={validationErrors}
           setValidationErrors={setValidationErrors}
         />
+      </div>
 
-        <PollSubmitBar
-          canSubmit={canSubmit}
-          submitting={submitting}
-          onSubmit={onSubmit}
-        />
-      </CardContent>
-    </Card>
+      <PollSubmitBar canSubmit={canSubmit} submitting={submitting} onSubmit={onSubmit} />
+    </div>
   );
 }

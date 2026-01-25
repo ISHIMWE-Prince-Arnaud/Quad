@@ -1,9 +1,11 @@
 import { cn } from "@/lib/utils";
 import type { PollMedia } from "@/types/poll";
 import { Image as ImageIcon, Loader2, X } from "lucide-react";
+import { useRef } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 import type { ValidationErrors } from "./types";
+import { Button } from "@/components/ui/button";
 
 export function PollQuestionSection({
   question,
@@ -24,90 +26,182 @@ export function PollQuestionSection({
   validationErrors: ValidationErrors;
   setValidationErrors: Dispatch<SetStateAction<ValidationErrors>>;
 }) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const openFilePicker = () => {
+    if (uploadingQuestionMedia) return;
+    inputRef.current?.click();
+  };
+
   return (
     <>
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-[#64748b] uppercase tracking-wider">
+        <h3 className="text-[11px] text-[#64748b] uppercase tracking-wider">
           Poll Question
         </h3>
-        <textarea
-          id="poll-question"
-          value={question}
-          onChange={(e) => {
-            setQuestion(e.target.value);
-            if (validationErrors.question) {
-              setValidationErrors((prev) => ({
-                ...prev,
-                question: undefined,
-              }));
-            }
-          }}
-          rows={3}
-          maxLength={500}
-          placeholder="What's your question?"
+
+        <div
           className={cn(
-            "w-full bg-transparent border-none focus:ring-0 text-3xl font-black text-white placeholder-white/10 p-0 resize-none",
-            validationErrors.question && "text-destructive"
-          )}
-          aria-invalid={!!validationErrors.question}
-        />
-        <div className="flex justify-between items-center text-[11px] font-bold text-[#64748b]">
-          <span>{question.length}/500 characters</span>
+            "rounded-2xl border border-white/5 bg-white/[0.02] px-4 py-3 focus-within:border-[#2563eb]/40 focus-within:ring-2 focus-within:ring-[#2563eb]/20 transition-colors",
+            validationErrors.question && "border-destructive/60"
+          )}>
+          <textarea
+            id="poll-question"
+            value={question}
+            onChange={(e) => {
+              setQuestion(e.target.value);
+              if (validationErrors.question) {
+                setValidationErrors((prev) => ({
+                  ...prev,
+                  question: undefined,
+                }));
+              }
+            }}
+            rows={3}
+            maxLength={500}
+            placeholder="What's on your mind?"
+            className={cn(
+              "w-full bg-transparent border-none focus:ring-0 text-base font-semibold text-white placeholder-white/10 p-0 resize-none",
+              validationErrors.question && "text-destructive"
+            )}
+            aria-invalid={!!validationErrors.question}
+          />
+        </div>
+
+        <div className="flex justify-between items-center text-[10px] font-bold text-[#64748b] uppercase tracking-wide">
+          <span>{question.length}/500</span>
           {validationErrors.question && (
-            <span className="text-destructive uppercase">
-              {validationErrors.question}
-            </span>
+            <span className="text-destructive">{validationErrors.question}</span>
           )}
         </div>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-[#64748b] uppercase tracking-wider">
-          Question Media (Optional)
+        <h3 className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
+          Media
         </h3>
-        <div className="flex items-center gap-4">
-          <label className="cursor-pointer group">
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) =>
-                onUploadQuestionMedia(e.target.files?.[0] || null)
-              }
-              disabled={uploadingQuestionMedia}
-            />
-            <div
-              className={cn(
-                "flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all",
-                uploadingQuestionMedia
-                  ? "border-[#2563eb] bg-[#2563eb]/5"
-                  : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10"
-              )}>
-              {uploadingQuestionMedia ? (
-                <Loader2 className="h-5 w-5 animate-spin text-[#2563eb]" />
-              ) : (
-                <ImageIcon className="h-5 w-5 text-[#64748b] group-hover:text-white transition-colors" />
-              )}
-              <span className="text-sm font-bold text-[#f1f5f9]">
-                {questionMedia ? "Change Image" : "Add Image"}
-              </span>
-            </div>
-          </label>
 
-          {questionMedia && (
-            <div className="flex items-center gap-3 bg-white/5 px-4 py-2.5 rounded-2xl border border-white/5 animate-in fade-in slide-in-from-left-2">
-              <span className="text-xs font-bold text-[#64748b]">
-                Image attached
-              </span>
-              <button
-                type="button"
-                onClick={() => setQuestionMedia(undefined)}
-                className="p-1.5 hover:bg-white/10 rounded-lg text-[#64748b] hover:text-white transition-all">
-                <X className="h-4 w-4" />
-              </button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => onUploadQuestionMedia(e.target.files?.[0] || null)}
+          disabled={uploadingQuestionMedia}
+        />
+
+        {!questionMedia && (
+          <div
+            className={cn(
+              "relative border border-dashed rounded-[2rem] px-6 py-10 text-center transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/40",
+              uploadingQuestionMedia
+                ? "border-[#2563eb] bg-[#2563eb]/5"
+                : "border-white/10 bg-white/[0.01] hover:border-[#2563eb]/50"
+            )}
+            role="button"
+            tabIndex={0}
+            onClick={openFilePicker}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                openFilePicker();
+              }
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const file = e.dataTransfer.files?.[0];
+              if (file && file.type.startsWith("image/")) {
+                onUploadQuestionMedia(file);
+              }
+            }}>
+            <div className="flex flex-col items-center gap-3">
+              {uploadingQuestionMedia ? (
+                <>
+                  <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
+                    <Loader2 className="h-5 w-5 animate-spin text-[#2563eb]" />
+                  </div>
+                  <p className="text-sm font-semibold text-[#64748b]">
+                    Uploading image...
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
+                    <ImageIcon className="h-5 w-5 text-[#2563eb]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      Add a photo (optional)
+                    </p>
+                    <p className="text-[11px] font-medium text-[#64748b] mt-1">
+                      Drag & drop or click to upload
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {questionMedia && (
+          <div
+            className="group relative overflow-hidden rounded-[2rem] border border-white/5 bg-white/[0.01]"
+            tabIndex={0}>
+            <img
+              src={questionMedia.url}
+              alt="poll media"
+              className="w-full max-h-80 object-cover"
+            />
+
+            {uploadingQuestionMedia && (
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                <div className="flex items-center gap-3 rounded-full border border-white/10 bg-[#0f121a]/70 px-4 py-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-[#2563eb]" />
+                  <span className="text-xs font-semibold text-white">
+                    Uploading...
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="absolute inset-0 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100" />
+
+            <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={uploadingQuestionMedia}
+                className="h-8 rounded-full border border-white/10 bg-white/10 hover:bg-white/15 text-white font-semibold px-4"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  openFilePicker();
+                }}>
+                Change
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                disabled={uploadingQuestionMedia}
+                className="h-8 rounded-full px-4"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setQuestionMedia(undefined);
+                }}>
+                <X className="h-4 w-4 mr-2" />
+                Remove
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

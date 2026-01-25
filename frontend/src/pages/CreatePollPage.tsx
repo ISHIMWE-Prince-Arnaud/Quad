@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { UploadService } from "@/services/uploadService";
 import { PollService } from "@/services/pollService";
 import type {
@@ -20,6 +21,7 @@ import type {
   ValidationErrors,
 } from "./create-poll/types";
 import { logError } from "@/lib/errorHandling";
+import { Button } from "@/components/ui/button";
 
 export default function CreatePollPage() {
   const navigate = useNavigate();
@@ -35,7 +37,7 @@ export default function CreatePollPage() {
   const [settings, setSettings] = useState<PollSettingsState>({
     anonymousVoting: false,
   });
-  const [duration, setDuration] = useState<PollDuration>("none");
+  const [duration, setDuration] = useState<PollDuration>("1d");
 
   const [submitting, setSubmitting] = useState(false);
   const [uploadingQuestionMedia, setUploadingQuestionMedia] = useState(false);
@@ -170,7 +172,27 @@ export default function CreatePollPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="mx-auto max-w-3xl space-y-4">
+      <div className="mx-auto max-w-md space-y-4">
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 text-white/90 hover:text-white font-bold"
+            onClick={() => navigate("/app/polls")}
+          >
+            <ArrowLeft className="h-5 w-5" />
+            <span className="text-base">Create Poll</span>
+          </button>
+
+          <Button
+            type="button"
+            disabled={!canSubmit || submitting}
+            onClick={() => void handleSubmit()}
+            className="h-8 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-4"
+          >
+            Post
+          </Button>
+        </div>
+
         <CreatePollForm
           question={question}
           setQuestion={setQuestion}
