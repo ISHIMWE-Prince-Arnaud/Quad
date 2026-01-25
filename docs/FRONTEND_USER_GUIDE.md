@@ -34,15 +34,12 @@ This document explains how end-users interact with Quad’s main features:
 Once logged in, you’ll see three main areas:
 
 - **Top Navbar**
-
-  - Global search bar.
   - Theme selector (Light / Dark / System).
   - Notifications bell with unread badge.
   - Access to account/user menu.
 
 - **Left Sidebar**
-
-  - Main navigation: Feed, Search, Notifications, Messages, Stories, Polls, Analytics, Settings, Profile.
+  - Main navigation: Feed, Notifications, Messages, Stories, Polls, Analytics, Settings, Profile.
 
 - **Right Panel**
   - Suggested users, trending content, and other contextual widgets.
@@ -54,12 +51,10 @@ Once logged in, you’ll see three main areas:
 ### 2.1 Feed & Posts
 
 - **Viewing the feed**
-
   - The **Feed** page (`/app/feed`) shows posts from users you follow and relevant content.
   - Cards show the author, text/media, and basic stats (reactions, comments).
 
 - **Creating a post**
-
   1. Click the **Create** entry (or use quick-create UI if present in the feed).
   2. Choose **Post**.
   3. Write your text, optionally attach media.
@@ -73,7 +68,6 @@ Once logged in, you’ll see three main areas:
 ### 2.2 Stories
 
 - **Viewing stories**
-
   - Navigate to **Stories** from the sidebar.
   - Browse through cards representing different stories.
   - Click a story to open its full view; you can see images and text, plus view counts.
@@ -86,12 +80,10 @@ Once logged in, you’ll see three main areas:
 ### 2.3 Polls
 
 - **Viewing polls**
-
   - Open **Polls** from the sidebar.
   - Each poll card shows the question and high-level voting information.
 
 - **Voting**
-
   - Open a poll, choose an option, and submit your vote.
   - After voting, aggregated results update in real time or on refresh.
 
@@ -103,7 +95,6 @@ Once logged in, you’ll see three main areas:
 ### 2.4 Chat (Messages)
 
 - **Accessing chat**
-
   - Click **Messages** in the sidebar or visit `/app/chat`.
 
 - **Using chat**
@@ -114,7 +105,6 @@ Once logged in, you’ll see three main areas:
 ### 2.5 Notifications
 
 - **Notifications bell**
-
   - The bell icon in the navbar shows your **unread count**.
   - A red badge indicates new notifications.
 
@@ -125,23 +115,9 @@ Once logged in, you’ll see three main areas:
   - Click a notification to open the related post, story, poll, chat, or profile.
   - Mark single notifications as read or clear read ones using available actions.
 
-### 2.6 Search
-
-- **Global search**
-
-  - Use the search input in the navbar or go to `/app/search`.
-  - Search across users, posts, stories, and polls.
-
-- **Search features**
-  - Tabs for different result types.
-  - Sorting/filtering options (e.g., relevance, date, popularity where supported).
-  - Search history and quick access to previous queries.
-  - Popular and trending searches based on backend search analytics.
-
-### 2.7 Analytics
+### 2.6 Analytics
 
 - **Accessing analytics**
-
   - Open **Analytics** from the sidebar.
 
 - **What you see**
@@ -152,7 +128,6 @@ Once logged in, you’ll see three main areas:
     - Total votes on polls.
   - Simple timeline of posting activity over recent months.
   - Top-performing posts and polls by engagement.
-  - Global search trends (popular and trending queries) derived from backend analytics.
 
 ---
 

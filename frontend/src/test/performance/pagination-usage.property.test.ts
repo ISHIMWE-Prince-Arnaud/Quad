@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import * as fc from "fast-check";
 import { FeedService } from "@/services/feedService";
 import { PostService } from "@/services/postService";
-import { SearchService } from "@/services/searchService";
 
 /**
  * Feature: quad-production-ready, Property 57: Pagination Usage in Data Fetching
@@ -33,7 +32,10 @@ describe("Pagination Usage Property Tests", () => {
           // (We're testing the API contract, not making actual requests)
           const canCallWithParams = () => {
             // This would normally make a request, but we're just checking the signature
-            return FeedService.getFeed(feedType, params);
+            return FeedService.getFeed(feedType, {
+              ...params,
+              cursor: params.cursor ?? undefined,
+            });
           };
 
           expect(canCallWithParams).toBeDefined();
@@ -69,38 +71,6 @@ describe("Pagination Usage Property Tests", () => {
     );
   });
 
-  it("Property 57: SearchService should include pagination in all search methods", () => {
-    fc.assert(
-      fc.property(
-        fc.record({
-          query: fc.string({ minLength: 1, maxLength: 50 }),
-          page: fc.integer({ min: 1, max: 10 }),
-          limit: fc.integer({ min: 1, max: 50 }),
-        }),
-        (params) => {
-          // Verify search methods exist and accept pagination
-          const methods = [
-            "globalSearch",
-            "searchUsers",
-            "searchPosts",
-            "searchStories",
-            "searchPolls",
-          ];
-
-          methods.forEach((methodName) => {
-            const method = (SearchService as Record<string, unknown>)[
-              methodName
-            ];
-            expect(typeof method).toBe("function");
-          });
-
-          return true;
-        }
-      ),
-      { numRuns: 100 }
-    );
-  });
-
   it("Property 57: pagination parameters should have sensible defaults", () => {
     // Test that default pagination values are reasonable
     const defaultLimits = [10, 20, 30, 50, 100];
@@ -117,11 +87,6 @@ describe("Pagination Usage Property Tests", () => {
     fc.assert(
       fc.property(fc.option(fc.string(), { nil: null }), (cursor) => {
         // Verify that null cursor is handled (represents first page)
-        const params = {
-          cursor: cursor,
-          limit: 20,
-        };
-
         // The system should handle both null and string cursors
         const isValidCursor = cursor === null || typeof cursor === "string";
         expect(isValidCursor).toBe(true);

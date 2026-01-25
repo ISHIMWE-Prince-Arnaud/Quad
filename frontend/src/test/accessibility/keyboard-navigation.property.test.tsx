@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import * as fc from "fast-check";
 import { Button } from "@/components/ui/button";
@@ -100,7 +100,7 @@ describe("Property 59: Keyboard Navigation Support", () => {
           href: fc.constantFrom(
             "/app/feed",
             "/app/profile/user",
-            "/app/search",
+            "/app/polls",
             "/app/notifications"
           ),
         }),
@@ -180,7 +180,7 @@ describe("Property 59: Keyboard Navigation Support", () => {
       <BrowserRouter>
         <nav aria-label="Main navigation">
           <a href="/app/feed">Home</a>
-          <a href="/app/search">Search</a>
+          <a href="/app/polls">Polls</a>
           <a href="/app/notifications">Notifications</a>
         </nav>
       </BrowserRouter>

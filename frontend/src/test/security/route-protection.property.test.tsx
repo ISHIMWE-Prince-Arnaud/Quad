@@ -107,7 +107,7 @@ describe("Property 56: Protected Route Authentication Check", () => {
           "/app/chat",
           "/app/notifications",
           "/app/settings",
-          "/app/search"
+          "/app/polls"
         ),
         async (protectedPath) => {
           // Clean up before each property test iteration
@@ -149,7 +149,7 @@ describe("Property 56: Protected Route Authentication Check", () => {
           "/app/chat",
           "/app/notifications",
           "/app/settings",
-          "/app/search"
+          "/app/polls"
         ),
         async (protectedPath) => {
           // Clean up before each property test iteration
@@ -205,7 +205,7 @@ describe("Property 56: Protected Route Authentication Check", () => {
   it("should preserve query parameters when redirecting to login", async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.constantFrom("/app/feed", "/app/search", "/app/posts/123"),
+        fc.constantFrom("/app/feed", "/app/polls", "/app/posts/123"),
         fc
           .string({ minLength: 1, maxLength: 20 })
           .filter((s) => /^[a-zA-Z0-9]+$/.test(s)),
