@@ -2,7 +2,6 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
-import { timeLeft } from "@/lib/timeUtils";
 import { cn } from "@/lib/utils";
 import type { Poll } from "@/types/poll";
 
@@ -25,6 +24,30 @@ export function PollVotingSection({
   onVote: () => void;
   onRemoveVote: () => void;
 }) {
+  const expiresLabel = (() => {
+    if (!localPoll.expiresAt) return null;
+    const d = new Date(localPoll.expiresAt);
+    if (Number.isNaN(d.getTime())) return null;
+
+    const dateText = d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+
+    const now = new Date();
+    const isFuture = d.getTime() > now.getTime();
+
+    if (localPoll.status === "closed") {
+      return `Ended ${dateText}`;
+    }
+
+    if (localPoll.status === "expired" || !isFuture) {
+      return `Expired ${dateText}`;
+    }
+
+    return `Closes ${dateText}`;
+  })();
+
   return (
     <CardContent className="pb-3 space-y-3">
       <div className="space-y-3">
@@ -145,14 +168,10 @@ export function PollVotingSection({
           <span className="font-medium">
             {localPoll.totalVotes} vote{localPoll.totalVotes !== 1 ? "s" : ""}
           </span>
-          {localPoll.expiresAt && (
+          {expiresLabel && (
             <>
               <span>·</span>
-              <span>
-                {new Date(localPoll.expiresAt) > new Date()
-                  ? `${timeLeft(localPoll.expiresAt)} left`
-                  : "Expired"}
-              </span>
+              <span>{expiresLabel}</span>
             </>
           )}
           {!localPoll.canViewResults && (
