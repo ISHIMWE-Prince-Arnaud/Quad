@@ -44,7 +44,6 @@ export interface Poll {
   media?: string;
   totalVotes: number;
   expiresAt?: string;
-  allowMultiple: boolean;
   isActive: boolean;
   userVote?: number[];
   createdAt: string;

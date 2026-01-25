@@ -1,9 +1,8 @@
-import type { PollMedia, ResultsVisibility } from "@/types/poll";
+import type { ResultsVisibility } from "@/types/poll";
 
 export interface LocalOption {
   id: string;
   text: string;
-  media?: PollMedia;
 }
 
 export interface ValidationErrors {
@@ -14,7 +13,6 @@ export interface ValidationErrors {
 }
 
 export type PollSettingsState = {
-  allowMultiple: boolean;
   anonymousVoting: boolean;
   showResults: ResultsVisibility;
 };

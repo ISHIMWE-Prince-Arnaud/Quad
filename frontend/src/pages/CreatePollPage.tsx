@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UploadService } from "@/services/uploadService";
 import { PollService } from "@/services/pollService";
 import type {
   CreatePollInput,
-  Poll,
   PollMedia,
 } from "@/types/poll";
 import { createPollSchema } from "@/schemas/poll.schema";
@@ -12,7 +11,6 @@ import toast from "react-hot-toast";
 import { ZodError } from "zod";
 import type { ZodIssue } from "zod";
 import { CreatePollForm } from "./create-poll/CreatePollForm";
-import { MyRecentPollsSidebar } from "./create-poll/MyRecentPollsSidebar";
 import { getErrorMessage } from "./create-poll/getErrorMessage";
 import { mapFileToMedia } from "./create-poll/pollUtils";
 import type { LocalOption, PollSettingsState, ValidationErrors } from "./create-poll/types";
@@ -30,7 +28,6 @@ export default function CreatePollPage() {
     { id: "opt-2", text: "" },
   ]);
   const [settings, setSettings] = useState<PollSettingsState>({
-    allowMultiple: false,
     anonymousVoting: false,
     showResults: "afterVote",
   });
@@ -38,15 +35,9 @@ export default function CreatePollPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [uploadingQuestionMedia, setUploadingQuestionMedia] = useState(false);
-  const [uploadingOptionId, setUploadingOptionId] = useState<string | null>(
-    null
-  );
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
     {}
   );
-
-  const [myPolls, setMyPolls] = useState<Poll[]>([]);
-  const [loadingMyPolls, setLoadingMyPolls] = useState(false);
 
   const canSubmit = useMemo(() => {
     const q = question.trim();
@@ -60,26 +51,6 @@ export default function CreatePollPage() {
       filledOptions.length <= 5
     );
   }, [question, options]);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        setLoadingMyPolls(true);
-        const res = await PollService.getMine({ page: 1, limit: 10 });
-        if (!cancelled && res.success) {
-          setMyPolls(res.data || []);
-        }
-      } catch (err) {
-        logError(err, { component: "CreatePollPage", action: "loadMyPolls" });
-      } finally {
-        if (!cancelled) setLoadingMyPolls(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const handleAddOption = () => {
     if (options.length >= 5) return;
@@ -112,28 +83,6 @@ export default function CreatePollPage() {
     }
   };
 
-  const handleUploadOptionMedia = async (id: string, file: File | null) => {
-    if (!file) return;
-    try {
-      setUploadingOptionId(id);
-      const res = await UploadService.uploadPollMedia(file);
-      const media = mapFileToMedia(file, res.url);
-      setOptions((prev) =>
-        prev.map((o) => (o.id === id ? { ...o, media } : o))
-      );
-      toast.success("Option media attached");
-    } catch (err) {
-      logError(err, {
-        component: "CreatePollPage",
-        action: "uploadOptionMedia",
-        metadata: { optionId: id },
-      });
-      toast.error(getErrorMessage(err));
-    } finally {
-      setUploadingOptionId(null);
-    }
-  };
-
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return;
 
@@ -151,9 +100,8 @@ export default function CreatePollPage() {
       const payload: CreatePollInput = {
         question: trimmedQuestion,
         questionMedia,
-        options: finalOptions.map((o) => ({ text: o.text, media: o.media })),
+        options: finalOptions.map((o) => ({ text: o.text })),
         settings: {
-          allowMultiple: settings.allowMultiple,
           anonymousVoting: settings.anonymousVoting,
           showResults: settings.showResults,
         },
@@ -205,43 +153,28 @@ export default function CreatePollPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
-        <div className="md:col-span-2 space-y-4">
-          <CreatePollForm
-            question={question}
-            setQuestion={setQuestion}
-            questionMedia={questionMedia}
-            setQuestionMedia={setQuestionMedia}
-            uploadingQuestionMedia={uploadingQuestionMedia}
-            onUploadQuestionMedia={(file) => void handleUploadQuestionMedia(file)}
-            options={options}
-            setOptions={setOptions}
-            uploadingOptionId={uploadingOptionId}
-            onAddOption={handleAddOption}
-            onRemoveOption={handleRemoveOption}
-            onOptionChange={handleOptionChange}
-            onUploadOptionMedia={(id, file) =>
-              void handleUploadOptionMedia(id, file)
-            }
-            settings={settings}
-            setSettings={setSettings}
-            expiresAt={expiresAt}
-            setExpiresAt={setExpiresAt}
-            canSubmit={canSubmit}
-            submitting={submitting}
-            onSubmit={() => void handleSubmit()}
-            validationErrors={validationErrors}
-            setValidationErrors={setValidationErrors}
-          />
-        </div>
-
-        <div className="md:col-span-1">
-          <MyRecentPollsSidebar
-            loading={loadingMyPolls}
-            polls={myPolls}
-            onSelectPoll={() => navigate("/app/polls")}
-          />
-        </div>
+      <div className="mx-auto max-w-3xl space-y-4">
+        <CreatePollForm
+          question={question}
+          setQuestion={setQuestion}
+          questionMedia={questionMedia}
+          setQuestionMedia={setQuestionMedia}
+          uploadingQuestionMedia={uploadingQuestionMedia}
+          onUploadQuestionMedia={(file) => void handleUploadQuestionMedia(file)}
+          options={options}
+          onAddOption={handleAddOption}
+          onRemoveOption={handleRemoveOption}
+          onOptionChange={handleOptionChange}
+          settings={settings}
+          setSettings={setSettings}
+          expiresAt={expiresAt}
+          setExpiresAt={setExpiresAt}
+          canSubmit={canSubmit}
+          submitting={submitting}
+          onSubmit={() => void handleSubmit()}
+          validationErrors={validationErrors}
+          setValidationErrors={setValidationErrors}
+        />
       </div>
     </div>
   );

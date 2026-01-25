@@ -30,15 +30,7 @@ export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void
   const toggleSelection = (index: number) => {
     if (!canVote) return;
 
-    if (localPoll.settings.allowMultiple) {
-      setSelectedIndices((prev) =>
-        prev.includes(index)
-          ? prev.filter((i) => i !== index)
-          : [...prev, index]
-      );
-    } else {
-      setSelectedIndices([index]);
-    }
+    setSelectedIndices([index]);
   };
 
   const handleVote = async () => {

@@ -17,13 +17,11 @@ export interface PollMedia {
 export interface PollOption {
   index: number;
   text: string;
-  media?: PollMedia;
   votesCount?: number;
   percentage?: number;
 }
 
 export interface PollSettings {
-  allowMultiple: boolean;
   anonymousVoting: boolean;
   showResults: ResultsVisibility;
 }
@@ -71,7 +69,6 @@ export interface PollResponse {
 
 export interface CreatePollOptionInput {
   text: string;
-  media?: PollMedia;
 }
 
 export interface CreatePollInput {
@@ -79,7 +76,6 @@ export interface CreatePollInput {
   questionMedia?: PollMedia;
   options: CreatePollOptionInput[];
   settings?: {
-    allowMultiple?: boolean;
     anonymousVoting?: boolean;
     showResults?: ResultsVisibility;
   };

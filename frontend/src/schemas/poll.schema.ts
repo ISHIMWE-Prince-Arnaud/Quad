@@ -20,14 +20,12 @@ export const createPollOptionSchema = z.object({
     .min(1, "Option text is required")
     .max(200, "Option text must be at most 200 characters")
     .trim(),
-  media: pollMediaSchema.optional(),
 });
 
 /**
  * Poll settings schema
  */
 export const pollSettingsSchema = z.object({
-  allowMultiple: z.boolean().optional().default(false),
   anonymousVoting: z.boolean().optional().default(false),
   showResults: z
     .enum(["always", "afterVote", "afterExpiry"])

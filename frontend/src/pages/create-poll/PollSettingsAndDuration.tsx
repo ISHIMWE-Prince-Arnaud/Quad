@@ -32,30 +32,6 @@ export function PollSettingsAndDuration({
               <input
                 type="checkbox"
                 className="peer h-5 w-5 rounded-md border-white/10 bg-white/5 accent-[#2563eb] transition-all"
-                checked={settings.allowMultiple}
-                onChange={(e) =>
-                  setSettings((prev) => ({
-                    ...prev,
-                    allowMultiple: e.target.checked,
-                  }))
-                }
-              />
-            </div>
-            <div className="flex-1">
-              <span className="text-sm font-bold text-white group-hover:text-[#2563eb] transition-colors">
-                Allow multiple selections
-              </span>
-              <p className="text-[11px] font-medium text-[#64748b]">
-                Users can select more than one option
-              </p>
-            </div>
-          </label>
-
-          <label className="flex items-center gap-4 cursor-pointer group">
-            <div className="relative flex items-center">
-              <input
-                type="checkbox"
-                className="peer h-5 w-5 rounded-md border-white/10 bg-white/5 accent-[#2563eb] transition-all"
                 checked={settings.anonymousVoting}
                 onChange={(e) =>
                   setSettings((prev) => ({

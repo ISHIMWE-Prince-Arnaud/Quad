@@ -1,27 +1,21 @@
 import { cn } from "@/lib/utils";
-import { Image as ImageIcon, Loader2, Plus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 
 import type { LocalOption, ValidationErrors } from "./types";
 
 export function PollOptionsEditor({
   options,
-  setOptions,
-  uploadingOptionId,
   onAddOption,
   onRemoveOption,
   onOptionChange,
-  onUploadOptionMedia,
   validationErrors,
   setValidationErrors,
 }: {
   options: LocalOption[];
-  setOptions: Dispatch<SetStateAction<LocalOption[]>>;
-  uploadingOptionId: string | null;
   onAddOption: () => void;
   onRemoveOption: (id: string) => void;
   onOptionChange: (id: string, value: string) => void;
-  onUploadOptionMedia: (id: string, file: File | null) => void;
   validationErrors: ValidationErrors;
   setValidationErrors: Dispatch<SetStateAction<ValidationErrors>>;
 }) {
@@ -60,7 +54,7 @@ export function PollOptionsEditor({
                 onChange={(e) => {
                   onOptionChange(opt.id, e.target.value);
                   if (validationErrors.options) {
-                    setValidationErrors((prev) => ({
+                    setValidationErrors((prev: ValidationErrors) => ({
                       ...prev,
                       options: undefined,
                     }));
@@ -70,55 +64,6 @@ export function PollOptionsEditor({
                 maxLength={200}
                 className="w-full bg-transparent border-none focus:ring-0 text-lg font-bold text-white placeholder-white/10 p-0"
               />
-
-              <div className="flex items-center gap-3">
-                <label className="cursor-pointer group/upload">
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    className="hidden"
-                    onChange={(e) =>
-                      onUploadOptionMedia(opt.id, e.target.files?.[0] || null)
-                    }
-                    disabled={uploadingOptionId === opt.id}
-                  />
-                  <div
-                    className={cn(
-                      "flex items-center gap-2 py-1.5 px-3 rounded-lg border transition-all",
-                      uploadingOptionId === opt.id
-                        ? "border-[#2563eb] bg-[#2563eb]/5"
-                        : "border-white/5 bg-white/5 hover:border-white/20"
-                    )}>
-                    {uploadingOptionId === opt.id ? (
-                      <Loader2 className="h-3 w-3 animate-spin text-[#2563eb]" />
-                    ) : (
-                      <ImageIcon className="h-3.3 w-3.5 text-[#64748b] group-hover/upload:text-white transition-colors" />
-                    )}
-                    <span className="text-[11px] font-bold text-[#64748b] group-hover/upload:text-white">
-                      {opt.media ? "Change" : "Media"}
-                    </span>
-                  </div>
-                </label>
-
-                {opt.media && (
-                  <div className="flex items-center gap-2 bg-[#2563eb]/10 px-3 py-1.5 rounded-lg border border-[#2563eb]/20 animate-in zoom-in-95 duration-200">
-                    <span className="text-[10px] font-bold text-[#2563eb] uppercase">
-                      {opt.media.type}
-                    </span>
-                    <button
-                      onClick={() =>
-                        setOptions((prev) =>
-                          prev.map((o) =>
-                            o.id === opt.id ? { ...o, media: undefined } : o
-                          )
-                        )
-                      }
-                      className="p-1 hover:bg-[#2563eb]/20 rounded-md text-[#2563eb] transition-all">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-              </div>
             </div>
 
             <button

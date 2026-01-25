@@ -99,7 +99,6 @@ export interface ApiPoll {
   userVote?: string;
   expiresAt?: string;
   isExpired: boolean;
-  allowMultipleVotes: boolean;
   isAnonymous: boolean;
   createdAt: string;
   updatedAt: string;

@@ -17,12 +17,9 @@ export function CreatePollForm({
   onUploadQuestionMedia,
 
   options,
-  setOptions,
-  uploadingOptionId,
   onAddOption,
   onRemoveOption,
   onOptionChange,
-  onUploadOptionMedia,
 
   settings,
   setSettings,
@@ -44,15 +41,12 @@ export function CreatePollForm({
   onUploadQuestionMedia: (file: File | null) => void;
 
   options: LocalOption[];
-  setOptions: Dispatch<SetStateAction<LocalOption[]>>;
-  uploadingOptionId: string | null;
   onAddOption: () => void;
   onRemoveOption: (id: string) => void;
   onOptionChange: (id: string, value: string) => void;
-  onUploadOptionMedia: (id: string, file: File | null) => void;
 
   settings: PollSettingsState;
-  setSettings: Dispatch<SetStateAction<PollSettingsState>>;
+  setSettings: (next: PollSettingsState | ((prev: PollSettingsState) => PollSettingsState)) => void;
   expiresAt: string | "";
   setExpiresAt: (v: string | "") => void;
 
@@ -85,12 +79,9 @@ export function CreatePollForm({
 
         <PollOptionsEditor
           options={options}
-          setOptions={setOptions}
-          uploadingOptionId={uploadingOptionId}
           onAddOption={onAddOption}
           onRemoveOption={onRemoveOption}
           onOptionChange={onOptionChange}
-          onUploadOptionMedia={onUploadOptionMedia}
           validationErrors={validationErrors}
           setValidationErrors={setValidationErrors}
         />
