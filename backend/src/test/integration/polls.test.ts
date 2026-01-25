@@ -12,7 +12,7 @@ const ensureUser = async (app: TestApp, userId: string) => {
 };
 
 describe("Polls CRUD", () => {
-  it("creates poll and fetches it", async () => {
+  it("creates poll and it appears in polls list", async () => {
     const app = createTestApp();
     const userId = "poll_user_1";
     await ensureUser(app, userId);
@@ -28,12 +28,13 @@ describe("Polls CRUD", () => {
     expect(createRes.status).toBe(201);
     const pollId = createRes.body?.data?._id as string;
 
-    const getRes = await request(app)
-      .get(`/api/polls/${pollId}`)
+    const listRes = await request(app)
+      .get("/api/polls?status=all&page=1&limit=20")
       .set(getAuthHeaders(userId));
 
-    expect(getRes.status).toBe(200);
-    expect(getRes.body?.data?.id).toBeDefined();
+    expect(listRes.status).toBe(200);
+    const polls = (listRes.body?.data ?? []) as Array<{ id?: string }>;
+    expect(polls.some((p) => p.id === pollId)).toBe(true);
   });
 
   it("votes on poll and prevents duplicate vote", async () => {
