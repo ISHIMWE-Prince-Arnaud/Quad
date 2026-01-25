@@ -5,8 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserCard, type UserCardData } from "@/components/user/UserCard";
 import { FollowService } from "@/services/followService";
-import { SearchService } from "@/services/searchService";
-import type { ApiProfile } from "@/types/api";
 import { logError } from "@/lib/errorHandling";
 import { cn } from "@/lib/utils";
 
@@ -16,24 +14,6 @@ interface WhoToFollowProps {
   compact?: boolean;
   className?: string;
 }
-
-const convertProfileToUserCard = (profile: ApiProfile): UserCardData => ({
-  _id: profile._id,
-  clerkId: profile.clerkId,
-  username: profile.username,
-  email: profile.email,
-  firstName: profile.firstName,
-  lastName: profile.lastName,
-  profileImage: profile.profileImage,
-  coverImage: profile.coverImage,
-  bio: profile.bio,
-  isVerified: profile.isVerified,
-  followers: profile.followers,
-  following: profile.following,
-  postsCount: profile.postsCount,
-  joinedAt: profile.joinedAt || profile.createdAt || new Date().toISOString(),
-  isFollowing: profile.isFollowing,
-});
 
 export function WhoToFollow({
   limit = 3,
@@ -54,21 +34,7 @@ export function WhoToFollow({
       }
 
       try {
-        const result = await SearchService.searchUsers({
-          q: "",
-          limit: Math.max(limit * 2, limit),
-          sortBy: "followers",
-        });
-
-        const normalized = result.results
-          .map(convertProfileToUserCard)
-          .filter((user) => Boolean(user.clerkId));
-
-        const randomized = normalized
-          .sort(() => Math.random() - 0.5)
-          .slice(0, limit);
-
-        setSuggestions(randomized);
+        setSuggestions([]);
       } catch (error) {
         logError(error, {
           component: "WhoToFollow",

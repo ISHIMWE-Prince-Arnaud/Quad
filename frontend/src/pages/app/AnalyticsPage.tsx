@@ -5,7 +5,6 @@ import { AnalyticsAuthRequiredCard } from "./analytics/AnalyticsAuthRequiredCard
 import { AnalyticsContentMixCard } from "./analytics/AnalyticsContentMixCard";
 import { AnalyticsOverviewCard } from "./analytics/AnalyticsOverviewCard";
 import { AnalyticsPostingActivityCard } from "./analytics/AnalyticsPostingActivityCard";
-import { AnalyticsSearchTrendsCard } from "./analytics/AnalyticsSearchTrendsCard";
 import { AnalyticsTopPollsCard } from "./analytics/AnalyticsTopPollsCard";
 import { AnalyticsTopPostsCard } from "./analytics/AnalyticsTopPostsCard";
 import { ProfileViewsCard } from "./analytics/ProfileViewsCard";
@@ -25,8 +24,6 @@ export default function AnalyticsPage() {
     posts,
     stories,
     polls,
-    popularSearches,
-    trendingSearches,
     profileViews,
     followerHistory,
     engagementSummary,
@@ -81,11 +78,6 @@ export default function AnalyticsPage() {
 
           {/* Right column: search analytics and quick insights */}
           <div className="space-y-4">
-            <AnalyticsSearchTrendsCard
-              popularSearches={popularSearches}
-              trendingSearches={trendingSearches}
-            />
-
             <FollowerGrowthChart
               loading={loading}
               error={error}

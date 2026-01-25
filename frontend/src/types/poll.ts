@@ -101,6 +101,5 @@ export interface PollQueryParams {
   status?: PollStatus | "all";
   author?: string;
   voted?: boolean;
-  search?: string;
   sort?: "newest" | "oldest" | "trending" | "mostVotes";
 }

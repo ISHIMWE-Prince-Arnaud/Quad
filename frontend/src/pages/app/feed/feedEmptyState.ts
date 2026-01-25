@@ -16,8 +16,6 @@ export const emptyStateCopy: Record<FeedTab, FeedEmptyState> = {
       "Follow more people or share something to get the conversation going.",
     actionLabel: "Create Post",
     actionHref: "/app/create",
-    secondaryActionLabel: "Find people",
-    secondaryActionHref: "/app/search",
   },
   posts: {
     title: "No posts yet",

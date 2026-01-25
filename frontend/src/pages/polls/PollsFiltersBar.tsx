@@ -1,19 +1,16 @@
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import type { PollStatus } from "@/types/poll";
 
 import type { SortKey, VotedFilter } from "./types";
 
 export function PollsFiltersBar({
-  search,
   status,
   sort,
   voted,
   onFilterChange,
 }: {
-  search: string;
   status: PollStatus | "all";
   sort: SortKey;
   voted: VotedFilter;
@@ -22,7 +19,6 @@ export function PollsFiltersBar({
       status: PollStatus | "all";
       sort: SortKey;
       voted: VotedFilter;
-      search: string;
     }>
   ) => void;
 }) {
@@ -30,12 +26,6 @@ export function PollsFiltersBar({
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <h1 className="text-xl font-semibold">Polls</h1>
       <div className="flex flex-wrap items-center gap-2">
-        <Input
-          value={search}
-          onChange={(e) => onFilterChange({ search: e.target.value })}
-          placeholder="Search polls..."
-          className="w-44 md:w-56"
-        />
         <select
           className="h-9 rounded-md border bg-background px-2 text-sm"
           value={status}

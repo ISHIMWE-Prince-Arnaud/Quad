@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { ProfileService } from "@/services/profileService";
-import { SearchService } from "@/services/searchService";
 import { AnalyticsService } from "@/services/analyticsService";
 import type { ApiProfile, ContentItem } from "@/types/api";
 
@@ -10,8 +9,6 @@ export function useAnalyticsData({ username }: { username: string | undefined })
   const [posts, setPosts] = useState<ContentItem[]>([]);
   const [stories, setStories] = useState<ContentItem[]>([]);
   const [polls, setPolls] = useState<ContentItem[]>([]);
-  const [popularSearches, setPopularSearches] = useState<string[]>([]);
-  const [trendingSearches, setTrendingSearches] = useState<string[]>([]);
   const [profileViews, setProfileViews] = useState<{
     totalViews: number;
     uniqueViewers: number;
@@ -48,8 +45,6 @@ export function useAnalyticsData({ username }: { username: string | undefined })
           postsRes,
           storiesRes,
           pollsRes,
-          popular,
-          trending,
           profileAnalytics,
           followerGrowth,
           summary,
@@ -58,8 +53,6 @@ export function useAnalyticsData({ username }: { username: string | undefined })
           ProfileService.getUserPosts(username, { limit: 200, page: 1 }),
           ProfileService.getUserStories(username, { limit: 200, page: 1 }),
           ProfileService.getUserPolls(username, { limit: 200, page: 1 }),
-          SearchService.getPopularSearches("global", 8).catch(() => []),
-          SearchService.getTrendingSearches("global", 8).catch(() => []),
           AnalyticsService.getProfileAnalytics().catch(() => ({
             success: true,
             data: { profileId: "", totalViews: 0, uniqueViewers: 0, viewsByDay: [] },
@@ -84,8 +77,6 @@ export function useAnalyticsData({ username }: { username: string | undefined })
         setPosts(postsRes.posts as ContentItem[]);
         setStories(storiesRes.stories as ContentItem[]);
         setPolls(pollsRes.polls as ContentItem[]);
-        setPopularSearches(popular);
-        setTrendingSearches(trending);
         setProfileViews({
           totalViews: profileAnalytics.data.totalViews,
           uniqueViewers: profileAnalytics.data.uniqueViewers,
@@ -122,8 +113,6 @@ export function useAnalyticsData({ username }: { username: string | undefined })
     posts,
     stories,
     polls,
-    popularSearches,
-    trendingSearches,
     profileViews,
     followerHistory,
     engagementSummary,

@@ -21,8 +21,6 @@ export default function PollsPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState<PollStatus | "all">("all");
   const [sort, setSort] = useState<SortKey>("newest");
   const [voted, setVoted] = useState<VotedFilter>("all");
@@ -33,22 +31,15 @@ export default function PollsPage() {
   //   );
   // };
 
-  // debounce search
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search), 400);
-    return () => clearTimeout(t);
-  }, [search]);
-
   const queryParams: PollQueryParams = useMemo(
     () => ({
       page,
       limit: 10,
       status,
-      search: debouncedSearch || undefined,
       sort,
       voted: voted === "all" ? undefined : voted === "voted" ? true : false,
     }),
-    [page, status, debouncedSearch, sort, voted]
+    [page, status, sort, voted]
   );
 
   useEffect(() => {
@@ -130,13 +121,11 @@ export default function PollsPage() {
       status: PollStatus | "all";
       sort: SortKey;
       voted: VotedFilter;
-      search: string;
     }>
   ) => {
     if (next.status !== undefined) setStatus(next.status);
     if (next.sort !== undefined) setSort(next.sort);
     if (next.voted !== undefined) setVoted(next.voted);
-    if (next.search !== undefined) setSearch(next.search);
     setPage(1);
   };
 
@@ -144,7 +133,6 @@ export default function PollsPage() {
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-4xl space-y-4">
         <PollsFiltersBar
-          search={search}
           status={status}
           sort={sort}
           voted={voted}
