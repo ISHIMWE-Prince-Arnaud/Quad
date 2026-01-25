@@ -1,18 +1,16 @@
-import { Search, Users } from "lucide-react";
+import { Users } from "lucide-react";
 
 import { UserCard, type UserCardData } from "@/components/user/UserCard";
 
 export function FollowersModalBody({
   isLoading,
-  filteredUsers,
-  searchQuery,
+  users,
   type,
   onFollow,
   onUnfollow,
 }: {
   isLoading: boolean;
-  filteredUsers: UserCardData[];
-  searchQuery: string;
+  users: UserCardData[];
   type: "followers" | "following" | "mutual";
   onFollow: (targetUserId: string) => void;
   onUnfollow: (targetUserId: string) => void;
@@ -36,10 +34,10 @@ export function FollowersModalBody({
     );
   }
 
-  if (filteredUsers.length > 0) {
+  if (users.length > 0) {
     return (
       <div className="divide-y">
-        {filteredUsers.map((user) => (
+        {users.map((user) => (
           <UserCard
             key={user._id}
             user={user}
@@ -51,18 +49,6 @@ export function FollowersModalBody({
             className="border-0 rounded-none hover:bg-accent/50"
           />
         ))}
-      </div>
-    );
-  }
-
-  if (searchQuery) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-3 py-8 text-muted-foreground">
-        <Search className="h-8 w-8" />
-        <div className="text-center">
-          <p className="font-medium">No results found</p>
-          <p className="text-sm">Try searching with different keywords</p>
-        </div>
       </div>
     );
   }

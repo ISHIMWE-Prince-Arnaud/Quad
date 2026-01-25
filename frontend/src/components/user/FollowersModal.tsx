@@ -7,7 +7,6 @@ import { logError } from "@/lib/errorHandling";
 import { FollowersModalBody } from "./followers-modal/FollowersModalBody";
 import { FollowersModalFooter } from "./followers-modal/FollowersModalFooter";
 import { FollowersModalHeader } from "./followers-modal/FollowersModalHeader";
-import { FollowersModalSearch } from "./followers-modal/FollowersModalSearch";
 
 interface FollowersModalProps {
   isOpen: boolean;
@@ -109,9 +108,7 @@ export function FollowersModal({
   initialCount = 0,
 }: FollowersModalProps) {
   const [users, setUsers] = useState<UserCardData[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<UserCardData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -169,29 +166,10 @@ export function FollowersModal({
   useEffect(() => {
     if (isOpen) {
       setUsers([]);
-      setFilteredUsers([]);
-      setSearchQuery("");
       setPage(1);
       loadUsers(1);
     }
   }, [isOpen, loadUsers]);
-
-  // Filter users based on search query
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredUsers(users);
-    } else {
-      const query = searchQuery.toLowerCase();
-      const filtered = users.filter(
-        (user) =>
-          user.username.toLowerCase().includes(query) ||
-          user.firstName?.toLowerCase().includes(query) ||
-          user.lastName?.toLowerCase().includes(query) ||
-          user.bio?.toLowerCase().includes(query)
-      );
-      setFilteredUsers(filtered);
-    }
-  }, [users, searchQuery]);
 
   // Handle follow/unfollow
   const handleFollow = async (targetUserId: string) => {
@@ -257,19 +235,11 @@ export function FollowersModal({
         {/* Header */}
         <FollowersModalHeader title={title} onClose={onClose} />
 
-        {/* Search */}
-        <FollowersModalSearch
-          searchQuery={searchQuery}
-          onSearchQueryChange={setSearchQuery}
-          type={type}
-        />
-
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <FollowersModalBody
             isLoading={isLoading}
-            filteredUsers={filteredUsers}
-            searchQuery={searchQuery}
+            users={users}
             type={type}
             onFollow={handleFollow}
             onUnfollow={handleUnfollow}
@@ -279,10 +249,9 @@ export function FollowersModal({
         {/* Footer with count and pagination */}
         <FollowersModalFooter
           isLoading={isLoading}
-          filteredUsers={filteredUsers}
-          totalCount={totalCount || filteredUsers.length}
+          users={users}
+          totalCount={totalCount || users.length}
           type={type}
-          searchQuery={searchQuery}
           hasMore={hasMore}
           isLoadingMore={isLoadingMore}
           onLoadMore={handleLoadMore}
