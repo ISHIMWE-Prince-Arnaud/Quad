@@ -184,7 +184,7 @@ export default function CreatePollPage() {
           <button
             type="button"
             className="inline-flex items-center gap-2 text-white/90 hover:text-white font-bold"
-            onClick={() => navigate("/app/polls")}
+            onClick={() => navigate("/app/polls", { replace: true })}
           >
             <ArrowLeft className="h-5 w-5" />
             <span className="text-base">Create Poll</span>
