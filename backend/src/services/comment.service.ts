@@ -25,21 +25,9 @@ export interface CreateCommentInput {
 
 export class CommentService {
   private static async getContentEngagementCounts(
-    contentType: "post" | "story" | "poll",
+    contentType: "post" | "story",
     contentId: string
   ): Promise<{ reactionsCount: number; commentsCount: number; votes?: number }> {
-    if (contentType === "poll") {
-      const { Poll } = await import("../models/Poll.model.js");
-      const poll = await Poll.findById(contentId).select(
-        "reactionsCount commentsCount totalVotes"
-      );
-      return {
-        reactionsCount: poll?.reactionsCount ?? 0,
-        commentsCount: poll?.commentsCount ?? 0,
-        votes: poll?.totalVotes ?? 0,
-      };
-    }
-
     if (contentType === "post") {
       const { Post } = await import("../models/Post.model.js");
       const post = await Post.findById(contentId).select(
@@ -108,12 +96,7 @@ export class CommentService {
             type: "mention_comment",
             actorId: userId,
             contentId,
-            contentType:
-              contentType === "post"
-                ? "Post"
-                : contentType === "story"
-                  ? "Story"
-                  : "Poll",
+            contentType: contentType === "post" ? "Post" : "Story",
             message: generateNotificationMessage(
               "mention_comment",
               user.username
@@ -126,24 +109,14 @@ export class CommentService {
     await updateContentCommentsCount(contentType, contentId, 1);
 
     if (contentOwnerId && contentOwnerId !== userId) {
-      const notificationType =
-        contentType === "post"
-          ? "comment_post"
-          : contentType === "story"
-            ? "comment_story"
-            : "comment_poll";
+      const notificationType = contentType === "post" ? "comment_post" : "comment_story";
 
       await createNotification({
         userId: contentOwnerId,
         type: notificationType,
         actorId: userId,
         contentId,
-        contentType:
-          contentType === "post"
-            ? "Post"
-            : contentType === "story"
-              ? "Story"
-              : "Poll",
+        contentType: contentType === "post" ? "Post" : "Story",
         message: generateNotificationMessage(
           notificationType,
           user.username,

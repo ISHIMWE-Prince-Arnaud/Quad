@@ -45,6 +45,10 @@ export const getCommentsByContent = asyncHandler(
       throw new AppError("contentType and contentId are required", 400);
     }
 
+    if (contentType === "poll") {
+      throw new AppError("Poll comments are not supported", 404);
+    }
+
     const parsedLimit = Number(limit);
     const parsedSkip = Number(skip);
 

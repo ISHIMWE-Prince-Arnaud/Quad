@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Valid content types that can receive comments
-export const commentableContentTypes = ["post", "story", "poll"] as const;
+export const commentableContentTypes = ["post", "story"] as const;
 
 // ---------------------
 // CREATE COMMENT

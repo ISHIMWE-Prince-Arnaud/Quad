@@ -98,9 +98,6 @@ export const verifyCommentableContent = async (
           return { exists: false };
         }
         break;
-      case "poll":
-        content = await Poll.findById(contentId);
-        break;
       default:
         return { exists: false };
     }
@@ -127,9 +124,6 @@ export const updateContentCommentsCount = async (
         break;
       case "story":
         await Story.findByIdAndUpdate(contentId, { $inc: { commentsCount: increment } });
-        break;
-      case "poll":
-        await Poll.findByIdAndUpdate(contentId, { $inc: { commentsCount: increment } });
         break;
     }
   } catch (error) {

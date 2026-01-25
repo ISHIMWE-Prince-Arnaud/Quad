@@ -1,5 +1,5 @@
 // Valid content types that can receive comments
-export type CommentableContentType = "post" | "story" | "poll";
+export type CommentableContentType = "post" | "story";
 
 export interface IComment {
   _id: string;

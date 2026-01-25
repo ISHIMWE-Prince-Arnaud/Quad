@@ -72,24 +72,6 @@ export const getMyPolls = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // =========================
-// GET SINGLE POLL
-// =========================
-export const getPoll = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("Poll ID is required", 400);
-  }
-
-  const userId = req.auth?.userId;
-  const formattedPoll = await PollService.getPoll(id, userId);
-
-  return res.json({
-    success: true,
-    data: formattedPoll,
-  });
-});
-
-// =========================
 // UPDATE POLL
 // =========================
 export const updatePoll = asyncHandler(async (req: Request, res: Response) => {

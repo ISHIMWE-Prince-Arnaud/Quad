@@ -176,29 +176,6 @@ export class PollService {
     };
   }
 
-  static async getPoll(id: string, userId?: string) {
-    const poll = await Poll.findById(id);
-    if (!poll) {
-      throw new AppError("Poll not found", 404);
-    }
-
-    let userVote: unknown = undefined;
-    let hasVoted = false;
-
-    if (userId) {
-      const vote = await PollVote.findOne({ pollId: id, userId });
-      if (vote) {
-        userVote = vote;
-        hasVoted = true;
-      }
-    }
-
-    const showResults = canViewResults(poll, hasVoted);
-    const formattedPoll = formatPollResponse(poll, userVote as never, showResults);
-
-    return formattedPoll;
-  }
-
   static async updatePoll(userId: string, id: string, updates: UpdatePollSchemaType) {
     const poll = await Poll.findById(id);
     if (!poll) {

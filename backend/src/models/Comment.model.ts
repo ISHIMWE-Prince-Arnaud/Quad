@@ -7,7 +7,7 @@ const CommentSchema = new Schema<ICommentDocument>(
   {
     contentType: {
       type: String,
-      enum: ["post", "story", "poll"],
+      enum: ["post", "story"],
       required: true,
       index: true  // For querying comments by content type
     },
