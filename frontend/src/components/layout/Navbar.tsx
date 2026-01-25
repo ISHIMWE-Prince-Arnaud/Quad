@@ -15,7 +15,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Logo } from "@/components/ui/Logo";
 import { UserAvatar } from "@/components/auth/UserMenu";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
-import { GlobalSearchBar } from "@/components/search/GlobalSearchBar";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import { useNotificationStore } from "@/stores/notificationStore";
@@ -85,11 +84,6 @@ export function Navbar() {
             <Logo size="sm" />
             <span className="text-lg font-bold text-foreground">Quad</span>
           </Link>
-
-          {/* Center: Global Search (hidden on small screens) */}
-          <div className="hidden sm:block flex-1 max-w-sm mx-4">
-            <GlobalSearchBar />
-          </div>
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2">

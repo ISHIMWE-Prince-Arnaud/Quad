@@ -113,20 +113,6 @@ export const endpoints = {
     markAsRead: (data: unknown) => api.post("/chat/read", data),
   },
 
-  search: {
-    global: (params?: unknown) => api.get("/search/global", { params }),
-    users: (params?: unknown) => api.get("/search/users", { params }),
-    posts: (params?: unknown) => api.get("/search/posts", { params }),
-    stories: (params?: unknown) => api.get("/search/stories", { params }),
-    polls: (params?: unknown) => api.get("/search/polls", { params }),
-    suggestions: (params?: unknown) => api.get("/search/suggestions", { params }),
-    history: (params?: unknown) => api.get("/search/history", { params }),
-    deleteHistory: (id?: string) =>
-      id ? api.delete(`/search/history/${id}`) : api.delete("/search/history"),
-    getPopular: (params?: unknown) => api.get("/search/analytics/popular", { params }),
-    getTrending: (params?: unknown) => api.get("/search/analytics/trending", { params }),
-  },
-
   notifications: {
     getAll: (params?: unknown) => api.get("/notifications", { params }),
     getUnreadCount: () => api.get("/notifications/unread-count"),
