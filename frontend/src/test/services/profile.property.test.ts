@@ -254,12 +254,12 @@ describe("Property 21: Profile Content Tab Pagination", () => {
           const allPolls = Array.from({ length: totalItems }, (_, i) => ({
             _id: `poll-${i}`,
             clerkId: "test-clerk-id",
-            question: `Poll question ${i}?`,
+            question: "Do you like property testing?",
             options: [
-              { option: "Option A", votes: 0, percentage: 0 },
-              { option: "Option B", votes: 0, percentage: 0 },
+              { option: "Yes", votes: 10, percentage: 50 },
+              { option: "No", votes: 10, percentage: 50 },
             ],
-            totalVotes: 0,
+            totalVotes: 20,
             author: {
               _id: "test-user-id",
               clerkId: "test-clerk-id",
@@ -270,7 +270,6 @@ describe("Property 21: Profile Content Tab Pagination", () => {
               joinedAt: new Date().toISOString(),
             },
             isExpired: false,
-            allowMultipleVotes: false,
             isAnonymous: false,
             createdAt: new Date(Date.now() - i * 1000).toISOString(),
             updatedAt: new Date(Date.now() - i * 1000).toISOString(),

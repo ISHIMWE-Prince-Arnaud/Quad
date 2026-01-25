@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import * as fc from "fast-check";
-import type { Poll, PollOption } from "@/types/poll";
 
 // Feature: quad-production-ready, Property 51: Poll Vote Optimistic Update
 // For any poll vote, the UI should update immediately to show the new vote percentages before the API response.
@@ -21,31 +20,26 @@ describe("Poll Voting Property Tests", () => {
             minLength: 2,
             maxLength: 5,
           }),
-          oldUserVote: fc.option(
-            fc
-              .array(fc.integer({ min: 0, max: 4 }), { maxLength: 5 })
-              .map((arr) => [...new Set(arr)])
-          ),
-          newUserVote: fc
-            .array(fc.integer({ min: 0, max: 4 }), {
-              minLength: 1,
-              maxLength: 5,
-            })
-            .map((arr) => [...new Set(arr)]),
+          oldUserVoteIndex: fc.option(fc.integer({ min: 0, max: 4 })),
+          newUserVoteIndex: fc.integer({ min: 0, max: 4 }),
         }),
-        async ({ numOptions, initialVotes, oldUserVote, newUserVote }) => {
+        async ({ numOptions, initialVotes, oldUserVoteIndex, newUserVoteIndex }) => {
           // Ensure arrays match numOptions
           const votes = initialVotes.slice(0, numOptions);
           while (votes.length < numOptions) {
             votes.push(0);
           }
 
-          const oldVote = oldUserVote
-            ? oldUserVote.filter((idx) => idx < numOptions)
-            : [];
-          const newVote = newUserVote.filter((idx) => idx < numOptions);
+          const oldVoteIndex =
+            typeof oldUserVoteIndex === "number" && oldUserVoteIndex < numOptions
+              ? oldUserVoteIndex
+              : null;
+          const newVoteIndex = newUserVoteIndex < numOptions ? newUserVoteIndex : null;
 
-          if (newVote.length === 0) return; // Skip if no valid vote
+          if (newVoteIndex === null) return; // Skip if no valid vote
+
+          const oldVote = oldVoteIndex === null ? [] : [oldVoteIndex];
+          const newVote = [newVoteIndex];
 
           // Skip if old and new votes are identical (no change)
           const oldVoteSet = new Set(oldVote);
@@ -127,12 +121,7 @@ describe("Poll Voting Property Tests", () => {
             "closed" as const
           ),
           totalVotes: fc.integer({ min: 0, max: 1000 }),
-          newVoteIndices: fc
-            .array(fc.integer({ min: 0, max: 4 }), {
-              minLength: 1,
-              maxLength: 5,
-            })
-            .map((arr) => [...new Set(arr)]),
+          newVoteIndex: fc.integer({ min: 0, max: 4 }),
         }),
         async ({
           pollId,
@@ -140,13 +129,10 @@ describe("Poll Voting Property Tests", () => {
           numOptions,
           status,
           totalVotes,
-          newVoteIndices,
+          newVoteIndex,
         }) => {
-          const validVoteIndices = newVoteIndices.filter(
-            (idx) => idx < numOptions
-          );
-
-          if (validVoteIndices.length === 0) return; // Skip if no valid votes
+          if (newVoteIndex >= numOptions) return;
+          const validVoteIndices = [newVoteIndex];
 
           // Property 1: Poll ID should remain unchanged
           expect(pollId).toBeDefined();
@@ -183,32 +169,18 @@ describe("Poll Voting Property Tests", () => {
     await fc.assert(
       fc.asyncProperty(
         fc.record({
-          allowMultiple: fc.boolean(),
           selectedIndex: fc.integer({ min: 0, max: 4 }),
           numOptions: fc.integer({ min: 2, max: 5 }),
         }),
-        async ({ allowMultiple, selectedIndex, numOptions }) => {
+        async ({ selectedIndex, numOptions }) => {
           if (selectedIndex >= numOptions) return; // Skip invalid index
 
           // Property 1: Single-choice polls should only allow one selection
-          if (!allowMultiple) {
-            const userVote = [selectedIndex];
-            expect(userVote.length).toBe(1);
-            expect(userVote[0]).toBe(selectedIndex);
-          }
+          const userVote = [selectedIndex];
+          expect(userVote.length).toBe(1);
+          expect(userVote[0]).toBe(selectedIndex);
 
-          // Property 2: Multi-choice polls can have multiple selections
-          if (allowMultiple) {
-            const userVote = [selectedIndex, (selectedIndex + 1) % numOptions];
-            const uniqueVotes = [...new Set(userVote)];
-            expect(uniqueVotes.length).toBeGreaterThanOrEqual(1);
-            expect(uniqueVotes.length).toBeLessThanOrEqual(numOptions);
-          }
-
-          // Property 3: All vote indices should be unique
-          const userVote = allowMultiple
-            ? [selectedIndex, (selectedIndex + 1) % numOptions]
-            : [selectedIndex];
+          // Property 2: All vote indices should be unique
           const uniqueVotes = [...new Set(userVote)];
           expect(uniqueVotes.length).toBe(userVote.length);
         }

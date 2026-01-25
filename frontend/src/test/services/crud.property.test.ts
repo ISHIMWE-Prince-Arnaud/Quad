@@ -248,7 +248,7 @@ describe("Property 1: CRUD Operations Preserve Data Integrity", () => {
             { minLength: 2, maxLength: 6 }
           ),
           settings: fc.record({
-            allowMultiple: fc.boolean(),
+            anonymousVoting: fc.boolean(),
             showResults: fc.constantFrom(
               "always" as const,
               "afterVote" as const,

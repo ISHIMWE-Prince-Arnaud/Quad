@@ -61,7 +61,6 @@ describe("Poll Display Property Tests", () => {
           )
           .map((opts) => opts.map((opt, idx) => ({ ...opt, index: idx }))),
         settings: fc.record({
-          allowMultiple: fc.boolean(),
           anonymousVoting: fc.boolean(),
           showResults: fc.constantFrom(
             "always" as const,
@@ -172,7 +171,6 @@ describe("Poll Display Property Tests", () => {
 
           // Property 9: Poll must have settings
           expect(poll.settings).toBeDefined();
-          expect(typeof poll.settings.allowMultiple).toBe("boolean");
           expect(["always", "afterVote", "afterExpiry"]).toContain(
             poll.settings.showResults
           );

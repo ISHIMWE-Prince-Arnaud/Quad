@@ -25,7 +25,6 @@ describe("Poll Creation Form Completeness Property Tests", () => {
             { minLength: 2, maxLength: 5 }
           ),
           settings: fc.record({
-            allowMultiple: fc.boolean(),
             showResults: fc.constantFrom(
               "always" as const,
               "afterVote" as const,
@@ -61,7 +60,6 @@ describe("Poll Creation Form Completeness Property Tests", () => {
 
           // Property 4: Settings field should exist
           expect(formData.settings).toBeDefined();
-          expect(typeof formData.settings.allowMultiple).toBe("boolean");
           expect(["always", "afterVote", "afterExpiry"]).toContain(
             formData.settings.showResults
           );
@@ -106,38 +104,6 @@ describe("Poll Creation Form Completeness Property Tests", () => {
     );
   });
 
-  it("Property 23: Poll creation form supports optional media for options", async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        fc.array(
-          fc.record({
-            text: fc.string({ minLength: 1, maxLength: 200 }),
-            media: fc.option(
-              fc.record({
-                url: fc.webUrl(),
-                type: fc.constantFrom("image" as const, "video" as const),
-              })
-            ),
-          }),
-          { minLength: 2, maxLength: 5 }
-        ),
-        async (options) => {
-          // Property: Each option can have optional media
-          options.forEach((option) => {
-            expect(option.text).toBeDefined();
-
-            if (option.media) {
-              expect(option.media.url).toBeDefined();
-              expect(typeof option.media.url).toBe("string");
-              expect(["image", "video"]).toContain(option.media.type);
-            }
-          });
-        }
-      ),
-      { numRuns: 30 }
-    );
-  });
-
   it("Property 23: Poll creation validates minimum and maximum options", async () => {
     await fc.assert(
       fc.asyncProperty(fc.integer({ min: 0, max: 10 }), async (numOptions) => {
@@ -150,23 +116,6 @@ describe("Poll Creation Form Completeness Property Tests", () => {
         } else {
           // Invalid number of options
           expect(numOptions < 2 || numOptions > 5).toBe(true);
-        }
-      }),
-      { numRuns: 30 }
-    );
-  });
-
-  it("Property 23: Poll creation form has settings for multiple selection", async () => {
-    await fc.assert(
-      fc.asyncProperty(fc.boolean(), async (allowMultiple) => {
-        // Property: allowMultiple setting should be a boolean
-        expect(typeof allowMultiple).toBe("boolean");
-
-        // Property: Setting determines if users can select multiple options
-        if (allowMultiple) {
-          expect(allowMultiple).toBe(true);
-        } else {
-          expect(allowMultiple).toBe(false);
         }
       }),
       { numRuns: 30 }
