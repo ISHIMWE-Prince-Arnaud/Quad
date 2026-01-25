@@ -199,9 +199,6 @@ export const getPollsQuerySchema = z
     .optional()
     .transform((val) => val === "true" ? true : val === "false" ? false : undefined),
   
-  // Search
-  search: z.string().optional(), // Search in question text
-  
   // Sorting
   sort: z
     .enum(["newest", "oldest", "trending", "mostVotes"])

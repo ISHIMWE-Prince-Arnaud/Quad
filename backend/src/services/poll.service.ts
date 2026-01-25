@@ -75,7 +75,7 @@ export class PollService {
   }
 
   static async getAllPolls(userId: string | undefined, query: GetPollsQuerySchemaType) {
-    const { page, limit, status, author, voted, search, sort } = query;
+    const { page, limit, status, author, voted, sort } = query;
 
     const filter: Record<string, unknown> = {};
 
@@ -85,10 +85,6 @@ export class PollService {
 
     if (author) {
       filter["author.clerkId"] = author;
-    }
-
-    if (search) {
-      filter.$text = { $search: search };
     }
 
     if (voted !== undefined && userId) {

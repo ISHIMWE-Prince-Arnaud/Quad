@@ -52,7 +52,6 @@ PostSchema.index({ createdAt: -1, reactionsCount: -1, commentsCount: -1 });
 PostSchema.index({ userId: 1, createdAt: -1, reactionsCount: -1, commentsCount: -1 });
 
 // Text search index for post content
-PostSchema.index({ text: "text" });
 
 // Note: Reaction indexes moved to Reaction.model.ts
 

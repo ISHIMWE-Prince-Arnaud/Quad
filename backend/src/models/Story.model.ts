@@ -93,11 +93,6 @@ StorySchema.index({ userId: 1, createdAt: -1 });
 StorySchema.index({ userId: 1, status: 1, publishedAt: -1 });
 
 // Text index for search (title, content, tags)
-StorySchema.index({ 
-  title: "text", 
-  content: "text", 
-  tags: "text" 
-});
 
 // Index for filtering by tags
 StorySchema.index({ tags: 1, status: 1, publishedAt: -1 });

@@ -48,10 +48,5 @@ UserSchema.index({ previousUsernames: 1 });
 UserSchema.index({ createdAt: -1 });
 
 // Text search index for user search
-UserSchema.index({
-  username: "text",
-  displayName: "text",
-  bio: "text",
-});
 
 export const User = mongoose.model<IUserDocument>("User", UserSchema);
