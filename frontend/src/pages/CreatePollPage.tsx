@@ -155,7 +155,7 @@ export default function CreatePollPage() {
       }
 
       toast.success("Poll created successfully!");
-      navigate("/app/polls", { replace: true, state: { createdPoll: res.data } });
+      navigate("/app/polls", { state: { createdPoll: res.data } });
     } catch (error) {
       logError(error, { component: "CreatePollPage", action: "submitPoll" });
       toast.error(getErrorMessage(error));
@@ -184,7 +184,7 @@ export default function CreatePollPage() {
           <button
             type="button"
             className="inline-flex items-center gap-2 text-white/90 hover:text-white font-bold"
-            onClick={() => navigate("/app/polls", { replace: true })}
+            onClick={() => navigate("/app/polls")}
           >
             <ArrowLeft className="h-5 w-5" />
             <span className="text-base">Create Poll</span>
