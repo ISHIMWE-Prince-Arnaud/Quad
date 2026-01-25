@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
-import { SkeletonPost } from "@/components/ui/loading";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StoryCard } from "@/components/stories/StoryCard";
 import { logError } from "@/lib/errorHandling";
-import { Plus } from "lucide-react";
+import { Plus, BookOpen } from "lucide-react";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -19,6 +19,53 @@ function getErrorMessage(error: unknown): string {
   }
   if (error instanceof Error && error.message) return error.message;
   return "Something went wrong";
+}
+
+function StoryCardSkeleton() {
+  return (
+    <div className="w-full overflow-hidden border border-white/5 rounded-2xl bg-[#0f121a]">
+      <Skeleton className="aspect-video w-full rounded-none bg-white/5" />
+      <div className="px-6 pt-5 pb-4">
+        <Skeleton variant="text" className="h-6 w-10/12 bg-white/5" />
+        <div className="mt-2">
+          <Skeleton variant="text" className="h-4 w-11/12 bg-white/5" />
+        </div>
+
+        <div className="mt-6 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <Skeleton variant="circular" className="h-7 w-7 shrink-0 bg-white/5" />
+            <div className="flex items-center gap-2 min-w-0">
+              <Skeleton variant="text" className="h-4 w-24 bg-white/5" />
+              <Skeleton variant="text" className="h-3 w-16 bg-white/5" />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-5 w-14 rounded-lg bg-white/5" />
+            <Skeleton className="h-5 w-14 rounded-lg bg-white/5" />
+          </div>
+        </div>
+      </div>
+
+      <div className="px-6 pb-6 pt-2 flex items-center justify-between">
+        <Skeleton variant="text" className="h-3 w-20 bg-white/5" />
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-8 w-8 rounded-xl bg-white/5" />
+          <Skeleton className="h-8 w-8 rounded-xl bg-white/5" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StoriesGridSkeleton() {
+  return (
+    <div className="grid gap-6 md:grid-cols-2 items-start">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <StoryCardSkeleton key={i} />
+      ))}
+    </div>
+  );
 }
 
 export default function StoriesPage() {
@@ -99,16 +146,32 @@ export default function StoriesPage() {
         )}
 
         {loading && stories.length === 0 && (
-          <div className="space-y-4 py-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <SkeletonPost key={i} />
-            ))}
+          <div className="py-4">
+            <StoriesGridSkeleton />
           </div>
         )}
 
         {!loading && stories.length === 0 && (
-          <div className="py-12 text-center">
-            <p className="text-muted-foreground">No stories available</p>
+          <div className="py-16">
+            <div className="mx-auto max-w-md rounded-3xl border border-white/10 bg-[#0b1220] p-8 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-[#94a3b8]">
+                <BookOpen className="h-6 w-6" />
+              </div>
+              <h2 className="text-lg font-semibold text-white">No stories yet</h2>
+              <p className="mt-2 text-sm text-[#94a3b8]">
+                Be the first to share what’s happening.
+              </p>
+              <Button
+                asChild
+                className="mt-6 h-9 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white">
+                <Link to="/app/create/story" className="flex items-center gap-2">
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/15">
+                    <Plus className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="text-sm font-semibold">Create Story</span>
+                </Link>
+              </Button>
+            </div>
           </div>
         )}
 

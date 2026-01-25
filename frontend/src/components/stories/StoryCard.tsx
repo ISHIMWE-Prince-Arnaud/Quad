@@ -114,14 +114,12 @@ export function StoryCard({
 
           <CardContent className="px-6 pt-5 pb-4">
             <Link to={`/app/stories/${story._id}`} className="block">
-              <h3 className="text-xl font-semibold text-white leading-snug line-clamp-2">
+              <h3 className="text-xl font-semibold text-white leading-snug line-clamp-1 min-h-[1.75rem]">
                 {story.title}
               </h3>
-              {snippet && (
-                <p className="mt-2 text-sm text-[#94a3b8] leading-relaxed line-clamp-2">
-                  {snippet}
-                </p>
-              )}
+              <p className="mt-2 text-sm text-[#94a3b8] leading-relaxed line-clamp-1 min-h-[1.25rem]">
+                {snippet}
+              </p>
             </Link>
 
             <div className="mt-6 flex items-center justify-between gap-4">

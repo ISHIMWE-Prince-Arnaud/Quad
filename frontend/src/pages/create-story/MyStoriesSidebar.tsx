@@ -1,5 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Story } from "@/types/story";
+import { FileText, BookOpen } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function MyStoriesSidebar({
   loadingMine,
@@ -29,25 +32,25 @@ export function MyStoriesSidebar({
 
           {loadingMine ? (
             <div className="space-y-2">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-4 bg-white/5 rounded animate-pulse" />
-              ))}
+              <Skeleton variant="text" className="h-4 w-10/12 bg-white/5" />
+              <Skeleton variant="text" className="h-4 w-8/12 bg-white/5" />
             </div>
           ) : myDrafts.length === 0 ? (
-            <div className="py-4 text-center border border-dashed border-white/5 rounded-2xl">
-              <p className="text-[11px] font-medium text-[#64748b]">
-                No drafts yet
-              </p>
+            <div className="py-4 text-center border border-dashed border-white/5 rounded-2xl bg-white/[0.02]">
+              <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-[#94a3b8]">
+                <FileText className="h-4 w-4" />
+              </div>
+              <p className="text-[11px] font-semibold text-[#94a3b8]">No drafts yet</p>
             </div>
           ) : (
             <div className="space-y-1">
               {myDrafts.map((s) => (
-                <a
+                <Link
                   key={s._id}
-                  href={`/app/stories/${s._id}`}
+                  to={`/app/stories/${s._id}`}
                   className="block p-2 rounded-xl text-[13px] font-medium text-[#f1f5f9] hover:bg-white/5 hover:text-[#2563eb] transition-all truncate">
                   {s.title || "Untitled Draft"}
-                </a>
+                </Link>
               ))}
             </div>
           )}
@@ -65,25 +68,25 @@ export function MyStoriesSidebar({
 
           {loadingMine ? (
             <div className="space-y-2">
-              {[1, 2].map((i) => (
-                <div key={i} className="h-4 bg-white/5 rounded animate-pulse" />
-              ))}
+              <Skeleton variant="text" className="h-4 w-11/12 bg-white/5" />
+              <Skeleton variant="text" className="h-4 w-9/12 bg-white/5" />
             </div>
           ) : myPublished.length === 0 ? (
-            <div className="py-4 text-center border border-dashed border-white/5 rounded-2xl">
-              <p className="text-[11px] font-medium text-[#64748b]">
-                No stories yet
-              </p>
+            <div className="py-4 text-center border border-dashed border-white/5 rounded-2xl bg-white/[0.02]">
+              <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-[#94a3b8]">
+                <BookOpen className="h-4 w-4" />
+              </div>
+              <p className="text-[11px] font-semibold text-[#94a3b8]">No stories yet</p>
             </div>
           ) : (
             <div className="space-y-1">
               {myPublished.map((s) => (
-                <a
+                <Link
                   key={s._id}
-                  href={`/app/stories/${s._id}`}
+                  to={`/app/stories/${s._id}`}
                   className="block p-2 rounded-xl text-[13px] font-medium text-[#f1f5f9] hover:bg-white/5 hover:text-[#2563eb] transition-all truncate">
                   {s.title}
-                </a>
+                </Link>
               ))}
             </div>
           )}

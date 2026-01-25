@@ -1,9 +1,10 @@
-import { Loader2, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { CommentsSection } from "@/components/comments/CommentsSection";
 import { useAuthStore } from "@/stores/authStore";
 import type { Story } from "@/types/story";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { StoryDeleteDialog } from "./story/StoryDeleteDialog";
 import { StoryPageBody } from "./story/StoryPageBody";
@@ -26,10 +27,77 @@ export default function StoryPage() {
     refreshKey,
   });
 
+  const backToStoriesButton = (
+    <div className="flex items-center gap-2">
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate("/app/stories")}
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Stories
+      </Button>
+    </div>
+  );
+
   if (controller.loading) {
     return (
-      <div className="flex items-center justify-center py-24 text-muted-foreground">
-        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading story...
+      <div className="container mx-auto px-4 py-6">
+        <div className="mx-auto max-w-2xl space-y-6">
+          {backToStoriesButton}
+
+          <div className="flex items-center justify-between gap-3">
+            <Skeleton variant="text" className="h-8 w-8/12 bg-white/5" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-8 w-8 rounded-full bg-white/5" />
+              <Skeleton className="h-8 w-8 rounded-full bg-white/5" />
+            </div>
+          </div>
+
+          <Skeleton className="w-full h-[320px] rounded-lg bg-white/5" />
+
+          <div className="rounded-[1.5rem] border border-white/5 bg-[#0f121a] overflow-hidden">
+            <div className="p-4 md:p-6">
+              <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
+                <Skeleton variant="text" className="h-4 w-24 bg-white/5" />
+                <Skeleton variant="text" className="h-3 w-20 bg-white/5" />
+                <Skeleton variant="text" className="h-3 w-16 bg-white/5" />
+              </div>
+
+              <div className="space-y-3">
+                <Skeleton variant="text" className="h-4 w-full bg-white/5" />
+                <Skeleton variant="text" className="h-4 w-11/12 bg-white/5" />
+                <Skeleton variant="text" className="h-4 w-10/12 bg-white/5" />
+                <Skeleton variant="text" className="h-4 w-8/12 bg-white/5" />
+              </div>
+
+              <div className="mt-8 flex items-center justify-between gap-3">
+                <Skeleton className="h-8 w-20 rounded-xl bg-white/5" />
+                <Skeleton className="h-8 w-10 rounded-xl bg-white/5" />
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-3xl bg-[#0b1220] border border-white/5 p-5">
+            <Skeleton variant="text" className="h-4 w-40 bg-white/5" />
+            <div className="mt-4 space-y-4">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="flex gap-3">
+                  <Skeleton variant="circular" className="h-9 w-9 shrink-0 bg-white/5" />
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <Skeleton variant="text" className="h-4 w-28 bg-white/5" />
+                      <Skeleton variant="text" className="h-3 w-16 bg-white/5" />
+                    </div>
+                    <Skeleton variant="text" className="h-4 w-full bg-white/5" />
+                    <Skeleton variant="text" className="h-4 w-10/12 bg-white/5" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -51,17 +119,7 @@ export default function StoryPage() {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-2xl space-y-6">
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/app/stories")}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Stories
-          </Button>
-        </div>
+        {backToStoriesButton}
 
         <StoryPageHeader
           title={controller.story.title}
