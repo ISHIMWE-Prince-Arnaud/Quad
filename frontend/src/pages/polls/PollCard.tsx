@@ -40,7 +40,8 @@ export function PollCard({ poll }: { poll: Poll }) {
   const displayName = displayNameFromAuthor(poll);
   const subtitle = poll.author.bio?.trim() || "";
   const hasAvatar = Boolean(poll.author.profileImage);
-  const hasMedia = Boolean(poll.questionMedia?.url);
+  const mediaUrl = poll.questionMedia?.url;
+  const hasMedia = Boolean(mediaUrl);
 
   return (
     <motion.div
@@ -97,7 +98,7 @@ export function PollCard({ poll }: { poll: Poll }) {
           {hasMedia && (
             <div className="mt-4">
               <img
-                src={poll.questionMedia.url}
+                src={mediaUrl!}
                 alt=""
                 className="w-full h-64 object-cover rounded-2xl border border-white/5"
               />
@@ -105,33 +106,15 @@ export function PollCard({ poll }: { poll: Poll }) {
           )}
 
           {poll.options.length > 0 && (
-            <div className={cn(hasMedia ? "mt-4" : "mt-4")}>
-              {hasMedia ? (
-                <div className="overflow-hidden rounded-2xl border border-white/10">
-                  {poll.options.slice(0, 4).map((opt, idx, arr) => (
-                    <PollOptionBar
-                      key={String(opt.index ?? idx)}
-                      option={opt}
-                      totalVotes={poll.totalVotes}
-                      canViewResults={poll.canViewResults}
-                      variant="media"
-                      isLast={idx === arr.length - 1}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {poll.options.slice(0, 4).map((opt, idx) => (
-                    <PollOptionBar
-                      key={String(opt.index ?? idx)}
-                      option={opt}
-                      totalVotes={poll.totalVotes}
-                      canViewResults={poll.canViewResults}
-                      variant="text"
-                    />
-                  ))}
-                </div>
-              )}
+            <div className="mt-4 space-y-3">
+              {poll.options.slice(0, 4).map((opt, idx) => (
+                <PollOptionBar
+                  key={String(opt.index ?? idx)}
+                  option={opt}
+                  totalVotes={poll.totalVotes}
+                  canViewResults={poll.canViewResults}
+                />
+              ))}
             </div>
           )}
 
