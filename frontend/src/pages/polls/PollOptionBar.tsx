@@ -18,17 +18,27 @@ export function PollOptionBar({
         : 0;
 
   return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between text-xs">
-        <span className="truncate">{option.text}</span>
-        {canViewResults && <span className="text-muted-foreground">{percentage}%</span>}
+    <div className="flex items-center gap-3">
+      <div className="relative h-11 flex-1 overflow-hidden rounded-full border border-white/5 bg-white/5">
+        {canViewResults && (
+          <div
+            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6]"
+            style={{ width: `${percentage}%` }}
+          />
+        )}
+
+        <div className="relative z-10 flex h-full items-center px-4">
+          <span className="truncate text-[13px] font-semibold text-white">
+            {option.text}
+          </span>
+        </div>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full rounded-full bg-primary"
-          style={{ width: `${canViewResults ? percentage : 0}%` }}
-        />
-      </div>
+
+      {canViewResults && (
+        <span className="w-10 shrink-0 text-right text-[12px] font-bold text-white">
+          {percentage}%
+        </span>
+      )}
     </div>
   );
 }

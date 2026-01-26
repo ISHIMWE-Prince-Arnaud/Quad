@@ -1,91 +1,110 @@
 import { motion } from "framer-motion";
+import { EyeOff, Heart, MessageCircle } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import type { Poll } from "@/types/poll";
+import { cn } from "@/lib/utils";
 
 import { PollOptionBar } from "./PollOptionBar";
 
-const formatExpiresIn = (future: Date): string => {
-  const now = new Date();
-  const diffMs = future.getTime() - now.getTime();
-
-  if (diffMs <= 0) return "Expired";
-
-  const diffMinutes = Math.ceil(diffMs / (60 * 1000));
-  const diffHours = Math.ceil(diffMs / (60 * 60 * 1000));
-  const diffDays = Math.ceil(diffMs / (24 * 60 * 60 * 1000));
-  const diffWeeks = Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000));
-  const diffMonths = Math.ceil(diffMs / (30 * 24 * 60 * 60 * 1000));
-
-  if (diffMonths >= 2) return `Expires in ${diffMonths} months`;
-  if (diffMonths === 1) return "Expires in 1 month";
-
-  if (diffWeeks >= 2) return `Expires in ${diffWeeks} weeks`;
-  if (diffWeeks === 1) return "Expires in 1 week";
-
-  if (diffDays >= 2) return `Expires in ${diffDays} days`;
-  if (diffDays === 1) return "Expires in 1 day";
-
-  if (diffHours >= 2) return `Expires in ${diffHours} hours`;
-  if (diffHours === 1) return "Expires in 1 hour";
-
-  if (diffMinutes >= 2) return `Expires in ${diffMinutes} minutes`;
-  return "Expires in 1 minute";
+const displayNameFromAuthor = (poll: Poll): string => {
+  const first = poll.author.firstName?.trim();
+  const last = poll.author.lastName?.trim();
+  const name = [first, last].filter(Boolean).join(" ").trim();
+  return name.length > 0 ? name : poll.author.username;
 };
 
-const getExpiryLabel = (poll: Poll): string | null => {
-  if (!poll.expiresAt) {
-    return poll.status === "active" ? "No expiry" : null;
-  }
-  const d = new Date(poll.expiresAt);
-  if (Number.isNaN(d.getTime())) return null;
-
-  const dateText = d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-
+const timeAgoShort = (date: string | Date): string => {
   const now = new Date();
-  const isFuture = d.getTime() > now.getTime();
+  const past = new Date(date);
+  const diffMs = now.getTime() - past.getTime();
+  if (Number.isNaN(past.getTime())) return "";
+  if (diffMs < 60 * 1000) return "now";
 
-  if (poll.status === "closed") {
-    return `Ended ${dateText}`;
-  }
+  const minutes = Math.floor(diffMs / (60 * 1000));
+  if (minutes < 60) return `${minutes}m ago`;
 
-  if (poll.status === "expired" || !isFuture) {
-    return `Expired ${dateText}`;
-  }
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
 
-  return formatExpiresIn(d);
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks}w ago`;
+
+  return past.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 };
 
 export function PollCard({ poll }: { poll: Poll }) {
-  const expiryLabel = getExpiryLabel(poll);
+  const displayName = displayNameFromAuthor(poll);
+  const subtitle = poll.author.bio?.trim() || "";
+  const hasAvatar = Boolean(poll.author.profileImage);
 
   return (
     <motion.div
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 260, damping: 20 }}>
-      <Card className="shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex flex-col gap-1 text-base font-medium">
-            {poll.question}
-            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <span>by {poll.author.username}</span>
-              <span>
-                {poll.totalVotes} vote{poll.totalVotes === 1 ? "" : "s"}
-              </span>
-              {expiryLabel && <span>{expiryLabel}</span>}
-              <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] uppercase tracking-wide">
-                {poll.status}
-              </span>
+      <Card className="bg-[#0f121a] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
+        <CardContent className="p-6">
+          <div
+            className={cn(
+              "flex flex-col",
+              hasAvatar ? "items-start" : "items-center text-center"
+            )}>
+            {hasAvatar && (
+              <div className="flex items-center gap-3">
+                <img
+                  src={poll.author.profileImage}
+                  alt=""
+                  className="h-10 w-10 rounded-full object-cover border border-white/10"
+                />
+                <div>
+                  <div className="text-[14px] font-bold text-white leading-tight">
+                    {displayName}
+                  </div>
+                  {subtitle && (
+                    <div className="text-[11px] font-medium text-[#94a3b8] truncate max-w-[320px]">
+                      {subtitle}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {!hasAvatar && (
+              <>
+                <div className="text-[14px] font-bold text-white leading-tight">
+                  {displayName}
+                </div>
+                {subtitle && (
+                  <div className="text-[11px] font-medium text-[#94a3b8] mt-0.5">
+                    {subtitle}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className={cn("mt-4", hasAvatar ? "" : "mt-5")}>
+            <h3 className="text-[15px] font-bold text-white leading-snug">
+              {poll.question}
+            </h3>
+          </div>
+
+          {poll.questionMedia && (
+            <div className="mt-4">
+              <img
+                src={poll.questionMedia.url}
+                alt=""
+                className="w-full h-64 object-cover rounded-2xl border border-white/5"
+              />
             </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 pt-0 pb-4">
+          )}
+
           {poll.options.length > 0 && (
-            <div className="space-y-2">
+            <div className="mt-5 space-y-3">
               {poll.options.slice(0, 4).map((opt, idx) => (
                 <PollOptionBar
                   key={String(opt.index ?? idx)}
@@ -96,9 +115,35 @@ export function PollCard({ poll }: { poll: Poll }) {
               ))}
             </div>
           )}
+
+          <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-4">
+            <div className="flex items-center gap-6 text-[#94a3b8]">
+              <div className="flex items-center gap-2">
+                <Heart className="h-4 w-4" />
+                <span className="text-[12px] font-bold">{poll.reactionsCount}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" />
+                <span className="text-[12px] font-bold">{poll.commentsCount}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 text-[#94a3b8]">
+              {poll.settings.anonymousVoting && (
+                <div className="flex items-center gap-2 text-[12px] font-medium">
+                  <EyeOff className="h-4 w-4" />
+                  Anonymous
+                </div>
+              )}
+              <span className="text-[12px] font-medium">
+                {timeAgoShort(poll.createdAt)}
+              </span>
+            </div>
+          </div>
+
           {!poll.canViewResults && (
-            <p className="text-xs text-muted-foreground">
-              Results are hidden until you vote or the poll expires.
+            <p className="mt-3 text-[12px] font-medium text-[#94a3b8]">
+              Vote to see results.
             </p>
           )}
         </CardContent>

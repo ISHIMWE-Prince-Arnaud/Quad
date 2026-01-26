@@ -125,8 +125,7 @@ export default function PollsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mx-auto max-w-4xl space-y-4">
+    <div className="mx-auto max-w-[620px] space-y-6">
         <PollsHeader />
 
         {error && (
@@ -151,7 +150,7 @@ export default function PollsPage() {
           </Card>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {polls.map((poll) => (
             <PollCard key={poll.id} poll={poll} />
           ))}
@@ -167,7 +166,6 @@ export default function PollsPage() {
             </Button>
           </div>
         )}
-      </div>
     </div>
   );
 }
