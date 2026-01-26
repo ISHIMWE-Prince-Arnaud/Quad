@@ -24,6 +24,34 @@ export function PollVotingSection({
   onVote: () => void;
   onRemoveVote: () => void;
 }) {
+  const formatExpiresIn = (future: Date): string => {
+    const now = new Date();
+    const diffMs = future.getTime() - now.getTime();
+
+    if (diffMs <= 0) return "Expired";
+
+    const diffMinutes = Math.ceil(diffMs / (60 * 1000));
+    const diffHours = Math.ceil(diffMs / (60 * 60 * 1000));
+    const diffDays = Math.ceil(diffMs / (24 * 60 * 60 * 1000));
+    const diffWeeks = Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000));
+    const diffMonths = Math.ceil(diffMs / (30 * 24 * 60 * 60 * 1000));
+
+    if (diffMonths >= 2) return `Expires in ${diffMonths} months`;
+    if (diffMonths === 1) return "Expires in 1 month";
+
+    if (diffWeeks >= 2) return `Expires in ${diffWeeks} weeks`;
+    if (diffWeeks === 1) return "Expires in 1 week";
+
+    if (diffDays >= 2) return `Expires in ${diffDays} days`;
+    if (diffDays === 1) return "Expires in 1 day";
+
+    if (diffHours >= 2) return `Expires in ${diffHours} hours`;
+    if (diffHours === 1) return "Expires in 1 hour";
+
+    if (diffMinutes >= 2) return `Expires in ${diffMinutes} minutes`;
+    return "Expires in 1 minute";
+  };
+
   const expiresLabel = (() => {
     if (!localPoll.expiresAt) return null;
     const d = new Date(localPoll.expiresAt);
@@ -45,7 +73,7 @@ export function PollVotingSection({
       return `Expired ${dateText}`;
     }
 
-    return `Closes ${dateText}`;
+    return formatExpiresIn(d);
   })();
 
   return (
