@@ -59,7 +59,7 @@ export function PollCard({ poll }: { poll: Poll }) {
                 <img
                   src={poll.author.profileImage}
                   alt=""
-                  className="h-10 w-10 rounded-full object-cover border border-white/10"
+                  className="h-11 w-11 rounded-full object-cover border-2 border-white/10 shadow-inner"
                 />
                 <div>
                   <div className="text-[14px] font-bold text-white leading-tight">
@@ -94,7 +94,7 @@ export function PollCard({ poll }: { poll: Poll }) {
             </h3>
           </div>
 
-          {poll.questionMedia && (
+          {hasMedia && (
             <div className="mt-4">
               <img
                 src={poll.questionMedia.url}
@@ -105,19 +105,37 @@ export function PollCard({ poll }: { poll: Poll }) {
           )}
 
           {poll.options.length > 0 && (
-            <div className={cn("space-y-3", hasMedia ? "mt-5" : "mt-4")}>
-              {poll.options.slice(0, 4).map((opt, idx) => (
-                <PollOptionBar
-                  key={String(opt.index ?? idx)}
-                  option={opt}
-                  totalVotes={poll.totalVotes}
-                  canViewResults={poll.canViewResults}
-                />
-              ))}
+            <div className={cn(hasMedia ? "mt-4" : "mt-4")}>
+              {hasMedia ? (
+                <div className="overflow-hidden rounded-2xl border border-white/10">
+                  {poll.options.slice(0, 4).map((opt, idx, arr) => (
+                    <PollOptionBar
+                      key={String(opt.index ?? idx)}
+                      option={opt}
+                      totalVotes={poll.totalVotes}
+                      canViewResults={poll.canViewResults}
+                      variant="media"
+                      isLast={idx === arr.length - 1}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {poll.options.slice(0, 4).map((opt, idx) => (
+                    <PollOptionBar
+                      key={String(opt.index ?? idx)}
+                      option={opt}
+                      totalVotes={poll.totalVotes}
+                      canViewResults={poll.canViewResults}
+                      variant="text"
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
-          <div className={cn("flex items-center justify-between border-t border-white/5 pt-4", hasMedia ? "mt-5" : "mt-4")}>
+          <div className={cn("flex items-center justify-between border-t border-white/5 pt-4", hasMedia ? "mt-4" : "mt-4")}>
             <div className="flex items-center gap-6 text-[#94a3b8]">
               <div className="flex items-center gap-2">
                 <Heart className="h-4 w-4" strokeWidth={1.75} />
