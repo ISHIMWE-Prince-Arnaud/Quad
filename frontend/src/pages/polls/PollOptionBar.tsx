@@ -18,11 +18,7 @@ export function PollOptionBar({
         : 0;
 
   return (
-    <div className="flex items-center gap-4">
-      <div
-        className={
-          "relative h-11 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/[0.03]"
-        }>
+    <div className="relative h-11 overflow-hidden rounded-full border border-white/10 bg-white/[0.03]">
         {canViewResults && (
           <div
             className={
@@ -33,21 +29,17 @@ export function PollOptionBar({
           />
         )}
 
-        <div className="relative z-10 flex h-full items-center px-4">
-          <span className="truncate text-[13px] font-semibold text-white">
-            {option.text}
-          </span>
-        </div>
-      </div>
-
-      {canViewResults && (
-        <span
-          className={
-            "w-12 shrink-0 text-right text-[13px] font-semibold text-white/90"
-          }>
-          {percentage}%
+      <div className="relative z-10 flex h-full items-center justify-between gap-4 px-5">
+        <span className="min-w-0 truncate text-[13px] font-semibold text-white">
+          {option.text}
         </span>
-      )}
+
+        {canViewResults && (
+          <span className="shrink-0 text-[13px] font-semibold text-white/90">
+            {percentage}%
+          </span>
+        )}
+      </div>
     </div>
   );
 }
