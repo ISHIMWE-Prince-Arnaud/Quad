@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
-import { EyeOff, Heart, MessageSquare } from "lucide-react";
+import { EyeOff } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
+import { usePollReactions } from "@/components/polls/poll-card/usePollReactions";
 import type { Poll } from "@/types/poll";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +44,9 @@ export function PollCard({ poll }: { poll: Poll }) {
   const hasAvatar = Boolean(poll.author.profileImage);
   const mediaUrl = poll.questionMedia?.url;
   const hasMedia = Boolean(mediaUrl);
+
+  const { userReaction, reactionPending, reactionCount, handleSelectReaction } =
+    usePollReactions(poll.id, poll.reactionsCount || 0);
 
   return (
     <motion.div
@@ -120,14 +125,20 @@ export function PollCard({ poll }: { poll: Poll }) {
 
           <div className={cn("flex items-center justify-between border-t border-white/5 pt-4", hasMedia ? "mt-4" : "mt-4")}>
             <div className="flex items-center gap-6 text-[#94a3b8]">
-              <div className="flex items-center gap-2">
-                <Heart className="h-4 w-4" strokeWidth={1.75} />
-                <span className="text-[12px] font-bold">{poll.reactionsCount}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" strokeWidth={1.75} />
-                <span className="text-[12px] font-bold">{poll.commentsCount}</span>
-              </div>
+              <HeartReactionButton
+                liked={Boolean(userReaction)}
+                count={reactionCount}
+                pending={reactionPending}
+                onToggle={() => void handleSelectReaction("love")}
+                ariaLabel={`React to poll. ${reactionCount} reactions`}
+                className={cn(
+                  "flex items-center gap-2 text-[12px] font-bold text-[#94a3b8] transition-colors",
+                  "hover:text-pink-600",
+                  userReaction && "text-pink-600"
+                )}
+                iconClassName="h-4 w-4"
+                countClassName="text-[12px] font-bold"
+              />
             </div>
 
             <div className="flex items-center gap-4 text-[#94a3b8]">
