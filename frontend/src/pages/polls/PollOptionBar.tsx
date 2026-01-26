@@ -18,11 +18,11 @@ export function PollOptionBar({
         : 0;
 
   return (
-    <div className="flex items-center gap-3">
-      <div className="relative h-11 flex-1 overflow-hidden rounded-full border border-white/5 bg-white/5">
+    <div className="flex items-center gap-4">
+      <div className="relative h-11 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/5">
         {canViewResults && (
           <div
-            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6]"
+            className="absolute inset-y-0 left-0 rounded-full bg-[#3b82f6] transition-[width] duration-500"
             style={{ width: `${percentage}%` }}
           />
         )}
@@ -35,7 +35,7 @@ export function PollOptionBar({
       </div>
 
       {canViewResults && (
-        <span className="w-10 shrink-0 text-right text-[12px] font-bold text-white">
+        <span className="w-12 shrink-0 text-right text-[13px] font-semibold text-white">
           {percentage}%
         </span>
       )}

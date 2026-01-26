@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { EyeOff, Heart, MessageCircle } from "lucide-react";
+import { EyeOff, Heart, MessageSquare } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import type { Poll } from "@/types/poll";
@@ -40,6 +40,7 @@ export function PollCard({ poll }: { poll: Poll }) {
   const displayName = displayNameFromAuthor(poll);
   const subtitle = poll.author.bio?.trim() || "";
   const hasAvatar = Boolean(poll.author.profileImage);
+  const hasMedia = Boolean(poll.questionMedia?.url);
 
   return (
     <motion.div
@@ -104,7 +105,7 @@ export function PollCard({ poll }: { poll: Poll }) {
           )}
 
           {poll.options.length > 0 && (
-            <div className="mt-5 space-y-3">
+            <div className={cn("space-y-3", hasMedia ? "mt-5" : "mt-4")}>
               {poll.options.slice(0, 4).map((opt, idx) => (
                 <PollOptionBar
                   key={String(opt.index ?? idx)}
@@ -116,14 +117,14 @@ export function PollCard({ poll }: { poll: Poll }) {
             </div>
           )}
 
-          <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-4">
+          <div className={cn("flex items-center justify-between border-t border-white/5 pt-4", hasMedia ? "mt-5" : "mt-4")}>
             <div className="flex items-center gap-6 text-[#94a3b8]">
               <div className="flex items-center gap-2">
-                <Heart className="h-4 w-4" />
+                <Heart className="h-4 w-4" strokeWidth={1.75} />
                 <span className="text-[12px] font-bold">{poll.reactionsCount}</span>
               </div>
               <div className="flex items-center gap-2">
-                <MessageCircle className="h-4 w-4" />
+                <MessageSquare className="h-4 w-4" strokeWidth={1.75} />
                 <span className="text-[12px] font-bold">{poll.commentsCount}</span>
               </div>
             </div>
@@ -131,7 +132,7 @@ export function PollCard({ poll }: { poll: Poll }) {
             <div className="flex items-center gap-4 text-[#94a3b8]">
               {poll.settings.anonymousVoting && (
                 <div className="flex items-center gap-2 text-[12px] font-medium">
-                  <EyeOff className="h-4 w-4" />
+                  <EyeOff className="h-4 w-4" strokeWidth={1.75} />
                   Anonymous
                 </div>
               )}
