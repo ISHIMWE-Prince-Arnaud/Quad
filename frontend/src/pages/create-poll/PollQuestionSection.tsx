@@ -33,6 +33,8 @@ export function PollQuestionSection({
     inputRef.current?.click();
   };
 
+  const trimmedQuestionLength = question.trim().length;
+
   return (
     <>
       <div className="space-y-4">
@@ -70,9 +72,11 @@ export function PollQuestionSection({
 
         <div className="flex justify-between items-center text-[10px] font-bold text-[#64748b] uppercase tracking-wide">
           <span>{question.length}/500</span>
-          {validationErrors.question && (
+          {validationErrors.question ? (
             <span className="text-destructive">{validationErrors.question}</span>
-          )}
+          ) : trimmedQuestionLength > 0 && trimmedQuestionLength < 10 ? (
+            <span className="text-[#64748b]">Minimum 10 characters</span>
+          ) : null}
         </div>
       </div>
 
