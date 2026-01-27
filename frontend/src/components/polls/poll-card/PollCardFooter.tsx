@@ -29,6 +29,7 @@ export function PollCardFooter({
       <div className="flex items-center gap-1">
         <HeartReactionButton
           liked={Boolean(userReaction)}
+          filled={reactionCount > 0}
           count={reactionCount}
           pending={reactionPending}
           onToggle={() => void onSelectReaction("love")}
