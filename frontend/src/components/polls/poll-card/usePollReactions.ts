@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 import { ReactionService } from "@/services/reactionService";
@@ -9,11 +9,16 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
   const [reactionPending, setReactionPending] = useState(false);
   const [reactionCount, setReactionCount] = useState<number>(initialTotalCount);
 
+  const prevPollIdRef = useRef(pollId);
+
   useEffect(() => {
+    if (prevPollIdRef.current === pollId) return;
+    prevPollIdRef.current = pollId;
+
     setUserReaction(null);
     setReactionPending(false);
     setReactionCount(initialTotalCount);
-  }, [pollId, initialTotalCount]);
+  }, [initialTotalCount, pollId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,6 +57,10 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
     try {
       const res = await ReactionService.toggle("poll", pollId, type);
       if (!res.success) throw new Error(res.message || "Failed to react");
+
+      if (typeof res.reactionCount === "number") {
+        setReactionCount(res.reactionCount);
+      }
 
       if (res.data === null) {
         setUserReaction(null);
