@@ -21,6 +21,9 @@ export function PollCardFooter({
   reactionPending: boolean;
   onSelectReaction: (type: ReactionType) => void;
 }) {
+  const actionBase =
+    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[#64748b] transition-all";
+
   return (
     <CardFooter className="pt-0 pb-3 flex items-center justify-between border-t">
       <div className="flex items-center gap-1">
@@ -29,8 +32,9 @@ export function PollCardFooter({
           count={reactionCount}
           pending={reactionPending}
           onToggle={() => void onSelectReaction("love")}
-          className={cn("gap-2", userReaction ? "text-pink-600" : "")}
           ariaLabel={`React to poll. ${reactionCount} reactions`}
+          className={cn(actionBase, "hover:bg-white/5")}
+          countClassName="text-xs font-bold text-[#64748b]"
         />
       </div>
 

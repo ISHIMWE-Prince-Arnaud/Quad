@@ -45,6 +45,9 @@ export function PollCard({ poll }: { poll: Poll }) {
   const mediaUrl = poll.questionMedia?.url;
   const hasMedia = Boolean(mediaUrl);
 
+  const actionBase =
+    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[#64748b] transition-all";
+
   const { userReaction, reactionPending, reactionCount, handleSelectReaction } =
     usePollReactions(poll.id, poll.reactionsCount || 0);
 
@@ -131,13 +134,8 @@ export function PollCard({ poll }: { poll: Poll }) {
                 pending={reactionPending}
                 onToggle={() => void handleSelectReaction("love")}
                 ariaLabel={`React to poll. ${reactionCount} reactions`}
-                className={cn(
-                  "flex items-center gap-2 text-[12px] font-bold text-[#94a3b8] transition-colors",
-                  "hover:text-pink-600",
-                  userReaction && "text-pink-600"
-                )}
-                iconClassName="h-4 w-4"
-                countClassName="text-[12px] font-bold"
+                className={cn(actionBase, "hover:bg-white/5")}
+                countClassName="text-xs font-bold text-[#64748b]"
               />
             </div>
 
