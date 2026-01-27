@@ -57,10 +57,19 @@ export default function PollsPage() {
         if (!cancelled && res.success) {
           const fetched = res.data || [];
           setPolls((prev) => {
-            if (prev.length === 0) return fetched;
-            const fetchedIds = new Set(fetched.map((p) => p.id));
-            const extras = prev.filter((p) => !fetchedIds.has(p.id));
-            return [...fetched, ...extras];
+            // Page 1: show newest from API, but keep any locally-inserted polls
+            // (e.g. createdPoll via navigation state) at the very top.
+            if (page === 1) {
+              if (prev.length === 0) return fetched;
+              const fetchedIds = new Set(fetched.map((p) => p.id));
+              const extras = prev.filter((p) => !fetchedIds.has(p.id));
+              return [...extras, ...fetched];
+            }
+
+            // Page > 1: append new unique items (infinite pagination)
+            const existingIds = new Set(prev.map((p) => p.id));
+            const newOnes = fetched.filter((p) => !existingIds.has(p.id));
+            return [...prev, ...newOnes];
           });
           setHasMore(res.pagination?.hasMore ?? false);
         }
@@ -74,7 +83,7 @@ export default function PollsPage() {
     return () => {
       cancelled = true;
     };
-  }, [queryParams]);
+  }, [page, queryParams]);
 
   // Set up Socket.IO listeners for real-time poll updates
   useEffect(() => {
