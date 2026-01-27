@@ -38,9 +38,8 @@ export function PollCard({
      selectedIndices,
      voting,
      canVote,
-     toggleSelection,
-     handleVote,
-     handleRemoveVote,
+     resultsVisible,
+     voteOnOption,
    } = usePollVoting(poll, onUpdate);
 
   const handleDelete = () => {
@@ -71,9 +70,8 @@ export function PollCard({
             selectedIndices={selectedIndices}
             canVote={canVote}
             voting={voting}
-            onToggleSelection={toggleSelection}
-            onVote={() => void handleVote()}
-            onRemoveVote={() => void handleRemoveVote()}
+            resultsVisible={resultsVisible}
+            onVoteOption={(index) => void voteOnOption(index)}
           />
 
           <PollCardFooter

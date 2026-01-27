@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
 
-import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { Poll } from "@/types/poll";
@@ -11,18 +10,16 @@ export function PollVotingSection({
   selectedIndices,
   canVote,
   voting,
-  onToggleSelection,
-  onVote,
-  onRemoveVote,
+  resultsVisible,
+  onVoteOption,
 }: {
   poll: Poll;
   localPoll: Poll;
   selectedIndices: number[];
   canVote: boolean;
   voting: boolean;
-  onToggleSelection: (index: number) => void;
-  onVote: () => void;
-  onRemoveVote: () => void;
+  resultsVisible: boolean;
+  onVoteOption: (index: number) => void;
 }) {
   const formatExpiresIn = (future: Date): string => {
     const now = new Date();
@@ -104,22 +101,27 @@ export function PollVotingSection({
                   ? Math.round((votesCount / localPoll.totalVotes) * 100)
                   : 0;
             const isSelected = selectedIndices.includes(option.index);
+            const showResults = Boolean(localPoll.canViewResults) && resultsVisible;
+            const isLocked = !canVote || voting;
+            const dimmed = selectedIndices.length > 0 && !isSelected;
 
             return (
               <button
                 key={option.index}
                 type="button"
-                onClick={() => onToggleSelection(option.index)}
-                disabled={!canVote}
+                onClick={() => onVoteOption(option.index)}
+                disabled={isLocked}
                 className={cn(
                   "relative overflow-hidden rounded-full h-12 w-full text-left transition-all duration-200",
-                  canVote && "hover:bg-primary/20 cursor-pointer",
-                  !canVote && "cursor-default",
-                  isSelected && canVote && "ring-2 ring-primary"
+                  !isLocked && "hover:bg-primary/20 cursor-pointer",
+                  isLocked && "cursor-default",
+                  dimmed && !showResults && "opacity-55",
+                  isSelected && "ring-2 ring-primary",
+                  isSelected && !isLocked && "scale-[1.01]"
                 )}>
                 {/* Animated gradient progress bar */}
                 <AnimatePresence mode="wait">
-                  {localPoll.canViewResults && (
+                  {showResults && (
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${percentage}%` }}
@@ -139,14 +141,14 @@ export function PollVotingSection({
                     className={cn(
                       "text-sm",
                       isSelected && "font-semibold",
-                      localPoll.canViewResults &&
+                      showResults &&
                         percentage > 50 &&
                         "text-primary-foreground"
                     )}>
                     {option.text}
                     {isSelected && " ✓"}
                   </span>
-                  {localPoll.canViewResults && (
+                  {showResults && (
                     <span
                       className={cn(
                         "text-sm font-medium ml-2",
@@ -163,39 +165,13 @@ export function PollVotingSection({
           })}
         </div>
 
-        {/* Vote button */}
-        {canVote && (
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              size="sm"
-              onClick={onVote}
-              disabled={voting || selectedIndices.length === 0}
-              className="flex-1">
-              {voting
-                ? "Voting..."
-                : localPoll.userVote && localPoll.userVote.length > 0
-                  ? "Change Vote"
-                  : "Vote"}
-            </Button>
-            {localPoll.userVote && localPoll.userVote.length > 0 && (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={onRemoveVote}
-                disabled={voting}>
-                Remove Vote
-              </Button>
-            )}
-          </div>
-        )}
-
         {/* Poll metadata - Redesigned */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
-          <span className="font-medium">
-            {localPoll.totalVotes} vote{localPoll.totalVotes !== 1 ? "s" : ""}
-          </span>
+          {Boolean(localPoll.canViewResults) && resultsVisible && (
+            <span className="font-medium">
+              {localPoll.totalVotes} vote{localPoll.totalVotes !== 1 ? "s" : ""}
+            </span>
+          )}
           {expiresLabel && (
             <>
               <span>·</span>

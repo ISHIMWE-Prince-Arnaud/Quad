@@ -4,6 +4,7 @@ import { EyeOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import { usePollReactions } from "@/components/polls/poll-card/usePollReactions";
+import { usePollVoting } from "@/components/polls/poll-card/usePollVoting";
 import type { Poll } from "@/types/poll";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +45,12 @@ export function PollCard({ poll }: { poll: Poll }) {
   const hasAvatar = Boolean(poll.author.profileImage);
   const mediaUrl = poll.questionMedia?.url;
   const hasMedia = Boolean(mediaUrl);
+
+  const { localPoll, selectedIndices, voting, canVote, resultsVisible, voteOnOption } =
+    usePollVoting(poll);
+
+  const showResults = Boolean(localPoll.canViewResults) && resultsVisible;
+  const isLocked = !canVote || voting;
 
   const actionBase =
     "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[#64748b] transition-all";
@@ -113,16 +120,26 @@ export function PollCard({ poll }: { poll: Poll }) {
             </div>
           )}
 
-          {poll.options.length > 0 && (
+          {localPoll.options.length > 0 && (
             <div className="mt-4 space-y-3">
-              {poll.options.slice(0, 4).map((opt, idx) => (
+              {localPoll.options.slice(0, 4).map((opt, idx) => {
+                const optionIndex = typeof opt.index === "number" ? opt.index : idx;
+                const selected = selectedIndices.includes(optionIndex);
+                const dimmed = selectedIndices.length > 0 && !selected;
+
+                return (
                 <PollOptionBar
                   key={String(opt.index ?? idx)}
                   option={opt}
-                  totalVotes={poll.totalVotes}
-                  canViewResults={poll.canViewResults}
+                  totalVotes={localPoll.totalVotes}
+                  showResults={showResults}
+                  selected={selected}
+                  dimmed={showResults ? false : dimmed}
+                  disabled={isLocked}
+                  onClick={() => void voteOnOption(optionIndex)}
                 />
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -156,6 +173,12 @@ export function PollCard({ poll }: { poll: Poll }) {
           {!poll.canViewResults && (
             <p className="mt-3 text-[12px] font-medium text-[#94a3b8]">
               Vote to see results.
+            </p>
+          )}
+
+          {showResults && (
+            <p className="mt-3 text-[12px] font-medium text-[#94a3b8]">
+              {localPoll.totalVotes} vote{localPoll.totalVotes === 1 ? "" : "s"}
             </p>
           )}
         </CardContent>
