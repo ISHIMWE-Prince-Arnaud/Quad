@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { UploadService } from "@/services/uploadService";
 import { PollService } from "@/services/pollService";
 import type {
+  Poll,
   PollMedia,
   CreatePollInput,
 } from "@/types/poll";
@@ -155,7 +156,18 @@ export default function CreatePollPage() {
       }
 
       toast.success("Poll created successfully!");
-      navigate("/app/polls", { state: { createdPoll: res.data } });
+      const created = res.data as unknown as Record<string, unknown>;
+      const createdId =
+        (typeof created.id === "string" && created.id) ||
+        (typeof created._id === "string" && created._id) ||
+        undefined;
+
+      const normalizedPoll = {
+        ...(res.data as Poll),
+        ...(createdId ? { id: createdId } : {}),
+      };
+
+      navigate("/app/polls", { state: { createdPoll: normalizedPoll } });
     } catch (error) {
       logError(error, { component: "CreatePollPage", action: "submitPoll" });
       toast.error(getErrorMessage(error));

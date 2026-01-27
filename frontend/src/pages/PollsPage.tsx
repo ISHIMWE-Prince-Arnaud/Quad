@@ -37,9 +37,20 @@ export default function PollsPage() {
   );
 
   useEffect(() => {
-    const createdPoll = (location.state as { createdPoll?: Poll } | null)
+    const createdPollRaw = (location.state as { createdPoll?: Poll } | null)
       ?.createdPoll;
-    if (!createdPoll) return;
+    if (!createdPollRaw) return;
+
+    const createdObj = createdPollRaw as unknown as Record<string, unknown>;
+    const createdId =
+      (typeof createdObj.id === "string" && createdObj.id) ||
+      (typeof createdObj._id === "string" && createdObj._id) ||
+      undefined;
+
+    const createdPoll = {
+      ...createdPollRaw,
+      ...(createdId ? { id: createdId } : {}),
+    };
 
     setPolls((prev) => {
       if (prev.some((p) => p.id === createdPoll.id)) return prev;
