@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
+import { getSocket } from "@/lib/socket";
+import type { FeedEngagementUpdatePayload } from "@/lib/socket";
 import { ReactionService } from "@/services/reactionService";
 import type { ReactionType } from "@/services/reactionService";
 
@@ -41,6 +43,24 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
       cancelled = true;
     };
   }, [pollId]);
+
+  useEffect(() => {
+    const socket = getSocket();
+
+    const handleEngagementUpdate = (payload: FeedEngagementUpdatePayload) => {
+      if (payload.contentType !== "poll") return;
+      if (String(payload.contentId) !== String(pollId)) return;
+      if (typeof payload.reactionsCount !== "number") return;
+      if (reactionPending) return;
+      setReactionCount(payload.reactionsCount);
+    };
+
+    socket.on("feed:engagement-update", handleEngagementUpdate);
+
+    return () => {
+      socket.off("feed:engagement-update", handleEngagementUpdate);
+    };
+  }, [pollId, reactionPending]);
 
   const handleSelectReaction = async (type: ReactionType) => {
     if (reactionPending) return;

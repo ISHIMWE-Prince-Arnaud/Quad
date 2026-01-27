@@ -130,6 +130,7 @@ export function PollCard({ poll }: { poll: Poll }) {
             <div className="flex items-center gap-6 text-[#94a3b8]">
               <HeartReactionButton
                 liked={Boolean(userReaction)}
+                filled={reactionCount > 0}
                 count={reactionCount}
                 pending={reactionPending}
                 onToggle={() => void handleSelectReaction("love")}

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 
 export function HeartReactionButton({
   liked,
+  filled,
   count,
   pending,
   onToggle,
@@ -14,6 +15,7 @@ export function HeartReactionButton({
   ariaLabel,
 }: {
   liked: boolean;
+  filled?: boolean;
   count?: number;
   pending?: boolean;
   onToggle: () => void | Promise<void>;
@@ -22,7 +24,9 @@ export function HeartReactionButton({
   countClassName?: string;
   ariaLabel?: string;
 }) {
-  const baseIconClass = liked
+  const isFilled = liked || Boolean(filled);
+
+  const baseIconClass = isFilled
     ? "text-[#f43f5e]"
     : "text-black dark:text-white";
 
@@ -47,7 +51,7 @@ export function HeartReactionButton({
           className="relative inline-flex">
           <Heart
             className={cn("h-4 w-4", baseIconClass, iconClassName)}
-            style={{ fill: liked ? "currentColor" : "none" }}
+            style={{ fill: isFilled ? "currentColor" : "none" }}
           />
         </motion.span>
 
