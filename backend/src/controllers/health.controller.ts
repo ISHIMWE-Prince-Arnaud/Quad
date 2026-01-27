@@ -7,6 +7,7 @@ import type { Request, Response } from "express";
 import mongoose from "mongoose";
 import { env } from "../config/env.config.js";
 import { logger } from "../utils/logger.util.js";
+import { asyncHandler } from "../utils/asyncHandler.util.js";
 
 interface HealthStatus {
   status: "healthy" | "degraded" | "unhealthy";
@@ -30,17 +31,17 @@ interface ServiceStatus {
 /**
  * Basic health check - returns 200 if server is running
  */
-export const healthCheck = async (_req: Request, res: Response) => {
+export const healthCheck = asyncHandler(async (_req: Request, res: Response) => {
   res.status(200).json({
     status: "ok",
     timestamp: new Date().toISOString(),
   });
-};
+});
 
 /**
  * Detailed health check - checks all services
  */
-export const detailedHealthCheck = async (_req: Request, res: Response) => {
+export const detailedHealthCheck = asyncHandler(async (_req: Request, res: Response) => {
   const startTime = Date.now();
 
   try {
@@ -101,7 +102,7 @@ export const detailedHealthCheck = async (_req: Request, res: Response) => {
       error: "Health check failed",
     });
   }
-};
+});
 
 /**
  * Check database connectivity
@@ -202,7 +203,7 @@ function checkClerk(): ServiceStatus {
 /**
  * Readiness check - returns 200 when server is ready to accept traffic
  */
-export const readinessCheck = async (_req: Request, res: Response) => {
+export const readinessCheck = asyncHandler(async (_req: Request, res: Response) => {
   try {
     // Check if database is connected
     if (mongoose.connection.readyState !== 1) {
@@ -222,14 +223,14 @@ export const readinessCheck = async (_req: Request, res: Response) => {
       message: "Server not ready",
     });
   }
-};
+});
 
 /**
  * Liveness check - returns 200 if server process is alive
  */
-export const livenessCheck = (_req: Request, res: Response) => {
+export const livenessCheck = asyncHandler(async (_req: Request, res: Response) => {
   res.status(200).json({
     alive: true,
     timestamp: new Date().toISOString(),
   });
-};
+});
