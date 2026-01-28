@@ -39,7 +39,13 @@ const timeAgoShort = (date: string | Date): string => {
   return past.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 };
 
-export function PollCard({ poll }: { poll: Poll }) {
+export function PollCard({
+  poll,
+  onUpdate,
+}: {
+  poll: Poll;
+  onUpdate?: (updatedPoll: Poll) => void;
+}) {
   const displayName = displayNameFromAuthor(poll);
   const subtitle = poll.author.bio?.trim() || "";
   const hasAvatar = Boolean(poll.author.profileImage);
@@ -47,7 +53,7 @@ export function PollCard({ poll }: { poll: Poll }) {
   const hasMedia = Boolean(mediaUrl);
 
   const { localPoll, selectedIndices, voting, canVote, resultsVisible, voteOnOption } =
-    usePollVoting(poll);
+    usePollVoting(poll, onUpdate);
 
   const showResults = Boolean(localPoll.canViewResults) && resultsVisible;
   const isLocked = !canVote || voting;

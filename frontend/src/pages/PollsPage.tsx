@@ -22,11 +22,11 @@ export default function PollsPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
-  // const handlePollUpdate = (updatedPoll: Poll) => {
-  //   setPolls((prevPolls) =>
-  //     prevPolls.map((poll) => (poll.id === updatedPoll.id ? updatedPoll : poll))
-  //   );
-  // };
+  const handlePollUpdate = (updatedPoll: Poll) => {
+    setPolls((prevPolls) =>
+      prevPolls.map((poll) => (poll.id === updatedPoll.id ? updatedPoll : poll))
+    );
+  };
 
   const queryParams: PollQueryParams = useMemo(
     () => ({
@@ -208,7 +208,7 @@ export default function PollsPage() {
 
         <div className="space-y-6">
           {polls.map((poll) => (
-            <PollCard key={poll.id} poll={poll} />
+            <PollCard key={poll.id} poll={poll} onUpdate={handlePollUpdate} />
           ))}
         </div>
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 import { PollService } from "@/services/pollService";
@@ -16,11 +16,41 @@ export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void
   const [voting, setVoting] = useState(false);
   const [resultsVisible, setResultsVisible] = useState(Boolean(poll.canViewResults));
 
+  const selectedIndicesRef = useRef<number[]>(poll.userVote || []);
+
+  useEffect(() => {
+    selectedIndicesRef.current = selectedIndices;
+  }, [selectedIndices]);
+
   // Update local state when poll prop changes
   useEffect(() => {
-    setLocalPoll(poll);
-    setSelectedIndices(poll.userVote || []);
-    setResultsVisible(Boolean(poll.canViewResults));
+    const incomingVote = poll.userVote || [];
+    const localSelected = selectedIndicesRef.current || [];
+
+    // If the parent re-renders with a poll that doesn't include `userVote`
+    // (common for socket-driven vote count updates), preserve the local vote
+    // so the UI doesn't snap back to “not voted”.
+    const shouldPreserveLocalVote = incomingVote.length === 0 && localSelected.length > 0;
+
+    setLocalPoll((prev) => {
+      if (String(prev.id) !== String(poll.id)) return poll;
+      if (!shouldPreserveLocalVote) return poll;
+      return {
+        ...poll,
+        userVote: localSelected,
+        canViewResults: true,
+      };
+    });
+
+    setSelectedIndices((prev) => {
+      if (incomingVote.length === 0 && prev.length > 0) return prev;
+      return incomingVote;
+    });
+
+    setResultsVisible(() => {
+      if (!poll.canViewResults && shouldPreserveLocalVote) return true;
+      return Boolean(poll.canViewResults);
+    });
   }, [poll]);
 
   // Real-time vote updates (other users voting)
