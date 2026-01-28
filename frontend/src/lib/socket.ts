@@ -48,6 +48,12 @@ export type FeedContentDeletedPayload = {
   timestamp: string | number;
 };
 
+export type PollVotedPayload = {
+  pollId: string;
+  updatedVoteCounts: number[];
+  totalVotes: number;
+};
+
 // Chat payloads
 
 export type ChatMessagePayload = {

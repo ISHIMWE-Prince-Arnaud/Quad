@@ -6,7 +6,7 @@ import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams } from "@/types/poll";
 import { SkeletonPost } from "@/components/ui/loading";
 import { getSocket } from "@/lib/socket";
-import type { FeedEngagementUpdatePayload } from "@/lib/socket";
+import type { FeedEngagementUpdatePayload, PollVotedPayload } from "@/lib/socket";
 import { logError } from "@/lib/errorHandling";
 
 import { getErrorMessage } from "./polls/getErrorMessage";
@@ -120,6 +120,41 @@ export default function PollsPage() {
 
     socket.on("feed:engagement-update", handleEngagementUpdate);
 
+    const handlePollVoted = (payload: PollVotedPayload) => {
+      if (!payload?.pollId) return;
+
+      setPolls((prevPolls) =>
+        prevPolls.map((poll) => {
+          if (String(poll.id) !== String(payload.pollId)) return poll;
+
+          const totalVotes =
+            typeof payload.totalVotes === "number" ? payload.totalVotes : poll.totalVotes;
+
+          const options = poll.options.map((opt, idx) => {
+            const optionIndex = typeof opt.index === "number" ? opt.index : idx;
+            const votesCountRaw = payload.updatedVoteCounts?.[optionIndex];
+            const votesCount =
+              typeof votesCountRaw === "number" ? votesCountRaw : (opt.votesCount ?? 0);
+
+            return {
+              ...opt,
+              votesCount,
+              percentage:
+                totalVotes > 0 ? Math.round((votesCount / totalVotes) * 100) : 0,
+            };
+          });
+
+          return {
+            ...poll,
+            totalVotes,
+            options,
+          };
+        })
+      );
+    };
+
+    socket.on("pollVoted", handlePollVoted);
+
     const handlePollExpired = (pollId: string) => {
       setPolls((prevPolls) =>
         prevPolls.map((poll) => {
@@ -136,6 +171,7 @@ export default function PollsPage() {
 
     return () => {
       socket.off("feed:engagement-update", handleEngagementUpdate);
+      socket.off("pollVoted", handlePollVoted);
       socket.off("pollExpired", handlePollExpired);
     };
   }, []);

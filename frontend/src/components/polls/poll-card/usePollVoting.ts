@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 import { PollService } from "@/services/pollService";
 import type { Poll } from "@/types/poll";
 import { logError } from "@/lib/errorHandling";
+import { getSocket } from "@/lib/socket";
+import type { PollVotedPayload } from "@/lib/socket";
 
 export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void) {
   // Local poll state for optimistic updates
@@ -20,6 +22,46 @@ export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void
     setSelectedIndices(poll.userVote || []);
     setResultsVisible(Boolean(poll.canViewResults));
   }, [poll]);
+
+  // Real-time vote updates (other users voting)
+  useEffect(() => {
+    const socket = getSocket();
+
+    const handlePollVoted = (payload: PollVotedPayload) => {
+      if (!payload?.pollId) return;
+      if (String(payload.pollId) !== String(poll.id)) return;
+
+      setLocalPoll((prev) => {
+        const totalVotes =
+          typeof payload.totalVotes === "number" ? payload.totalVotes : prev.totalVotes;
+
+        const options = prev.options.map((opt, idx) => {
+          const optionIndex = typeof opt.index === "number" ? opt.index : idx;
+          const votesCountRaw = payload.updatedVoteCounts?.[optionIndex];
+          const votesCount =
+            typeof votesCountRaw === "number" ? votesCountRaw : (opt.votesCount ?? 0);
+
+          return {
+            ...opt,
+            votesCount,
+            percentage: totalVotes > 0 ? Math.round((votesCount / totalVotes) * 100) : 0,
+          };
+        });
+
+        return {
+          ...prev,
+          totalVotes,
+          options,
+        };
+      });
+    };
+
+    socket.on("pollVoted", handlePollVoted);
+
+    return () => {
+      socket.off("pollVoted", handlePollVoted);
+    };
+  }, [poll.id]);
 
   // Check if poll can be voted on
   const canVote = useMemo(() => {
