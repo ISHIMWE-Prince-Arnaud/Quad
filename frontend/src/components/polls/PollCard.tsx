@@ -114,7 +114,7 @@ export function PollCard({
     if (isActive) {
       if (hasValidExpiresAt && expiresAtDate)
         return formatExpiresIn(expiresAtDate);
-      return "Active";
+      return "Expires in 1 day";
     }
 
     const fallbackDate = new Date(poll.updatedAt || poll.createdAt);
@@ -123,8 +123,22 @@ export function PollCard({
       month: "short",
       day: "2-digit",
     });
-    return `Closed ${dateText}`;
+    return poll.status === "expired"
+      ? `Expired ${dateText}`
+      : `Closed ${dateText}`;
   })();
+
+  const badgeClassName = isActive
+    ? "gap-1.5 border-emerald-500/25 bg-emerald-500/15 text-emerald-200 shadow-sm backdrop-blur-sm hover:bg-emerald-500/15 focus:ring-0 focus:ring-offset-0"
+    : poll.status === "expired"
+      ? "gap-1.5 border-purple-500/25 bg-purple-500/15 text-purple-200 shadow-sm backdrop-blur-sm hover:bg-purple-500/15 focus:ring-0 focus:ring-offset-0"
+      : "gap-1.5 border-slate-500/25 bg-slate-500/15 text-slate-200 shadow-sm backdrop-blur-sm hover:bg-slate-500/15 focus:ring-0 focus:ring-offset-0";
+
+  const badgeDotClassName = isActive
+    ? "h-1.5 w-1.5 rounded-full bg-emerald-300"
+    : poll.status === "expired"
+      ? "h-1.5 w-1.5 rounded-full bg-purple-300"
+      : "h-1.5 w-1.5 rounded-full bg-slate-300";
 
   const {
     localPoll,
@@ -192,19 +206,8 @@ export function PollCard({
                   </Link>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge
-                      className={
-                        isActive
-                          ? "gap-1.5 border-emerald-500/25 bg-emerald-500/15 text-emerald-200 shadow-sm backdrop-blur-sm"
-                          : "gap-1.5 border-red-500/25 bg-red-500/15 text-red-200 shadow-sm backdrop-blur-sm"
-                      }>
-                      <span
-                        className={
-                          isActive
-                            ? "h-1.5 w-1.5 rounded-full bg-emerald-300"
-                            : "h-1.5 w-1.5 rounded-full bg-red-300"
-                        }
-                      />
+                    <Badge className={badgeClassName}>
+                      <span className={badgeDotClassName} />
                       <span className="whitespace-nowrap">{statusText}</span>
                     </Badge>
 
@@ -245,19 +248,8 @@ export function PollCard({
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge
-                      className={
-                        isActive
-                          ? "gap-1.5 border-emerald-500/25 bg-emerald-500/15 text-emerald-200 shadow-sm backdrop-blur-sm"
-                          : "gap-1.5 border-red-500/25 bg-red-500/15 text-red-200 shadow-sm backdrop-blur-sm"
-                      }>
-                      <span
-                        className={
-                          isActive
-                            ? "h-1.5 w-1.5 rounded-full bg-emerald-300"
-                            : "h-1.5 w-1.5 rounded-full bg-red-300"
-                        }
-                      />
+                    <Badge className={badgeClassName}>
+                      <span className={badgeDotClassName} />
                       <span className="whitespace-nowrap">{statusText}</span>
                     </Badge>
                   </div>
