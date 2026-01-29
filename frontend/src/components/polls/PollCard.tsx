@@ -114,7 +114,7 @@ export function PollCard({
     if (isActive) {
       if (hasValidExpiresAt && expiresAtDate)
         return formatExpiresIn(expiresAtDate);
-      return "Expires in 1 day";
+      return "Expires soon";
     }
 
     const fallbackDate = new Date(poll.updatedAt || poll.createdAt);
@@ -131,13 +131,13 @@ export function PollCard({
   const badgeClassName = isActive
     ? "gap-1.5 border-emerald-500/25 bg-emerald-500/15 text-emerald-200 shadow-sm backdrop-blur-sm hover:bg-emerald-500/15 focus:ring-0 focus:ring-offset-0"
     : poll.status === "expired"
-      ? "gap-1.5 border-purple-500/25 bg-purple-500/15 text-purple-200 shadow-sm backdrop-blur-sm hover:bg-purple-500/15 focus:ring-0 focus:ring-offset-0"
+      ? "gap-1.5 border-gray-500/25 bg-gray-500/15 text-gray-200 shadow-sm backdrop-blur-sm hover:bg-gray-500/15 focus:ring-0 focus:ring-offset-0"
       : "gap-1.5 border-slate-500/25 bg-slate-500/15 text-slate-200 shadow-sm backdrop-blur-sm hover:bg-slate-500/15 focus:ring-0 focus:ring-offset-0";
 
   const badgeDotClassName = isActive
     ? "h-1.5 w-1.5 rounded-full bg-emerald-300"
     : poll.status === "expired"
-      ? "h-1.5 w-1.5 rounded-full bg-purple-300"
+      ? "h-1.5 w-1.5 rounded-full bg-gray-300"
       : "h-1.5 w-1.5 rounded-full bg-slate-300";
 
   const {
