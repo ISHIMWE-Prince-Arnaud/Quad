@@ -23,15 +23,13 @@ export interface ToggleReactionInput {
 export class ReactionService {
   private static async getEngagementSnapshot(
     contentType: ReactableContentType,
-    contentId: string
+    contentId: string,
   ): Promise<{ commentsCount: number; votes?: number }> {
     if (contentType === "poll") {
       const { Poll } = await import("../models/Poll.model.js");
-      const poll = await Poll.findById(contentId).select(
-        "commentsCount totalVotes"
-      );
+      const poll = await Poll.findById(contentId).select("totalVotes");
       return {
-        commentsCount: poll?.commentsCount ?? 0,
+        commentsCount: 0,
         votes: poll?.totalVotes ?? 0,
       };
     }
@@ -56,7 +54,7 @@ export class ReactionService {
 
     const { exists, content } = await verifyReactableContent(
       contentType,
-      contentId
+      contentId,
     );
     if (!exists || !content) {
       throw new AppError(`${contentType} not found`, 404);
@@ -106,7 +104,7 @@ export class ReactionService {
         ) {
           const snapshot = await this.getEngagementSnapshot(
             contentType,
-            contentId
+            contentId,
           );
           emitEngagementUpdate(
             io,
@@ -114,7 +112,7 @@ export class ReactionService {
             contentId,
             reactionCount,
             snapshot.commentsCount,
-            snapshot.votes
+            snapshot.votes,
           );
         }
 
@@ -194,7 +192,7 @@ export class ReactionService {
         message: generateNotificationMessage(
           notificationType,
           user.username,
-          contentType
+          contentType,
         ),
       });
     }
@@ -209,7 +207,11 @@ export class ReactionService {
       reactionCount,
     });
 
-    if (contentType === "post" || contentType === "story" || contentType === "poll") {
+    if (
+      contentType === "post" ||
+      contentType === "story" ||
+      contentType === "poll"
+    ) {
       const snapshot = await this.getEngagementSnapshot(contentType, contentId);
       emitEngagementUpdate(
         io,
@@ -217,7 +219,7 @@ export class ReactionService {
         contentId,
         reactionCount,
         snapshot.commentsCount,
-        snapshot.votes
+        snapshot.votes,
       );
     }
 
@@ -235,7 +237,7 @@ export class ReactionService {
   static async getReactionsByContent(
     contentType: ReactableContentType,
     contentId: string,
-    userId?: string
+    userId?: string,
   ) {
     const reactions = await Reaction.find({ contentType, contentId }).sort({
       createdAt: -1,
@@ -281,7 +283,7 @@ export class ReactionService {
   static async deleteReaction(
     userId: string,
     contentType: ReactableContentType,
-    contentId: string
+    contentId: string,
   ) {
     const reaction = await Reaction.findOneAndDelete({
       contentType,

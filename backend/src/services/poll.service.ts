@@ -41,7 +41,9 @@ export class PollService {
         clerkId: user.clerkId,
         username: user.username,
         email: user.email,
-        ...(user.displayName !== undefined ? { displayName: user.displayName } : {}),
+        ...(user.displayName !== undefined
+          ? { displayName: user.displayName }
+          : {}),
         ...(user.firstName !== undefined ? { firstName: user.firstName } : {}),
         ...(user.lastName !== undefined ? { lastName: user.lastName } : {}),
         ...(user.profileImage !== undefined
@@ -58,7 +60,9 @@ export class PollService {
         anonymousVoting: false,
       },
       status: "active",
-      ...(pollData.expiresAt !== undefined ? { expiresAt: pollData.expiresAt } : {}),
+      ...(pollData.expiresAt !== undefined
+        ? { expiresAt: pollData.expiresAt }
+        : {}),
       totalVotes: 0,
       reactionsCount: 0,
       commentsCount: 0,
@@ -71,7 +75,10 @@ export class PollService {
     return poll;
   }
 
-  static async getAllPolls(userId: string | undefined, query: GetPollsQuerySchemaType) {
+  static async getAllPolls(
+    userId: string | undefined,
+    query: GetPollsQuerySchemaType,
+  ) {
     const { page, limit, status, author, voted, sort } = query;
 
     const filter: Record<string, unknown> = {};
@@ -88,7 +95,8 @@ export class PollService {
       const userVotes = await PollVote.find({ userId }).select("pollId");
       const votedPollIds = userVotes.map((v) => v.pollId);
 
-      filter._id = voted === true ? { $in: votedPollIds } : { $nin: votedPollIds };
+      filter._id =
+        voted === true ? { $in: votedPollIds } : { $nin: votedPollIds };
     }
 
     let sortOption: Record<string, SortOrder> = {};
@@ -122,10 +130,13 @@ export class PollService {
         userId,
         pollId: { $in: polls.map((p) => p._id) },
       });
-      userVotes = votes.reduce<Partial<Record<string, IPollVoteDocument>>>((acc, v) => {
-        acc[v.pollId.toString()] = v;
-        return acc;
-      }, {});
+      userVotes = votes.reduce<Partial<Record<string, IPollVoteDocument>>>(
+        (acc, v) => {
+          acc[v.pollId.toString()] = v;
+          return acc;
+        },
+        {},
+      );
     }
 
     const formattedPolls = polls.map((poll) => {
@@ -159,7 +170,9 @@ export class PollService {
       Poll.countDocuments({ "author.clerkId": userId }),
     ]);
 
-    const formattedPolls = polls.map((poll) => formatPollResponse(poll, undefined, true));
+    const formattedPolls = polls.map((poll) =>
+      formatPollResponse(poll, undefined, true),
+    );
 
     return {
       polls: formattedPolls,
@@ -173,7 +186,11 @@ export class PollService {
     };
   }
 
-  static async updatePoll(userId: string, id: string, updates: UpdatePollSchemaType) {
+  static async updatePoll(
+    userId: string,
+    id: string,
+    updates: UpdatePollSchemaType,
+  ) {
     const poll = await Poll.findById(id);
     if (!poll) {
       throw new AppError("Poll not found", 404);
@@ -220,7 +237,10 @@ export class PollService {
       throw new AppError("Only the author can delete this poll", 403);
     }
 
-    await Promise.all([Poll.findByIdAndDelete(id), PollVote.deleteMany({ pollId: id })]);
+    await Promise.all([
+      Poll.findByIdAndDelete(id),
+      PollVote.deleteMany({ pollId: id }),
+    ]);
 
     const io = getSocketIO();
     io.emit("pollDeleted", id);
@@ -268,7 +288,8 @@ export class PollService {
 
     const milestones = [10, 50, 100, 250, 500, 1000, 5000, 10000];
     const reachedMilestone = milestones.find(
-      (milestone) => previousTotalVotes < milestone && newTotalVotes >= milestone
+      (milestone) =>
+        previousTotalVotes < milestone && newTotalVotes >= milestone,
     );
 
     if (reachedMilestone) {
@@ -297,8 +318,8 @@ export class PollService {
       "poll",
       id,
       poll.reactionsCount,
-      poll.commentsCount,
-      poll.totalVotes
+      0,
+      poll.totalVotes,
     );
 
     const formattedPoll = formatPollResponse(poll, vote, true);
@@ -337,8 +358,8 @@ export class PollService {
       "poll",
       id,
       poll.reactionsCount,
-      poll.commentsCount,
-      poll.totalVotes
+      0,
+      poll.totalVotes,
     );
   }
 

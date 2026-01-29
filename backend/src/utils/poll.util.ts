@@ -15,13 +15,13 @@ export const isPollExpired = (poll: IPollDocument): boolean => {
 export const canVoteOnPoll = (poll: IPollDocument): boolean => {
   // Can't vote if closed
   if (poll.status === "closed") return false;
-  
+
   // Can't vote if expired
   if (poll.status === "expired") return false;
-  
+
   // Can't vote if expiration date passed (even if status not updated yet)
   if (isPollExpired(poll)) return false;
-  
+
   return true;
 };
 
@@ -31,7 +31,7 @@ export const canVoteOnPoll = (poll: IPollDocument): boolean => {
  */
 export const canViewResults = (
   poll: IPollDocument,
-  hasUserVoted: boolean
+  hasUserVoted: boolean,
 ): boolean => {
   return (
     hasUserVoted ||
@@ -45,11 +45,11 @@ export const canViewResults = (
  * Calculate vote percentages for each option
  */
 export const calculateVotePercentages = (
-  poll: IPollDocument
+  poll: IPollDocument,
 ): Array<{ text: string; votesCount: number; percentage: number }> => {
   const total = poll.totalVotes;
-  
-  return poll.options.map(option => ({
+
+  return poll.options.map((option) => ({
     text: option.text,
     votesCount: option.votesCount,
     percentage: total > 0 ? Math.round((option.votesCount / total) * 100) : 0,
@@ -61,7 +61,7 @@ export const calculateVotePercentages = (
  */
 export const validateVoteIndices = (
   poll: IPollDocument,
-  optionIndices: number[]
+  optionIndices: number[],
 ): { valid: boolean; error?: string } => {
   if (optionIndices.length !== 1) {
     return {
@@ -72,15 +72,17 @@ export const validateVoteIndices = (
 
   // Check if indices are within range
   const maxIndex = poll.options.length - 1;
-  const invalidIndices = optionIndices.filter(idx => idx < 0 || idx > maxIndex);
-  
+  const invalidIndices = optionIndices.filter(
+    (idx) => idx < 0 || idx > maxIndex,
+  );
+
   if (invalidIndices.length > 0) {
     return {
       valid: false,
-      error: `Invalid option indices: ${invalidIndices.join(", ")}. Poll has ${poll.options.length} options (0-${maxIndex})`
+      error: `Invalid option indices: ${invalidIndices.join(", ")}. Poll has ${poll.options.length} options (0-${maxIndex})`,
     };
   }
-  
+
   return { valid: true };
 };
 
@@ -90,7 +92,7 @@ export const validateVoteIndices = (
  */
 export const getQuickExpiryDates = () => {
   const now = new Date();
-  
+
   return {
     oneHour: new Date(now.getTime() + 60 * 60 * 1000),
     sixHours: new Date(now.getTime() + 6 * 60 * 60 * 1000),
@@ -107,7 +109,7 @@ export const getQuickExpiryDates = () => {
 export const formatPollResponse = (
   poll: IPollDocument,
   userVote?: IPollVoteDocument,
-  showResults: boolean = false
+  showResults: boolean = false,
 ) => {
   const settings = {
     ...poll.settings,
@@ -124,20 +126,21 @@ export const formatPollResponse = (
     expiresAt: poll.expiresAt,
     totalVotes: poll.totalVotes,
     reactionsCount: poll.reactionsCount,
-    commentsCount: poll.commentsCount,
+    commentsCount: 0,
     createdAt: poll.createdAt,
     updatedAt: poll.updatedAt,
   };
-  
+
   // Add options with or without vote counts
   if (showResults) {
     response.options = poll.options.map((opt, index) => ({
       index,
       text: opt.text,
       votesCount: opt.votesCount,
-      percentage: poll.totalVotes > 0 
-        ? Math.round((opt.votesCount / poll.totalVotes) * 100) 
-        : 0,
+      percentage:
+        poll.totalVotes > 0
+          ? Math.round((opt.votesCount / poll.totalVotes) * 100)
+          : 0,
     }));
   } else {
     // Don't show vote counts
@@ -146,14 +149,14 @@ export const formatPollResponse = (
       text: opt.text,
     }));
   }
-  
+
   // Add user's vote if they voted
   if (userVote) {
     response.userVote = userVote.optionIndices;
   }
-  
+
   // Add result visibility status
   response.canViewResults = showResults;
-  
+
   return response;
 };

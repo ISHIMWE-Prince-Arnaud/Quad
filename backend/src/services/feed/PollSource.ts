@@ -6,7 +6,7 @@ import { getContentAuthorId } from "./content.utils.js";
 export class PollSource implements FeedSource {
   async fetch(
     query: Record<string, unknown>,
-    limit: number
+    limit: number,
   ): Promise<IRawContentItem[]> {
     const polls = await Poll.find(query)
       .sort({ createdAt: -1 })
@@ -20,7 +20,7 @@ export class PollSource implements FeedSource {
       createdAt: poll.createdAt,
       authorId: getContentAuthorId(poll),
       reactionsCount: poll.reactionsCount || 0,
-      commentsCount: poll.commentsCount || 0,
+      commentsCount: 0,
       totalVotes: poll.totalVotes || 0,
     }));
   }

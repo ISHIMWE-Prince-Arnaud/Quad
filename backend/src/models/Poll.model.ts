@@ -3,6 +3,8 @@ import type { IUser } from "../types/user.types.js";
 import type { PollStatus } from "../types/poll.types.js";
 import type { IMedia } from "../types/post.types.js";
 
+type IPollMedia = Omit<IMedia, "type"> & { type: "image" };
+
 /**
  * Poll Document Interface
  * Extends IPoll with Mongoose Document properties
@@ -10,7 +12,7 @@ import type { IMedia } from "../types/post.types.js";
 export interface IPollDocument extends Document {
   author: IUser;
   question: string;
-  questionMedia?: IMedia;
+  questionMedia?: IPollMedia;
   options: Array<{
     text: string;
     votesCount: number;
@@ -22,7 +24,6 @@ export interface IPollDocument extends Document {
   expiresAt?: Date;
   totalVotes: number;
   reactionsCount: number;
-  commentsCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,61 +31,63 @@ export interface IPollDocument extends Document {
 const PollSchema = new Schema<IPollDocument>(
   {
     // Author (embedded user snapshot)
-    author: { 
-      type: Object, 
-      required: true 
+    author: {
+      type: Object,
+      required: true,
     },
-    
+
     // Question
-    question: { 
-      type: String, 
+    question: {
+      type: String,
       required: true,
       minlength: 10,
       maxlength: 500,
-      trim: true
+      trim: true,
     },
-    
+
     // Question media (optional)
     questionMedia: {
       url: { type: String, required: false },
-      type: { 
-        type: String, 
-        enum: ["image", "video"], 
-        required: false 
+      type: {
+        type: String,
+        enum: ["image"],
+        required: false,
       },
-      aspectRatio: { 
-        type: String, 
-        enum: ["1:1", "16:9", "9:16"], 
-        required: false 
+      aspectRatio: {
+        type: String,
+        enum: ["1:1", "16:9", "9:16"],
+        required: false,
       },
     },
-    
+
     // Options (2-5 options)
     options: {
       type: [
         {
-          text: { 
-            type: String, 
+          text: {
+            type: String,
             required: true,
             minlength: 1,
-            maxlength: 200
+            maxlength: 200,
           },
-          votesCount: { 
-            type: Number, 
+          votesCount: {
+            type: Number,
             default: 0,
-            min: 0
-          }
-        }
+            min: 0,
+          },
+        },
       ],
       required: true,
       validate: {
-        validator: function(options: unknown[]) {
-          return Array.isArray(options) && options.length >= 2 && options.length <= 5;
+        validator: function (options: unknown[]) {
+          return (
+            Array.isArray(options) && options.length >= 2 && options.length <= 5
+          );
         },
-        message: "Poll must have between 2 and 5 options"
-      }
+        message: "Poll must have between 2 and 5 options",
+      },
     },
-    
+
     // Settings
     settings: {
       anonymousVoting: {
@@ -92,40 +95,35 @@ const PollSchema = new Schema<IPollDocument>(
         default: false,
       },
     },
-    
+
     // Status
-    status: { 
-      type: String, 
+    status: {
+      type: String,
       enum: ["active", "expired", "closed"],
-      default: "active"
+      default: "active",
     },
-    
+
     // Expiration (optional)
-    expiresAt: { 
+    expiresAt: {
       type: Date,
-      required: false
+      required: false,
     },
-    
+
     // Engagement counts (cached)
-    totalVotes: { 
-      type: Number, 
+    totalVotes: {
+      type: Number,
       default: 0,
-      min: 0
+      min: 0,
     },
-    reactionsCount: { 
-      type: Number, 
+    reactionsCount: {
+      type: Number,
       default: 0,
-      min: 0
-    },
-    commentsCount: { 
-      type: Number, 
-      default: 0,
-      min: 0
+      min: 0,
     },
   },
   {
     timestamps: true, // Adds createdAt & updatedAt
-  }
+  },
 );
 
 // ===========================
@@ -147,21 +145,26 @@ PollSchema.index({ status: 1, expiresAt: 1 });
 PollSchema.index({ totalVotes: -1, createdAt: -1 });
 
 // Feed-specific index for trending sort with engagement
-PollSchema.index({ status: 1, createdAt: -1, totalVotes: -1, reactionsCount: -1, commentsCount: -1 });
+PollSchema.index({
+  status: 1,
+  createdAt: -1,
+  totalVotes: -1,
+  reactionsCount: -1,
+});
 
 // ===========================
 // PRE-SAVE HOOKS
 // ===========================
 
 // Validate option text uniqueness
-PollSchema.pre("save", function(next) {
-  const optionTexts = this.options.map(opt => opt.text.toLowerCase().trim());
+PollSchema.pre("save", function (next) {
+  const optionTexts = this.options.map((opt) => opt.text.toLowerCase().trim());
   const uniqueTexts = new Set(optionTexts);
-  
+
   if (optionTexts.length !== uniqueTexts.size) {
     return next(new Error("Poll options must have unique text"));
   }
-  
+
   next();
 });
 

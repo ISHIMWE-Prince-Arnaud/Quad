@@ -25,7 +25,6 @@ type StoryEngagementLean = {
 type PollEngagementLean = {
   totalVotes?: number;
   reactionsCount?: number;
-  commentsCount?: number;
 };
 
 type UserEngagementLean = {
@@ -71,7 +70,7 @@ export const getContentAnalytics = async (req: Request, res: Response) => {
         : Promise.resolve([]),
       wantPolls
         ? Poll.find({ "author.clerkId": userId })
-            .select("totalVotes reactionsCount commentsCount")
+            .select("totalVotes reactionsCount")
             .lean<PollEngagementLean[]>()
         : Promise.resolve([]),
     ]);
@@ -88,7 +87,7 @@ export const getContentAnalytics = async (req: Request, res: Response) => {
     const pollEngagement = polls.map((p) => ({
       votes: p.totalVotes || 0,
       reactions: p.reactionsCount || 0,
-      comments: p.commentsCount || 0,
+      comments: 0,
     }));
 
     return res.json({
@@ -101,7 +100,7 @@ export const getContentAnalytics = async (req: Request, res: Response) => {
               reactions: acc.reactions + e.reactions,
               comments: acc.comments + e.comments,
             }),
-            { reactions: 0, comments: 0 }
+            { reactions: 0, comments: 0 },
           ),
         },
         stories: {
@@ -112,7 +111,7 @@ export const getContentAnalytics = async (req: Request, res: Response) => {
               reactions: acc.reactions + e.reactions,
               comments: acc.comments + e.comments,
             }),
-            { views: 0, reactions: 0, comments: 0 }
+            { views: 0, reactions: 0, comments: 0 },
           ),
         },
         polls: {
@@ -123,7 +122,7 @@ export const getContentAnalytics = async (req: Request, res: Response) => {
               reactions: acc.reactions + e.reactions,
               comments: acc.comments + e.comments,
             }),
-            { votes: 0, reactions: 0, comments: 0 }
+            { votes: 0, reactions: 0, comments: 0 },
           ),
         },
       },
@@ -140,7 +139,9 @@ export const recordProfileView = async (req: Request, res: Response) => {
     const { profileId } = req.body as { profileId?: string };
 
     if (!profileId) {
-      return res.status(400).json({ success: false, message: "profileId is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "profileId is required" });
     }
 
     if (profileId === viewerId) {
@@ -148,7 +149,11 @@ export const recordProfileView = async (req: Request, res: Response) => {
     }
 
     const cutoff = new Date(Date.now() - 60 * 60 * 1000);
-    const recent = await ProfileView.findOne({ profileId, viewerId, createdAt: { $gte: cutoff } })
+    const recent = await ProfileView.findOne({
+      profileId,
+      viewerId,
+      createdAt: { $gte: cutoff },
+    })
       .select("_id")
       .lean();
 
@@ -264,14 +269,17 @@ export const getEngagementSummary = async (req: Request, res: Response) => {
         .select("viewsCount reactionsCount commentsCount")
         .lean<StoryEngagementLean[]>(),
       Poll.find({ "author.clerkId": userId })
-        .select("totalVotes reactionsCount commentsCount")
+        .select("totalVotes reactionsCount")
         .lean<PollEngagementLean[]>(),
       User.findOne({ clerkId: userId })
         .select("followersCount followingCount")
         .lean<UserEngagementLean | null>(),
     ]);
 
-    const postsReactions = posts.reduce((s, p) => s + (p.reactionsCount || 0), 0);
+    const postsReactions = posts.reduce(
+      (s, p) => s + (p.reactionsCount || 0),
+      0,
+    );
     const postsComments = posts.reduce((s, p) => s + (p.commentsCount || 0), 0);
 
     const storiesViews = stories.reduce((s, st) => s + (st.viewsCount || 0), 0);
@@ -279,8 +287,10 @@ export const getEngagementSummary = async (req: Request, res: Response) => {
     const pollsVotes = polls.reduce((s, p) => s + (p.totalVotes || 0), 0);
 
     const totalContent = posts.length + stories.length + polls.length;
-    const totalEngagement = postsReactions + postsComments + pollsVotes + storiesViews;
-    const avgEngagementPerItem = totalContent > 0 ? totalEngagement / totalContent : 0;
+    const totalEngagement =
+      postsReactions + postsComments + pollsVotes + storiesViews;
+    const avgEngagementPerItem =
+      totalContent > 0 ? totalEngagement / totalContent : 0;
 
     return res.json({
       success: true,

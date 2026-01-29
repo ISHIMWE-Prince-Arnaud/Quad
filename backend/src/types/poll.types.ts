@@ -1,6 +1,8 @@
 import type { IUser } from "./user.types.js";
 import type { IMedia } from "./post.types.js";
 
+type IPollMedia = Omit<IMedia, "type"> & { type: "image" };
+
 /**
  * Poll Status
  * - active: Currently accepting votes
@@ -9,14 +11,13 @@ import type { IMedia } from "./post.types.js";
  */
 export type PollStatus = "active" | "expired" | "closed";
 
-
 /**
  * Poll Option
  * Single option in a poll
  */
 export interface IPollOption {
-  text: string;                 // Option text (1-200 chars)
-  votesCount: number;           // Cached vote count
+  text: string; // Option text (1-200 chars)
+  votesCount: number; // Cached vote count
 }
 
 /**
@@ -24,7 +25,7 @@ export interface IPollOption {
  * Configuration for poll behavior
  */
 export interface IPollSettings {
-  anonymousVoting: boolean;     // Hide voter identities (votes remain anonymous)
+  anonymousVoting: boolean; // Hide voter identities (votes remain anonymous)
 }
 
 /**
@@ -33,25 +34,24 @@ export interface IPollSettings {
  */
 export interface IPoll {
   id: string;
-  author: IUser;                // Poll creator (embedded snapshot)
-  
+  author: IUser; // Poll creator (embedded snapshot)
+
   // Content
-  question: string;             // Poll question (10-500 chars)
-  questionMedia?: IMedia;       // Optional media for question
-  options: IPollOption[];       // 2-5 options
-  
+  question: string; // Poll question (10-500 chars)
+  questionMedia?: IPollMedia; // Optional media for question
+  options: IPollOption[]; // 2-5 options
+
   // Settings
   settings: IPollSettings;
-  
+
   // Status
-  status: PollStatus;           // active, expired, or closed
-  expiresAt?: Date;            // Optional expiration date
-  
+  status: PollStatus; // active, expired, or closed
+  expiresAt?: Date; // Optional expiration date
+
   // Engagement (cached counts)
-  totalVotes: number;           // Total number of votes
-  reactionsCount: number;       // Total reactions
-  commentsCount: number;        // Total comments
-  
+  totalVotes: number; // Total number of votes
+  reactionsCount: number; // Total reactions
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -64,9 +64,9 @@ export interface IPoll {
  */
 export interface IPollVote {
   id: string;
-  pollId: string;               // Reference to poll
-  userId: string;               // Clerk user ID (private)
-  optionIndices: number[];      // Selected option indices
+  pollId: string; // Reference to poll
+  userId: string; // Clerk user ID (private)
+  optionIndices: number[]; // Selected option indices
   votedAt: Date;
 }
 
@@ -75,7 +75,7 @@ export interface IPollVote {
  */
 export interface ICreatePoll {
   question: string;
-  questionMedia?: IMedia;
+  questionMedia?: IPollMedia;
   options: Array<{
     text: string;
   }>;
@@ -91,14 +91,14 @@ export interface ICreatePoll {
  */
 export interface IUpdatePoll {
   question?: string;
-  questionMedia?: IMedia;
+  questionMedia?: IPollMedia;
 }
 
 /**
  * Vote on Poll DTO
  */
 export interface IVoteOnPoll {
-  optionIndices: number[];      // Array of selected option indices
+  optionIndices: number[]; // Array of selected option indices
 }
 
 /**
@@ -113,6 +113,6 @@ export interface IPollResults {
     votesCount: number;
     percentage: number;
   }>;
-  userVote?: number[];          // Current user's vote (if any)
-  canViewResults: boolean;      // Based on settings and user's vote status
+  userVote?: number[]; // Current user's vote (if any)
+  canViewResults: boolean; // Based on settings and user's vote status
 }
