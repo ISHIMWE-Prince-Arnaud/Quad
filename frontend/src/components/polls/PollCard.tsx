@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
-import { Bookmark, EyeOff, MoreHorizontal } from "lucide-react";
+import { FaUserCheck } from "react-icons/fa6";
+
+import { Bookmark, Info, MoreHorizontal, Share2 } from "lucide-react";
 
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn, copyToClipboard } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import type { Poll } from "@/types/poll";
 import type { PollCardProps } from "./poll-card/types";
@@ -163,6 +166,15 @@ export function PollCard({
   const { userReaction, reactionPending, reactionCount, handleSelectReaction } =
     usePollReactions(poll.id, poll.reactionsCount || 0);
 
+  const handleCopyLink = async () => {
+    const path = `/app/polls?pollId=${encodeURIComponent(poll.id)}`;
+    const url = `${window.location.origin}${path}`;
+
+    const ok = await copyToClipboard(url);
+    if (ok) toast.success("Poll link copied to clipboard");
+    else toast.error("Failed to copy link");
+  };
+
   const handleDelete = () => {
     if (!onDelete) return;
     onDelete(poll.id);
@@ -303,61 +315,91 @@ export function PollCard({
               </div>
             )}
 
-            <div
-              className={cn(
-                "flex items-center justify-between border-t border-white/5 pt-4",
-                hasMedia ? "mt-4" : "mt-4",
-              )}>
-              <div className="flex items-center gap-6 text-[#94a3b8]">
-                <HeartReactionButton
-                  liked={Boolean(userReaction)}
-                  filled={reactionCount > 0}
-                  count={reactionCount}
-                  pending={reactionPending}
-                  onToggle={() => void handleSelectReaction("love")}
-                  ariaLabel={`React to poll. ${reactionCount} reactions`}
-                  className={cn(actionBase, "hover:bg-white/5")}
-                  countClassName="text-xs font-bold text-[#64748b]"
-                />
-              </div>
+            <div className="border-t border-white/5 pt-4 mt-4">
+              <div className="grid grid-cols-3 items-center">
+                <div className="flex items-center gap-4 justify-start text-[#94a3b8]">
+                  <HeartReactionButton
+                    liked={Boolean(userReaction)}
+                    filled={reactionCount > 0}
+                    count={reactionCount}
+                    pending={reactionPending}
+                    onToggle={() => void handleSelectReaction("love")}
+                    ariaLabel={`React to poll. ${reactionCount} reactions`}
+                    className={cn(actionBase, "hover:bg-white/5")}
+                    countClassName="text-xs font-bold text-[#64748b]"
+                  />
 
-              <div className="flex items-center gap-3 text-[#94a3b8]">
-                {poll.settings.anonymousVoting && (
-                  <div className="flex items-center gap-2 text-[12px] font-medium">
-                    <EyeOff className="h-4 w-4" strokeWidth={1.75} />
-                    Anonymous
-                  </div>
-                )}
-                <span className="text-[12px] font-medium">
-                  {timeAgoShort(poll.createdAt)}
-                </span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleBookmark}
-                  className={cn(
-                    "h-9 w-9 p-0",
-                    bookmarked
-                      ? "text-amber-600"
-                      : "text-[#94a3b8] hover:text-amber-600",
-                  )}>
-                  <Bookmark className="h-4 w-4" />
-                </Button>
+                  <button
+                    type="button"
+                    onClick={toggleBookmark}
+                    className={cn(
+                      "p-2 rounded-xl transition-all",
+                      bookmarked
+                        ? "text-[#f59e0b] bg-[#f59e0b]/10"
+                        : "text-[#94a3b8] hover:text-[#f59e0b] hover:bg-[#f59e0b]/5",
+                    )}
+                    aria-label={
+                      bookmarked ? "Remove bookmark" : "Bookmark poll"
+                    }
+                    title={bookmarked ? "Remove bookmark" : "Bookmark"}>
+                    <Bookmark
+                      className={cn("h-4 w-4", bookmarked && "fill-current")}
+                    />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => void handleCopyLink()}
+                    className={cn(
+                      actionBase,
+                      "hover:bg-white/5 hover:text-[#10b981]",
+                    )}
+                    aria-label="Share poll"
+                    title="Share">
+                    <Share2 className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-center gap-2 text-[#94a3b8]">
+                  <FaUserCheck className="h-4 w-4" />
+                  <span className="text-[12px] font-medium">
+                    {localPoll.totalVotes} vote
+                    {localPoll.totalVotes === 1 ? "" : "s"}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 text-[#94a3b8]">
+                  {poll.settings.anonymousVoting && (
+                    <div className="px-3 py-1 rounded-full bg-[#3b82f6] text-white text-[11px] font-bold tracking-wide">
+                      ANONYMOUS
+                    </div>
+                  )}
+                  <span className="text-[12px] font-medium">
+                    {timeAgoShort(poll.createdAt)}
+                  </span>
+                </div>
               </div>
             </div>
 
             {!poll.canViewResults && (
-              <p className="mt-3 text-[12px] font-medium text-[#94a3b8]">
-                Vote to see results.
-              </p>
-            )}
-
-            {showResults && (
-              <p className="mt-3 text-[12px] font-medium text-[#94a3b8]">
-                {localPoll.totalVotes} vote
-                {localPoll.totalVotes === 1 ? "" : "s"}
-              </p>
+              <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-white/[0.03] px-4 py-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="h-9 w-9 rounded-xl bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center shrink-0">
+                    <Info className="h-4 w-4" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-semibold text-white/90 leading-tight truncate">
+                      Vote to see the results
+                    </p>
+                    <p className="text-[11px] font-medium text-[#94a3b8] leading-tight truncate">
+                      Results unlock after you vote.
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold text-[#10b981] whitespace-nowrap">
+                  Tap an option
+                </span>
+              </div>
             )}
           </CardContent>
         </Card>
