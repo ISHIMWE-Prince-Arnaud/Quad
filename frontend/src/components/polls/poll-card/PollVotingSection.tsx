@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 
 import { CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, formatExpiresIn } from "@/lib/utils";
 import type { Poll } from "@/types/poll";
 
 export function PollVotingSection({
@@ -21,39 +21,6 @@ export function PollVotingSection({
   resultsVisible: boolean;
   onVoteOption: (index: number) => void;
 }) {
-  const formatExpiresIn = (future: Date): string => {
-    const now = new Date();
-    const diffMs = future.getTime() - now.getTime();
-
-    if (diffMs <= 0) return "Expired";
-
-    const minuteMs = 60 * 1000;
-    const hourMs = 60 * minuteMs;
-    const dayMs = 24 * hourMs;
-    const weekMs = 7 * dayMs;
-    const monthMs = 30 * dayMs;
-
-    if (diffMs >= 2 * monthMs)
-      return `Expires in ${Math.ceil(diffMs / monthMs)} months`;
-    if (diffMs >= monthMs) return "Expires in 1 month";
-
-    if (diffMs >= 2 * weekMs)
-      return `Expires in ${Math.ceil(diffMs / weekMs)} weeks`;
-    if (diffMs >= weekMs) return "Expires in 1 week";
-
-    if (diffMs >= 2 * dayMs)
-      return `Expires in ${Math.ceil(diffMs / dayMs)} days`;
-    if (diffMs >= dayMs) return "Expires in 1 day";
-
-    if (diffMs >= 2 * hourMs)
-      return `Expires in ${Math.ceil(diffMs / hourMs)} hours`;
-    if (diffMs >= hourMs) return "Expires in 1 hour";
-
-    if (diffMs >= 2 * minuteMs)
-      return `Expires in ${Math.ceil(diffMs / minuteMs)} minutes`;
-    return "Expires in 1 minute";
-  };
-
   const expiresLabel = (() => {
     if (!localPoll.expiresAt) return null;
     const d = new Date(localPoll.expiresAt);

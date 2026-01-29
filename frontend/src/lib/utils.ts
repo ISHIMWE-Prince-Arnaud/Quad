@@ -60,6 +60,58 @@ export function debounce<T extends (...args: never[]) => unknown>(
   }
 }
 
+/**
+ * Gets a formatted display name from a user object
+ */
+export function getDisplayName(user: {
+  firstName?: string | null;
+  lastName?: string | null;
+  username: string;
+}): string {
+  const first = user.firstName?.trim();
+  const last = user.lastName?.trim();
+  const name = [first, last].filter(Boolean).join(" ").trim();
+  return name.length > 0 ? name : user.username;
+}
+
+/**
+ * Formats a future date into a human-readable "Expires in..." string
+ */
+export function formatExpiresIn(future: string | Date | null | undefined): string {
+  if (!future) return "";
+  const futureDate = new Date(future);
+  const now = new Date();
+  const diffMs = futureDate.getTime() - now.getTime();
+
+  if (Number.isNaN(futureDate.getTime()) || diffMs <= 0) return "Expired";
+
+  const minuteMs = 60 * 1000;
+  const hourMs = 60 * minuteMs;
+  const dayMs = 24 * hourMs;
+  const weekMs = 7 * dayMs;
+  const monthMs = 30 * dayMs;
+
+  if (diffMs >= 2 * monthMs)
+    return `Expires in ${Math.ceil(diffMs / monthMs)} months`;
+  if (diffMs >= monthMs) return "Expires in 1 month";
+
+  if (diffMs >= 2 * weekMs)
+    return `Expires in ${Math.ceil(diffMs / weekMs)} weeks`;
+  if (diffMs >= weekMs) return "Expires in 1 week";
+
+  if (diffMs >= 2 * dayMs)
+    return `Expires in ${Math.ceil(diffMs / dayMs)} days`;
+  if (diffMs >= dayMs) return "Expires in 1 day";
+
+  if (diffMs >= 2 * hourMs)
+    return `Expires in ${Math.ceil(diffMs / hourMs)} hours`;
+  if (diffMs >= hourMs) return "Expires in 1 hour";
+
+  if (diffMs >= 2 * minuteMs)
+    return `Expires in ${Math.ceil(diffMs / minuteMs)} minutes`;
+  return "Expires in 1 minute";
+}
+
 export async function copyToClipboard(text: string) {
   try {
     if (globalThis.isSecureContext && navigator.clipboard?.writeText) {

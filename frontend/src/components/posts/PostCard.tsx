@@ -7,8 +7,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { cn } from "@/lib/utils";
-import { copyToClipboard } from "@/lib/utils";
+import { cn, copyToClipboard, getDisplayName } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import type { Post } from "@/types/post";
 import toast from "react-hot-toast";
@@ -49,11 +48,7 @@ export function PostCard({
 
   const { bookmarked, bookmarkPending, toggleBookmark } = usePostBookmark(post._id);
 
-  const { firstName, lastName, username } = post.author;
-
-  const displayName =
-    // Prefer full name when available (optional on author)
-    firstName && lastName ? `${firstName} ${lastName}` : firstName || username;
+  const displayName = getDisplayName(post.author);
 
   const fullText = post.text ?? "";
   const hasLongText = fullText.length > MAX_PREVIEW_LENGTH;
