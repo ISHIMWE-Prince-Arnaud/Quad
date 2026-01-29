@@ -17,9 +17,12 @@ describe("Real-time Poll Updates Property Tests", () => {
         fc.record({
           contentType: fc.constant("poll" as const),
           contentId: fc.string({ minLength: 10, maxLength: 30 }),
-          reactionsCount: fc.option(fc.integer({ min: 0, max: 10000 }), { nil: undefined }),
-          commentsCount: fc.option(fc.integer({ min: 0, max: 10000 }), { nil: undefined }),
-          votes: fc.option(fc.integer({ min: 0, max: 50000 }), { nil: undefined }),
+          reactionsCount: fc.option(fc.integer({ min: 0, max: 10000 }), {
+            nil: undefined,
+          }),
+          votes: fc.option(fc.integer({ min: 0, max: 50000 }), {
+            nil: undefined,
+          }),
           timestamp: fc.constant(new Date().toISOString()),
         }),
         async (payload: FeedEngagementUpdatePayload) => {
@@ -44,23 +47,14 @@ describe("Real-time Poll Updates Property Tests", () => {
             expect(payload.reactionsCount).toBeGreaterThanOrEqual(0);
           }
 
-          // Property 5: If commentsCount is present, it should be non-negative
-          if (
-            payload.commentsCount !== undefined &&
-            payload.commentsCount !== null
-          ) {
-            expect(typeof payload.commentsCount).toBe("number");
-            expect(payload.commentsCount).toBeGreaterThanOrEqual(0);
-          }
-
-          // Property 6: If votes is present, it should be non-negative
+          // Property 5: If votes is present, it should be non-negative
           if (payload.votes !== undefined && payload.votes !== null) {
             expect(typeof payload.votes).toBe("number");
             expect(payload.votes).toBeGreaterThanOrEqual(0);
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -71,26 +65,21 @@ describe("Real-time Poll Updates Property Tests", () => {
           pollId: fc.string({ minLength: 10, maxLength: 30 }),
           initialVotes: fc.integer({ min: 0, max: 1000 }),
           initialReactions: fc.integer({ min: 0, max: 1000 }),
-          initialComments: fc.integer({ min: 0, max: 1000 }),
           updateVotes: fc.option(fc.integer({ min: 0, max: 1000 })),
           updateReactions: fc.option(fc.integer({ min: 0, max: 1000 })),
-          updateComments: fc.option(fc.integer({ min: 0, max: 1000 })),
         }),
         async ({
           pollId,
           initialVotes,
           initialReactions,
-          initialComments,
           updateVotes,
           updateReactions,
-          updateComments,
         }) => {
           // Simulate initial poll state
           const initialPoll = {
             id: pollId,
             totalVotes: initialVotes,
             reactionsCount: initialReactions,
-            commentsCount: initialComments,
           };
 
           // Simulate update
@@ -98,7 +87,6 @@ describe("Real-time Poll Updates Property Tests", () => {
             ...initialPoll,
             totalVotes: updateVotes ?? initialPoll.totalVotes,
             reactionsCount: updateReactions ?? initialPoll.reactionsCount,
-            commentsCount: updateComments ?? initialPoll.commentsCount,
           };
 
           // Property 1: Poll ID should remain unchanged
@@ -107,7 +95,6 @@ describe("Real-time Poll Updates Property Tests", () => {
           // Property 2: Updated counts should be non-negative
           expect(updatedPoll.totalVotes).toBeGreaterThanOrEqual(0);
           expect(updatedPoll.reactionsCount).toBeGreaterThanOrEqual(0);
-          expect(updatedPoll.commentsCount).toBeGreaterThanOrEqual(0);
 
           // Property 3: If no update provided, value should remain unchanged
           if (updateVotes === undefined || updateVotes === null) {
@@ -116,12 +103,9 @@ describe("Real-time Poll Updates Property Tests", () => {
           if (updateReactions === undefined || updateReactions === null) {
             expect(updatedPoll.reactionsCount).toBe(initialPoll.reactionsCount);
           }
-          if (updateComments === undefined || updateComments === null) {
-            expect(updatedPoll.commentsCount).toBe(initialPoll.commentsCount);
-          }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -133,7 +117,7 @@ describe("Real-time Poll Updates Property Tests", () => {
             id: fc.string({ minLength: 10, maxLength: 30 }),
             totalVotes: fc.integer({ min: 0, max: 1000 }),
           }),
-          { minLength: 2, maxLength: 10 }
+          { minLength: 2, maxLength: 10 },
         ),
         fc.integer({ min: 0, max: 9 }),
         fc.integer({ min: 0, max: 1000 }),
@@ -144,7 +128,7 @@ describe("Real-time Poll Updates Property Tests", () => {
 
           // Simulate update
           const updatedPolls = polls.map((poll) =>
-            poll.id === targetPollId ? { ...poll, totalVotes: newVotes } : poll
+            poll.id === targetPollId ? { ...poll, totalVotes: newVotes } : poll,
           );
 
           // Property 1: Only target poll should be updated
@@ -163,9 +147,9 @@ describe("Real-time Poll Updates Property Tests", () => {
           updatedPolls.forEach((poll, idx) => {
             expect(poll.id).toBe(polls[idx].id);
           });
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -201,9 +185,9 @@ describe("Real-time Poll Updates Property Tests", () => {
           voteHistory.forEach((votes) => {
             expect(votes).toBeGreaterThanOrEqual(0);
           });
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -217,9 +201,8 @@ describe("Real-time Poll Updates Property Tests", () => {
             fc.record({
               votes: fc.option(fc.integer({ min: 0, max: 1000 })),
               reactions: fc.option(fc.integer({ min: 0, max: 1000 })),
-              comments: fc.option(fc.integer({ min: 0, max: 1000 })),
             }),
-            { minLength: 1, maxLength: 5 }
+            { minLength: 1, maxLength: 5 },
           ),
         }),
         async ({ pollId, initialVotes, updates }) => {
@@ -227,7 +210,6 @@ describe("Real-time Poll Updates Property Tests", () => {
             id: pollId,
             totalVotes: initialVotes,
             reactionsCount: 0,
-            commentsCount: 0,
           };
 
           // Apply updates sequentially
@@ -236,7 +218,6 @@ describe("Real-time Poll Updates Property Tests", () => {
               ...currentState,
               totalVotes: update.votes ?? currentState.totalVotes,
               reactionsCount: update.reactions ?? currentState.reactionsCount,
-              commentsCount: update.comments ?? currentState.commentsCount,
             };
           }
 
@@ -246,7 +227,6 @@ describe("Real-time Poll Updates Property Tests", () => {
           // Property 2: Final state should have non-negative counts
           expect(currentState.totalVotes).toBeGreaterThanOrEqual(0);
           expect(currentState.reactionsCount).toBeGreaterThanOrEqual(0);
-          expect(currentState.commentsCount).toBeGreaterThanOrEqual(0);
 
           // Property 3: If last update has a value, it should be reflected
           const lastUpdate = updates[updates.length - 1];
@@ -259,15 +239,9 @@ describe("Real-time Poll Updates Property Tests", () => {
           ) {
             expect(currentState.reactionsCount).toBe(lastUpdate.reactions);
           }
-          if (
-            lastUpdate.comments !== undefined &&
-            lastUpdate.comments !== null
-          ) {
-            expect(currentState.commentsCount).toBe(lastUpdate.comments);
-          }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -306,9 +280,9 @@ describe("Real-time Poll Updates Property Tests", () => {
 
           // Property 3: Updated vote count should be non-negative
           expect(afterUpdate.totalVotes).toBeGreaterThanOrEqual(0);
-        }
+        },
       ),
-      { numRuns: 25 }
+      { numRuns: 25 },
     );
   });
 });

@@ -19,7 +19,7 @@ describe("Poll Display Property Tests", () => {
         type: fc.constant("image" as const),
         aspectRatio: fc.option(
           fc.constantFrom("1:1" as const, "16:9" as const, "9:16" as const),
-          { nil: undefined }
+          { nil: undefined },
         ),
       })
       .map(({ url, type, aspectRatio }) => ({
@@ -57,7 +57,7 @@ describe("Poll Display Property Tests", () => {
               votesCount: fc.integer({ min: 0, max: 10000 }),
               percentage: fc.integer({ min: 0, max: 100 }),
             }),
-            { minLength: 2, maxLength: 5 }
+            { minLength: 2, maxLength: 5 },
           )
           .map((opts) => opts.map((opt, idx) => ({ ...opt, index: idx }))),
         settings: fc.record({
@@ -66,19 +66,21 @@ describe("Poll Display Property Tests", () => {
         status: fc.constantFrom(
           "active" as const,
           "expired" as const,
-          "closed" as const
+          "closed" as const,
         ),
         expiresAt: fc.option(
           fc
             .integer({ min: Date.now(), max: Date.now() + 86400000 * 30 })
-            .map((ts) => new Date(ts).toISOString())
+            .map((ts) => new Date(ts).toISOString()),
         ),
         totalVotes: fc.integer({ min: 0, max: 50000 }),
         reactionsCount: fc.integer({ min: 0, max: 10000 }),
-        commentsCount: fc.integer({ min: 0, max: 10000 }),
-        userVote: fc.option(fc.array(fc.integer({ min: 0, max: 4 }), { maxLength: 5 }), {
-          nil: undefined,
-        }),
+        userVote: fc.option(
+          fc.array(fc.integer({ min: 0, max: 4 }), { maxLength: 5 }),
+          {
+            nil: undefined,
+          },
+        ),
         canViewResults: fc.boolean(),
         createdAt: fc.constant(nowIso),
         updatedAt: fc.constant(nowIso),
@@ -102,81 +104,76 @@ describe("Poll Display Property Tests", () => {
           },
           ...(questionMedia ? { questionMedia } : {}),
           ...(userVote ? { userVote } : {}),
-        })
+        }),
       );
 
     await fc.assert(
-      fc.asyncProperty(
-        pollArb,
-        async (poll: Poll) => {
-          // Property 1: Poll must have an ID
-          expect(poll.id).toBeDefined();
-          expect(typeof poll.id).toBe("string");
-          expect(poll.id.length).toBeGreaterThan(0);
+      fc.asyncProperty(pollArb, async (poll: Poll) => {
+        // Property 1: Poll must have an ID
+        expect(poll.id).toBeDefined();
+        expect(typeof poll.id).toBe("string");
+        expect(poll.id.length).toBeGreaterThan(0);
 
-          // Property 2: Poll must have a question
-          expect(poll.question).toBeDefined();
-          expect(typeof poll.question).toBe("string");
-          expect(poll.question.length).toBeGreaterThanOrEqual(10);
-          expect(poll.question.length).toBeLessThanOrEqual(500);
+        // Property 2: Poll must have a question
+        expect(poll.question).toBeDefined();
+        expect(typeof poll.question).toBe("string");
+        expect(poll.question.length).toBeGreaterThanOrEqual(10);
+        expect(poll.question.length).toBeLessThanOrEqual(500);
 
-          // Property 3: Poll must have author information
-          expect(poll.author).toBeDefined();
-          expect(poll.author.clerkId).toBeDefined();
-          expect(poll.author.username).toBeDefined();
-          expect(poll.author.email).toBeDefined();
+        // Property 3: Poll must have author information
+        expect(poll.author).toBeDefined();
+        expect(poll.author.clerkId).toBeDefined();
+        expect(poll.author.username).toBeDefined();
+        expect(poll.author.email).toBeDefined();
 
-          // Property 4: Poll must have at least 2 options
-          expect(Array.isArray(poll.options)).toBe(true);
-          expect(poll.options.length).toBeGreaterThanOrEqual(2);
-          expect(poll.options.length).toBeLessThanOrEqual(5);
+        // Property 4: Poll must have at least 2 options
+        expect(Array.isArray(poll.options)).toBe(true);
+        expect(poll.options.length).toBeGreaterThanOrEqual(2);
+        expect(poll.options.length).toBeLessThanOrEqual(5);
 
-          // Property 5: Each option must have required fields
-          poll.options.forEach((option: PollOption, idx: number) => {
-            expect(option.index).toBe(idx);
-            expect(option.text).toBeDefined();
-            expect(typeof option.text).toBe("string");
-            expect(option.text.length).toBeGreaterThan(0);
+        // Property 5: Each option must have required fields
+        poll.options.forEach((option: PollOption, idx: number) => {
+          expect(option.index).toBe(idx);
+          expect(option.text).toBeDefined();
+          expect(typeof option.text).toBe("string");
+          expect(option.text.length).toBeGreaterThan(0);
 
-            if (option.votesCount !== undefined) {
-              expect(typeof option.votesCount).toBe("number");
-              expect(option.votesCount).toBeGreaterThanOrEqual(0);
-            }
+          if (option.votesCount !== undefined) {
+            expect(typeof option.votesCount).toBe("number");
+            expect(option.votesCount).toBeGreaterThanOrEqual(0);
+          }
 
-            if (option.percentage !== undefined) {
-              expect(typeof option.percentage).toBe("number");
-              expect(option.percentage).toBeGreaterThanOrEqual(0);
-              expect(option.percentage).toBeLessThanOrEqual(100);
-            }
-          });
+          if (option.percentage !== undefined) {
+            expect(typeof option.percentage).toBe("number");
+            expect(option.percentage).toBeGreaterThanOrEqual(0);
+            expect(option.percentage).toBeLessThanOrEqual(100);
+          }
+        });
 
-          // Property 6: Poll must have total votes count
-          expect(typeof poll.totalVotes).toBe("number");
-          expect(poll.totalVotes).toBeGreaterThanOrEqual(0);
+        // Property 6: Poll must have total votes count
+        expect(typeof poll.totalVotes).toBe("number");
+        expect(poll.totalVotes).toBeGreaterThanOrEqual(0);
 
-          // Property 7: Poll must have engagement metrics
-          expect(typeof poll.reactionsCount).toBe("number");
-          expect(poll.reactionsCount).toBeGreaterThanOrEqual(0);
-          expect(typeof poll.commentsCount).toBe("number");
-          expect(poll.commentsCount).toBeGreaterThanOrEqual(0);
+        // Property 7: Poll must have engagement metrics
+        expect(typeof poll.reactionsCount).toBe("number");
+        expect(poll.reactionsCount).toBeGreaterThanOrEqual(0);
 
-          // Property 8: Poll must have status
-          expect(poll.status).toBeDefined();
-          expect(["active", "expired", "closed"]).toContain(poll.status);
+        // Property 8: Poll must have status
+        expect(poll.status).toBeDefined();
+        expect(["active", "expired", "closed"]).toContain(poll.status);
 
-          // Property 9: Poll must have settings
-          expect(poll.settings).toBeDefined();
-          expect(typeof poll.settings.anonymousVoting).toBe("boolean");
+        // Property 9: Poll must have settings
+        expect(poll.settings).toBeDefined();
+        expect(typeof poll.settings.anonymousVoting).toBe("boolean");
 
-          // Property 10: Poll must have canViewResults flag
-          expect(typeof poll.canViewResults).toBe("boolean");
+        // Property 10: Poll must have canViewResults flag
+        expect(typeof poll.canViewResults).toBe("boolean");
 
-          // Property 11: Poll must have timestamps
-          expect(poll.createdAt).toBeDefined();
-          expect(poll.updatedAt).toBeDefined();
-        }
-      ),
-      { numRuns: 30 }
+        // Property 11: Poll must have timestamps
+        expect(poll.createdAt).toBeDefined();
+        expect(poll.updatedAt).toBeDefined();
+      }),
+      { numRuns: 30 },
     );
   });
 
@@ -194,7 +191,7 @@ describe("Poll Display Property Tests", () => {
 
           // Calculate percentages
           const percentages = voteCounts.map((count) =>
-            Math.round((count / totalVotes) * 100)
+            Math.round((count / totalVotes) * 100),
           );
 
           // Property: Sum of rounded percentages should be close to 100
@@ -208,9 +205,9 @@ describe("Poll Display Property Tests", () => {
             expect(pct).toBeGreaterThanOrEqual(0);
             expect(pct).toBeLessThanOrEqual(100);
           });
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -229,9 +226,9 @@ describe("Poll Display Property Tests", () => {
 
           // Property: Total votes should be non-negative
           expect(totalVotes).toBeGreaterThanOrEqual(0);
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -255,9 +252,9 @@ describe("Poll Display Property Tests", () => {
           // Property: Vote indices should be unique (no duplicates)
           const uniqueVotes = [...new Set(validVote)];
           expect(uniqueVotes.length).toBe(validVote.length);
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -267,13 +264,13 @@ describe("Poll Display Property Tests", () => {
         fc.constantFrom(
           "active" as const,
           "expired" as const,
-          "closed" as const
+          "closed" as const,
         ),
         fc.option(
           fc.date({
             min: new Date(Date.now() - 86400000),
             max: new Date(Date.now() + 86400000),
-          })
+          }),
         ),
         async (status, expiresAt) => {
           const now = new Date();
@@ -294,9 +291,9 @@ describe("Poll Display Property Tests", () => {
           if (status === "active" && (!expiresAt || expiresAt > now)) {
             expect(canVote).toBe(true);
           }
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 });

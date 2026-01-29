@@ -36,7 +36,6 @@ export interface Poll {
   expiresAt?: string | null;
   totalVotes: number;
   reactionsCount: number;
-  commentsCount: number;
   userVote?: number[];
   canViewResults: boolean;
   createdAt: string;

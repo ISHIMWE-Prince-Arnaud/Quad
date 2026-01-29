@@ -4,7 +4,7 @@ export interface BaseContent {
   createdAt: string;
   updatedAt: string;
   likes: number;
-  comments: number;
+  comments?: number;
   shares?: number;
   isLiked?: boolean;
 }

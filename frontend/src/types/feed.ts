@@ -14,7 +14,7 @@ export interface FeedAuthor {
 
 export interface FeedEngagementMetrics {
   reactions: number;
-  comments: number;
+  comments?: number;
   votes: number;
 }
 

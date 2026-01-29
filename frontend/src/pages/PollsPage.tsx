@@ -118,7 +118,6 @@ export default function PollsPage() {
                 ...poll,
                 totalVotes: payload.votes ?? poll.totalVotes,
                 reactionsCount: payload.reactionsCount ?? poll.reactionsCount,
-                commentsCount: payload.commentsCount ?? poll.commentsCount,
               };
             }
             return poll;

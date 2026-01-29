@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  Heart,
-  MoreHorizontal,
-  Play,
-  Share,
-} from "lucide-react";
+import { Heart, MoreHorizontal, Play, Share } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -41,7 +36,7 @@ export function ContentCard({ item }: { item: ContentItem }) {
             <p
               className={cn(
                 "text-sm text-foreground leading-relaxed",
-                !isExpanded && item.content.length > 150 && "line-clamp-3"
+                !isExpanded && item.content.length > 150 && "line-clamp-3",
               )}>
               {item.content}
             </p>
@@ -60,7 +55,7 @@ export function ContentCard({ item }: { item: ContentItem }) {
                   "grid gap-2 rounded-lg overflow-hidden",
                   item.images.length === 1 && "grid-cols-1",
                   item.images.length === 2 && "grid-cols-2",
-                  item.images.length > 2 && "grid-cols-2"
+                  item.images.length > 2 && "grid-cols-2",
                 )}>
                 {item.images.slice(0, 4).map((image, idx) => (
                   <div key={idx} className="relative aspect-square bg-muted">
@@ -111,7 +106,9 @@ export function ContentCard({ item }: { item: ContentItem }) {
         );
 
       case "poll": {
-        const isActive = item.endsAt ? new Date(item.endsAt) > new Date() : true;
+        const isActive = item.endsAt
+          ? new Date(item.endsAt) > new Date()
+          : true;
 
         return (
           <div className="space-y-3">
@@ -130,7 +127,7 @@ export function ContentCard({ item }: { item: ContentItem }) {
                         "p-3 rounded-lg border text-sm transition-colors",
                         item.hasVoted && !isActive
                           ? "bg-muted cursor-default"
-                          : "hover:bg-accent cursor-pointer"
+                          : "hover:bg-accent cursor-pointer",
                       )}>
                       <div className="flex justify-between items-center">
                         <span>{option.text}</span>
@@ -208,20 +205,25 @@ export function ContentCard({ item }: { item: ContentItem }) {
               size="sm"
               className={cn(
                 "h-auto p-0 text-muted-foreground hover:text-red-500",
-                item.isLiked && "text-red-500"
+                item.isLiked && "text-red-500",
               )}>
               <Heart
                 className={cn("h-4 w-4 mr-1", item.isLiked && "fill-current")}
               />
               <span className="text-xs">{item.likes}</span>
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-auto p-0 text-muted-foreground hover:text-primary">
-              <CommentCountIcon count={item.comments} className="h-4 w-4 mr-1" />
-              <span className="text-xs">{item.comments}</span>
-            </Button>
+            {item.type !== "poll" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 text-muted-foreground hover:text-primary">
+                <CommentCountIcon
+                  count={item.comments ?? 0}
+                  className="h-4 w-4 mr-1"
+                />
+                <span className="text-xs">{item.comments ?? 0}</span>
+              </Button>
+            )}
             {item.shares !== undefined && (
               <Button
                 variant="ghost"
