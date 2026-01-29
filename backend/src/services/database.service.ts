@@ -18,7 +18,9 @@ export class DatabaseService {
   /**
    * Get user by clerk ID with error handling
    */
-  static async getUserByClerkId(clerkId: string): Promise<IUserDocument | null> {
+  static async getUserByClerkId(
+    clerkId: string,
+  ): Promise<IUserDocument | null> {
     try {
       return await User.findOne({ clerkId });
     } catch (error) {
@@ -43,13 +45,16 @@ export class DatabaseService {
    * Get multiple users by IDs (prevents N+1 queries)
    */
   static async getUsersByIds(
-    userIds: string[]
+    userIds: string[],
   ): Promise<Map<string, Record<string, unknown>>> {
     try {
       const users = await User.find({ _id: { $in: userIds } }).lean();
       const userMap = new Map<string, Record<string, unknown>>();
       users.forEach((user) => {
-        userMap.set(String((user as { _id?: unknown })._id), user as Record<string, unknown>);
+        userMap.set(
+          String((user as { _id?: unknown })._id),
+          user as Record<string, unknown>,
+        );
       });
       return userMap;
     } catch (error) {
@@ -61,7 +66,10 @@ export class DatabaseService {
   /**
    * Get follow status between users
    */
-  static async getFollowStatus(followerId: string, followingId: string): Promise<boolean> {
+  static async getFollowStatus(
+    followerId: string,
+    followingId: string,
+  ): Promise<boolean> {
     try {
       const follow = await Follow.findOne({
         userId: followerId,
@@ -69,7 +77,7 @@ export class DatabaseService {
       }).lean();
       return !!follow;
     } catch (error) {
-      logger.error('Failed to get follow status', error);
+      logger.error("Failed to get follow status", error);
       return false;
     }
   }
@@ -78,8 +86,8 @@ export class DatabaseService {
    * Get multiple follow statuses (prevents N+1 queries)
    */
   static async getMultipleFollowStatuses(
-    followerId: string, 
-    followingIds: string[]
+    followerId: string,
+    followingIds: string[],
   ): Promise<Map<string, boolean>> {
     try {
       const follows = await Follow.find({
@@ -88,14 +96,14 @@ export class DatabaseService {
       }).lean();
 
       const followMap = new Map<string, boolean>();
-      followingIds.forEach(id => followMap.set(id, false));
-      follows.forEach(follow => {
+      followingIds.forEach((id) => followMap.set(id, false));
+      follows.forEach((follow) => {
         followMap.set(String(follow.followingId), true);
       });
 
       return followMap;
     } catch (error) {
-      logger.error('Failed to get multiple follow statuses', error);
+      logger.error("Failed to get multiple follow statuses", error);
       return new Map();
     }
   }
@@ -104,19 +112,19 @@ export class DatabaseService {
    * Get user reaction to content
    */
   static async getUserReaction(
-    userId: string, 
-    contentType: string, 
-    contentId: string
+    userId: string,
+    contentType: string,
+    contentId: string,
   ): Promise<string | null> {
     try {
       const reaction = await Reaction.findOne({
         userId,
         contentType,
-        contentId
+        contentId,
       }).lean();
       return reaction?.type || null;
     } catch (error) {
-      logger.error('Failed to get user reaction', error);
+      logger.error("Failed to get user reaction", error);
       return null;
     }
   }
@@ -126,28 +134,28 @@ export class DatabaseService {
    */
   static async getMultipleUserReactions(
     userId: string,
-    contentItems: Array<{ type: string; id: string }>
+    contentItems: Array<{ type: string; id: string }>,
   ): Promise<Map<string, string>> {
     try {
-      const queries = contentItems.map(item => ({
+      const queries = contentItems.map((item) => ({
         userId,
         contentType: item.type,
-        contentId: item.id
+        contentId: item.id,
       }));
 
       const reactions = await Reaction.find({
-        $or: queries
+        $or: queries,
       }).lean();
 
       const reactionMap = new Map<string, string>();
-      reactions.forEach(reaction => {
+      reactions.forEach((reaction) => {
         const key = `${reaction.contentType}:${reaction.contentId}`;
         reactionMap.set(key, reaction.type);
       });
 
       return reactionMap;
     } catch (error) {
-      logger.error('Failed to get multiple user reactions', error);
+      logger.error("Failed to get multiple user reactions", error);
       return new Map();
     }
   }
@@ -158,28 +166,36 @@ export class DatabaseService {
   static async updateReactionCount(
     contentType: string,
     contentId: string,
-    increment: number = 1
+    increment: number = 1,
   ): Promise<boolean> {
     try {
       switch (contentType) {
-        case 'post':
-          await Post.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
+        case "post":
+          await Post.findByIdAndUpdate(contentId, {
+            $inc: { reactionsCount: increment },
+          });
           break;
-        case 'story':
-          await Story.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
+        case "story":
+          await Story.findByIdAndUpdate(contentId, {
+            $inc: { reactionsCount: increment },
+          });
           break;
-        case 'poll':
-          await Poll.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
+        case "poll":
+          await Poll.findByIdAndUpdate(contentId, {
+            $inc: { reactionsCount: increment },
+          });
           break;
-        case 'comment':
-          await Comment.findByIdAndUpdate(contentId, { $inc: { reactionsCount: increment } });
+        case "comment":
+          await Comment.findByIdAndUpdate(contentId, {
+            $inc: { reactionsCount: increment },
+          });
           break;
         default:
           return false;
       }
       return true;
     } catch (error) {
-      logger.error('Failed to update reaction count', error);
+      logger.error("Failed to update reaction count", error);
       return false;
     }
   }
@@ -190,25 +206,26 @@ export class DatabaseService {
   static async updateCommentCount(
     contentType: string,
     contentId: string,
-    increment: number = 1
+    increment: number = 1,
   ): Promise<boolean> {
     try {
       switch (contentType) {
-        case 'post':
-          await Post.findByIdAndUpdate(contentId, { $inc: { commentsCount: increment } });
+        case "post":
+          await Post.findByIdAndUpdate(contentId, {
+            $inc: { commentsCount: increment },
+          });
           break;
-        case 'story':
-          await Story.findByIdAndUpdate(contentId, { $inc: { commentsCount: increment } });
-          break;
-        case 'poll':
-          await Poll.findByIdAndUpdate(contentId, { $inc: { commentsCount: increment } });
+        case "story":
+          await Story.findByIdAndUpdate(contentId, {
+            $inc: { commentsCount: increment },
+          });
           break;
         default:
           return false;
       }
       return true;
     } catch (error) {
-      logger.error('Failed to update comment count', error);
+      logger.error("Failed to update comment count", error);
       return false;
     }
   }
@@ -218,16 +235,16 @@ export class DatabaseService {
    */
   static async updateFollowerCount(
     userId: string,
-    increment: number = 1
+    increment: number = 1,
   ): Promise<boolean> {
     try {
       await User.findOneAndUpdate(
         { clerkId: userId },
-        { $inc: { followersCount: increment } }
+        { $inc: { followersCount: increment } },
       ).lean();
       return true;
     } catch (error) {
-      logger.error('Failed to update follower count', error);
+      logger.error("Failed to update follower count", error);
       return false;
     }
   }
@@ -237,16 +254,16 @@ export class DatabaseService {
    */
   static async updateFollowingCount(
     userId: string,
-    increment: number = 1
+    increment: number = 1,
   ): Promise<boolean> {
     try {
       await User.findOneAndUpdate(
         { clerkId: userId },
-        { $inc: { followingCount: increment } }
+        { $inc: { followingCount: increment } },
       ).lean();
       return true;
     } catch (error) {
-      logger.error('Failed to update following count', error);
+      logger.error("Failed to update following count", error);
       return false;
     }
   }
@@ -257,15 +274,15 @@ export class DatabaseService {
   static async getContentWithAuthor<T extends Document>(
     Model: mongoose.Model<T>,
     query: mongoose.FilterQuery<T>,
-    options?: mongoose.QueryOptions<T>
+    options?: mongoose.QueryOptions<T>,
   ): Promise<LeanDocument<T>[]> {
     try {
       const results = await Model.find(query, null, options)
-        .populate('author', 'username displayName profileImage')
+        .populate("author", "username displayName profileImage")
         .lean();
       return results as LeanDocument<T>[];
     } catch (error) {
-      logger.error('Failed to get content with author', error);
+      logger.error("Failed to get content with author", error);
       return [];
     }
   }
@@ -278,23 +295,22 @@ export class DatabaseService {
     updates: Array<{
       filter: mongoose.FilterQuery<unknown>;
       update: mongoose.UpdateQuery<unknown>;
-    }>
+    }>,
   ): Promise<boolean> {
     try {
-      const bulkOps: Array<mongoose.AnyBulkWriteOperation<unknown>> = updates.map(
-        ({ filter, update }) => ({
-        updateOne: {
-          filter,
-          update,
-          upsert: false
-        }
-        })
-      );
+      const bulkOps: Array<mongoose.AnyBulkWriteOperation<unknown>> =
+        updates.map(({ filter, update }) => ({
+          updateOne: {
+            filter,
+            update,
+            upsert: false,
+          },
+        }));
 
       await Model.bulkWrite(bulkOps);
       return true;
     } catch (error) {
-      logger.error('Failed to perform batch update', error);
+      logger.error("Failed to perform batch update", error);
       return false;
     }
   }
