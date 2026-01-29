@@ -1,7 +1,7 @@
 import type { IUser } from "./user.types.js";
 import type { IMedia } from "./post.types.js";
 
-type IPollMedia = Omit<IMedia, "type"> & { type: "image" };
+export type IPollMedia = Omit<IMedia, "type"> & { type: "image" };
 
 /**
  * Poll Status

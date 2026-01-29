@@ -2,13 +2,13 @@ import { Poll } from "../models/Poll.model.js";
 import { PollVote } from "../models/PollVote.model.js";
 import type { IPollVoteDocument } from "../models/PollVote.model.js";
 import { User } from "../models/User.model.js";
-import type { IMedia } from "../types/post.types.js";
 import type { SortOrder } from "mongoose";
 import type {
   CreatePollSchemaType,
   GetPollsQuerySchemaType,
   UpdatePollSchemaType,
 } from "../schemas/poll.schema.js";
+import type { IPollMedia } from "../types/poll.types.js";
 import { getSocketIO } from "../config/socket.config.js";
 import {
   emitContentDeleted,
@@ -210,9 +210,13 @@ export class PollService {
     if (updates.questionMedia !== undefined) {
       const { url, type, aspectRatio } = updates.questionMedia;
 
-      const questionMedia: IMedia = {
+      if (type !== "image") {
+        throw new AppError("Poll questionMedia must be an image", 400);
+      }
+
+      const questionMedia: IPollMedia = {
         url,
-        type,
+        type: "image",
         ...(aspectRatio !== undefined ? { aspectRatio } : {}),
       };
 
