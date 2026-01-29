@@ -20,7 +20,6 @@ export class PollSource implements FeedSource {
       createdAt: poll.createdAt,
       authorId: getContentAuthorId(poll),
       reactionsCount: poll.reactionsCount || 0,
-      commentsCount: 0,
       totalVotes: poll.totalVotes || 0,
     }));
   }

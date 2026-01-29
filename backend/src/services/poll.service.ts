@@ -65,7 +65,6 @@ export class PollService {
         : {}),
       totalVotes: 0,
       reactionsCount: 0,
-      commentsCount: 0,
     });
 
     const io = getSocketIO();
@@ -318,7 +317,7 @@ export class PollService {
       "poll",
       id,
       poll.reactionsCount,
-      0,
+      undefined,
       poll.totalVotes,
     );
 
@@ -358,7 +357,7 @@ export class PollService {
       "poll",
       id,
       poll.reactionsCount,
-      0,
+      undefined,
       poll.totalVotes,
     );
   }

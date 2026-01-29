@@ -152,6 +152,17 @@ PollSchema.index({
   reactionsCount: -1,
 });
 
+PollSchema.path("questionMedia").validate(function (value: unknown) {
+  if (!value) return true;
+  if (typeof value !== "object") return false;
+  const media = value as Record<string, unknown>;
+
+  const url = media.url;
+  const type = media.type;
+
+  return typeof url === "string" && url.length > 0 && type === "image";
+}, "Poll questionMedia must include url and type 'image'");
+
 // ===========================
 // PRE-SAVE HOOKS
 // ===========================

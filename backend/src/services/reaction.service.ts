@@ -24,12 +24,11 @@ export class ReactionService {
   private static async getEngagementSnapshot(
     contentType: ReactableContentType,
     contentId: string,
-  ): Promise<{ commentsCount: number; votes?: number }> {
+  ): Promise<{ commentsCount?: number; votes?: number }> {
     if (contentType === "poll") {
       const { Poll } = await import("../models/Poll.model.js");
       const poll = await Poll.findById(contentId).select("totalVotes");
       return {
-        commentsCount: 0,
         votes: poll?.totalVotes ?? 0,
       };
     }
@@ -46,7 +45,7 @@ export class ReactionService {
       return { commentsCount: story?.commentsCount ?? 0 };
     }
 
-    return { commentsCount: 0 };
+    return {};
   }
 
   static async toggleReaction(userId: string, data: ToggleReactionInput) {

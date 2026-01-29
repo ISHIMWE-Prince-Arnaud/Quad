@@ -9,7 +9,7 @@ export const emitNewContent = (
   io: Server,
   contentType: FeedItemType,
   contentId: string,
-  authorId: string
+  authorId: string,
 ) => {
   io.emit("feed:new-content", {
     contentType,
@@ -27,14 +27,14 @@ export const emitEngagementUpdate = (
   contentType: FeedItemType,
   contentId: string,
   reactionsCount: number,
-  commentsCount: number,
-  votes?: number
+  commentsCount?: number,
+  votes?: number,
 ) => {
   io.emit("feed:engagement-update", {
     contentType,
     contentId,
     reactionsCount,
-    commentsCount,
+    ...(commentsCount !== undefined && { commentsCount }),
     ...(votes !== undefined && { votes }),
     timestamp: new Date().toISOString(),
   });
@@ -46,7 +46,7 @@ export const emitEngagementUpdate = (
 export const emitContentDeleted = (
   io: Server,
   contentType: FeedItemType,
-  contentId: string
+  contentId: string,
 ) => {
   io.emit("feed:content-deleted", {
     contentType,

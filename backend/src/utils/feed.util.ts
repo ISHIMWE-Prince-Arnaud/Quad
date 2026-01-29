@@ -63,7 +63,7 @@ export const calculateEngagementScore = (
 ): number => {
   if (maxEngagement === 0) return 0;
 
-  let engagement = item.reactionsCount + item.commentsCount;
+  let engagement = item.reactionsCount + (item.commentsCount || 0);
   if (item.type === "poll" && item.totalVotes) {
     engagement += item.totalVotes * 0.5; // Votes count less than reactions/comments
   }
@@ -189,7 +189,6 @@ export const fetchPolls = async (
     createdAt: poll.createdAt,
     authorId: getContentAuthorId(poll),
     reactionsCount: poll.reactionsCount || 0,
-    commentsCount: 0,
     totalVotes: poll.totalVotes || 0,
   }));
 };
@@ -303,7 +302,9 @@ export const scoreAndRankContent = async (
   const maxEngagement = Math.max(
     ...items.map(
       (item) =>
-        item.reactionsCount + item.commentsCount + (item.totalVotes || 0),
+        item.reactionsCount +
+        (item.commentsCount || 0) +
+        (item.totalVotes || 0),
     ),
   );
   const maxFollowers = Math.max(...Array.from(followerCounts.values()));
@@ -347,7 +348,7 @@ export const scoreAndRankContent = async (
       authorId: item.authorId,
       engagementMetrics: {
         reactions: item.reactionsCount,
-        comments: item.commentsCount,
+        ...(item.type !== "poll" && { comments: item.commentsCount || 0 }),
         votes: item.totalVotes || 0,
       },
       author: {

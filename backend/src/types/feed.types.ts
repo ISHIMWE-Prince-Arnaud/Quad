@@ -40,7 +40,7 @@ export interface IFeedItem {
   authorId: string;
   engagementMetrics: {
     reactions: number;
-    comments: number;
+    comments?: number;
     votes: number; // polls have votes, others have 0
   };
   author: {
@@ -111,6 +111,6 @@ export interface IRawContentItem {
   createdAt: Date;
   authorId: string;
   reactionsCount: number;
-  commentsCount: number;
+  commentsCount?: number;
   totalVotes?: number; // polls only
 }

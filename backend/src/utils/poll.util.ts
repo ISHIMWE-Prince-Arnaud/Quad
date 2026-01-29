@@ -126,7 +126,6 @@ export const formatPollResponse = (
     expiresAt: poll.expiresAt,
     totalVotes: poll.totalVotes,
     reactionsCount: poll.reactionsCount,
-    commentsCount: 0,
     createdAt: poll.createdAt,
     updatedAt: poll.updatedAt,
   };
