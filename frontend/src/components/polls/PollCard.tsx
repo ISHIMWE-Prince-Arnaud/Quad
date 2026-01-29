@@ -108,13 +108,14 @@ export function PollCard({
     expiresAtDate &&
     expiresAtDate.getTime() <= now.getTime(),
   );
-  const isActive = poll.status === "active" && !isExpiredByTime;
+  const isExpired = poll.status === "expired" || isExpiredByTime;
+  const isActive = poll.status === "active" && !isExpired;
 
   const statusText = (() => {
     if (isActive) {
       if (hasValidExpiresAt && expiresAtDate)
         return formatExpiresIn(expiresAtDate);
-      return "Expires soon";
+      return "Active";
     }
 
     const fallbackDate = new Date(poll.updatedAt || poll.createdAt);
@@ -123,10 +124,10 @@ export function PollCard({
       month: "short",
       day: "2-digit",
     });
-    return poll.status === "expired"
-      ? `Expired ${dateText}`
-      : `Closed ${dateText}`;
+    return isExpired ? `Expired ${dateText}` : `Closed ${dateText}`;
   })();
+
+  const badgeTitle = isActive && !hasValidExpiresAt ? "No expiry" : undefined;
 
   const badgeClassName = isActive
     ? "gap-1.5 border-emerald-500/25 bg-emerald-500/15 text-emerald-200 shadow-sm backdrop-blur-sm hover:bg-emerald-500/15 focus:ring-0 focus:ring-offset-0"
@@ -206,7 +207,7 @@ export function PollCard({
                   </Link>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge className={badgeClassName}>
+                    <Badge className={badgeClassName} title={badgeTitle}>
                       <span className={badgeDotClassName} />
                       <span className="whitespace-nowrap">{statusText}</span>
                     </Badge>
@@ -248,7 +249,7 @@ export function PollCard({
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge className={badgeClassName}>
+                    <Badge className={badgeClassName} title={badgeTitle}>
                       <span className={badgeDotClassName} />
                       <span className="whitespace-nowrap">{statusText}</span>
                     </Badge>
