@@ -101,7 +101,8 @@ export function PollVotingSection({
                   ? Math.round((votesCount / localPoll.totalVotes) * 100)
                   : 0;
             const isSelected = selectedIndices.includes(option.index);
-            const showResults = Boolean(localPoll.canViewResults) && resultsVisible;
+            const showResults =
+              Boolean(localPoll.canViewResults) && resultsVisible;
             const isLocked = !canVote || voting;
             const dimmed = selectedIndices.length > 0 && !isSelected;
 
@@ -117,7 +118,7 @@ export function PollVotingSection({
                   isLocked && "cursor-default",
                   dimmed && !showResults && "opacity-55",
                   isSelected && "ring-2 ring-primary",
-                  isSelected && !isLocked && "scale-[1.01]"
+                  isSelected && !isLocked && "scale-[1.01]",
                 )}>
                 {/* Animated gradient progress bar */}
                 <AnimatePresence mode="wait">
@@ -143,7 +144,7 @@ export function PollVotingSection({
                       isSelected && "font-semibold",
                       showResults &&
                         percentage > 50 &&
-                        "text-primary-foreground"
+                        "text-primary-foreground",
                     )}>
                     {option.text}
                     {isSelected && " ✓"}
@@ -154,7 +155,7 @@ export function PollVotingSection({
                         "text-sm font-medium ml-2",
                         percentage > 50
                           ? "text-primary-foreground"
-                          : "text-muted-foreground"
+                          : "text-muted-foreground",
                       )}>
                       {percentage}%
                     </span>

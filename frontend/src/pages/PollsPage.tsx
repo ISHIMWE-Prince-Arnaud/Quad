@@ -6,11 +6,14 @@ import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams } from "@/types/poll";
 import { SkeletonPost } from "@/components/ui/loading";
 import { getSocket } from "@/lib/socket";
-import type { FeedEngagementUpdatePayload, PollVotedPayload } from "@/lib/socket";
+import type {
+  FeedEngagementUpdatePayload,
+  PollVotedPayload,
+} from "@/lib/socket";
 import { logError } from "@/lib/errorHandling";
 
 import { getErrorMessage } from "./polls/getErrorMessage";
-import { PollCard } from "./polls/PollCard";
+import { PollCard } from "@/components/polls/PollCard";
 import { PollsHeader } from "./polls/PollsHeader";
 
 export default function PollsPage() {
@@ -24,7 +27,9 @@ export default function PollsPage() {
 
   const handlePollUpdate = (updatedPoll: Poll) => {
     setPolls((prevPolls) =>
-      prevPolls.map((poll) => (poll.id === updatedPoll.id ? updatedPoll : poll))
+      prevPolls.map((poll) =>
+        poll.id === updatedPoll.id ? updatedPoll : poll,
+      ),
     );
   };
 
@@ -33,7 +38,7 @@ export default function PollsPage() {
       page,
       limit: 10,
     }),
-    [page]
+    [page],
   );
 
   useEffect(() => {
@@ -85,7 +90,11 @@ export default function PollsPage() {
           setHasMore(res.pagination?.hasMore ?? false);
         }
       } catch (err) {
-        logError(err, { component: "PollsPage", action: "loadPolls", metadata: queryParams });
+        logError(err, {
+          component: "PollsPage",
+          action: "loadPolls",
+          metadata: queryParams,
+        });
         if (!cancelled) setError(getErrorMessage(err));
       } finally {
         if (!cancelled) setLoading(false);
@@ -113,7 +122,7 @@ export default function PollsPage() {
               };
             }
             return poll;
-          })
+          }),
         );
       }
     };
@@ -128,19 +137,25 @@ export default function PollsPage() {
           if (String(poll.id) !== String(payload.pollId)) return poll;
 
           const totalVotes =
-            typeof payload.totalVotes === "number" ? payload.totalVotes : poll.totalVotes;
+            typeof payload.totalVotes === "number"
+              ? payload.totalVotes
+              : poll.totalVotes;
 
           const options = poll.options.map((opt, idx) => {
             const optionIndex = typeof opt.index === "number" ? opt.index : idx;
             const votesCountRaw = payload.updatedVoteCounts?.[optionIndex];
             const votesCount =
-              typeof votesCountRaw === "number" ? votesCountRaw : (opt.votesCount ?? 0);
+              typeof votesCountRaw === "number"
+                ? votesCountRaw
+                : (opt.votesCount ?? 0);
 
             return {
               ...opt,
               votesCount,
               percentage:
-                totalVotes > 0 ? Math.round((votesCount / totalVotes) * 100) : 0,
+                totalVotes > 0
+                  ? Math.round((votesCount / totalVotes) * 100)
+                  : 0,
             };
           });
 
@@ -149,7 +164,7 @@ export default function PollsPage() {
             totalVotes,
             options,
           };
-        })
+        }),
       );
     };
 
@@ -163,7 +178,7 @@ export default function PollsPage() {
             ...poll,
             status: "expired",
           };
-        })
+        }),
       );
     };
 
@@ -182,46 +197,46 @@ export default function PollsPage() {
 
   return (
     <div className="mx-auto max-w-[620px] space-y-6">
-        <PollsHeader />
+      <PollsHeader />
 
-        {error && (
-          <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-            {error}
-          </div>
-        )}
+      {error && (
+        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
-        {loading && polls.length === 0 && (
-          <div className="space-y-4 py-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <SkeletonPost key={i} />
-            ))}
-          </div>
-        )}
-
-        {!loading && !error && polls.length === 0 && (
-          <Card>
-            <CardContent className="py-10 text-center text-sm text-muted-foreground">
-              No polls found.
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="space-y-6">
-          {polls.map((poll) => (
-            <PollCard key={poll.id} poll={poll} onUpdate={handlePollUpdate} />
+      {loading && polls.length === 0 && (
+        <div className="space-y-4 py-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonPost key={i} />
           ))}
         </div>
+      )}
 
-        {!loading && hasMore && (
-          <div className="flex justify-center pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleChangePage(page + 1)}>
-              Load more
-            </Button>
-          </div>
-        )}
+      {!loading && !error && polls.length === 0 && (
+        <Card>
+          <CardContent className="py-10 text-center text-sm text-muted-foreground">
+            No polls found.
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="space-y-6">
+        {polls.map((poll) => (
+          <PollCard key={poll.id} poll={poll} onUpdate={handlePollUpdate} />
+        ))}
+      </div>
+
+      {!loading && hasMore && (
+        <div className="flex justify-center pt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleChangePage(page + 1)}>
+            Load more
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
