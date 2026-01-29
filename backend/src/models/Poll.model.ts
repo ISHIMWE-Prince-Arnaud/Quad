@@ -28,6 +28,26 @@ export interface IPollDocument extends Document {
   updatedAt: Date;
 }
 
+const PollMediaSchema = new Schema(
+  {
+    url: { type: String, required: false },
+    type: {
+      type: String,
+      enum: ["image"],
+      required: false,
+    },
+    aspectRatio: {
+      type: String,
+      enum: ["1:1", "16:9", "9:16"],
+      required: false,
+    },
+  },
+  {
+    _id: false,
+    id: false,
+  },
+);
+
 const PollSchema = new Schema<IPollDocument>(
   {
     // Author (embedded user snapshot)
@@ -47,17 +67,8 @@ const PollSchema = new Schema<IPollDocument>(
 
     // Question media (optional)
     questionMedia: {
-      url: { type: String, required: false },
-      type: {
-        type: String,
-        enum: ["image"],
-        required: false,
-      },
-      aspectRatio: {
-        type: String,
-        enum: ["1:1", "16:9", "9:16"],
-        required: false,
-      },
+      type: PollMediaSchema,
+      required: false,
     },
 
     // Options (2-5 options)

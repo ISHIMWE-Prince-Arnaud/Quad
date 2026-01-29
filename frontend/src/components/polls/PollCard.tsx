@@ -70,25 +70,30 @@ export function PollCard({
 
     if (diffMs <= 0) return "Expired";
 
-    const diffMinutes = Math.ceil(diffMs / (60 * 1000));
-    const diffHours = Math.ceil(diffMs / (60 * 60 * 1000));
-    const diffDays = Math.ceil(diffMs / (24 * 60 * 60 * 1000));
-    const diffWeeks = Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000));
-    const diffMonths = Math.ceil(diffMs / (30 * 24 * 60 * 60 * 1000));
+    const minuteMs = 60 * 1000;
+    const hourMs = 60 * minuteMs;
+    const dayMs = 24 * hourMs;
+    const weekMs = 7 * dayMs;
+    const monthMs = 30 * dayMs;
 
-    if (diffMonths >= 2) return `Expires in ${diffMonths} months`;
-    if (diffMonths === 1) return "Expires in 1 month";
+    if (diffMs >= 2 * monthMs)
+      return `Expires in ${Math.ceil(diffMs / monthMs)} months`;
+    if (diffMs >= monthMs) return "Expires in 1 month";
 
-    if (diffWeeks >= 2) return `Expires in ${diffWeeks} weeks`;
-    if (diffWeeks === 1) return "Expires in 1 week";
+    if (diffMs >= 2 * weekMs)
+      return `Expires in ${Math.ceil(diffMs / weekMs)} weeks`;
+    if (diffMs >= weekMs) return "Expires in 1 week";
 
-    if (diffDays >= 2) return `Expires in ${diffDays} days`;
-    if (diffDays === 1) return "Expires in 1 day";
+    if (diffMs >= 2 * dayMs)
+      return `Expires in ${Math.ceil(diffMs / dayMs)} days`;
+    if (diffMs >= dayMs) return "Expires in 1 day";
 
-    if (diffHours >= 2) return `Expires in ${diffHours} hours`;
-    if (diffHours === 1) return "Expires in 1 hour";
+    if (diffMs >= 2 * hourMs)
+      return `Expires in ${Math.ceil(diffMs / hourMs)} hours`;
+    if (diffMs >= hourMs) return "Expires in 1 hour";
 
-    if (diffMinutes >= 2) return `Expires in ${diffMinutes} minutes`;
+    if (diffMs >= 2 * minuteMs)
+      return `Expires in ${Math.ceil(diffMs / minuteMs)} minutes`;
     return "Expires in 1 minute";
   };
 
