@@ -123,7 +123,7 @@ export function PollCard({
       month: "short",
       day: "2-digit",
     });
-    return `Expired/Closed ${dateText}`;
+    return `Closed ${dateText}`;
   })();
 
   const {
