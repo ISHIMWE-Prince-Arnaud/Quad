@@ -332,7 +332,7 @@ export function PollCard({
                   {hasUserVoted && (
                     <div className="flex items-center gap-2 text-[#94a3b8]">
                       <FaUsers className="h-4 w-4" />
-                      <span className="text-[12px] font-medium">
+                      <span className="text-[12px] font-medium leading-none">
                         {localPoll.totalVotes}
                       </span>
                     </div>
