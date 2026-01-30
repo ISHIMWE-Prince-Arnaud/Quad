@@ -130,18 +130,17 @@ export function PollCard({
   const isExpired = poll.status === "expired" || isExpiredByTime;
   const isActive = poll.status === "active" && !isExpired;
 
-  const statusText = (() => {
+  const statusLines = (() => {
     if (isActive) {
       if (hasValidExpiresAt && expiresAtDate)
-        return formatExpiresIn(expiresAtDate);
-      return "Active";
+        return { primary: formatExpiresIn(expiresAtDate) };
+      return { primary: "Active" };
     }
 
-    const parts = ["Expired (can't vote)"];
-    if (poll.canViewResults) {
-      parts.push("Results unlocked");
-    }
-    return parts.join(" · ");
+    return {
+      primary: "Expired (can't vote)",
+      secondary: poll.canViewResults ? "Results unlocked" : undefined,
+    };
   })();
 
   const badgeTitle = (() => {
@@ -248,7 +247,16 @@ export function PollCard({
                   <div className="flex items-center gap-2 shrink-0">
                     <Badge className={badgeClassName} title={badgeTitle}>
                       <span className={badgeDotClassName} />
-                      <span className="whitespace-nowrap">{statusText}</span>
+                      <div className="flex flex-col leading-tight min-w-0">
+                        <span className="text-[12px] font-semibold">
+                          {statusLines.primary}
+                        </span>
+                        {statusLines.secondary && (
+                          <span className="text-[10px] font-semibold tracking-wide text-white/70">
+                            {statusLines.secondary}
+                          </span>
+                        )}
+                      </div>
                     </Badge>
 
                     {canManage && (
@@ -331,7 +339,16 @@ export function PollCard({
                   <div className="flex items-center gap-2 shrink-0">
                     <Badge className={badgeClassName} title={badgeTitle}>
                       <span className={badgeDotClassName} />
-                      <span className="whitespace-nowrap">{statusText}</span>
+                      <div className="flex flex-col leading-tight min-w-0">
+                        <span className="text-[12px] font-semibold">
+                          {statusLines.primary}
+                        </span>
+                        {statusLines.secondary && (
+                          <span className="text-[10px] font-semibold tracking-wide text-white/70">
+                            {statusLines.secondary}
+                          </span>
+                        )}
+                      </div>
                     </Badge>
 
                     {canManage && (
