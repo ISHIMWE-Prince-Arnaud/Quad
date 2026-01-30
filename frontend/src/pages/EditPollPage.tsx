@@ -34,6 +34,13 @@ export default function EditPollPage() {
     anonymousVoting: false,
   });
   const [duration, setDuration] = useState<PollDuration>("none");
+  const [initialState, setInitialState] = useState<{
+    question: string;
+    questionMedia?: PollMedia;
+    optionTexts: string[];
+    anonymousVoting: boolean;
+    duration: PollDuration;
+  } | null>(null);
   const [uploadingQuestionMedia, setUploadingQuestionMedia] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
     {},
@@ -93,19 +100,34 @@ export default function EditPollPage() {
 
         if (cancelled) return;
 
+        if ((res.data.totalVotes ?? 0) > 0) {
+          toast.error("You can't edit a poll after votes have been cast");
+          setPoll(null);
+          setError("You can't edit a poll after votes have been cast");
+          return;
+        }
+
         setPoll(res.data);
         setQuestion(res.data.question ?? "");
         setQuestionMedia(res.data.questionMedia);
-        setOptions(
-          (res.data.options || []).map((opt) => ({
-            id: crypto.randomUUID(),
-            text: opt.text,
-          })),
-        );
+        const loadedOptions = (res.data.options || []).map((opt) => ({
+          id: crypto.randomUUID(),
+          text: opt.text,
+        }));
+        setOptions(loadedOptions);
         setSettings({
           anonymousVoting: Boolean(res.data.settings?.anonymousVoting),
         });
-        setDuration(inferDurationFromExpiresAt(res.data.expiresAt));
+        const loadedDuration = inferDurationFromExpiresAt(res.data.expiresAt);
+        setDuration(loadedDuration);
+
+        setInitialState({
+          question: res.data.question ?? "",
+          questionMedia: res.data.questionMedia,
+          optionTexts: loadedOptions.map((o) => o.text.trim()),
+          anonymousVoting: Boolean(res.data.settings?.anonymousVoting),
+          duration: loadedDuration,
+        });
       } catch (err: unknown) {
         logError(err, {
           component: "EditPollPage",
@@ -123,6 +145,44 @@ export default function EditPollPage() {
     };
   }, [id]);
 
+  const isDirty = useMemo(() => {
+    if (!initialState) return false;
+
+    const currentOptionTexts = options.map((o) => o.text.trim());
+    const optionsChanged =
+      currentOptionTexts.length !== initialState.optionTexts.length ||
+      currentOptionTexts.some((t, i) => t !== initialState.optionTexts[i]);
+
+    const currentMediaKey = questionMedia
+      ? JSON.stringify({
+          url: questionMedia.url,
+          type: questionMedia.type,
+          aspectRatio: questionMedia.aspectRatio,
+        })
+      : "";
+    const initialMediaKey = initialState.questionMedia
+      ? JSON.stringify({
+          url: initialState.questionMedia.url,
+          type: initialState.questionMedia.type,
+          aspectRatio: initialState.questionMedia.aspectRatio,
+        })
+      : "";
+    const questionMediaChanged = currentMediaKey !== initialMediaKey;
+
+    const questionChanged = question.trim() !== initialState.question.trim();
+    const settingsChanged =
+      settings.anonymousVoting !== initialState.anonymousVoting;
+    const durationChanged = duration !== initialState.duration;
+
+    return (
+      questionChanged ||
+      questionMediaChanged ||
+      optionsChanged ||
+      settingsChanged ||
+      durationChanged
+    );
+  }, [duration, initialState, options, question, questionMedia, settings]);
+
   const canSubmit = useMemo(() => {
     const q = question.trim();
     const filledOptions = options
@@ -133,9 +193,10 @@ export default function EditPollPage() {
       q.length <= 500 &&
       filledOptions.length >= 2 &&
       filledOptions.length <= 5 &&
+      isDirty &&
       !isSubmitting
     );
-  }, [question, options, isSubmitting]);
+  }, [question, options, isSubmitting, isDirty]);
 
   const now = new Date();
   const expiresAtDate = poll?.expiresAt ? new Date(poll.expiresAt) : null;
@@ -227,8 +288,39 @@ export default function EditPollPage() {
     try {
       setIsSubmitting(true);
 
-      const expiresAt =
-        duration === "none"
+      const questionChanged =
+        !initialState || question.trim() !== initialState.question.trim();
+      const settingsChanged =
+        !initialState ||
+        settings.anonymousVoting !== initialState.anonymousVoting;
+      const durationChanged =
+        !initialState || duration !== initialState.duration;
+      const optionsChanged =
+        !initialState ||
+        options
+          .map((o) => o.text.trim())
+          .some((t, i) => t !== (initialState.optionTexts[i] ?? "")) ||
+        options.length !== initialState.optionTexts.length;
+
+      const questionMediaKey = questionMedia
+        ? JSON.stringify({
+            url: questionMedia.url,
+            type: questionMedia.type,
+            aspectRatio: questionMedia.aspectRatio,
+          })
+        : "";
+      const initialMediaKey = initialState?.questionMedia
+        ? JSON.stringify({
+            url: initialState.questionMedia.url,
+            type: initialState.questionMedia.type,
+            aspectRatio: initialState.questionMedia.aspectRatio,
+          })
+        : "";
+      const questionMediaChanged = questionMediaKey !== initialMediaKey;
+
+      const expiresAt = !durationChanged
+        ? undefined
+        : duration === "none"
           ? null
           : new Date(
               Date.now() +
@@ -240,15 +332,19 @@ export default function EditPollPage() {
             ).toISOString();
 
       const payload = {
-        question: trimmed,
-        questionMedia,
+        ...(questionChanged ? { question: trimmed } : {}),
+        ...(questionMediaChanged ? { questionMedia } : {}),
         ...(canEditRestricted
           ? {
-              settings: {
-                anonymousVoting: settings.anonymousVoting,
-              },
-              expiresAt,
-              ...(canEditOptions
+              ...(settingsChanged
+                ? {
+                    settings: {
+                      anonymousVoting: settings.anonymousVoting,
+                    },
+                  }
+                : {}),
+              ...(expiresAt !== undefined ? { expiresAt } : {}),
+              ...(canEditOptions && optionsChanged
                 ? { options: finalOptions.map((o) => ({ text: o.text })) }
                 : {}),
             }

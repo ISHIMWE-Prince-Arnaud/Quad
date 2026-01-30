@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 import { FaUsers } from "react-icons/fa";
 
@@ -75,6 +76,7 @@ export function PollCard({
   const canManage = isOwner;
   const canDelete = Boolean(onDelete) && isOwner;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const cannotEdit = poll.totalVotes > 0;
 
   const formatExpiresIn = (future: Date): string => {
     const now = new Date();
@@ -176,6 +178,10 @@ export function PollCard({
     usePollReactions(poll.id, poll.reactionsCount || 0);
 
   const handleEdit = () => {
+    if (cannotEdit) {
+      toast.error("You can't edit a poll after votes have been cast");
+      return;
+    }
     navigate(`/app/polls/${poll.id}/edit`);
   };
 
@@ -255,7 +261,12 @@ export function PollCard({
                           className="min-w-[180px] rounded-xl border border-white/10 bg-[#0b1220] p-1 text-white shadow-xl">
                           <DropdownMenuItem
                             onClick={handleEdit}
-                            className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                            aria-disabled={cannotEdit}
+                            className={cn(
+                              "gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5 focus:bg-white/5",
+                              cannotEdit &&
+                                "opacity-50 cursor-not-allowed hover:bg-transparent focus:bg-transparent",
+                            )}>
                             <Pencil
                               className="h-4 w-4 text-[#94a3b8]"
                               aria-hidden="true"
@@ -325,7 +336,12 @@ export function PollCard({
                           className="min-w-[180px] rounded-xl border border-white/10 bg-[#0b1220] p-1 text-white shadow-xl">
                           <DropdownMenuItem
                             onClick={handleEdit}
-                            className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                            aria-disabled={cannotEdit}
+                            className={cn(
+                              "gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5 focus:bg-white/5",
+                              cannotEdit &&
+                                "opacity-50 cursor-not-allowed hover:bg-transparent focus:bg-transparent",
+                            )}>
                             <Pencil
                               className="h-4 w-4 text-[#94a3b8]"
                               aria-hidden="true"

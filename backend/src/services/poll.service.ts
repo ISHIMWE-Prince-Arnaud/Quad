@@ -212,6 +212,12 @@ export class PollService {
       throw new AppError("Only the author can update this poll", 403);
     }
 
+    const hasVotes =
+      poll.totalVotes > 0 || (await PollVote.exists({ pollId: id })) !== null;
+    if (hasVotes) {
+      throw new AppError("Cannot edit a poll after votes have been cast", 400);
+    }
+
     const now = new Date();
     const isExpired =
       poll.status === "expired" ||
@@ -263,15 +269,6 @@ export class PollService {
     }
 
     if (updates.options !== undefined) {
-      const hasVotes =
-        poll.totalVotes > 0 || (await PollVote.exists({ pollId: id })) !== null;
-      if (hasVotes) {
-        throw new AppError(
-          "Cannot update options after votes have been cast",
-          400,
-        );
-      }
-
       poll.options = updates.options.map((opt) => ({
         text: opt.text,
         votesCount: 0,
