@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import toast from "react-hot-toast";
 
-import { FaUserCheck } from "react-icons/fa6";
+import { FaUsers } from "react-icons/fa";
 
-import { Bookmark, EyeOff, Info, MoreHorizontal, Share2 } from "lucide-react";
+import { Bookmark, EyeOff, Info, MoreHorizontal } from "lucide-react";
 
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn, copyToClipboard } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import type { Poll } from "@/types/poll";
 import type { PollCardProps } from "./poll-card/types";
@@ -167,15 +166,6 @@ export function PollCard({
 
   const { userReaction, reactionPending, reactionCount, handleSelectReaction } =
     usePollReactions(poll.id, poll.reactionsCount || 0);
-
-  const handleCopyLink = async () => {
-    const path = `/app/polls?pollId=${encodeURIComponent(poll.id)}`;
-    const url = `${window.location.origin}${path}`;
-
-    const ok = await copyToClipboard(url);
-    if (ok) toast.success("Poll link copied to clipboard");
-    else toast.error("Failed to copy link");
-  };
 
   const handleDelete = () => {
     if (!onDelete) return;
@@ -337,6 +327,26 @@ export function PollCard({
                     countClassName="text-xs font-bold text-[#64748b]"
                   />
 
+                  {hasUserVoted && (
+                    <div className="flex items-center gap-2 text-[#94a3b8]">
+                      <FaUsers className="h-4 w-4" />
+                      <span className="text-[12px] font-medium">
+                        {localPoll.totalVotes}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-center">
+                  {poll.settings.anonymousVoting && (
+                    <div className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-3 py-1.5 text-white text-[11px] font-bold tracking-wide">
+                      <EyeOff className="h-4 w-4" aria-hidden="true" />
+                      <span>ANONYMOUS</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-end text-[#94a3b8]">
                   <button
                     type="button"
                     onClick={toggleBookmark}
@@ -354,39 +364,6 @@ export function PollCard({
                       className={cn("h-4 w-4", bookmarked && "fill-current")}
                     />
                   </button>
-
-                  <button
-                    type="button"
-                    onClick={() => void handleCopyLink()}
-                    className={cn(
-                      actionBase,
-                      "hover:bg-white/5 hover:text-[#10b981]",
-                    )}
-                    aria-label="Share poll"
-                    title="Share">
-                    <Share2 className="h-4 w-4" />
-                  </button>
-                </div>
-
-                {hasUserVoted ? (
-                  <div className="flex items-center justify-center gap-2 text-[#94a3b8]">
-                    <FaUserCheck className="h-4 w-4" />
-                    <span className="text-[12px] font-medium">
-                      {localPoll.totalVotes} vote
-                      {localPoll.totalVotes === 1 ? "" : "s"}
-                    </span>
-                  </div>
-                ) : (
-                  <div />
-                )}
-
-                <div className="flex items-center justify-end gap-3 text-[#94a3b8]">
-                  {poll.settings.anonymousVoting && (
-                    <div className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-3 py-1.5 text-white text-[11px] font-bold tracking-wide">
-                      <EyeOff className="h-4 w-4" aria-hidden="true" />
-                      <span>ANONYMOUS</span>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
