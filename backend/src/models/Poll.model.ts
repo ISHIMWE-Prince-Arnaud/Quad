@@ -21,7 +21,7 @@ export interface IPollDocument extends Document {
     anonymousVoting: boolean;
   };
   status: PollStatus;
-  expiresAt?: Date;
+  expiresAt?: Date | undefined;
   totalVotes: number;
   reactionsCount: number;
   createdAt: Date;

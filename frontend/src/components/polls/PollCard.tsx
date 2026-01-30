@@ -364,18 +364,19 @@ export function PollCard({
                               className="h-4 w-4 text-[#94a3b8]"
                               aria-hidden="true"
                             />
-                            <span>Edit poll</span>
-                            {cannotEdit && (
-                              <DropdownMenuShortcut>
-                                Locked: votes cast
-                              </DropdownMenuShortcut>
-                            )}
+                            <div className="flex flex-col min-w-0 leading-tight">
+                              <span>Edit poll</span>
+                              {cannotEdit && (
+                                <span className="text-[10px] font-semibold tracking-wide text-white/40">
+                                  Locked: votes cast
+                                </span>
+                              )}
+                            </div>
                           </DropdownMenuItem>
 
                           {canDelete && (
                             <>
                               <DropdownMenuSeparator className="bg-white/10" />
-
                               <DropdownMenuItem
                                 className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
                                 onClick={() => setIsDeleteDialogOpen(true)}>
