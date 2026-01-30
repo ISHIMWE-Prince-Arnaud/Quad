@@ -107,6 +107,26 @@ export default function EditPollPage() {
           return;
         }
 
+        const now = new Date();
+        const expiresAtDate = res.data.expiresAt
+          ? new Date(res.data.expiresAt)
+          : null;
+        const hasValidExpiresAt = Boolean(
+          expiresAtDate && !Number.isNaN(expiresAtDate.getTime()),
+        );
+        const isExpiredByTime = Boolean(
+          hasValidExpiresAt &&
+          expiresAtDate &&
+          expiresAtDate.getTime() <= now.getTime(),
+        );
+        const isExpired = res.data.status === "expired" || isExpiredByTime;
+        if (isExpired) {
+          toast.error("You can't edit an expired poll");
+          setPoll(null);
+          setError("You can't edit an expired poll");
+          return;
+        }
+
         setPoll(res.data);
         setQuestion(res.data.question ?? "");
         setQuestionMedia(res.data.questionMedia);

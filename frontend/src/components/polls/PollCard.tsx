@@ -76,7 +76,6 @@ export function PollCard({
   const canManage = isOwner;
   const canDelete = Boolean(onDelete) && isOwner;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const cannotEdit = poll.totalVotes > 0;
 
   const formatExpiresIn = (future: Date): string => {
     const now = new Date();
@@ -129,6 +128,10 @@ export function PollCard({
   );
   const isExpired = poll.status === "expired" || isExpiredByTime;
   const isActive = poll.status === "active" && !isExpired;
+
+  const cannotEditReason =
+    poll.totalVotes > 0 ? "votes cast" : isExpired ? "poll expired" : null;
+  const cannotEdit = cannotEditReason !== null;
 
   const statusLines = (() => {
     if (isActive) {
@@ -187,7 +190,11 @@ export function PollCard({
 
   const handleEdit = () => {
     if (cannotEdit) {
-      toast.error("You can't edit a poll after votes have been cast");
+      if (cannotEditReason === "votes cast") {
+        toast.error("You can't edit a poll after votes have been cast");
+      } else {
+        toast.error("You can't edit an expired poll");
+      }
       return;
     }
     navigate(`/app/polls/${poll.id}/edit`);
@@ -281,7 +288,9 @@ export function PollCard({
                             disabled={cannotEdit}
                             title={
                               cannotEdit
-                                ? "Edit locked: votes have been cast"
+                                ? cannotEditReason === "votes cast"
+                                  ? "Edit locked: votes have been cast"
+                                  : "Edit locked: poll is expired"
                                 : undefined
                             }
                             className="gap-2 rounded-lg px-3 py-2 hover:bg-white/5 focus:bg-white/5">
@@ -293,7 +302,7 @@ export function PollCard({
                               <span>Edit poll</span>
                               {cannotEdit && (
                                 <span className="text-[10px] font-semibold tracking-wide text-white/40">
-                                  Locked: votes cast
+                                  Locked: {cannotEditReason}
                                 </span>
                               )}
                             </div>
@@ -373,7 +382,9 @@ export function PollCard({
                             disabled={cannotEdit}
                             title={
                               cannotEdit
-                                ? "Edit locked: votes have been cast"
+                                ? cannotEditReason === "votes cast"
+                                  ? "Edit locked: votes have been cast"
+                                  : "Edit locked: poll is expired"
                                 : undefined
                             }
                             className="gap-2 rounded-lg px-3 py-2 hover:bg-white/5 focus:bg-white/5">
@@ -385,7 +396,7 @@ export function PollCard({
                               <span>Edit poll</span>
                               {cannotEdit && (
                                 <span className="text-[10px] font-semibold tracking-wide text-white/40">
-                                  Locked: votes cast
+                                  Locked: {cannotEditReason}
                                 </span>
                               )}
                             </div>

@@ -205,16 +205,8 @@ export class PollService {
       (poll.expiresAt !== undefined &&
         poll.expiresAt.getTime() <= now.getTime());
 
-    const isEditingRestrictedFields =
-      updates.options !== undefined ||
-      updates.settings !== undefined ||
-      updates.expiresAt !== undefined;
-
-    if (isExpired && isEditingRestrictedFields) {
-      throw new AppError(
-        "Cannot update options, settings, or expiresAt on an expired poll",
-        400,
-      );
+    if (isExpired) {
+      throw new AppError("Cannot edit an expired poll", 400);
     }
 
     if (updates.question) {

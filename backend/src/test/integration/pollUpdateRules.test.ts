@@ -69,7 +69,9 @@ describe("Poll update rules", () => {
       .send({ question: "Try update after vote" });
 
     expect(updateRes.status).toBe(400);
-    expect(String(updateRes.body?.message || "")).toMatch(/votes have been cast/i);
+    expect(String(updateRes.body?.message || "")).toMatch(
+      /votes have been cast/i,
+    );
   });
 
   it("does not allow updating restricted fields after expiry", async () => {
@@ -94,10 +96,10 @@ describe("Poll update rules", () => {
       .put(`/api/polls/${pollId}`)
       .set(getAuthHeaders(authorId))
       .send({
-        settings: { anonymousVoting: true },
+        question: "Try update after expiry",
       });
 
     expect(updateRes.status).toBe(400);
-    expect(String(updateRes.body?.message || "")).toMatch(/expired poll/i);
+    expect(String(updateRes.body?.message || "")).toMatch(/expired/i);
   });
 });
