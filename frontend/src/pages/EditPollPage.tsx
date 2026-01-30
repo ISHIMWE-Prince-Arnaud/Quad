@@ -11,6 +11,7 @@ import { logError } from "@/lib/errorHandling";
 
 import type {
   LocalOption,
+  PollDuration,
   PollSettingsState,
   ValidationErrors,
 } from "./create-poll/types";
@@ -32,7 +33,7 @@ export default function EditPollPage() {
   const [settings, setSettings] = useState<PollSettingsState>({
     anonymousVoting: false,
   });
-  const [expiresAtLocal, setExpiresAtLocal] = useState<string>("");
+  const [duration, setDuration] = useState<PollDuration>("none");
   const [uploadingQuestionMedia, setUploadingQuestionMedia] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
     {},
@@ -40,11 +41,35 @@ export default function EditPollPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const toDatetimeLocal = (iso: string) => {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return "";
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const inferDurationFromExpiresAt = (
+    expiresAt?: string | null,
+  ): PollDuration => {
+    if (!expiresAt) return "none";
+    const d = new Date(expiresAt);
+    const ms = d.getTime();
+    if (Number.isNaN(ms)) return "none";
+
+    const remainingMs = ms - Date.now();
+    if (remainingMs <= 0) return "none";
+
+    const candidates: Array<{ key: PollDuration; ms: number }> = [
+      { key: "1d", ms: 24 * 60 * 60 * 1000 },
+      { key: "1w", ms: 7 * 24 * 60 * 60 * 1000 },
+      { key: "1m", ms: 30 * 24 * 60 * 60 * 1000 },
+    ];
+
+    let best: PollDuration = "1d";
+    let bestDiff = Infinity;
+
+    for (const c of candidates) {
+      const diff = Math.abs(remainingMs - c.ms);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        best = c.key;
+      }
+    }
+
+    return best;
   };
 
   useEffect(() => {
@@ -80,9 +105,7 @@ export default function EditPollPage() {
         setSettings({
           anonymousVoting: Boolean(res.data.settings?.anonymousVoting),
         });
-        setExpiresAtLocal(
-          res.data.expiresAt ? toDatetimeLocal(res.data.expiresAt) : "",
-        );
+        setDuration(inferDurationFromExpiresAt(res.data.expiresAt));
       } catch (err: unknown) {
         logError(err, {
           component: "EditPollPage",
@@ -201,20 +224,20 @@ export default function EditPollPage() {
       return;
     }
 
-    if (canEditRestricted && expiresAtLocal) {
-      const d = new Date(expiresAtLocal);
-      if (Number.isNaN(d.getTime()) || d.getTime() <= Date.now()) {
-        setValidationErrors((prev) => ({
-          ...prev,
-          expiresAt: "Expiration date must be in the future",
-        }));
-        toast.error("Please fix validation errors before saving");
-        return;
-      }
-    }
-
     try {
       setIsSubmitting(true);
+
+      const expiresAt =
+        duration === "none"
+          ? null
+          : new Date(
+              Date.now() +
+                (duration === "1d"
+                  ? 24 * 60 * 60 * 1000
+                  : duration === "1w"
+                    ? 7 * 24 * 60 * 60 * 1000
+                    : 30 * 24 * 60 * 60 * 1000),
+            ).toISOString();
 
       const payload = {
         question: trimmed,
@@ -224,9 +247,7 @@ export default function EditPollPage() {
               settings: {
                 anonymousVoting: settings.anonymousVoting,
               },
-              expiresAt: expiresAtLocal
-                ? new Date(expiresAtLocal).toISOString()
-                : null,
+              expiresAt,
               ...(canEditOptions
                 ? { options: finalOptions.map((o) => ({ text: o.text })) }
                 : {}),
@@ -324,9 +345,8 @@ export default function EditPollPage() {
           onOptionChange={handleOptionChange}
           settings={settings}
           setSettings={setSettings}
-          expiresAtLocal={expiresAtLocal}
-          setExpiresAtLocal={setExpiresAtLocal}
-          mode="edit"
+          duration={duration}
+          setDuration={setDuration}
           optionsDisabled={!canEditOptions}
           restrictedDisabled={!canEditRestricted}
           canSubmit={canSubmit}

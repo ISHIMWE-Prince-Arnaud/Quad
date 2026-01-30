@@ -29,9 +29,6 @@ export function CreatePollForm({
   setSettings,
   duration,
   setDuration,
-  expiresAtLocal,
-  setExpiresAtLocal,
-  mode,
   optionsDisabled,
   restrictedDisabled,
 
@@ -62,9 +59,6 @@ export function CreatePollForm({
   ) => void;
   duration?: PollDuration;
   setDuration?: (v: PollDuration) => void;
-  expiresAtLocal?: string;
-  setExpiresAtLocal?: Dispatch<SetStateAction<string>>;
-  mode?: "create" | "edit";
   optionsDisabled?: boolean;
   restrictedDisabled?: boolean;
 
@@ -106,9 +100,6 @@ export function CreatePollForm({
           setSettings={setSettings}
           duration={duration}
           setDuration={setDuration}
-          expiresAtLocal={expiresAtLocal}
-          setExpiresAtLocal={setExpiresAtLocal}
-          mode={mode}
           disabled={restrictedDisabled}
           validationErrors={validationErrors}
           setValidationErrors={setValidationErrors}
