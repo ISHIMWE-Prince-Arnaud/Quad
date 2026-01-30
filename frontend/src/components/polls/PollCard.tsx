@@ -137,16 +137,25 @@ export function PollCard({
       return "Active";
     }
 
-    const fallbackDate = new Date(poll.updatedAt || poll.createdAt);
-    const d = hasValidExpiresAt && expiresAtDate ? expiresAtDate : fallbackDate;
-    const dateText = d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "2-digit",
-    });
-    return `Expired ${dateText}`;
+    const parts = ["Expired (can't vote)"];
+    if (poll.canViewResults) {
+      parts.push("Results unlocked");
+    }
+    return parts.join(" · ");
   })();
 
-  const badgeTitle = isActive && !hasValidExpiresAt ? "No expiry" : undefined;
+  const badgeTitle = (() => {
+    if (isActive && !hasValidExpiresAt) return "No expiry";
+    if (isActive) return undefined;
+
+    const fallbackDate = new Date(poll.updatedAt || poll.createdAt);
+    const d = hasValidExpiresAt && expiresAtDate ? expiresAtDate : fallbackDate;
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    });
+  })();
 
   const badgeClassName = isActive
     ? "gap-1.5 border-emerald-500/25 bg-emerald-500/15 text-emerald-200 shadow-sm backdrop-blur-sm hover:bg-emerald-500/15 focus:ring-0 focus:ring-offset-0"
@@ -261,17 +270,25 @@ export function PollCard({
                           className="min-w-[180px] rounded-xl border border-white/10 bg-[#0b1220] p-1 text-white shadow-xl">
                           <DropdownMenuItem
                             onClick={handleEdit}
-                            aria-disabled={cannotEdit}
-                            className={cn(
-                              "gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5 focus:bg-white/5",
-                              cannotEdit &&
-                                "opacity-50 cursor-not-allowed hover:bg-transparent focus:bg-transparent",
-                            )}>
+                            disabled={cannotEdit}
+                            title={
+                              cannotEdit
+                                ? "Edit locked: votes have been cast"
+                                : undefined
+                            }
+                            className="gap-2 rounded-lg px-3 py-2 hover:bg-white/5 focus:bg-white/5">
                             <Pencil
                               className="h-4 w-4 text-[#94a3b8]"
                               aria-hidden="true"
                             />
-                            Edit poll
+                            <div className="flex flex-col min-w-0 leading-tight">
+                              <span>Edit poll</span>
+                              {cannotEdit && (
+                                <span className="text-[10px] font-semibold tracking-wide text-white/40">
+                                  Locked: votes cast
+                                </span>
+                              )}
+                            </div>
                           </DropdownMenuItem>
 
                           {canDelete && (
@@ -336,17 +353,23 @@ export function PollCard({
                           className="min-w-[180px] rounded-xl border border-white/10 bg-[#0b1220] p-1 text-white shadow-xl">
                           <DropdownMenuItem
                             onClick={handleEdit}
-                            aria-disabled={cannotEdit}
-                            className={cn(
-                              "gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5 focus:bg-white/5",
-                              cannotEdit &&
-                                "opacity-50 cursor-not-allowed hover:bg-transparent focus:bg-transparent",
-                            )}>
+                            disabled={cannotEdit}
+                            title={
+                              cannotEdit
+                                ? "Edit locked: votes have been cast"
+                                : undefined
+                            }
+                            className="gap-2 rounded-lg px-3 py-2 hover:bg-white/5 focus:bg-white/5">
                             <Pencil
                               className="h-4 w-4 text-[#94a3b8]"
                               aria-hidden="true"
                             />
-                            Edit poll
+                            <span>Edit poll</span>
+                            {cannotEdit && (
+                              <DropdownMenuShortcut>
+                                Locked: votes cast
+                              </DropdownMenuShortcut>
+                            )}
                           </DropdownMenuItem>
 
                           {canDelete && (
@@ -467,7 +490,7 @@ export function PollCard({
               </div>
             </div>
 
-            {!poll.canViewResults && (
+            {isActive && !poll.canViewResults && (
               <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-white/[0.03] px-4 py-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="h-9 w-9 rounded-xl bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center shrink-0">
