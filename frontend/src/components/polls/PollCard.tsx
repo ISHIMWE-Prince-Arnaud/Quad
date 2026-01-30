@@ -161,6 +161,8 @@ export function PollCard({
   const showResults = Boolean(localPoll.canViewResults) && resultsVisible;
   const isLocked = !canVote || voting;
 
+  const hasUserVoted = selectedIndices.length > 0;
+
   const { bookmarked, toggleBookmark } = usePollBookmark(poll.id);
 
   const { userReaction, reactionPending, reactionCount, handleSelectReaction } =
@@ -366,13 +368,17 @@ export function PollCard({
                   </button>
                 </div>
 
-                <div className="flex items-center justify-center gap-2 text-[#94a3b8]">
-                  <FaUserCheck className="h-4 w-4" />
-                  <span className="text-[12px] font-medium">
-                    {localPoll.totalVotes} vote
-                    {localPoll.totalVotes === 1 ? "" : "s"}
-                  </span>
-                </div>
+                {hasUserVoted ? (
+                  <div className="flex items-center justify-center gap-2 text-[#94a3b8]">
+                    <FaUserCheck className="h-4 w-4" />
+                    <span className="text-[12px] font-medium">
+                      {localPoll.totalVotes} vote
+                      {localPoll.totalVotes === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                ) : (
+                  <div />
+                )}
 
                 <div className="flex items-center justify-end gap-3 text-[#94a3b8]">
                   {poll.settings.anonymousVoting && (
