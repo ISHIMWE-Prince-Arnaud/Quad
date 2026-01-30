@@ -5,6 +5,7 @@ import { BookmarkService } from "@/services/bookmarkService";
 
 export function usePollBookmark(pollId: string) {
   const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarkPending, setBookmarkPending] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -22,14 +23,25 @@ export function usePollBookmark(pollId: string) {
   }, [pollId]);
 
   const toggleBookmark = async () => {
+    if (bookmarkPending) return;
+
+    const prev = bookmarked;
+    const nextOptimistic = !prev;
+
     try {
+      setBookmarkPending(true);
+      setBookmarked(nextOptimistic);
+
       const next = await BookmarkService.toggle("poll", pollId);
       setBookmarked(next);
       toast.success(next ? "Saved to bookmarks" : "Removed from bookmarks");
     } catch {
+      setBookmarked(prev);
       toast.error("Failed to update bookmark");
+    } finally {
+      setBookmarkPending(false);
     }
   };
 
-  return { bookmarked, toggleBookmark };
+  return { bookmarked, bookmarkPending, toggleBookmark };
 }

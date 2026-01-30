@@ -162,7 +162,9 @@ export function PollCard({
 
   const hasUserVoted = selectedIndices.length > 0;
 
-  const { bookmarked, toggleBookmark } = usePollBookmark(poll.id);
+  const { bookmarked, bookmarkPending, toggleBookmark } = usePollBookmark(
+    poll.id,
+  );
 
   const { userReaction, reactionPending, reactionCount, handleSelectReaction } =
     usePollReactions(poll.id, poll.reactionsCount || 0);
@@ -314,8 +316,8 @@ export function PollCard({
             )}
 
             <div className="border-t border-white/5 pt-4 mt-4">
-              <div className="grid grid-cols-3 items-center">
-                <div className="flex items-center gap-4 justify-start text-[#94a3b8]">
+              <div className="flex items-center justify-between text-[#94a3b8]">
+                <div className="flex items-center gap-4">
                   <HeartReactionButton
                     liked={Boolean(userReaction)}
                     filled={reactionCount > 0}
@@ -337,21 +339,21 @@ export function PollCard({
                   )}
                 </div>
 
-                <div className="flex items-center justify-center">
+                <div className="flex items-center gap-3">
                   {poll.settings.anonymousVoting && (
                     <div className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-3 py-1.5 text-white text-[11px] font-bold tracking-wide">
                       <EyeOff className="h-4 w-4" aria-hidden="true" />
                       <span>ANONYMOUS</span>
                     </div>
                   )}
-                </div>
 
-                <div className="flex items-center justify-end text-[#94a3b8]">
                   <button
                     type="button"
                     onClick={toggleBookmark}
+                    disabled={bookmarkPending}
                     className={cn(
                       "p-2 rounded-xl transition-all",
+                      "disabled:opacity-50 disabled:cursor-not-allowed",
                       bookmarked
                         ? "text-[#f59e0b] bg-[#f59e0b]/10"
                         : "text-[#94a3b8] hover:text-[#f59e0b] hover:bg-[#f59e0b]/5",
