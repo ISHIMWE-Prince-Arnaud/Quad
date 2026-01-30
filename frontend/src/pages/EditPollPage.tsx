@@ -4,7 +4,6 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { PollService } from "@/services/pollService";
 import { UploadService } from "@/services/uploadService";
 import type { Poll, PollMedia } from "@/types/poll";
@@ -15,8 +14,7 @@ import type {
   PollSettingsState,
   ValidationErrors,
 } from "./create-poll/types";
-import { PollOptionsEditor } from "./create-poll/PollOptionsEditor";
-import { PollQuestionSection } from "./create-poll/PollQuestionSection";
+import { CreatePollForm } from "./create-poll/CreatePollForm";
 import { getErrorMessage } from "./create-poll/getErrorMessage";
 import { mapFileToMedia } from "./create-poll/pollUtils";
 
@@ -299,7 +297,7 @@ export default function EditPollPage() {
 
           <Button
             type="button"
-            disabled={!canSubmit}
+            disabled={!canSubmit || isSubmitting}
             onClick={() => void handleSubmit()}
             className="h-8 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-4">
             {isSubmitting ? (
@@ -313,92 +311,32 @@ export default function EditPollPage() {
           </Button>
         </div>
 
-        <div className="rounded-[2rem] border border-white/5 bg-gradient-to-b from-[#0b1020]/70 to-[#070a12]/80 p-5 space-y-6">
-          <PollQuestionSection
-            question={question}
-            setQuestion={setQuestion}
-            questionMedia={questionMedia}
-            setQuestionMedia={setQuestionMedia}
-            uploadingQuestionMedia={uploadingQuestionMedia}
-            onUploadQuestionMedia={handleUploadQuestionMedia}
-            validationErrors={validationErrors}
-            setValidationErrors={setValidationErrors}
-          />
-
-          <PollOptionsEditor
-            options={options}
-            onAddOption={handleAddOption}
-            onRemoveOption={handleRemoveOption}
-            onOptionChange={handleOptionChange}
-            validationErrors={validationErrors}
-            setValidationErrors={setValidationErrors}
-            disabled={!canEditOptions}
-          />
-
-          <div className="grid gap-6 sm:grid-cols-2">
-            <div className="space-y-2">
-              <h3 className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
-                Anonymity
-              </h3>
-              <div className="rounded-2xl bg-white/[0.02] border border-white/5 px-4 py-3">
-                <div className="h-11 w-full rounded-2xl border border-white/15 bg-[#0f121a] px-4 flex items-center justify-between">
-                  <span className="text-sm font-bold text-white">
-                    Vote Anonymously
-                  </span>
-                  <Switch
-                    checked={settings.anonymousVoting}
-                    disabled={!canEditRestricted}
-                    onChange={(e) =>
-                      setSettings((prev) => ({
-                        ...prev,
-                        anonymousVoting: e.target.checked,
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <h3 className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
-                Expires At
-              </h3>
-              <div className="rounded-2xl bg-white/[0.02] border border-white/5 px-4 py-3 space-y-3">
-                <input
-                  type="datetime-local"
-                  value={expiresAtLocal}
-                  disabled={!canEditRestricted}
-                  onChange={(e) => {
-                    setExpiresAtLocal(e.target.value);
-                    if (validationErrors.expiresAt) {
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        expiresAt: undefined,
-                      }));
-                    }
-                  }}
-                  className="h-11 w-full rounded-2xl border border-white/15 bg-[#0f121a] px-4 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]/25 focus:border-[#2563eb]/40 transition-all disabled:opacity-50"
-                />
-
-                <div className="flex justify-between items-center">
-                  <span className="text-[11px] font-bold uppercase tracking-wide text-[#64748b]">
-                    {validationErrors.expiresAt ||
-                      (!expiresAtLocal ? "No expiry" : "")}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    disabled={!canEditRestricted || !expiresAtLocal}
-                    onClick={() => setExpiresAtLocal("")}
-                    className="h-8 rounded-full">
-                    Clear
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CreatePollForm
+          question={question}
+          setQuestion={setQuestion}
+          questionMedia={questionMedia}
+          setQuestionMedia={setQuestionMedia}
+          uploadingQuestionMedia={uploadingQuestionMedia}
+          onUploadQuestionMedia={handleUploadQuestionMedia}
+          options={options}
+          onAddOption={handleAddOption}
+          onRemoveOption={handleRemoveOption}
+          onOptionChange={handleOptionChange}
+          settings={settings}
+          setSettings={setSettings}
+          expiresAtLocal={expiresAtLocal}
+          setExpiresAtLocal={setExpiresAtLocal}
+          mode="edit"
+          optionsDisabled={!canEditOptions}
+          restrictedDisabled={!canEditRestricted}
+          canSubmit={canSubmit}
+          submitting={isSubmitting}
+          onSubmit={() => void handleSubmit()}
+          submitLabel="Save"
+          submitSubmittingLabel="Saving..."
+          validationErrors={validationErrors}
+          setValidationErrors={setValidationErrors}
+        />
       </div>
     </div>
   );

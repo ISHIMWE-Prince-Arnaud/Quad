@@ -29,10 +29,17 @@ export function CreatePollForm({
   setSettings,
   duration,
   setDuration,
+  expiresAtLocal,
+  setExpiresAtLocal,
+  mode,
+  optionsDisabled,
+  restrictedDisabled,
 
   canSubmit,
   submitting,
   onSubmit,
+  submitLabel,
+  submitSubmittingLabel,
 
   validationErrors,
   setValidationErrors,
@@ -50,13 +57,22 @@ export function CreatePollForm({
   onOptionChange: (id: string, value: string) => void;
 
   settings: PollSettingsState;
-  setSettings: (next: PollSettingsState | ((prev: PollSettingsState) => PollSettingsState)) => void;
-  duration: PollDuration;
-  setDuration: (v: PollDuration) => void;
+  setSettings: (
+    next: PollSettingsState | ((prev: PollSettingsState) => PollSettingsState),
+  ) => void;
+  duration?: PollDuration;
+  setDuration?: (v: PollDuration) => void;
+  expiresAtLocal?: string;
+  setExpiresAtLocal?: Dispatch<SetStateAction<string>>;
+  mode?: "create" | "edit";
+  optionsDisabled?: boolean;
+  restrictedDisabled?: boolean;
 
   canSubmit: boolean;
   submitting: boolean;
   onSubmit: () => void;
+  submitLabel?: string;
+  submitSubmittingLabel?: string;
 
   validationErrors: ValidationErrors;
   setValidationErrors: Dispatch<SetStateAction<ValidationErrors>>;
@@ -82,6 +98,7 @@ export function CreatePollForm({
           onOptionChange={onOptionChange}
           validationErrors={validationErrors}
           setValidationErrors={setValidationErrors}
+          disabled={optionsDisabled}
         />
 
         <PollSettingsAndDuration
@@ -89,12 +106,22 @@ export function CreatePollForm({
           setSettings={setSettings}
           duration={duration}
           setDuration={setDuration}
+          expiresAtLocal={expiresAtLocal}
+          setExpiresAtLocal={setExpiresAtLocal}
+          mode={mode}
+          disabled={restrictedDisabled}
           validationErrors={validationErrors}
           setValidationErrors={setValidationErrors}
         />
       </div>
 
-      <PollSubmitBar canSubmit={canSubmit} submitting={submitting} onSubmit={onSubmit} />
+      <PollSubmitBar
+        canSubmit={canSubmit}
+        submitting={submitting}
+        onSubmit={onSubmit}
+        label={submitLabel}
+        submittingLabel={submitSubmittingLabel}
+      />
     </div>
   );
 }

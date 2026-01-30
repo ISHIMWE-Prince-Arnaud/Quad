@@ -6,10 +6,14 @@ export function PollSubmitBar({
   canSubmit,
   submitting,
   onSubmit,
+  label,
+  submittingLabel,
 }: {
   canSubmit: boolean;
   submitting: boolean;
   onSubmit: () => void;
+  label?: string;
+  submittingLabel?: string;
 }) {
   return (
     <div className="pt-4">
@@ -19,15 +23,15 @@ export function PollSubmitBar({
         onClick={onSubmit}
         className={cn(
           "w-full h-12 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold shadow-lg shadow-[#2563eb]/20 transition-all active:scale-95",
-          !canSubmit && "opacity-70"
+          !canSubmit && "opacity-70",
         )}>
         {submitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Posting...
+            {submittingLabel || "Posting..."}
           </>
         ) : (
-          "Post Poll"
+          label || "Post Poll"
         )}
       </Button>
     </div>
