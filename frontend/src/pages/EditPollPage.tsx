@@ -4,12 +4,18 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { PollService } from "@/services/pollService";
 import { UploadService } from "@/services/uploadService";
 import type { Poll, PollMedia } from "@/types/poll";
 import { logError } from "@/lib/errorHandling";
 
-import type { ValidationErrors } from "./create-poll/types";
+import type {
+  LocalOption,
+  PollSettingsState,
+  ValidationErrors,
+} from "./create-poll/types";
+import { PollOptionsEditor } from "./create-poll/PollOptionsEditor";
 import { PollQuestionSection } from "./create-poll/PollQuestionSection";
 import { getErrorMessage } from "./create-poll/getErrorMessage";
 import { mapFileToMedia } from "./create-poll/pollUtils";
@@ -24,12 +30,24 @@ export default function EditPollPage() {
 
   const [question, setQuestion] = useState("");
   const [questionMedia, setQuestionMedia] = useState<PollMedia | undefined>();
+  const [options, setOptions] = useState<LocalOption[]>([]);
+  const [settings, setSettings] = useState<PollSettingsState>({
+    anonymousVoting: false,
+  });
+  const [expiresAtLocal, setExpiresAtLocal] = useState<string>("");
   const [uploadingQuestionMedia, setUploadingQuestionMedia] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
     {},
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const toDatetimeLocal = (iso: string) => {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
 
   useEffect(() => {
     if (!id) {
@@ -55,6 +73,18 @@ export default function EditPollPage() {
         setPoll(res.data);
         setQuestion(res.data.question ?? "");
         setQuestionMedia(res.data.questionMedia);
+        setOptions(
+          (res.data.options || []).map((opt) => ({
+            id: crypto.randomUUID(),
+            text: opt.text,
+          })),
+        );
+        setSettings({
+          anonymousVoting: Boolean(res.data.settings?.anonymousVoting),
+        });
+        setExpiresAtLocal(
+          res.data.expiresAt ? toDatetimeLocal(res.data.expiresAt) : "",
+        );
       } catch (err: unknown) {
         logError(err, {
           component: "EditPollPage",
@@ -74,8 +104,52 @@ export default function EditPollPage() {
 
   const canSubmit = useMemo(() => {
     const q = question.trim();
-    return q.length >= 10 && q.length <= 500 && !isSubmitting;
-  }, [question, isSubmitting]);
+    const filledOptions = options
+      .map((o) => o.text.trim())
+      .filter((t) => t.length > 0);
+    return (
+      q.length >= 10 &&
+      q.length <= 500 &&
+      filledOptions.length >= 2 &&
+      filledOptions.length <= 5 &&
+      !isSubmitting
+    );
+  }, [question, options, isSubmitting]);
+
+  const now = new Date();
+  const expiresAtDate = poll?.expiresAt ? new Date(poll.expiresAt) : null;
+  const isExpiredByTime = Boolean(
+    expiresAtDate &&
+    !Number.isNaN(expiresAtDate.getTime()) &&
+    expiresAtDate.getTime() <= now.getTime(),
+  );
+  const isExpired = poll?.status === "expired" || isExpiredByTime;
+  const canEditRestricted = !isExpired;
+  const canEditOptions = canEditRestricted && (poll?.totalVotes ?? 0) === 0;
+
+  const handleAddOption = () => {
+    if (!canEditOptions) return;
+    if (options.length < 5) {
+      setOptions((prev) => [...prev, { id: crypto.randomUUID(), text: "" }]);
+    }
+  };
+
+  const handleRemoveOption = (optId: string) => {
+    if (!canEditOptions) return;
+    if (options.length > 2) {
+      setOptions((prev) => prev.filter((opt) => opt.id !== optId));
+    }
+  };
+
+  const handleOptionChange = (optId: string, text: string) => {
+    if (!canEditOptions) return;
+    setOptions((prev) =>
+      prev.map((opt) => (opt.id === optId ? { ...opt, text } : opt)),
+    );
+    if (validationErrors.options) {
+      setValidationErrors((prev) => ({ ...prev, options: undefined }));
+    }
+  };
 
   const handleUploadQuestionMedia = async (file: File | null) => {
     if (!file) return;
@@ -115,13 +189,54 @@ export default function EditPollPage() {
       return;
     }
 
+    const finalOptions = options
+      .map((o) => ({ ...o, text: o.text.trim() }))
+      .filter((o) => o.text.length > 0)
+      .slice(0, 5);
+
+    if (finalOptions.length < 2) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        options: "Poll must have at least 2 options",
+      }));
+      toast.error("Please fix validation errors before saving");
+      return;
+    }
+
+    if (canEditRestricted && expiresAtLocal) {
+      const d = new Date(expiresAtLocal);
+      if (Number.isNaN(d.getTime()) || d.getTime() <= Date.now()) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          expiresAt: "Expiration date must be in the future",
+        }));
+        toast.error("Please fix validation errors before saving");
+        return;
+      }
+    }
+
     try {
       setIsSubmitting(true);
 
-      const res = await PollService.update(id, {
+      const payload = {
         question: trimmed,
         questionMedia,
-      });
+        ...(canEditRestricted
+          ? {
+              settings: {
+                anonymousVoting: settings.anonymousVoting,
+              },
+              expiresAt: expiresAtLocal
+                ? new Date(expiresAtLocal).toISOString()
+                : null,
+              ...(canEditOptions
+                ? { options: finalOptions.map((o) => ({ text: o.text })) }
+                : {}),
+            }
+          : {}),
+      };
+
+      const res = await PollService.update(id, payload);
 
       if (!res.success) {
         throw new Error(res.message || "Failed to update poll");
@@ -209,6 +324,80 @@ export default function EditPollPage() {
             validationErrors={validationErrors}
             setValidationErrors={setValidationErrors}
           />
+
+          <PollOptionsEditor
+            options={options}
+            onAddOption={handleAddOption}
+            onRemoveOption={handleRemoveOption}
+            onOptionChange={handleOptionChange}
+            validationErrors={validationErrors}
+            setValidationErrors={setValidationErrors}
+            disabled={!canEditOptions}
+          />
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="space-y-2">
+              <h3 className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
+                Anonymity
+              </h3>
+              <div className="rounded-2xl bg-white/[0.02] border border-white/5 px-4 py-3">
+                <div className="h-11 w-full rounded-2xl border border-white/15 bg-[#0f121a] px-4 flex items-center justify-between">
+                  <span className="text-sm font-bold text-white">
+                    Vote Anonymously
+                  </span>
+                  <Switch
+                    checked={settings.anonymousVoting}
+                    disabled={!canEditRestricted}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        anonymousVoting: e.target.checked,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
+                Expires At
+              </h3>
+              <div className="rounded-2xl bg-white/[0.02] border border-white/5 px-4 py-3 space-y-3">
+                <input
+                  type="datetime-local"
+                  value={expiresAtLocal}
+                  disabled={!canEditRestricted}
+                  onChange={(e) => {
+                    setExpiresAtLocal(e.target.value);
+                    if (validationErrors.expiresAt) {
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        expiresAt: undefined,
+                      }));
+                    }
+                  }}
+                  className="h-11 w-full rounded-2xl border border-white/15 bg-[#0f121a] px-4 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]/25 focus:border-[#2563eb]/40 transition-all disabled:opacity-50"
+                />
+
+                <div className="flex justify-between items-center">
+                  <span className="text-[11px] font-bold uppercase tracking-wide text-[#64748b]">
+                    {validationErrors.expiresAt ||
+                      (!expiresAtLocal ? "No expiry" : "")}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={!canEditRestricted || !expiresAtLocal}
+                    onClick={() => setExpiresAtLocal("")}
+                    className="h-8 rounded-full">
+                    Clear
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

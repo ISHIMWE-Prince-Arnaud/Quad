@@ -80,6 +80,11 @@ export interface CreatePollInput {
 export interface UpdatePollInput {
   question?: string;
   questionMedia?: PollMedia;
+  options?: CreatePollOptionInput[];
+  settings?: {
+    anonymousVoting?: boolean;
+  };
+  expiresAt?: string | null;
 }
 
 export interface VoteOnPollInput {

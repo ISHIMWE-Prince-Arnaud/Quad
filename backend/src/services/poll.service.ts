@@ -212,6 +212,24 @@ export class PollService {
       throw new AppError("Only the author can update this poll", 403);
     }
 
+    const now = new Date();
+    const isExpired =
+      poll.status === "expired" ||
+      (poll.expiresAt !== undefined &&
+        poll.expiresAt.getTime() <= now.getTime());
+
+    const isEditingRestrictedFields =
+      updates.options !== undefined ||
+      updates.settings !== undefined ||
+      updates.expiresAt !== undefined;
+
+    if (isExpired && isEditingRestrictedFields) {
+      throw new AppError(
+        "Cannot update options, settings, or expiresAt on an expired poll",
+        400,
+      );
+    }
+
     if (updates.question) {
       poll.question = updates.question;
     }
@@ -230,6 +248,34 @@ export class PollService {
       };
 
       poll.questionMedia = questionMedia;
+    }
+
+    if (updates.settings?.anonymousVoting !== undefined) {
+      poll.settings.anonymousVoting = updates.settings.anonymousVoting;
+    }
+
+    if (updates.expiresAt !== undefined) {
+      if (updates.expiresAt === null) {
+        poll.expiresAt = undefined;
+      } else {
+        poll.expiresAt = updates.expiresAt;
+      }
+    }
+
+    if (updates.options !== undefined) {
+      const hasVotes =
+        poll.totalVotes > 0 || (await PollVote.exists({ pollId: id })) !== null;
+      if (hasVotes) {
+        throw new AppError(
+          "Cannot update options after votes have been cast",
+          400,
+        );
+      }
+
+      poll.options = updates.options.map((opt) => ({
+        text: opt.text,
+        votesCount: 0,
+      }));
     }
 
     await poll.save();

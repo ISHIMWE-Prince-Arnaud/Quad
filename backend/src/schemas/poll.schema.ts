@@ -113,6 +113,47 @@ export const updatePollSchema = z
       .optional(),
 
     questionMedia: mediaSchema.optional(),
+
+    options: z
+      .array(
+        z
+          .object({
+            text: z
+              .string()
+              .min(1, "Option text is required")
+              .max(200, "Option text must be at most 200 characters")
+              .trim(),
+          })
+          .strict(),
+      )
+      .min(2, "Poll must have at least 2 options")
+      .max(5, "Poll must have at most 5 options")
+      .refine(
+        (options) => {
+          const texts = options.map((opt) => opt.text.toLowerCase().trim());
+          const uniqueTexts = new Set(texts);
+          return texts.length === uniqueTexts.size;
+        },
+        {
+          message: "Poll options must have unique text",
+        },
+      )
+      .optional(),
+
+    settings: z
+      .object({
+        anonymousVoting: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+
+    expiresAt: z
+      .union([z.null(), z.string().datetime(), z.date()])
+      .transform((val) => (val === null ? null : new Date(val)))
+      .refine((val) => val === null || val > new Date(), {
+        message: "Expiration date must be in the future",
+      })
+      .optional(),
   })
   .strict();
 

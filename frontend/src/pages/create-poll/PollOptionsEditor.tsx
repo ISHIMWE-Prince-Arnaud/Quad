@@ -11,6 +11,7 @@ export function PollOptionsEditor({
   onOptionChange,
   validationErrors,
   setValidationErrors,
+  disabled,
 }: {
   options: LocalOption[];
   onAddOption: () => void;
@@ -18,6 +19,7 @@ export function PollOptionsEditor({
   onOptionChange: (id: string, value: string) => void;
   validationErrors: ValidationErrors;
   setValidationErrors: Dispatch<SetStateAction<ValidationErrors>>;
+  disabled?: boolean;
 }) {
   return (
     <div className="space-y-6">
@@ -42,6 +44,7 @@ export function PollOptionsEditor({
             <div className="flex-1 space-y-4">
               <input
                 value={opt.text}
+                disabled={disabled}
                 onChange={(e) => {
                   onOptionChange(opt.id, e.target.value);
                   if (validationErrors.options) {
@@ -59,10 +62,10 @@ export function PollOptionsEditor({
 
             <button
               onClick={() => onRemoveOption(opt.id)}
-              disabled={options.length <= 2}
+              disabled={disabled || options.length <= 2}
               className={cn(
                 "p-2 rounded-xl transition-all",
-                options.length <= 2
+                disabled || options.length <= 2
                   ? "opacity-0 cursor-default"
                   : "text-[#64748b] hover:text-destructive hover:bg-destructive/10",
               )}>
@@ -84,10 +87,10 @@ export function PollOptionsEditor({
       <button
         type="button"
         onClick={onAddOption}
-        disabled={options.length >= 5}
+        disabled={disabled || options.length >= 5}
         className={cn(
           "w-full rounded-2xl border border-dashed border-white/10 bg-white/[0.01] px-4 py-3 text-center text-sm font-bold transition-all",
-          options.length >= 5
+          disabled || options.length >= 5
             ? "text-[#64748b] cursor-not-allowed opacity-50"
             : "text-[#2563eb] hover:border-[#2563eb]/50 hover:bg-[#2563eb]/5",
         )}>
