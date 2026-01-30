@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 import { FaUserCheck } from "react-icons/fa6";
 
-import { Bookmark, Info, MoreHorizontal, Share2 } from "lucide-react";
+import { Bookmark, EyeOff, Info, MoreHorizontal, Share2 } from "lucide-react";
 
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import { Badge } from "@/components/ui/badge";
@@ -215,6 +215,9 @@ export function PollCard({
                       <div className="text-[14px] font-bold text-white leading-tight truncate">
                         {displayName}
                       </div>
+                      <div className="text-[11px] font-medium text-[#94a3b8] mt-0.5 truncate">
+                        {timeAgoShort(poll.createdAt)}
+                      </div>
                       {subtitle && (
                         <div className="text-[11px] font-medium text-[#94a3b8] truncate max-w-[320px]">
                           {subtitle}
@@ -257,6 +260,9 @@ export function PollCard({
                   <div className={cn("min-w-0", !subtitle && "text-center")}>
                     <div className="text-[14px] font-bold text-white leading-tight truncate">
                       {displayName}
+                    </div>
+                    <div className="text-[11px] font-medium text-[#94a3b8] mt-0.5 truncate">
+                      {timeAgoShort(poll.createdAt)}
                     </div>
                     {subtitle && (
                       <div className="text-[11px] font-medium text-[#94a3b8] mt-0.5 truncate">
@@ -370,13 +376,11 @@ export function PollCard({
 
                 <div className="flex items-center justify-end gap-3 text-[#94a3b8]">
                   {poll.settings.anonymousVoting && (
-                    <div className="px-3 py-1 rounded-full bg-[#3b82f6] text-white text-[11px] font-bold tracking-wide">
-                      ANONYMOUS
+                    <div className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-3 py-1.5 text-white text-[11px] font-bold tracking-wide">
+                      <EyeOff className="h-4 w-4" aria-hidden="true" />
+                      <span>ANONYMOUS</span>
                     </div>
                   )}
-                  <span className="text-[12px] font-medium">
-                    {timeAgoShort(poll.createdAt)}
-                  </span>
                 </div>
               </div>
             </div>
