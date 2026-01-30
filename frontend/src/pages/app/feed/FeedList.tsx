@@ -18,6 +18,7 @@ export function FeedList({
   parentRef,
   virtualizer,
   onDeletePost,
+  onDeletePoll,
   hasMore,
   loadingMore,
   onLoadMore,
@@ -27,6 +28,7 @@ export function FeedList({
   parentRef: RefObject<HTMLDivElement>;
   virtualizer: Virtualizer<HTMLDivElement, Element>;
   onDeletePost: (postId: string) => void;
+  onDeletePoll: (pollId: string) => void;
   hasMore: boolean;
   loadingMore: boolean;
   onLoadMore: () => void;
@@ -75,6 +77,7 @@ export function FeedList({
                   ) : item.type === "poll" ? (
                     <PollCard
                       poll={item.content as Poll}
+                      onDelete={onDeletePoll}
                       className={
                         "bg-[#0f121a] border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:border-white/10"
                       }
@@ -119,6 +122,7 @@ export function FeedList({
                 <PollCard
                   key={poll.id}
                   poll={poll}
+                  onDelete={onDeletePoll}
                   className={
                     "bg-[#0f121a] border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:border-white/10"
                   }

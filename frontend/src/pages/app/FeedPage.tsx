@@ -27,6 +27,7 @@ export default function FeedPage() {
     handleRefreshFeed,
     handleLoadMore,
     handleDeletePost,
+    handleDeletePoll,
     handleCreatePost,
   } = useFeedController({ feedType, tab });
 
@@ -89,6 +90,7 @@ export default function FeedPage() {
                 parentRef={parentRef}
                 virtualizer={virtualizer}
                 onDeletePost={handleDeletePost}
+                onDeletePoll={handleDeletePoll}
                 hasMore={hasMore}
                 loadingMore={loadingMore}
                 onLoadMore={() => void handleLoadMore()}

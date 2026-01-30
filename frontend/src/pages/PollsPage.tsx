@@ -6,6 +6,7 @@ import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams } from "@/types/poll";
 import { SkeletonPost } from "@/components/ui/loading";
 import { getSocket } from "@/lib/socket";
+import toast from "react-hot-toast";
 import type {
   FeedEngagementUpdatePayload,
   PollVotedPayload,
@@ -31,6 +32,26 @@ export default function PollsPage() {
         poll.id === updatedPoll.id ? updatedPoll : poll,
       ),
     );
+  };
+
+  const handleDeletePoll = async (pollId: string) => {
+    try {
+      const res = await PollService.delete(pollId);
+
+      if (res.success) {
+        setPolls((prev) => prev.filter((p) => p.id !== pollId));
+        toast.success("Poll deleted successfully");
+      } else {
+        toast.error(res.message || "Failed to delete poll");
+      }
+    } catch (err) {
+      logError(err, {
+        component: "PollsPage",
+        action: "deletePoll",
+        metadata: { pollId },
+      });
+      toast.error(getErrorMessage(err));
+    }
   };
 
   const queryParams: PollQueryParams = useMemo(
@@ -222,7 +243,12 @@ export default function PollsPage() {
 
       <div className="space-y-6">
         {polls.map((poll) => (
-          <PollCard key={poll.id} poll={poll} onUpdate={handlePollUpdate} />
+          <PollCard
+            key={poll.id}
+            poll={poll}
+            onUpdate={handlePollUpdate}
+            onDelete={handleDeletePoll}
+          />
         ))}
       </div>
 

@@ -1,10 +1,17 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 import { FaUsers } from "react-icons/fa";
 
-import { Bookmark, EyeOff, Info, MoreHorizontal } from "lucide-react";
+import {
+  Bookmark,
+  EyeOff,
+  Info,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +22,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
@@ -61,8 +69,10 @@ export function PollCard({
   onUpdate,
   className,
 }: PollCardProps) {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const isOwner = user?.clerkId === poll.author.clerkId;
+  const canManage = isOwner;
   const canDelete = Boolean(onDelete) && isOwner;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -169,6 +179,10 @@ export function PollCard({
   const { userReaction, reactionPending, reactionCount, handleSelectReaction } =
     usePollReactions(poll.id, poll.reactionsCount || 0);
 
+  const handleEdit = () => {
+    navigate(`/app/polls/${poll.id}/edit`);
+  };
+
   const handleDelete = () => {
     if (!onDelete) return;
     onDelete(poll.id);
@@ -226,22 +240,47 @@ export function PollCard({
                       <span className="whitespace-nowrap">{statusText}</span>
                     </Badge>
 
-                    {canDelete && (
+                    {canManage && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 w-8 p-0 text-[#64748b] hover:text-white">
-                            <MoreHorizontal className="h-4 w-4" />
+                            className="h-9 w-9 p-0 shrink-0 rounded-full text-[#94a3b8] hover:text-white hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-primary/40"
+                            aria-label="Poll options">
+                            <MoreHorizontal
+                              className="h-4 w-4"
+                              aria-hidden="true"
+                            />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent
+                          align="end"
+                          className="min-w-[180px] rounded-xl border border-white/10 bg-[#0b1220] p-1 text-white shadow-xl">
                           <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => setIsDeleteDialogOpen(true)}>
-                            Delete poll
+                            onClick={handleEdit}
+                            className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                            <Pencil
+                              className="h-4 w-4 text-[#94a3b8]"
+                              aria-hidden="true"
+                            />
+                            Edit poll
                           </DropdownMenuItem>
+
+                          {canDelete && (
+                            <>
+                              <DropdownMenuSeparator className="bg-white/10" />
+                              <DropdownMenuItem
+                                className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
+                                onClick={() => setIsDeleteDialogOpen(true)}>
+                                <Trash2
+                                  className="h-4 w-4"
+                                  aria-hidden="true"
+                                />
+                                Delete poll
+                              </DropdownMenuItem>
+                            </>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     )}
@@ -270,6 +309,52 @@ export function PollCard({
                       <span className={badgeDotClassName} />
                       <span className="whitespace-nowrap">{statusText}</span>
                     </Badge>
+
+                    {canManage && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 w-9 p-0 shrink-0 rounded-full text-[#94a3b8] hover:text-white hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-primary/40"
+                            aria-label="Poll options">
+                            <MoreHorizontal
+                              className="h-4 w-4"
+                              aria-hidden="true"
+                            />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="min-w-[180px] rounded-xl border border-white/10 bg-[#0b1220] p-1 text-white shadow-xl">
+                          <DropdownMenuItem
+                            onClick={handleEdit}
+                            className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                            <Pencil
+                              className="h-4 w-4 text-[#94a3b8]"
+                              aria-hidden="true"
+                            />
+                            Edit poll
+                          </DropdownMenuItem>
+
+                          {canDelete && (
+                            <>
+                              <DropdownMenuSeparator className="bg-white/10" />
+
+                              <DropdownMenuItem
+                                className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
+                                onClick={() => setIsDeleteDialogOpen(true)}>
+                                <Trash2
+                                  className="h-4 w-4"
+                                  aria-hidden="true"
+                                />
+                                Delete poll
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </div>
                 </div>
               )}

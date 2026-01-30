@@ -7,9 +7,11 @@ import type {
   FeedEngagementUpdatePayload,
 } from "@/lib/socket";
 import { FeedService } from "@/services/feedService";
+import { PollService } from "@/services/pollService";
 import { PostService } from "@/services/postService";
 import type { FeedItem, FeedTab, FeedType } from "@/types/feed";
 import type { Post } from "@/types/post";
+import type { Poll } from "@/types/poll";
 import { logError } from "@/lib/errorHandling";
 import { useAuthStore } from "@/stores/authStore";
 import type { CreatePostData } from "@/schemas/post.schema";
@@ -59,7 +61,9 @@ export function useFeedController({
       setItems(dedupedItems);
       setCursor(data.pagination.nextCursor || null);
       setHasMore(Boolean(data.pagination.hasMore));
-      setLastSeenId(dedupedItems.length > 0 ? String(dedupedItems[0]._id) : null);
+      setLastSeenId(
+        dedupedItems.length > 0 ? String(dedupedItems[0]._id) : null,
+      );
     } catch (err: unknown) {
       logError(err, {
         component: "FeedController",
@@ -110,7 +114,9 @@ export function useFeedController({
           setItems(dedupedItems);
           setCursor(data.pagination.nextCursor || null);
           setHasMore(Boolean(data.pagination.hasMore));
-          setLastSeenId(dedupedItems.length > 0 ? String(dedupedItems[0]._id) : null);
+          setLastSeenId(
+            dedupedItems.length > 0 ? String(dedupedItems[0]._id) : null,
+          );
         }
       } catch (err: unknown) {
         logError(err, {
@@ -180,19 +186,23 @@ export function useFeedController({
 
           if (payload.contentType === "post" && it.type === "post") {
             const content = it.content as Post;
-            const sameContent = String(content._id) === String(payload.contentId);
+            const sameContent =
+              String(content._id) === String(payload.contentId);
             if (sameItem || sameContent) {
               return {
                 ...it,
                 content: {
                   ...content,
-                  reactionsCount: payload.reactionsCount ?? content.reactionsCount,
+                  reactionsCount:
+                    payload.reactionsCount ?? content.reactionsCount,
                   commentsCount: payload.commentsCount ?? content.commentsCount,
                 },
                 engagementMetrics: {
                   ...it.engagementMetrics,
-                  reactions: payload.reactionsCount ?? it.engagementMetrics.reactions,
-                  comments: payload.commentsCount ?? it.engagementMetrics.comments,
+                  reactions:
+                    payload.reactionsCount ?? it.engagementMetrics.reactions,
+                  comments:
+                    payload.commentsCount ?? it.engagementMetrics.comments,
                 },
               } as FeedItem;
             }
@@ -211,7 +221,7 @@ export function useFeedController({
           }
 
           return it;
-        })
+        }),
       );
     };
 
@@ -224,7 +234,7 @@ export function useFeedController({
             if (String(content._id) === String(payload.contentId)) return false;
           }
           return true;
-        })
+        }),
       );
     };
 
@@ -284,7 +294,7 @@ export function useFeedController({
             if (item.type !== "post") return true;
             const content = item.content as Post;
             return content._id !== postId;
-          })
+          }),
         );
         toast.success("Post deleted successfully");
       } else {
@@ -295,6 +305,36 @@ export function useFeedController({
         component: "FeedController",
         action: "deletePost",
         metadata: { postId },
+      });
+      toast.error(getErrorMessage(err));
+    }
+  }, []);
+
+  const handleDeletePoll = useCallback(async (pollId: string) => {
+    try {
+      const response = await PollService.delete(pollId);
+
+      if (response.success) {
+        setItems((prev) =>
+          prev.filter((item) => {
+            if (item.type !== "poll") return true;
+            if (String(item._id) === String(pollId)) return false;
+            const content = item.content as Poll;
+            const contentId =
+              (content as unknown as { id?: string; _id?: string }).id ??
+              (content as unknown as { id?: string; _id?: string })._id;
+            return String(contentId) !== String(pollId);
+          }),
+        );
+        toast.success("Poll deleted successfully");
+      } else {
+        toast.error(response.message || "Failed to delete poll");
+      }
+    } catch (err: unknown) {
+      logError(err, {
+        component: "FeedController",
+        action: "deletePoll",
+        metadata: { pollId },
       });
       toast.error(getErrorMessage(err));
     }
@@ -388,7 +428,7 @@ export function useFeedController({
 
         if (canShowPost) {
           setItems((prev) =>
-            prev.map((it) => (it._id === optimisticId ? createdItem : it))
+            prev.map((it) => (it._id === optimisticId ? createdItem : it)),
           );
         }
 
@@ -408,7 +448,7 @@ export function useFeedController({
         setCreatingPost(false);
       }
     },
-    [feedType, tab]
+    [feedType, tab],
   );
 
   return {
@@ -422,6 +462,7 @@ export function useFeedController({
     handleRefreshFeed,
     handleLoadMore,
     handleDeletePost,
+    handleDeletePoll,
     handleCreatePost,
   };
 }
