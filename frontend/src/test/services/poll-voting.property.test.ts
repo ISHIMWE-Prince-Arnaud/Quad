@@ -23,7 +23,12 @@ describe("Poll Voting Property Tests", () => {
           oldUserVoteIndex: fc.option(fc.integer({ min: 0, max: 4 })),
           newUserVoteIndex: fc.integer({ min: 0, max: 4 }),
         }),
-        async ({ numOptions, initialVotes, oldUserVoteIndex, newUserVoteIndex }) => {
+        async ({
+          numOptions,
+          initialVotes,
+          oldUserVoteIndex,
+          newUserVoteIndex,
+        }) => {
           // Ensure arrays match numOptions
           const votes = initialVotes.slice(0, numOptions);
           while (votes.length < numOptions) {
@@ -31,10 +36,12 @@ describe("Poll Voting Property Tests", () => {
           }
 
           const oldVoteIndex =
-            typeof oldUserVoteIndex === "number" && oldUserVoteIndex < numOptions
+            typeof oldUserVoteIndex === "number" &&
+            oldUserVoteIndex < numOptions
               ? oldUserVoteIndex
               : null;
-          const newVoteIndex = newUserVoteIndex < numOptions ? newUserVoteIndex : null;
+          const newVoteIndex =
+            newUserVoteIndex < numOptions ? newUserVoteIndex : null;
 
           if (newVoteIndex === null) return; // Skip if no valid vote
 
@@ -88,7 +95,7 @@ describe("Poll Voting Property Tests", () => {
           // Property 3: Percentages should sum to approximately 100%
           if (expectedTotal > 0) {
             const percentages = expectedVotes.map((count) =>
-              Math.round((count / expectedTotal) * 100)
+              Math.round((count / expectedTotal) * 100),
             );
             const sum = percentages.reduce((a, b) => a + b, 0);
             expect(sum).toBeGreaterThanOrEqual(98);
@@ -102,9 +109,9 @@ describe("Poll Voting Property Tests", () => {
             expect(percentage).toBeGreaterThanOrEqual(0);
             expect(percentage).toBeLessThanOrEqual(100);
           });
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -115,11 +122,7 @@ describe("Poll Voting Property Tests", () => {
           pollId: fc.string({ minLength: 10, maxLength: 30 }),
           question: fc.string({ minLength: 10, maxLength: 500 }),
           numOptions: fc.integer({ min: 2, max: 5 }),
-          status: fc.constantFrom(
-            "active" as const,
-            "expired" as const,
-            "closed" as const
-          ),
+          status: fc.constantFrom("active" as const, "expired" as const),
           totalVotes: fc.integer({ min: 0, max: 1000 }),
           newVoteIndex: fc.integer({ min: 0, max: 4 }),
         }),
@@ -144,7 +147,7 @@ describe("Poll Voting Property Tests", () => {
 
           // Property 3: Status should remain unchanged
           expect(status).toBeDefined();
-          expect(["active", "expired", "closed"]).toContain(status);
+          expect(["active", "expired"]).toContain(status);
 
           // Property 4: Number of options should remain unchanged
           expect(numOptions).toBeGreaterThanOrEqual(2);
@@ -159,9 +162,9 @@ describe("Poll Voting Property Tests", () => {
           // Property 6: New total votes should be positive
           const newTotal = totalVotes + validVoteIndices.length;
           expect(newTotal).toBeGreaterThan(0);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -183,9 +186,9 @@ describe("Poll Voting Property Tests", () => {
           // Property 2: All vote indices should be unique
           const uniqueVotes = [...new Set(userVote)];
           expect(uniqueVotes.length).toBe(userVote.length);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -221,16 +224,16 @@ describe("Poll Voting Property Tests", () => {
           // Property 4: Percentages should be valid
           if (newTotal > 0) {
             const percentages = newVoteCounts.map((count) =>
-              Math.round((count / newTotal) * 100)
+              Math.round((count / newTotal) * 100),
             );
             percentages.forEach((pct) => {
               expect(pct).toBeGreaterThanOrEqual(0);
               expect(pct).toBeLessThanOrEqual(100);
             });
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -265,9 +268,9 @@ describe("Poll Voting Property Tests", () => {
           updated1.forEach((count, idx) => {
             expect(count).toBe(updated2[idx]);
           });
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });

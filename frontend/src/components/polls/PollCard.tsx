@@ -141,22 +141,18 @@ export function PollCard({
       month: "short",
       day: "2-digit",
     });
-    return isExpired ? `Expired ${dateText}` : `Closed ${dateText}`;
+    return `Expired ${dateText}`;
   })();
 
   const badgeTitle = isActive && !hasValidExpiresAt ? "No expiry" : undefined;
 
   const badgeClassName = isActive
     ? "gap-1.5 border-emerald-500/25 bg-emerald-500/15 text-emerald-200 shadow-sm backdrop-blur-sm hover:bg-emerald-500/15 focus:ring-0 focus:ring-offset-0"
-    : poll.status === "expired"
-      ? "gap-1.5 border-gray-500/25 bg-gray-500/15 text-gray-200 shadow-sm backdrop-blur-sm hover:bg-gray-500/15 focus:ring-0 focus:ring-offset-0"
-      : "gap-1.5 border-slate-500/25 bg-slate-500/15 text-slate-200 shadow-sm backdrop-blur-sm hover:bg-slate-500/15 focus:ring-0 focus:ring-offset-0";
+    : "gap-1.5 border-gray-500/25 bg-gray-500/15 text-gray-200 shadow-sm backdrop-blur-sm hover:bg-gray-500/15 focus:ring-0 focus:ring-offset-0";
 
   const badgeDotClassName = isActive
     ? "h-1.5 w-1.5 rounded-full bg-emerald-300"
-    : poll.status === "expired"
-      ? "h-1.5 w-1.5 rounded-full bg-gray-300"
-      : "h-1.5 w-1.5 rounded-full bg-slate-300";
+    : "h-1.5 w-1.5 rounded-full bg-gray-300";
 
   const {
     localPoll,

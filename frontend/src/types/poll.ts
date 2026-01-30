@@ -1,6 +1,6 @@
 import type { ApiUser } from "./api";
 
-export type PollStatus = "active" | "expired" | "closed";
+export type PollStatus = "active" | "expired";
 
 export type PollMediaAspectRatio = "1:1" | "16:9" | "9:16";
 

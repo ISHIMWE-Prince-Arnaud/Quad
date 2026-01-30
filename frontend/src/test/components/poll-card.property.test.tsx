@@ -63,11 +63,7 @@ describe("Poll Display Property Tests", () => {
         settings: fc.record({
           anonymousVoting: fc.boolean(),
         }),
-        status: fc.constantFrom(
-          "active" as const,
-          "expired" as const,
-          "closed" as const,
-        ),
+        status: fc.constantFrom("active" as const, "expired" as const),
         expiresAt: fc.option(
           fc
             .integer({ min: Date.now(), max: Date.now() + 86400000 * 30 })
@@ -160,7 +156,7 @@ describe("Poll Display Property Tests", () => {
 
         // Property 8: Poll must have status
         expect(poll.status).toBeDefined();
-        expect(["active", "expired", "closed"]).toContain(poll.status);
+        expect(["active", "expired"]).toContain(poll.status);
 
         // Property 9: Poll must have settings
         expect(poll.settings).toBeDefined();

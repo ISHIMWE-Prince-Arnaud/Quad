@@ -64,7 +64,7 @@ export class PollService {
    */
   static async update(
     id: string,
-    data: UpdatePollInput
+    data: UpdatePollInput,
   ): Promise<PollResponse> {
     const response = await endpoints.polls.update(id, data);
     return response.data;
@@ -76,7 +76,7 @@ export class PollService {
    * @returns Delete confirmation
    */
   static async delete(
-    id: string
+    id: string,
   ): Promise<{ success: boolean; message?: string }> {
     const response = await endpoints.polls.delete(id);
     return response.data;
@@ -100,16 +100,6 @@ export class PollService {
    */
   static async removeVote(id: string): Promise<PollResponse> {
     const response = await endpoints.polls.removeVote(id);
-    return response.data;
-  }
-
-  /**
-   * Close a poll (author only)
-   * @param id - Poll ID
-   * @returns Updated poll with closed status
-   */
-  static async close(id: string): Promise<PollResponse> {
-    const response = await endpoints.polls.close(id);
     return response.data;
   }
 }

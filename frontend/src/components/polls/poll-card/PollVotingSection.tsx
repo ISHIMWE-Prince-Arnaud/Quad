@@ -15,7 +15,7 @@ export function PollVotingSection({
 }: {
   poll: Poll;
   localPoll: Poll;
-  selectedIndices: number[]
+  selectedIndices: number[];
   canVote: boolean;
   voting: boolean;
   resultsVisible: boolean;
@@ -33,10 +33,6 @@ export function PollVotingSection({
 
     const now = new Date();
     const isFuture = d.getTime() > now.getTime();
-
-    if (localPoll.status === "closed") {
-      return `Ended ${dateText}`;
-    }
 
     if (localPoll.status === "expired" || !isFuture) {
       return `Expired ${dateText}`;

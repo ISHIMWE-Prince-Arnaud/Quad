@@ -4,12 +4,14 @@ export const endpoints = {
   users: {
     create: () => api.post("/users"),
     getByClerkId: (clerkId: string) => api.get(`/users/${clerkId}`),
-    update: (clerkId: string, data: unknown) => api.put(`/users/${clerkId}`, data),
+    update: (clerkId: string, data: unknown) =>
+      api.put(`/users/${clerkId}`, data),
     delete: (clerkId: string) => api.delete(`/users/${clerkId}`),
   },
 
   profiles: {
-    updateOwn: (username: string, data: unknown) => api.put(`/profile/${username}`, data),
+    updateOwn: (username: string, data: unknown) =>
+      api.put(`/profile/${username}`, data),
     getByUsername: (username: string) => api.get(`/profile/${username}`),
     getById: (userId: string) => api.get(`/profile/id/${userId}`),
     getUserPosts: (username: string, params?: unknown) =>
@@ -46,7 +48,6 @@ export const endpoints = {
     delete: (id: string) => api.delete(`/polls/${id}`),
     vote: (id: string, data: unknown) => api.post(`/polls/${id}/vote`, data),
     removeVote: (id: string) => api.delete(`/polls/${id}/vote`),
-    close: (id: string) => api.post(`/polls/${id}/close`),
   },
 
   feed: {
@@ -70,7 +71,8 @@ export const endpoints = {
 
   reactions: {
     toggle: (data: unknown) => api.post("/reactions", data),
-    getUserReactions: (params?: unknown) => api.get("/reactions/me", { params }),
+    getUserReactions: (params?: unknown) =>
+      api.get("/reactions/me", { params }),
     getByContent: (contentType: string, contentId: string) =>
       api.get(`/reactions/${contentType}/${contentId}`),
     remove: (contentType: string, contentId: string) =>
@@ -99,16 +101,19 @@ export const endpoints = {
 
   analytics: {
     profile: (params?: unknown) => api.get("/analytics/profile", { params }),
-    followers: (params?: unknown) => api.get("/analytics/followers", { params }),
+    followers: (params?: unknown) =>
+      api.get("/analytics/followers", { params }),
     summary: () => api.get("/analytics/summary"),
-    recordProfileView: (data: unknown) => api.post("/analytics/profile-view", data),
+    recordProfileView: (data: unknown) =>
+      api.post("/analytics/profile-view", data),
     content: (params?: unknown) => api.get("/analytics/content", { params }),
   },
 
   chat: {
     sendMessage: (data: unknown) => api.post("/chat/messages", data),
     getMessages: (params?: unknown) => api.get("/chat/messages", { params }),
-    editMessage: (id: string, data: unknown) => api.put(`/chat/messages/${id}`, data),
+    editMessage: (id: string, data: unknown) =>
+      api.put(`/chat/messages/${id}`, data),
     deleteMessage: (id: string) => api.delete(`/chat/messages/${id}`),
     markAsRead: (data: unknown) => api.post("/chat/read", data),
   },
