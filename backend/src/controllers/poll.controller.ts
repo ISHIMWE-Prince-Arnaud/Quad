@@ -46,6 +46,28 @@ export const getAllPolls = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // =========================
+// GET POLL BY ID
+// =========================
+export const getPollById = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (!id) {
+    throw new AppError("Poll ID is required", 400);
+  }
+
+  const userId = req.auth?.userId;
+  if (!userId) {
+    throw new AppError("Unauthorized", 401);
+  }
+
+  const poll = await PollService.getPollById(userId, id);
+
+  return res.json({
+    success: true,
+    data: poll,
+  });
+});
+
+// =========================
 // GET MY POLLS
 // =========================
 export const getMyPolls = asyncHandler(async (req: Request, res: Response) => {

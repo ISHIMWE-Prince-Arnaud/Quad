@@ -11,6 +11,7 @@ import {
 import {
   createPoll,
   getAllPolls,
+  getPollById,
   getMyPolls,
   updatePoll,
   deletePoll,
@@ -47,7 +48,7 @@ router.post(
   "/",
   requireApiAuth,
   validateSchema(createPollSchema, "body"),
-  createPoll
+  createPoll,
 );
 
 /**
@@ -80,11 +81,19 @@ router.get(
   "/",
   requireApiAuth,
   validateSchema(getPollsQuerySchema, "query"),
-  getAllPolls
+  getAllPolls,
 );
 
 // Get my polls (polls created by current user)
 router.get("/me", requireApiAuth, getMyPolls);
+
+// Get poll by ID
+router.get(
+  "/:id",
+  requireApiAuth,
+  validateSchema(pollIdSchema, "params"),
+  getPollById,
+);
 
 // Update poll (author only)
 router.put(
@@ -92,7 +101,7 @@ router.put(
   requireApiAuth,
   validateSchema(pollIdSchema, "params"),
   validateSchema(updatePollSchema, "body"),
-  updatePoll
+  updatePoll,
 );
 
 // Delete poll (author only)
@@ -100,7 +109,7 @@ router.delete(
   "/:id",
   requireApiAuth,
   validateSchema(pollIdSchema, "params"),
-  deletePoll
+  deletePoll,
 );
 
 // ===========================
@@ -113,7 +122,7 @@ router.post(
   requireApiAuth,
   validateSchema(pollIdSchema, "params"),
   validateSchema(voteOnPollSchema, "body"),
-  voteOnPoll
+  voteOnPoll,
 );
 
 // Remove vote (author only)
@@ -121,7 +130,7 @@ router.delete(
   "/:id/vote",
   requireApiAuth,
   validateSchema(pollIdSchema, "params"),
-  removeVote
+  removeVote,
 );
 
 // ===========================
@@ -133,7 +142,7 @@ router.post(
   "/:id/close",
   requireApiAuth,
   validateSchema(pollIdSchema, "params"),
-  closePoll
+  closePoll,
 );
 
 export default router;

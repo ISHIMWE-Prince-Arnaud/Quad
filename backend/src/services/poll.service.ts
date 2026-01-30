@@ -185,6 +185,19 @@ export class PollService {
     };
   }
 
+  static async getPollById(userId: string, id: string) {
+    const poll = await Poll.findById(id);
+    if (!poll) {
+      throw new AppError("Poll not found", 404);
+    }
+
+    const userVote = await PollVote.findOne({ pollId: id, userId });
+    const hasVoted = !!userVote;
+    const showResults = canViewResults(poll, hasVoted);
+
+    return formatPollResponse(poll, userVote || undefined, showResults);
+  }
+
   static async updatePoll(
     userId: string,
     id: string,
