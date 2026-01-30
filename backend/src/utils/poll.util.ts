@@ -13,11 +13,8 @@ export const isPollExpired = (poll: IPollDocument): boolean => {
  * Check if a poll is still accepting votes
  */
 export const canVoteOnPoll = (poll: IPollDocument): boolean => {
-  // Can't vote if closed
-  if (poll.status === "closed") return false;
-
-  // Can't vote if expired
-  if (poll.status === "expired") return false;
+  // Can't vote unless active
+  if (poll.status !== "active") return false;
 
   // Can't vote if expiration date passed (even if status not updated yet)
   if (isPollExpired(poll)) return false;
@@ -33,12 +30,7 @@ export const canViewResults = (
   poll: IPollDocument,
   hasUserVoted: boolean,
 ): boolean => {
-  return (
-    hasUserVoted ||
-    poll.status === "expired" ||
-    poll.status === "closed" ||
-    isPollExpired(poll)
-  );
+  return hasUserVoted || poll.status !== "active" || isPollExpired(poll);
 };
 
 /**
@@ -116,13 +108,16 @@ export const formatPollResponse = (
     anonymousVoting: poll.settings?.anonymousVoting ?? false,
   };
 
+  const statusRaw = poll.status as unknown as string;
+  const status = statusRaw === "closed" ? "expired" : poll.status;
+
   const response: Record<string, unknown> = {
     id: poll._id,
     author: poll.author,
     question: poll.question,
     questionMedia: poll.questionMedia,
     settings,
-    status: poll.status,
+    status,
     expiresAt: poll.expiresAt,
     totalVotes: poll.totalVotes,
     reactionsCount: poll.reactionsCount,

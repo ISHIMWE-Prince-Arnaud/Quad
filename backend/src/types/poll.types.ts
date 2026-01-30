@@ -9,7 +9,7 @@ export type IPollMedia = Omit<IMedia, "type"> & { type: "image" };
  * - expired: Expiration date passed (auto-updated by cron job)
  * - closed: Manually closed by author
  */
-export type PollStatus = "active" | "expired" | "closed";
+export type PollStatus = "active" | "expired";
 
 /**
  * Poll Option

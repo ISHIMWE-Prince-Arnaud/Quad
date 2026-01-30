@@ -1,4 +1,7 @@
-import type { FeedQuerySchemaType, NewCountQuerySchemaType } from "../schemas/feed.schema.js";
+import type {
+  FeedQuerySchemaType,
+  NewCountQuerySchemaType,
+} from "../schemas/feed.schema.js";
 import type {
   ContentTab,
   FeedSort,
@@ -34,7 +37,7 @@ export class FeedService {
    */
   static async getFollowingFeed(
     userId: string,
-    query: FeedQuerySchemaType
+    query: FeedQuerySchemaType,
   ): Promise<IFeedResponse> {
     const { tab, cursor, limit, sort } = query;
 
@@ -57,21 +60,20 @@ export class FeedService {
       const postsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POSTS_RATIO);
       const pollsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POLLS_RATIO);
       const storiesLimit = Math.ceil(
-        limit * FEED_CONFIG.CONTENT_MIX.STORIES_RATIO
+        limit * FEED_CONFIG.CONTENT_MIX.STORIES_RATIO,
       );
 
       const [posts, polls, stories] = await Promise.all([
         postSource.fetch(
           { ...baseQuery, userId: { $in: followingIds } },
-          postsLimit
+          postsLimit,
         ),
         pollSource.fetch(
           {
             ...baseQuery,
             "author.clerkId": { $in: followingIds },
-            status: { $ne: "closed" },
           },
-          pollsLimit
+          pollsLimit,
         ),
         storySource.fetch(
           {
@@ -79,7 +81,7 @@ export class FeedService {
             userId: { $in: followingIds },
             status: "published",
           },
-          storiesLimit
+          storiesLimit,
         ),
       ]);
 
@@ -94,7 +96,6 @@ export class FeedService {
           typeQuery.userId = { $in: followingIds };
         } else if (tab === "polls") {
           typeQuery["author.clerkId"] = { $in: followingIds };
-          typeQuery.status = { $ne: "closed" };
         } else if (tab === "stories") {
           typeQuery.userId = { $in: followingIds };
           typeQuery.status = "published";
@@ -112,7 +113,7 @@ export class FeedService {
    */
   static async getForYouFeed(
     userId: string,
-    query: FeedQuerySchemaType
+    query: FeedQuerySchemaType,
   ): Promise<IFeedResponse> {
     const { tab, cursor, limit } = query;
 
@@ -130,19 +131,15 @@ export class FeedService {
       source: FeedSource,
       typeLimit: number,
       authorField: string,
-      extraQuery: Record<string, unknown> = {}
+      extraQuery: Record<string, unknown> = {},
     ) => {
       // If user follows no one, everything is discovery
       if (followingIds.length === 0) {
         return source.fetch({ ...baseQuery, ...extraQuery }, typeLimit);
       }
 
-      const fLimit = Math.ceil(
-        typeLimit * FEED_CONFIG.FOR_YOU.FOLLOWING_RATIO
-      );
-      const dLimit = Math.ceil(
-        typeLimit * FEED_CONFIG.FOR_YOU.DISCOVERY_RATIO
-      );
+      const fLimit = Math.ceil(typeLimit * FEED_CONFIG.FOR_YOU.FOLLOWING_RATIO);
+      const dLimit = Math.ceil(typeLimit * FEED_CONFIG.FOR_YOU.DISCOVERY_RATIO);
 
       const [followingItems, discoverItems] = await Promise.all([
         source.fetch(
@@ -151,7 +148,7 @@ export class FeedService {
             ...extraQuery,
             [authorField]: { $in: followingIds },
           },
-          fLimit
+          fLimit,
         ),
         source.fetch(
           {
@@ -159,7 +156,7 @@ export class FeedService {
             ...extraQuery,
             [authorField]: { $nin: followingIds },
           },
-          dLimit
+          dLimit,
         ),
       ]);
       return [...followingItems, ...discoverItems];
@@ -169,14 +166,12 @@ export class FeedService {
       const postsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POSTS_RATIO);
       const pollsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POLLS_RATIO);
       const storiesLimit = Math.ceil(
-        limit * FEED_CONFIG.CONTENT_MIX.STORIES_RATIO
+        limit * FEED_CONFIG.CONTENT_MIX.STORIES_RATIO,
       );
 
       const [posts, polls, stories] = await Promise.all([
         fetchMixedForSource(postSource, postsLimit, "userId"),
-        fetchMixedForSource(pollSource, pollsLimit, "author.clerkId", {
-          status: { $ne: "closed" },
-        }),
+        fetchMixedForSource(pollSource, pollsLimit, "author.clerkId", {}),
         fetchMixedForSource(storySource, storiesLimit, "userId", {
           status: "published",
         }),
@@ -192,7 +187,7 @@ export class FeedService {
           pollSource,
           limit,
           "author.clerkId",
-          { status: { $ne: "closed" } }
+          {},
         );
       } else if (tab === "stories") {
         items = await fetchMixedForSource(storySource, limit, "userId", {
@@ -209,7 +204,7 @@ export class FeedService {
    */
   static async getNewContentCount(
     userId: string,
-    query: NewCountQuerySchemaType
+    query: NewCountQuerySchemaType,
   ) {
     const { feedType, tab, since } = query;
     const baseQuery: Record<string, unknown> = { _id: { $gt: since } };
@@ -225,7 +220,7 @@ export class FeedService {
     const getCountForSource = async (
       source: FeedSource,
       authorField: string,
-      extraQuery: Record<string, unknown> = {}
+      extraQuery: Record<string, unknown> = {},
     ) => {
       const q = { ...baseQuery, ...extraQuery };
       if (feedType === "following") {
@@ -239,9 +234,7 @@ export class FeedService {
     if (tab === "home") {
       const [postCount, pollCount, storyCount] = await Promise.all([
         getCountForSource(postSource, "userId"),
-        getCountForSource(pollSource, "author.clerkId", {
-          status: { $ne: "closed" },
-        }),
+        getCountForSource(pollSource, "author.clerkId", {}),
         getCountForSource(storySource, "userId", { status: "published" }),
       ]);
       count = postCount + pollCount + storyCount;
@@ -249,9 +242,7 @@ export class FeedService {
       if (tab === "posts") {
         count = await getCountForSource(postSource, "userId");
       } else if (tab === "polls") {
-        count = await getCountForSource(pollSource, "author.clerkId", {
-          status: { $ne: "closed" },
-        });
+        count = await getCountForSource(pollSource, "author.clerkId", {});
       } else if (tab === "stories") {
         count = await getCountForSource(storySource, "userId", {
           status: "published",
@@ -269,7 +260,7 @@ export class FeedService {
   private static emptyResponse(
     tab: ContentTab,
     sort: FeedSort,
-    feedType: "following" | "foryou" = "following"
+    feedType: "following" | "foryou" = "following",
   ): IFeedResponse {
     return {
       items: [],
@@ -290,7 +281,7 @@ export class FeedService {
     items: IRawContentItem[],
     userId: string,
     query: FeedQuerySchemaType,
-    feedType: "following" | "foryou" = "following"
+    feedType: "following" | "foryou" = "following",
   ): Promise<IFeedResponse> {
     const { tab, limit, sort } = query;
 

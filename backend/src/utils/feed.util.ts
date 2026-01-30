@@ -160,7 +160,6 @@ export const fetchPolls = async (
   cursor?: string,
   limit: number = 20,
   maxAgeDays: number = 30,
-  excludeClosed: boolean = true,
 ): Promise<IRawContentItem[]> => {
   const maxAgeDate = new Date();
   maxAgeDate.setDate(maxAgeDate.getDate() - maxAgeDays);
@@ -168,10 +167,6 @@ export const fetchPolls = async (
   const query: Record<string, unknown> = {
     createdAt: { $gte: maxAgeDate },
   };
-
-  if (excludeClosed) {
-    query.status = { $ne: "closed" };
-  }
 
   if (cursor) {
     query._id = { $lt: cursor };

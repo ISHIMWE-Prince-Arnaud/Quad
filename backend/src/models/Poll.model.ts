@@ -110,7 +110,7 @@ const PollSchema = new Schema<IPollDocument>(
     // Status
     status: {
       type: String,
-      enum: ["active", "expired", "closed"],
+      enum: ["active", "expired"],
       default: "active",
     },
 
@@ -179,6 +179,12 @@ PollSchema.path("questionMedia").validate(function (value: unknown) {
 // ===========================
 
 // Validate option text uniqueness
+PollSchema.pre("validate", function (next) {
+  const statusRaw = this.status as unknown as string;
+  if (statusRaw === "closed") this.status = "expired";
+  next();
+});
+
 PollSchema.pre("save", function (next) {
   const optionTexts = this.options.map((opt) => opt.text.toLowerCase().trim());
   const uniqueTexts = new Set(optionTexts);

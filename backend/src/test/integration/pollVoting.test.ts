@@ -81,7 +81,9 @@ describe("Poll Voting", () => {
 
     const pollId = createRes.body?.data?._id as string;
 
-    await Poll.findByIdAndUpdate(pollId, { $set: { expiresAt: new Date(Date.now() - 1000) } });
+    await Poll.findByIdAndUpdate(pollId, {
+      $set: { expiresAt: new Date(Date.now() - 1000) },
+    });
 
     const voteRes = await request(app)
       .post(`/api/polls/${pollId}/vote`)
@@ -91,7 +93,7 @@ describe("Poll Voting", () => {
     expect(voteRes.status).toBe(400);
   });
 
-  it("prevents voting on closed poll", async () => {
+  it("prevents voting on expired poll (status flag)", async () => {
     const app = createTestApp();
     const authorId = "pv_user_7";
     const voterId = "pv_user_8";
@@ -102,15 +104,13 @@ describe("Poll Voting", () => {
       .post("/api/polls")
       .set(getAuthHeaders(authorId))
       .send({
-        question: "Closed vote question?",
+        question: "Expired status vote question?",
         options: [{ text: "A" }, { text: "B" }],
       });
 
     const pollId = createRes.body?.data?._id as string;
 
-    await request(app)
-      .post(`/api/polls/${pollId}/close`)
-      .set(getAuthHeaders(authorId));
+    await Poll.findByIdAndUpdate(pollId, { $set: { status: "expired" } });
 
     const voteRes = await request(app)
       .post(`/api/polls/${pollId}/vote`)

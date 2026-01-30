@@ -212,10 +212,6 @@ export class PollService {
       throw new AppError("Only the author can update this poll", 403);
     }
 
-    if (poll.status === "closed") {
-      throw new AppError("Cannot update a closed poll", 400);
-    }
-
     if (updates.question) {
       poll.question = updates.question;
     }
@@ -377,27 +373,5 @@ export class PollService {
       undefined,
       poll.totalVotes,
     );
-  }
-
-  static async closePoll(userId: string, id: string) {
-    const poll = await Poll.findById(id);
-    if (!poll) {
-      throw new AppError("Poll not found", 404);
-    }
-
-    if (poll.author.clerkId !== userId) {
-      throw new AppError("Only the author can close this poll", 403);
-    }
-
-    if (poll.status !== "active") {
-      throw new AppError(`Poll is already ${poll.status}`, 400);
-    }
-
-    poll.status = "closed";
-    await poll.save();
-
-    getSocketIO().emit("pollClosed", id);
-
-    return poll;
   }
 }

@@ -184,26 +184,3 @@ export const removeVote = asyncHandler(async (req: Request, res: Response) => {
     message: "Vote removed successfully",
   });
 });
-
-// =========================
-// CLOSE POLL
-// =========================
-export const closePoll = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("Poll ID is required", 400);
-  }
-
-  const userId = req.auth?.userId;
-  if (!userId) {
-    throw new AppError("Unauthorized", 401);
-  }
-
-  const poll = await PollService.closePoll(userId, id);
-
-  return res.json({
-    success: true,
-    message: "Poll closed successfully",
-    data: poll,
-  });
-});
