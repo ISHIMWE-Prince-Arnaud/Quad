@@ -36,7 +36,6 @@ export function FeaturedPoll({ className }: FeaturedPollProps) {
     try {
       const res = await PollService.getAll({
         limit: 1,
-        sort: "trending",
         status: "active",
       });
 
@@ -87,7 +86,7 @@ export function FeaturedPoll({ className }: FeaturedPollProps) {
             <div
               className={cn(
                 "h-full rounded-full bg-gradient-to-r from-primary to-primary/70 transition-all",
-                !poll.canViewResults && "bg-primary/20"
+                !poll.canViewResults && "bg-primary/20",
               )}
               style={{ width: poll.canViewResults ? `${percentage}%` : "12%" }}
             />
@@ -176,7 +175,7 @@ export function FeaturedPoll({ className }: FeaturedPollProps) {
     <Card
       className={cn(
         "bg-[#0f121a] border border-white/5 rounded-3xl overflow-hidden shadow-xl",
-        className
+        className,
       )}>
       <CardHeader className="pb-3 px-6 pt-6">
         <div className="flex items-center justify-between">
@@ -189,7 +188,9 @@ export function FeaturedPoll({ className }: FeaturedPollProps) {
             disabled={isLoading || isRefreshing}
             className="p-2 text-[#64748b] hover:text-white transition-colors"
             aria-label="Refresh poll">
-            <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+            <RefreshCw
+              className={cn("h-4 w-4", isRefreshing && "animate-spin")}
+            />
           </button>
         </div>
       </CardHeader>

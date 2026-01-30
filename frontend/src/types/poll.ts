@@ -97,5 +97,4 @@ export interface PollQueryParams {
   status?: PollStatus | "all";
   author?: string;
   voted?: boolean;
-  sort?: "newest" | "oldest" | "trending" | "mostVotes";
 }

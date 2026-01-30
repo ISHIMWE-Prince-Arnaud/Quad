@@ -2,7 +2,6 @@ import { Poll } from "../models/Poll.model.js";
 import { PollVote } from "../models/PollVote.model.js";
 import type { IPollVoteDocument } from "../models/PollVote.model.js";
 import { User } from "../models/User.model.js";
-import type { SortOrder } from "mongoose";
 import type {
   CreatePollSchemaType,
   GetPollsQuerySchemaType,
@@ -78,7 +77,7 @@ export class PollService {
     userId: string | undefined,
     query: GetPollsQuerySchemaType,
   ) {
-    const { page, limit, status, author, voted, sort } = query;
+    const { page, limit, status, author, voted } = query;
 
     const filter: Record<string, unknown> = {};
 
@@ -98,28 +97,10 @@ export class PollService {
         voted === true ? { $in: votedPollIds } : { $nin: votedPollIds };
     }
 
-    let sortOption: Record<string, SortOrder> = {};
-    switch (sort) {
-      case "newest":
-        sortOption = { createdAt: -1 };
-        break;
-      case "oldest":
-        sortOption = { createdAt: 1 };
-        break;
-      case "trending":
-        sortOption = { totalVotes: -1, createdAt: -1 };
-        break;
-      case "mostVotes":
-        sortOption = { totalVotes: -1 };
-        break;
-      default:
-        sortOption = { createdAt: -1 };
-    }
-
     const skip = (page - 1) * limit;
 
     const [polls, total] = await Promise.all([
-      Poll.find(filter).sort(sortOption).skip(skip).limit(limit),
+      Poll.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
       Poll.countDocuments(filter),
     ]);
 

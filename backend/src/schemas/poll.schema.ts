@@ -214,12 +214,6 @@ export const getPollsQuerySchema = z
       .transform((val) =>
         val === "true" ? true : val === "false" ? false : undefined,
       ),
-
-    // Sorting
-    sort: z
-      .enum(["newest", "oldest", "trending", "mostVotes"])
-      .optional()
-      .default("newest"),
   })
   .strict();
 
