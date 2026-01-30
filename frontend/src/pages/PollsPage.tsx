@@ -85,6 +85,31 @@ export default function PollsPage() {
   }, [location.state]);
 
   useEffect(() => {
+    const updatedPollRaw = (location.state as { updatedPoll?: Poll } | null)
+      ?.updatedPoll;
+    if (!updatedPollRaw) return;
+
+    const updatedObj = updatedPollRaw as unknown as Record<string, unknown>;
+    const updatedId =
+      (typeof updatedObj.id === "string" && updatedObj.id) ||
+      (typeof updatedObj._id === "string" && updatedObj._id) ||
+      undefined;
+
+    if (!updatedId) return;
+
+    const updatedPoll = {
+      ...updatedPollRaw,
+      id: updatedId,
+    };
+
+    setPolls((prev) => {
+      const exists = prev.some((p) => p.id === updatedPoll.id);
+      if (!exists) return [updatedPoll, ...prev];
+      return prev.map((p) => (p.id === updatedPoll.id ? updatedPoll : p));
+    });
+  }, [location.state]);
+
+  useEffect(() => {
     let cancelled = false;
     (async () => {
       try {

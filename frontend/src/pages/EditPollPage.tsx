@@ -8,6 +8,7 @@ import { PollService } from "@/services/pollService";
 import { UploadService } from "@/services/uploadService";
 import type { Poll, PollMedia } from "@/types/poll";
 import { logError } from "@/lib/errorHandling";
+import { invalidateCache } from "@/lib/api";
 
 import type {
   LocalOption,
@@ -377,8 +378,12 @@ export default function EditPollPage() {
         throw new Error(res.message || "Failed to update poll");
       }
 
+      invalidateCache(/\/polls/);
+
       toast.success("Poll updated successfully!");
-      navigate("/app/polls");
+      navigate("/app/polls", {
+        state: res.data ? { updatedPoll: res.data } : undefined,
+      });
     } catch (err: unknown) {
       logError(err, {
         component: "EditPollPage",

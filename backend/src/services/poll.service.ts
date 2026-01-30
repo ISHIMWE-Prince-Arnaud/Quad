@@ -250,9 +250,12 @@ export class PollService {
 
     await poll.save();
 
-    getSocketIO().emit("pollUpdated", poll);
+    const showResults = canViewResults(poll, false);
+    const formattedPoll = formatPollResponse(poll, undefined, showResults);
 
-    return poll;
+    getSocketIO().emit("pollUpdated", formattedPoll);
+
+    return formattedPoll;
   }
 
   static async deletePoll(userId: string, id: string) {
