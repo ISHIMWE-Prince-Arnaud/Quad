@@ -30,7 +30,8 @@ export const canViewResults = (
   poll: IPollDocument,
   hasUserVoted: boolean,
 ): boolean => {
-  return hasUserVoted || poll.status !== "active" || isPollExpired(poll);
+  void poll;
+  return hasUserVoted;
 };
 
 /**
