@@ -25,7 +25,9 @@ export default function EditPollPage() {
   const [question, setQuestion] = useState("");
   const [questionMedia, setQuestionMedia] = useState<PollMedia | undefined>();
   const [uploadingQuestionMedia, setUploadingQuestionMedia] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {},
+  );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -54,7 +56,11 @@ export default function EditPollPage() {
         setQuestion(res.data.question ?? "");
         setQuestionMedia(res.data.questionMedia);
       } catch (err: unknown) {
-        logError(err, { component: "EditPollPage", action: "fetchPoll", metadata: { id } });
+        logError(err, {
+          component: "EditPollPage",
+          action: "fetchPoll",
+          metadata: { id },
+        });
         if (!cancelled) setError(getErrorMessage(err));
       } finally {
         if (!cancelled) setLoading(false);
@@ -84,7 +90,10 @@ export default function EditPollPage() {
       setQuestionMedia(mapFileToMedia(file, res.url));
       toast.success("Question media updated");
     } catch (err: unknown) {
-      logError(err, { component: "EditPollPage", action: "uploadQuestionMedia" });
+      logError(err, {
+        component: "EditPollPage",
+        action: "uploadQuestionMedia",
+      });
       toast.error(getErrorMessage(err));
     } finally {
       setUploadingQuestionMedia(false);
@@ -99,7 +108,9 @@ export default function EditPollPage() {
 
     const trimmed = question.trim();
     if (trimmed.length < 10) {
-      setValidationErrors({ question: "Question must be at least 10 characters" });
+      setValidationErrors({
+        question: "Question must be at least 10 characters",
+      });
       toast.error("Please fix validation errors before saving");
       return;
     }
@@ -119,7 +130,11 @@ export default function EditPollPage() {
       toast.success("Poll updated successfully!");
       navigate("/app/polls");
     } catch (err: unknown) {
-      logError(err, { component: "EditPollPage", action: "updatePoll", metadata: { id } });
+      logError(err, {
+        component: "EditPollPage",
+        action: "updatePoll",
+        metadata: { id },
+      });
       toast.error(getErrorMessage(err));
     } finally {
       setIsSubmitting(false);
@@ -146,7 +161,8 @@ export default function EditPollPage() {
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold mb-2">Unable to edit poll</h2>
           <p className="text-muted-foreground mb-4">
-            {error || "The poll you are trying to edit does not exist or cannot be loaded."}
+            {error ||
+              "The poll you are trying to edit does not exist or cannot be loaded."}
           </p>
           <Button onClick={() => navigate("/app/polls")}>Back to Polls</Button>
         </div>
@@ -161,8 +177,7 @@ export default function EditPollPage() {
           <button
             type="button"
             className="inline-flex items-center gap-2 text-white/90 hover:text-white font-bold"
-            onClick={() => navigate("/app/polls")}
-          >
+            onClick={() => navigate("/app/polls")}>
             <ArrowLeft className="h-5 w-5" />
             <span className="text-base">Edit Poll</span>
           </button>
@@ -171,8 +186,7 @@ export default function EditPollPage() {
             type="button"
             disabled={!canSubmit}
             onClick={() => void handleSubmit()}
-            className="h-8 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-4"
-          >
+            className="h-8 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-4">
             {isSubmitting ? (
               <span className="inline-flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />

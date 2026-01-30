@@ -9,7 +9,11 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import type { Dispatch, SetStateAction } from "react";
 
-import type { PollDuration, PollSettingsState, ValidationErrors } from "./types";
+import type {
+  PollDuration,
+  PollSettingsState,
+  ValidationErrors,
+} from "./types";
 
 const durationLabel: Record<PollDuration, string> = {
   none: "none",
@@ -41,7 +45,9 @@ export function PollSettingsAndDuration({
         </h3>
         <div className="rounded-2xl bg-white/[0.02] border border-white/5 px-4 py-3">
           <div className="h-11 w-full rounded-2xl border border-white/15 bg-[#0f121a] px-4 flex items-center justify-between">
-            <span className="text-sm font-bold text-white">Vote Anonymously</span>
+            <span className="text-sm font-bold text-white">
+              Vote Anonymously
+            </span>
             <Switch
               checked={settings.anonymousVoting}
               onChange={(e) =>
@@ -60,9 +66,7 @@ export function PollSettingsAndDuration({
           Duration
         </h3>
         <div className="rounded-2xl bg-white/[0.02] border border-white/5 px-4 py-3">
-          <Label
-            htmlFor="poll-duration"
-            className="sr-only">
+          <Label htmlFor="poll-duration" className="sr-only">
             Duration
           </Label>
           <Select
@@ -81,9 +85,8 @@ export function PollSettingsAndDuration({
               id="poll-duration"
               className={cn(
                 "h-11 w-full rounded-2xl border border-white/15 bg-[#0f121a] px-4 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]/25 focus:border-[#2563eb]/40 transition-all",
-                validationErrors.expiresAt && "border-destructive/50"
-              )}
-            >
+                validationErrors.expiresAt && "border-destructive/50",
+              )}>
               {durationLabel[duration]}
             </SelectTrigger>
             <SelectContent className="mt-2 rounded-2xl border border-white/10 bg-[#0f121a] p-2 shadow-xl">

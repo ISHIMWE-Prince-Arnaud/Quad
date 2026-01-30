@@ -64,7 +64,7 @@ export function PollOptionsEditor({
                 "p-2 rounded-xl transition-all",
                 options.length <= 2
                   ? "opacity-0 cursor-default"
-                  : "text-[#64748b] hover:text-destructive hover:bg-destructive/10"
+                  : "text-[#64748b] hover:text-destructive hover:bg-destructive/10",
               )}>
               <X className="h-5 w-5" />
             </button>
@@ -89,7 +89,7 @@ export function PollOptionsEditor({
           "w-full rounded-2xl border border-dashed border-white/10 bg-white/[0.01] px-4 py-3 text-center text-sm font-bold transition-all",
           options.length >= 5
             ? "text-[#64748b] cursor-not-allowed opacity-50"
-            : "text-[#2563eb] hover:border-[#2563eb]/50 hover:bg-[#2563eb]/5"
+            : "text-[#2563eb] hover:border-[#2563eb]/50 hover:bg-[#2563eb]/5",
         )}>
         <span className="inline-flex items-center justify-center gap-2">
           <Plus className="h-4 w-4" />
