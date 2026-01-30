@@ -48,7 +48,7 @@ export const createPollSchema = z
       .max(500, "Question must be at most 500 characters")
       .trim(),
 
-    questionMedia: mediaSchema.optional(),
+    questionMedia: z.union([mediaSchema, z.null()]).optional(),
 
     options: z
       .array(
@@ -112,7 +112,7 @@ export const updatePollSchema = z
       .trim()
       .optional(),
 
-    questionMedia: mediaSchema.optional(),
+    questionMedia: z.union([mediaSchema, z.null()]).optional(),
 
     options: z
       .array(

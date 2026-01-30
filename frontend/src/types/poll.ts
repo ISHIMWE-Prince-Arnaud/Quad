@@ -79,7 +79,7 @@ export interface CreatePollInput {
 
 export interface UpdatePollInput {
   question?: string;
-  questionMedia?: PollMedia;
+  questionMedia?: PollMedia | null;
   options?: CreatePollOptionInput[];
   settings?: {
     anonymousVoting?: boolean;

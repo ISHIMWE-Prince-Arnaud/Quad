@@ -354,7 +354,9 @@ export default function EditPollPage() {
 
       const payload = {
         ...(questionChanged ? { question: trimmed } : {}),
-        ...(questionMediaChanged ? { questionMedia } : {}),
+        ...(questionMediaChanged
+          ? { questionMedia: questionMedia ?? null }
+          : {}),
         ...(canEditRestricted
           ? {
               ...(settingsChanged

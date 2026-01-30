@@ -214,19 +214,23 @@ export class PollService {
     }
 
     if (updates.questionMedia !== undefined) {
-      const { url, type, aspectRatio } = updates.questionMedia;
+      if (updates.questionMedia === null) {
+        poll.questionMedia = undefined;
+      } else {
+        const { url, type, aspectRatio } = updates.questionMedia;
 
-      if (type !== "image") {
-        throw new AppError("Poll questionMedia must be an image", 400);
+        if (type !== "image") {
+          throw new AppError("Poll questionMedia must be an image", 400);
+        }
+
+        const questionMedia: IPollMedia = {
+          url,
+          type: "image",
+          ...(aspectRatio !== undefined ? { aspectRatio } : {}),
+        };
+
+        poll.questionMedia = questionMedia;
       }
-
-      const questionMedia: IPollMedia = {
-        url,
-        type: "image",
-        ...(aspectRatio !== undefined ? { aspectRatio } : {}),
-      };
-
-      poll.questionMedia = questionMedia;
     }
 
     if (updates.settings?.anonymousVoting !== undefined) {
