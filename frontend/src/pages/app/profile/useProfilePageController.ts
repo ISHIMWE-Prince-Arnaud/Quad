@@ -1,19 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import type { NavigateFunction } from "react-router-dom";
 
 import type { ProfileTab } from "@/components/profile/ProfileTabs";
-import type { ContentItem } from "@/components/profile/ProfileContentGrid";
 import { BookmarkService } from "@/services/bookmarkService";
 import { FollowService } from "@/services/followService";
-import { PollService } from "@/services/pollService";
-import { PostService } from "@/services/postService";
 import { ProfileService } from "@/services/profileService";
-import { StoryService } from "@/services/storyService";
 import type { ApiProfile } from "@/types/api";
 import { logError } from "@/lib/errorHandling";
-
-import { filterProfileContent } from "./filterProfileContent";
 
 type AuthUser = {
   clerkId: string;
@@ -43,211 +37,14 @@ export function useProfilePageController({
 }: UseProfilePageControllerArgs) {
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [user, setUser] = useState<ApiProfile | null>(null);
-  const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isNotFound, setIsNotFound] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
   const [bookmarksCount, setBookmarksCount] = useState(0);
 
   // Check if this is the current user's profile
   const isOwnProfile = currentUser?.username === username;
-
-  // Load user's content based on active tab
-  const loadUserContent = useCallback(
-    async (nextPage: number, mode: "replace" | "append") => {
-      if (!username) return;
-
-      try {
-        let result;
-        switch (activeTab) {
-          case "posts":
-            result = await ProfileService.getUserContent(username, "posts", {
-              page: nextPage,
-              limit: 20,
-            });
-            break;
-          case "stories":
-            result = await ProfileService.getUserContent(username, "stories", {
-              page: nextPage,
-              limit: 20,
-            });
-            break;
-          case "polls":
-            result = await ProfileService.getUserContent(username, "polls", {
-              page: nextPage,
-              limit: 20,
-            });
-            break;
-          case "saved":
-            if (!isOwnProfile) {
-              setContent([]);
-              setHasMore(false);
-              return;
-            }
-            {
-              const limit = 20;
-              const bookmarksRes = await BookmarkService.list({
-                page: nextPage,
-                limit,
-              });
-
-              const items = bookmarksRes.data || [];
-
-              const fetchedItems = (
-                await Promise.all(
-                  items.map(async (b): Promise<ContentItem | null> => {
-                    try {
-                      if (b.contentType === "post") {
-                        const postRes = await PostService.getPostById(
-                          b.contentId,
-                        );
-                        if (postRes.success && postRes.data) {
-                          const images = postRes.data.media
-                            ?.filter((m) => m.type === "image")
-                            .map((m) => m.url);
-
-                          return {
-                            _id: postRes.data._id,
-                            type: "post",
-                            createdAt: postRes.data.createdAt,
-                            updatedAt: postRes.data.updatedAt,
-                            content: postRes.data.text ?? "",
-                            ...(images ? { images } : {}),
-                            author: {
-                              _id: postRes.data.author.clerkId,
-                              username: postRes.data.author.username,
-                              firstName: postRes.data.author.firstName,
-                              lastName: postRes.data.author.lastName,
-                              profileImage: postRes.data.author.profileImage,
-                            },
-                            likes: postRes.data.reactionsCount ?? 0,
-                            comments: postRes.data.commentsCount ?? 0,
-                          };
-                        }
-                        return null;
-                      }
-
-                      if (b.contentType === "story") {
-                        const storyRes = await StoryService.getById(
-                          b.contentId,
-                        );
-                        if (storyRes.success && storyRes.data) {
-                          return {
-                            _id: storyRes.data._id,
-                            type: "story",
-                            createdAt: storyRes.data.createdAt,
-                            updatedAt: storyRes.data.updatedAt,
-                            content: storyRes.data.content ?? "",
-                            title: storyRes.data.title,
-                            ...(storyRes.data.coverImage
-                              ? { coverImage: storyRes.data.coverImage }
-                              : {}),
-                            ...(storyRes.data.readTime !== undefined
-                              ? { readTime: storyRes.data.readTime }
-                              : {}),
-                            author: {
-                              _id: storyRes.data.author.clerkId,
-                              username: storyRes.data.author.username,
-                              profileImage: storyRes.data.author.profileImage,
-                            },
-                            likes: storyRes.data.reactionsCount ?? 0,
-                            comments: storyRes.data.commentsCount ?? 0,
-                          };
-                        }
-                        return null;
-                      }
-
-                      if (b.contentType === "poll") {
-                        const pollRes = await PollService.getById(b.contentId);
-                        if (pollRes.success && pollRes.data) {
-                          return {
-                            _id: pollRes.data.id,
-                            type: "poll",
-                            createdAt: pollRes.data.createdAt,
-                            updatedAt: pollRes.data.updatedAt,
-                            question: pollRes.data.question,
-                            options: pollRes.data.options.map((o) => ({
-                              id: String(o.index),
-                              text: o.text,
-                              votes: o.votesCount ?? 0,
-                            })),
-                            totalVotes: pollRes.data.totalVotes,
-                            ...(pollRes.data.expiresAt
-                              ? { endsAt: pollRes.data.expiresAt }
-                              : {}),
-                            ...(pollRes.data.userVote &&
-                            pollRes.data.userVote.length > 0
-                              ? { hasVoted: true }
-                              : {}),
-                            author: {
-                              _id: pollRes.data.author._id,
-                              username: pollRes.data.author.username,
-                              firstName: pollRes.data.author.firstName,
-                              lastName: pollRes.data.author.lastName,
-                              profileImage: pollRes.data.author.profileImage,
-                            },
-                            likes: pollRes.data.reactionsCount ?? 0,
-                          };
-                        }
-                        return null;
-                      }
-                    } catch {
-                      return null;
-                    }
-
-                    return null;
-                  }),
-                )
-              ).filter((x): x is ContentItem => x !== null);
-
-              result = {
-                items: fetchedItems,
-                hasMore: bookmarksRes.pagination?.hasMore || false,
-                total: bookmarksRes.pagination?.total || fetchedItems.length,
-              };
-            }
-            break;
-          default:
-            setContent([]);
-            setHasMore(false);
-            return;
-        }
-
-        const convertedItems = result.items.map((item) => ({
-          ...item,
-          updatedAt: item.createdAt,
-        })) as ContentItem[];
-        setContent((prev) =>
-          mode === "append" ? [...prev, ...convertedItems] : convertedItems,
-        );
-        setPage(nextPage);
-        setHasMore(result.hasMore);
-      } catch (err) {
-        logError(err, {
-          component: "ProfilePage",
-          action: "loadUserContent",
-          metadata: { activeTab },
-        });
-        setContent([]);
-        setHasMore(false);
-      }
-    },
-    [username, activeTab, isOwnProfile],
-  );
-
-  const handleLoadMore = useCallback(async () => {
-    if (loadingMore || !hasMore) return;
-    setLoadingMore(true);
-    try {
-      await loadUserContent(page + 1, "append");
-    } finally {
-      setLoadingMore(false);
-    }
-  }, [hasMore, loadUserContent, loadingMore, page]);
 
   // Real API calls to fetch profile data
   useEffect(() => {
@@ -324,10 +121,6 @@ export function useProfilePageController({
           );
           setIsFollowing(followStatus.isFollowing);
         }
-
-        setPage(1);
-        setHasMore(false);
-        await loadUserContent(1, "replace");
       } catch (err: unknown) {
         let status: number | undefined;
 
@@ -358,14 +151,7 @@ export function useProfilePageController({
     if (username && !authLoading) {
       void fetchProfileData();
     }
-  }, [
-    username,
-    loadUserContent,
-    authLoading,
-    currentUser?.clerkId,
-    navigate,
-    isOwnProfile,
-  ]);
+  }, [username, authLoading, currentUser?.clerkId, navigate, isOwnProfile]);
 
   useEffect(() => {
     if (!isOwnProfile || authLoading) {
@@ -388,19 +174,6 @@ export function useProfilePageController({
 
     void fetchBookmarksCount();
   }, [authLoading, isOwnProfile]);
-
-  useEffect(() => {
-    if (!username) return;
-    setPage(1);
-    setHasMore(false);
-    setContent([]);
-    void loadUserContent(1, "replace");
-  }, [activeTab, loadUserContent, username]);
-
-  // Filter content based on active tab
-  const filteredContent = useMemo(() => {
-    return filterProfileContent(content, activeTab);
-  }, [content, activeTab]);
 
   // Handle follow/unfollow
   const handleFollow = useCallback(async () => {
@@ -485,20 +258,15 @@ export function useProfilePageController({
     activeTab,
     setActiveTab,
     user,
-    content,
     loading,
-    loadingMore,
     error,
     isNotFound,
     isFollowing,
     isOwnProfile,
-    filteredContent,
-    hasMore,
     bookmarksCount,
     handleFollow,
     handleUnfollow,
     handleEditProfile,
     handleUserUpdate,
-    handleLoadMore,
   };
 }

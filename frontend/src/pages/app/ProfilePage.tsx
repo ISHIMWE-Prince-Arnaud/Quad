@@ -1,8 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import { ProfileTabs, TabContent } from "@/components/profile/ProfileTabs";
-import { ProfileContentGrid } from "@/components/profile/ProfileContentGrid";
+import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { ProfileSkeleton } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
 import { useAuthStore } from "@/stores/authStore";
@@ -122,16 +121,11 @@ export default function ProfilePage() {
           />
 
           {/* Profile Content */}
-          <TabContent>
-            <ProfileContentGrid
-              items={controller.filteredContent}
-              loading={controller.loading || controller.loadingMore}
-              hasMore={controller.hasMore}
-              onLoadMore={() => {
-                void controller.handleLoadMore();
-              }}
-            />
-          </TabContent>
+          <div className="px-4 py-8">
+            <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+              Profile tab content will be rebuilt from scratch.
+            </div>
+          </div>
         </div>
       </div>
     </ComponentErrorBoundary>
