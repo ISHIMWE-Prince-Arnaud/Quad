@@ -269,6 +269,200 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
+          ) : controller.activeTab === "saved" ? (
+            <div className="px-4 py-8 space-y-6">
+              {!controller.isOwnProfile ? (
+                <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                  Bookmarks are only visible on your own profile.
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant={
+                        controller.savedTab === "posts" ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() => controller.setSavedTab("posts")}
+                      className="rounded-full">
+                      Posts
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant={
+                        controller.savedTab === "stories"
+                          ? "default"
+                          : "outline"
+                      }
+                      size="sm"
+                      onClick={() => controller.setSavedTab("stories")}
+                      className="rounded-full">
+                      Stories
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant={
+                        controller.savedTab === "polls" ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() => controller.setSavedTab("polls")}
+                      className="rounded-full">
+                      Polls
+                    </Button>
+                  </div>
+
+                  {controller.savedTab === "posts" ? (
+                    <div className="space-y-6">
+                      {controller.savedPostsError && (
+                        <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                          {controller.savedPostsError}
+                        </div>
+                      )}
+
+                      {!controller.savedPostsError &&
+                        controller.savedPostsLoading && (
+                          <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                            Loading bookmarks...
+                          </div>
+                        )}
+
+                      {!controller.savedPostsError &&
+                        !controller.savedPostsLoading &&
+                        controller.savedPosts.length === 0 && (
+                          <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                            No bookmarked posts yet.
+                          </div>
+                        )}
+
+                      {controller.savedPosts.map((post) => (
+                        <PostCard key={post._id} post={post} />
+                      ))}
+
+                      {controller.savedPostsHasMore && (
+                        <div className="flex justify-center pt-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              void controller.handleLoadMoreSavedPosts()
+                            }
+                            disabled={controller.savedPostsLoading}>
+                            {controller.savedPostsLoading
+                              ? "Loading..."
+                              : "Load more"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+
+                  {controller.savedTab === "stories" ? (
+                    <div className="space-y-6">
+                      {controller.savedStoriesError && (
+                        <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                          {controller.savedStoriesError}
+                        </div>
+                      )}
+
+                      {!controller.savedStoriesError &&
+                        controller.savedStoriesLoading && (
+                          <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                            Loading bookmarks...
+                          </div>
+                        )}
+
+                      {!controller.savedStoriesError &&
+                        !controller.savedStoriesLoading &&
+                        controller.savedStories.length === 0 && (
+                          <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                            No bookmarked stories yet.
+                          </div>
+                        )}
+
+                      <div className="grid gap-6 md:grid-cols-2 items-start">
+                        {controller.savedStories.map((story) => (
+                          <StoryCard
+                            key={story._id}
+                            story={story}
+                            variant="grid"
+                          />
+                        ))}
+                      </div>
+
+                      {controller.savedStoriesHasMore && (
+                        <div className="flex justify-center pt-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              void controller.handleLoadMoreSavedStories()
+                            }
+                            disabled={controller.savedStoriesLoading}>
+                            {controller.savedStoriesLoading
+                              ? "Loading..."
+                              : "Load more"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+
+                  {controller.savedTab === "polls" ? (
+                    <div className="space-y-6">
+                      {controller.savedPollsError && (
+                        <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                          {controller.savedPollsError}
+                        </div>
+                      )}
+
+                      {!controller.savedPollsError &&
+                        controller.savedPollsLoading && (
+                          <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                            Loading bookmarks...
+                          </div>
+                        )}
+
+                      {!controller.savedPollsError &&
+                        !controller.savedPollsLoading &&
+                        controller.savedPolls.length === 0 && (
+                          <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                            No bookmarked polls yet.
+                          </div>
+                        )}
+
+                      <div className="space-y-6">
+                        {controller.savedPolls.map((poll) => (
+                          <PollCard
+                            key={poll.id}
+                            poll={poll}
+                            onUpdate={controller.handleSavedPollUpdate}
+                          />
+                        ))}
+                      </div>
+
+                      {controller.savedPollsHasMore && (
+                        <div className="flex justify-center pt-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              void controller.handleLoadMoreSavedPolls()
+                            }
+                            disabled={controller.savedPollsLoading}>
+                            {controller.savedPollsLoading
+                              ? "Loading..."
+                              : "Load more"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </>
+              )}
+            </div>
           ) : (
             <div className="px-4 py-8">
               <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">

@@ -27,6 +27,8 @@ type AuthUser = {
 
 type SetAuthUser = (user: AuthUser) => void;
 
+type SavedTab = "posts" | "stories" | "polls";
+
 type UseProfilePageControllerArgs = {
   username?: string;
   navigate: NavigateFunction;
@@ -43,6 +45,7 @@ export function useProfilePageController({
   setAuthUser,
 }: UseProfilePageControllerArgs) {
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
+  const [savedTab, setSavedTab] = useState<SavedTab>("posts");
   const [user, setUser] = useState<ApiProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,8 +71,33 @@ export function useProfilePageController({
   const [pollsPage, setPollsPage] = useState(1);
   const [pollsHasMore, setPollsHasMore] = useState(false);
 
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
+  const [savedPostsLoading, setSavedPostsLoading] = useState(false);
+  const [savedPostsError, setSavedPostsError] = useState<string | null>(null);
+  const [savedPostsPage, setSavedPostsPage] = useState(1);
+  const [savedPostsHasMore, setSavedPostsHasMore] = useState(false);
+
+  const [savedStories, setSavedStories] = useState<Story[]>([]);
+  const [savedStoriesLoading, setSavedStoriesLoading] = useState(false);
+  const [savedStoriesError, setSavedStoriesError] = useState<string | null>(
+    null,
+  );
+  const [savedStoriesPage, setSavedStoriesPage] = useState(1);
+  const [savedStoriesHasMore, setSavedStoriesHasMore] = useState(false);
+
+  const [savedPolls, setSavedPolls] = useState<Poll[]>([]);
+  const [savedPollsLoading, setSavedPollsLoading] = useState(false);
+  const [savedPollsError, setSavedPollsError] = useState<string | null>(null);
+  const [savedPollsPage, setSavedPollsPage] = useState(1);
+  const [savedPollsHasMore, setSavedPollsHasMore] = useState(false);
+
   // Check if this is the current user's profile
   const isOwnProfile = currentUser?.username === username;
+
+  useEffect(() => {
+    if (activeTab !== "saved") return;
+    setSavedTab("posts");
+  }, [activeTab]);
 
   // Real API calls to fetch profile data
   useEffect(() => {
@@ -248,6 +276,186 @@ export function useProfilePageController({
       cancelled = true;
     };
   }, [activeTab, authLoading, username]);
+
+  useEffect(() => {
+    if (!isOwnProfile || authLoading) return;
+    if (activeTab !== "saved" || savedTab !== "posts") return;
+
+    let cancelled = false;
+
+    const fetchSavedPosts = async () => {
+      try {
+        setSavedPostsLoading(true);
+        setSavedPostsError(null);
+        setSavedPosts([]);
+        setSavedPostsPage(1);
+        setSavedPostsHasMore(false);
+
+        const res = await BookmarkService.list({
+          page: 1,
+          limit: 20,
+          contentType: "post",
+        });
+
+        const ids = (res.data || []).map((b) => b.contentId).filter(Boolean);
+        const posts = await Promise.all(
+          ids.map(async (id) => {
+            try {
+              const r = await PostService.getPostById(id);
+              return r.success ? r.data : null;
+            } catch {
+              return null;
+            }
+          }),
+        );
+
+        if (cancelled) return;
+
+        setSavedPosts(posts.filter((p): p is Post => Boolean(p)));
+        setSavedPostsPage(1);
+        setSavedPostsHasMore(Boolean(res.pagination?.hasMore));
+      } catch (e) {
+        logError(e, {
+          component: "ProfilePage",
+          action: "bookmarks.posts",
+        });
+
+        if (!cancelled) {
+          setSavedPostsError("Failed to load bookmarks");
+          setSavedPosts([]);
+          setSavedPostsHasMore(false);
+        }
+      } finally {
+        if (!cancelled) setSavedPostsLoading(false);
+      }
+    };
+
+    void fetchSavedPosts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, authLoading, isOwnProfile, savedTab]);
+
+  useEffect(() => {
+    if (!isOwnProfile || authLoading) return;
+    if (activeTab !== "saved" || savedTab !== "stories") return;
+
+    let cancelled = false;
+
+    const fetchSavedStories = async () => {
+      try {
+        setSavedStoriesLoading(true);
+        setSavedStoriesError(null);
+        setSavedStories([]);
+        setSavedStoriesPage(1);
+        setSavedStoriesHasMore(false);
+
+        const res = await BookmarkService.list({
+          page: 1,
+          limit: 20,
+          contentType: "story",
+        });
+
+        const ids = (res.data || []).map((b) => b.contentId).filter(Boolean);
+        const stories = await Promise.all(
+          ids.map(async (id) => {
+            try {
+              const r = await StoryService.getById(id);
+              return r.success ? (r.data ?? null) : null;
+            } catch {
+              return null;
+            }
+          }),
+        );
+
+        if (cancelled) return;
+
+        setSavedStories(stories.filter((s): s is Story => Boolean(s)));
+        setSavedStoriesPage(1);
+        setSavedStoriesHasMore(Boolean(res.pagination?.hasMore));
+      } catch (e) {
+        logError(e, {
+          component: "ProfilePage",
+          action: "bookmarks.stories",
+        });
+
+        if (!cancelled) {
+          setSavedStoriesError("Failed to load bookmarks");
+          setSavedStories([]);
+          setSavedStoriesHasMore(false);
+        }
+      } finally {
+        if (!cancelled) setSavedStoriesLoading(false);
+      }
+    };
+
+    void fetchSavedStories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, authLoading, isOwnProfile, savedTab]);
+
+  useEffect(() => {
+    if (!isOwnProfile || authLoading) return;
+    if (activeTab !== "saved" || savedTab !== "polls") return;
+
+    let cancelled = false;
+
+    const fetchSavedPolls = async () => {
+      try {
+        setSavedPollsLoading(true);
+        setSavedPollsError(null);
+        setSavedPolls([]);
+        setSavedPollsPage(1);
+        setSavedPollsHasMore(false);
+
+        const res = await BookmarkService.list({
+          page: 1,
+          limit: 20,
+          contentType: "poll",
+        });
+
+        const ids = (res.data || []).map((b) => b.contentId).filter(Boolean);
+        const pollsRes = await Promise.all(
+          ids.map(async (id) => {
+            try {
+              const r = await PollService.getById(id);
+              return r.success ? (r.data ?? null) : null;
+            } catch {
+              return null;
+            }
+          }),
+        );
+
+        if (cancelled) return;
+
+        setSavedPolls(pollsRes.filter((p): p is Poll => Boolean(p)));
+        setSavedPollsPage(1);
+        setSavedPollsHasMore(Boolean(res.pagination?.hasMore));
+      } catch (e) {
+        logError(e, {
+          component: "ProfilePage",
+          action: "bookmarks.polls",
+        });
+
+        if (!cancelled) {
+          setSavedPollsError("Failed to load bookmarks");
+          setSavedPolls([]);
+          setSavedPollsHasMore(false);
+        }
+      } finally {
+        if (!cancelled) setSavedPollsLoading(false);
+      }
+    };
+
+    void fetchSavedPolls();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, authLoading, isOwnProfile, savedTab]);
 
   useEffect(() => {
     if (!username || authLoading) return;
@@ -441,6 +649,165 @@ export function useProfilePageController({
     }
   }, [activeTab, pollsHasMore, pollsLoading, pollsPage, username]);
 
+  const handleLoadMoreSavedPosts = useCallback(async () => {
+    if (activeTab !== "saved" || savedTab !== "posts") return;
+    if (savedPostsLoading || !savedPostsHasMore) return;
+
+    try {
+      setSavedPostsLoading(true);
+      setSavedPostsError(null);
+
+      const nextPage = savedPostsPage + 1;
+      const res = await BookmarkService.list({
+        page: nextPage,
+        limit: 20,
+        contentType: "post",
+      });
+
+      const ids = (res.data || []).map((b) => b.contentId).filter(Boolean);
+      const posts = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const r = await PostService.getPostById(id);
+            return r.success ? r.data : null;
+          } catch {
+            return null;
+          }
+        }),
+      );
+
+      const resolved = posts.filter((p): p is Post => Boolean(p));
+      setSavedPosts((prev) => {
+        const existingIds = new Set(prev.map((p) => p._id));
+        const newOnes = resolved.filter((p) => !existingIds.has(p._id));
+        return [...prev, ...newOnes];
+      });
+      setSavedPostsPage(nextPage);
+      setSavedPostsHasMore(Boolean(res.pagination?.hasMore));
+    } catch (e) {
+      logError(e, {
+        component: "ProfilePage",
+        action: "bookmarks.posts.loadMore",
+        metadata: { savedPostsPage },
+      });
+      setSavedPostsError("Failed to load more bookmarks");
+    } finally {
+      setSavedPostsLoading(false);
+    }
+  }, [
+    activeTab,
+    savedPostsHasMore,
+    savedPostsLoading,
+    savedPostsPage,
+    savedTab,
+  ]);
+
+  const handleLoadMoreSavedStories = useCallback(async () => {
+    if (activeTab !== "saved" || savedTab !== "stories") return;
+    if (savedStoriesLoading || !savedStoriesHasMore) return;
+
+    try {
+      setSavedStoriesLoading(true);
+      setSavedStoriesError(null);
+
+      const nextPage = savedStoriesPage + 1;
+      const res = await BookmarkService.list({
+        page: nextPage,
+        limit: 20,
+        contentType: "story",
+      });
+
+      const ids = (res.data || []).map((b) => b.contentId).filter(Boolean);
+      const stories = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const r = await StoryService.getById(id);
+            return r.success ? (r.data ?? null) : null;
+          } catch {
+            return null;
+          }
+        }),
+      );
+
+      const resolved = stories.filter((s): s is Story => Boolean(s));
+      setSavedStories((prev) => {
+        const existingIds = new Set(prev.map((s) => s._id));
+        const newOnes = resolved.filter((s) => !existingIds.has(s._id));
+        return [...prev, ...newOnes];
+      });
+      setSavedStoriesPage(nextPage);
+      setSavedStoriesHasMore(Boolean(res.pagination?.hasMore));
+    } catch (e) {
+      logError(e, {
+        component: "ProfilePage",
+        action: "bookmarks.stories.loadMore",
+        metadata: { savedStoriesPage },
+      });
+      setSavedStoriesError("Failed to load more bookmarks");
+    } finally {
+      setSavedStoriesLoading(false);
+    }
+  }, [
+    activeTab,
+    savedStoriesHasMore,
+    savedStoriesLoading,
+    savedStoriesPage,
+    savedTab,
+  ]);
+
+  const handleLoadMoreSavedPolls = useCallback(async () => {
+    if (activeTab !== "saved" || savedTab !== "polls") return;
+    if (savedPollsLoading || !savedPollsHasMore) return;
+
+    try {
+      setSavedPollsLoading(true);
+      setSavedPollsError(null);
+
+      const nextPage = savedPollsPage + 1;
+      const res = await BookmarkService.list({
+        page: nextPage,
+        limit: 20,
+        contentType: "poll",
+      });
+
+      const ids = (res.data || []).map((b) => b.contentId).filter(Boolean);
+      const pollsRes = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const r = await PollService.getById(id);
+            return r.success ? (r.data ?? null) : null;
+          } catch {
+            return null;
+          }
+        }),
+      );
+
+      const resolved = pollsRes.filter((p): p is Poll => Boolean(p));
+      setSavedPolls((prev) => {
+        const existingIds = new Set(prev.map((p) => p.id));
+        const newOnes = resolved.filter((p) => !existingIds.has(p.id));
+        return [...prev, ...newOnes];
+      });
+      setSavedPollsPage(nextPage);
+      setSavedPollsHasMore(Boolean(res.pagination?.hasMore));
+    } catch (e) {
+      logError(e, {
+        component: "ProfilePage",
+        action: "bookmarks.polls.loadMore",
+        metadata: { savedPollsPage },
+      });
+      setSavedPollsError("Failed to load more bookmarks");
+    } finally {
+      setSavedPollsLoading(false);
+    }
+  }, [
+    activeTab,
+    savedPollsHasMore,
+    savedPollsLoading,
+    savedPollsPage,
+    savedTab,
+  ]);
+
   const handleDeletePost = useCallback(async (postId: string) => {
     try {
       const res = await PostService.deletePost(postId);
@@ -473,6 +840,12 @@ export function useProfilePageController({
 
   const handlePollUpdate = useCallback((updatedPoll: Poll) => {
     setPolls((prev) =>
+      prev.map((p) => (p.id === updatedPoll.id ? updatedPoll : p)),
+    );
+  }, []);
+
+  const handleSavedPollUpdate = useCallback((updatedPoll: Poll) => {
+    setSavedPolls((prev) =>
       prev.map((p) => (p.id === updatedPoll.id ? updatedPoll : p)),
     );
   }, []);
@@ -619,6 +992,8 @@ export function useProfilePageController({
   return {
     activeTab,
     setActiveTab,
+    savedTab,
+    setSavedTab,
     user,
     loading,
     error,
@@ -645,6 +1020,22 @@ export function useProfilePageController({
     handleLoadMorePolls,
     handlePollUpdate,
     handleDeletePoll,
+    handleSavedPollUpdate,
+    savedPosts,
+    savedPostsLoading,
+    savedPostsError,
+    savedPostsHasMore,
+    handleLoadMoreSavedPosts,
+    savedStories,
+    savedStoriesLoading,
+    savedStoriesError,
+    savedStoriesHasMore,
+    handleLoadMoreSavedStories,
+    savedPolls,
+    savedPollsLoading,
+    savedPollsError,
+    savedPollsHasMore,
+    handleLoadMoreSavedPolls,
     handleFollow,
     handleUnfollow,
     handleEditProfile,
