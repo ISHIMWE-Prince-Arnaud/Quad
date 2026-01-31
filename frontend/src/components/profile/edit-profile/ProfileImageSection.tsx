@@ -38,7 +38,7 @@ export function ProfileImageSection({
             size="sm"
             onClick={() => inputRef.current?.click()}
             disabled={processing}
-            className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full p-0 shadow-lg">
+            className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full p-0 shadow-lg transition-colors hover:bg-primary/20 focus-visible:ring-2 focus-visible:ring-primary/40">
             {processing ? (
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent" />
             ) : (
@@ -53,17 +53,17 @@ export function ProfileImageSection({
             variant="outline"
             onClick={() => inputRef.current?.click()}
             disabled={processing}
-            className="w-full sm:w-auto">
+            className="w-full sm:w-auto rounded-xl transition-colors hover:bg-primary/10 hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/40">
             <Upload className="h-4 w-4 mr-2" />
             {processing ? "Processing..." : "Upload New Photo"}
           </Button>
           {onRemove && src && (
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={onRemove}
               disabled={processing}
-              className="w-full sm:w-auto sm:ml-2 text-destructive hover:text-destructive">
+              className="w-full sm:w-auto sm:ml-2 rounded-xl border-destructive/30 text-destructive transition-colors hover:bg-destructive/10 hover:border-destructive/50 hover:text-destructive focus-visible:ring-2 focus-visible:ring-destructive/40">
               <Trash2 className="h-4 w-4 mr-2" />
               Remove
             </Button>

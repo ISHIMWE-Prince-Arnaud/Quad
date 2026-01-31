@@ -123,7 +123,7 @@ export function ProfileHeaderCard({
               <Button
                 variant="outline"
                 onClick={onEditProfileClick}
-                className="flex-1 sm:flex-none">
+                className="flex-1 sm:flex-none rounded-full">
                 Edit Profile
               </Button>
             ) : (

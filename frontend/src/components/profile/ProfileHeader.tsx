@@ -146,7 +146,7 @@ export function ProfileHeader({
                 <Button
                   variant="outline"
                   onClick={handleEditProfileClick}
-                  className="flex-1 sm:flex-none">
+                  className="flex-1 sm:flex-none rounded-full">
                   Edit Profile
                 </Button>
               ) : (
