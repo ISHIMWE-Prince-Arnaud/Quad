@@ -7,8 +7,10 @@ import { BookmarkService } from "@/services/bookmarkService";
 import { FollowService } from "@/services/followService";
 import { PostService } from "@/services/postService";
 import { ProfileService } from "@/services/profileService";
+import { StoryService } from "@/services/storyService";
 import type { ApiProfile } from "@/types/api";
 import type { Post } from "@/types/post";
+import type { Story } from "@/types/story";
 import { logError } from "@/lib/errorHandling";
 import toast from "react-hot-toast";
 
@@ -51,6 +53,12 @@ export function useProfilePageController({
   const [postsError, setPostsError] = useState<string | null>(null);
   const [postsPage, setPostsPage] = useState(1);
   const [postsHasMore, setPostsHasMore] = useState(false);
+
+  const [stories, setStories] = useState<Story[]>([]);
+  const [storiesLoading, setStoriesLoading] = useState(false);
+  const [storiesError, setStoriesError] = useState<string | null>(null);
+  const [storiesPage, setStoriesPage] = useState(1);
+  const [storiesHasMore, setStoriesHasMore] = useState(false);
 
   // Check if this is the current user's profile
   const isOwnProfile = currentUser?.username === username;
@@ -233,6 +241,55 @@ export function useProfilePageController({
     };
   }, [activeTab, authLoading, username]);
 
+  useEffect(() => {
+    if (!username || authLoading) return;
+
+    if (activeTab !== "stories") return;
+
+    let cancelled = false;
+
+    const fetchStories = async () => {
+      try {
+        setStoriesLoading(true);
+        setStoriesError(null);
+        setStories([]);
+        setStoriesPage(1);
+        setStoriesHasMore(false);
+
+        const res = await ProfileService.getUserStoriesAsStories(username, {
+          page: 1,
+          limit: 20,
+        });
+
+        if (cancelled) return;
+
+        setStories(res.stories);
+        setStoriesPage(1);
+        setStoriesHasMore(Boolean(res.hasMore));
+      } catch (e) {
+        logError(e, {
+          component: "ProfilePage",
+          action: "getUserStoriesAsStories",
+          metadata: { username },
+        });
+
+        if (!cancelled) {
+          setStoriesError("Failed to load stories");
+          setStories([]);
+          setStoriesHasMore(false);
+        }
+      } finally {
+        if (!cancelled) setStoriesLoading(false);
+      }
+    };
+
+    void fetchStories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, authLoading, username]);
+
   const handleLoadMorePosts = useCallback(async () => {
     if (!username) return;
     if (activeTab !== "posts") return;
@@ -263,6 +320,36 @@ export function useProfilePageController({
     }
   }, [activeTab, postsHasMore, postsLoading, postsPage, username]);
 
+  const handleLoadMoreStories = useCallback(async () => {
+    if (!username) return;
+    if (activeTab !== "stories") return;
+    if (storiesLoading || !storiesHasMore) return;
+
+    try {
+      setStoriesLoading(true);
+      setStoriesError(null);
+
+      const nextPage = storiesPage + 1;
+      const res = await ProfileService.getUserStoriesAsStories(username, {
+        page: nextPage,
+        limit: 20,
+      });
+
+      setStories((prev) => [...prev, ...res.stories]);
+      setStoriesPage(nextPage);
+      setStoriesHasMore(Boolean(res.hasMore));
+    } catch (e) {
+      logError(e, {
+        component: "ProfilePage",
+        action: "getUserStoriesAsStories.loadMore",
+        metadata: { username, storiesPage },
+      });
+      setStoriesError("Failed to load more stories");
+    } finally {
+      setStoriesLoading(false);
+    }
+  }, [activeTab, storiesHasMore, storiesLoading, storiesPage, username]);
+
   const handleDeletePost = useCallback(async (postId: string) => {
     try {
       const res = await PostService.deletePost(postId);
@@ -290,6 +377,36 @@ export function useProfilePageController({
         metadata: { postId },
       });
       toast.error("Failed to delete post");
+    }
+  }, []);
+
+  const handleDeleteStory = useCallback(async (storyId: string) => {
+    try {
+      const res = await StoryService.delete(storyId);
+
+      if (!res?.success) {
+        toast.error(res?.message || "Failed to delete story");
+        return;
+      }
+
+      setStories((prev) => prev.filter((s) => s._id !== storyId));
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              storiesCount: Math.max((prev.storiesCount ?? 0) - 1, 0),
+            }
+          : prev,
+      );
+
+      toast.success("Story deleted successfully");
+    } catch (e) {
+      logError(e, {
+        component: "ProfilePage",
+        action: "deleteStory",
+        metadata: { storyId },
+      });
+      toast.error("Failed to delete story");
     }
   }, []);
 
@@ -388,6 +505,12 @@ export function useProfilePageController({
     postsHasMore,
     handleLoadMorePosts,
     handleDeletePost,
+    stories,
+    storiesLoading,
+    storiesError,
+    storiesHasMore,
+    handleLoadMoreStories,
+    handleDeleteStory,
     handleFollow,
     handleUnfollow,
     handleEditProfile,

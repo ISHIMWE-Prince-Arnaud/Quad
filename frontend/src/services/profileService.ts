@@ -9,6 +9,7 @@ import type {
   ApiPoll,
 } from "@/types/api";
 import type { Post } from "@/types/post";
+import type { Story } from "@/types/story";
 
 export class ProfileService {
   // Get user profile by username
@@ -143,6 +144,29 @@ export class ProfileService {
 
     return {
       stories,
+      hasMore: pagination.hasMore || false,
+      total: pagination.total || rawStories.length,
+    };
+  }
+
+  static async getUserStoriesAsStories(
+    username: string,
+    params: PaginationParams = {},
+  ): Promise<{ stories: Story[]; hasMore: boolean; total: number }> {
+    const response = await endpoints.profiles.getUserStories(username, {
+      page: params.page || 1,
+      limit: params.limit || 20,
+      ...params,
+    });
+
+    const rawData = response.data?.data;
+    const rawStories: Story[] = Array.isArray(rawData)
+      ? (rawData as Story[])
+      : [];
+    const pagination = response.data.pagination || {};
+
+    return {
+      stories: rawStories,
       hasMore: pagination.hasMore || false,
       total: pagination.total || rawStories.length,
     };

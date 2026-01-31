@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { PostCard } from "@/components/posts/PostCard";
+import { StoryCard } from "@/components/stories/StoryCard";
 import { Button } from "@/components/ui/button";
 import { ProfileSkeleton } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
@@ -165,6 +166,55 @@ export default function ProfilePage() {
                     onClick={() => void controller.handleLoadMorePosts()}
                     disabled={controller.postsLoading}>
                     {controller.postsLoading ? "Loading..." : "Load more"}
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : controller.activeTab === "stories" ? (
+            <div className="px-4 py-8 space-y-6">
+              {controller.storiesError && (
+                <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                  {controller.storiesError}
+                </div>
+              )}
+
+              {!controller.storiesError && controller.storiesLoading && (
+                <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                  Loading stories...
+                </div>
+              )}
+
+              {!controller.storiesError &&
+                !controller.storiesLoading &&
+                controller.stories.length === 0 && (
+                  <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                    No stories yet.
+                  </div>
+                )}
+
+              <div className="grid gap-6 md:grid-cols-2 items-start">
+                {controller.stories.map((story) => (
+                  <StoryCard
+                    key={story._id}
+                    story={story}
+                    onDelete={
+                      controller.isOwnProfile
+                        ? controller.handleDeleteStory
+                        : undefined
+                    }
+                    variant="grid"
+                  />
+                ))}
+              </div>
+
+              {controller.storiesHasMore && (
+                <div className="flex justify-center pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void controller.handleLoadMoreStories()}
+                    disabled={controller.storiesLoading}>
+                    {controller.storiesLoading ? "Loading..." : "Load more"}
                   </Button>
                 </div>
               )}
