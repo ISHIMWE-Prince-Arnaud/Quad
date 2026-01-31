@@ -31,7 +31,9 @@ export function EditProfileFields({
             placeholder="Enter your first name"
           />
           {errors.firstName && (
-            <p className="text-sm text-destructive">{errors.firstName.message}</p>
+            <p className="text-sm text-destructive">
+              {errors.firstName.message}
+            </p>
           )}
         </div>
 
@@ -43,7 +45,9 @@ export function EditProfileFields({
             placeholder="Enter your last name"
           />
           {errors.lastName && (
-            <p className="text-sm text-destructive">{errors.lastName.message}</p>
+            <p className="text-sm text-destructive">
+              {errors.lastName.message}
+            </p>
           )}
         </div>
       </div>
@@ -63,7 +67,9 @@ export function EditProfileFields({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="bio">Bio</Label>
-          <span className="text-xs text-muted-foreground">{bioValue.length}/500</span>
+          <span className="text-xs text-muted-foreground">
+            {bioValue.length}/500
+          </span>
         </div>
         <Textarea
           id="bio"

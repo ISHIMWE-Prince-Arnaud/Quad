@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { toast } from "react-hot-toast";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { ProfileService } from "@/services/profileService";
@@ -14,6 +15,7 @@ import { EditProfileFields } from "@/components/profile/edit-profile/EditProfile
 import { EditProfileActions } from "@/components/profile/edit-profile/EditProfileActions";
 import { UploadErrorAlert } from "@/components/profile/edit-profile/UploadErrorAlert";
 import { processProfileImage, processCoverImage } from "@/lib/imageUtils";
+import { showErrorToast, showSuccessToast } from "@/lib/errorHandling";
 
 const editProfileSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50),
@@ -74,43 +76,54 @@ export default function EditProfilePage() {
   });
 
   const handleProfileImageChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadError(null);
     setProfileImage((prev) => ({ ...prev, processing: true }));
+    const toastId = toast.loading("Uploading profile image...");
     try {
       const processed = await processProfileImage(file);
       const res = await UploadService.uploadProfileImage(processed.file);
       setProfileImage({ preview: res.url, processing: false });
+      toast.dismiss(toastId);
+      showSuccessToast("Profile image uploaded");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Upload failed";
       setUploadError(message);
       setProfileImage((prev) => ({ ...prev, processing: false }));
+      toast.dismiss(toastId);
+      showErrorToast(err);
     }
   };
 
   const handleCoverImageChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadError(null);
     setCoverImage((prev) => ({ ...prev, processing: true }));
+    const toastId = toast.loading("Uploading cover image...");
     try {
       const processed = await processCoverImage(file);
       const res = await UploadService.uploadCoverImage(processed.file);
       setCoverImage({ preview: res.url, processing: false });
+      toast.dismiss(toastId);
+      showSuccessToast("Cover image uploaded");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Upload failed";
       setUploadError(message);
       setCoverImage((prev) => ({ ...prev, processing: false }));
+      toast.dismiss(toastId);
+      showErrorToast(err);
     }
   };
 
   const onSubmit = async (data: EditProfileFormData) => {
     if (!user) return;
+    const toastId = toast.loading("Saving profile...");
     try {
       const updated = await ProfileService.updateProfile(user.username, {
         ...data,
@@ -118,10 +131,14 @@ export default function EditProfilePage() {
         coverImage: coverImage.preview,
       });
       setUser({ ...user, ...updated });
+      toast.dismiss(toastId);
+      showSuccessToast("Profile updated");
       navigate(`/profile/${updated.username}`);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Update failed";
       setUploadError(message);
+      toast.dismiss(toastId);
+      showErrorToast(err);
     }
   };
 
@@ -158,9 +175,13 @@ export default function EditProfilePage() {
               processing={coverImage.processing}
               inputRef={coverImageInputRef}
               onChange={handleCoverImageChange}
-              onRemove={() =>
-                setCoverImage({ preview: null, processing: false })
-              }
+              onRemove={() => {
+                setCoverImage({ preview: null, processing: false });
+                showSuccessToast(
+                  "Cover image removed",
+                  "Click Save Changes to apply",
+                );
+              }}
             />
 
             <ProfileImageSection
@@ -169,9 +190,13 @@ export default function EditProfilePage() {
               processing={profileImage.processing}
               inputRef={profileImageInputRef}
               onChange={handleProfileImageChange}
-              onRemove={() =>
-                setProfileImage({ preview: null, processing: false })
-              }
+              onRemove={() => {
+                setProfileImage({ preview: null, processing: false });
+                showSuccessToast(
+                  "Profile image removed",
+                  "Click Save Changes to apply",
+                );
+              }}
             />
 
             <UploadErrorAlert error={uploadError} />

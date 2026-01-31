@@ -25,7 +25,7 @@ export class ProfileService {
   // Update own profile
   static async updateProfile(
     username: string,
-    data: ProfileUpdateData
+    data: ProfileUpdateData,
   ): Promise<ApiProfile> {
     const response = await endpoints.profiles.updateOwn(username, data);
     return response.data.data;
@@ -34,7 +34,7 @@ export class ProfileService {
   // Get user's posts
   static async getUserPosts(
     username: string,
-    params: PaginationParams = {}
+    params: PaginationParams = {},
   ): Promise<{ posts: ContentItem[]; hasMore: boolean; total: number }> {
     const response = await endpoints.profiles.getUserPosts(username, {
       page: params.page || 1,
@@ -73,7 +73,7 @@ export class ProfileService {
   // Get user's stories
   static async getUserStories(
     username: string,
-    params: PaginationParams = {}
+    params: PaginationParams = {},
   ): Promise<{ stories: ContentItem[]; hasMore: boolean; total: number }> {
     const response = await endpoints.profiles.getUserStories(username, {
       page: params.page || 1,
@@ -108,7 +108,7 @@ export class ProfileService {
   // Get user's polls
   static async getUserPolls(
     username: string,
-    params: PaginationParams = {}
+    params: PaginationParams = {},
   ): Promise<{ polls: ContentItem[]; hasMore: boolean; total: number }> {
     const response = await endpoints.profiles.getUserPolls(username, {
       page: params.page || 1,
@@ -144,7 +144,7 @@ export class ProfileService {
   static async getUserContent(
     username: string,
     type: "posts" | "stories" | "polls",
-    params: PaginationParams = {}
+    params: PaginationParams = {},
   ): Promise<{ items: ContentItem[]; hasMore: boolean; total: number }> {
     switch (type) {
       case "posts": {

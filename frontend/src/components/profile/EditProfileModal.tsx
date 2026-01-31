@@ -3,12 +3,14 @@ import type { ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { toast } from "react-hot-toast";
 import {
   processProfileImage,
   processCoverImage,
   revokePreviewUrl,
   formatFileSize,
 } from "@/lib/imageUtils";
+import { showErrorToast, showSuccessToast } from "@/lib/errorHandling";
 import { UploadService } from "@/services/uploadService";
 
 import { CoverImageSection } from "./edit-profile/CoverImageSection";
@@ -72,14 +74,6 @@ export function EditProfileModal({
   user,
   onSave,
 }: EditProfileModalProps) {
-  // Simple toast notification function
-  const showToast = (
-    message: string,
-    type: "success" | "error" = "success",
-  ) => {
-    // For now, just use console.log - can be enhanced later
-    console.log(`${type.toUpperCase()}: ${message}`);
-  };
   const profileImageInputRef = useRef<HTMLInputElement>(null);
   const coverImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -135,6 +129,7 @@ export function EditProfileModal({
 
     setUploadError(null);
     setProfileImage((prev) => ({ ...prev, processing: true }));
+    const toastId = toast.loading("Uploading profile image...");
 
     try {
       // Validate file
@@ -165,8 +160,10 @@ export function EditProfileModal({
         processing: false,
       });
 
-      showToast(
-        `Profile image uploaded successfully - ${formatFileSize(uploadResult.bytes || processed.size)}`,
+      toast.dismiss(toastId);
+      showSuccessToast(
+        "Profile image uploaded",
+        formatFileSize(uploadResult.bytes || processed.size),
       );
     } catch (error) {
       setUploadError(
@@ -174,10 +171,8 @@ export function EditProfileModal({
       );
       setProfileImage((prev) => ({ ...prev, processing: false }));
 
-      showToast(
-        error instanceof Error ? error.message : "Failed to process image",
-        "error",
-      );
+      toast.dismiss(toastId);
+      showErrorToast(error);
     }
 
     // Reset input
@@ -193,6 +188,7 @@ export function EditProfileModal({
 
     setUploadError(null);
     setCoverImage((prev) => ({ ...prev, processing: true }));
+    const toastId = toast.loading("Uploading cover image...");
 
     try {
       // Validate file
@@ -221,8 +217,10 @@ export function EditProfileModal({
         processing: false,
       });
 
-      showToast(
-        `Cover image uploaded successfully - ${formatFileSize(uploadResult.bytes || processed.size)}`,
+      toast.dismiss(toastId);
+      showSuccessToast(
+        "Cover image uploaded",
+        formatFileSize(uploadResult.bytes || processed.size),
       );
     } catch (error) {
       setUploadError(
@@ -230,10 +228,8 @@ export function EditProfileModal({
       );
       setCoverImage((prev) => ({ ...prev, processing: false }));
 
-      showToast(
-        error instanceof Error ? error.message : "Failed to process image",
-        "error",
-      );
+      toast.dismiss(toastId);
+      showErrorToast(error);
     }
 
     // Reset input
@@ -242,6 +238,7 @@ export function EditProfileModal({
 
   // Handle form submission
   const onSubmit = async (data: EditProfileFormData) => {
+    const toastId = toast.loading("Saving profile...");
     try {
       await onSave({
         ...data,
@@ -249,14 +246,13 @@ export function EditProfileModal({
         coverImageUrl: coverImage.preview,
       });
 
-      showToast("Profile updated successfully");
+      toast.dismiss(toastId);
+      showSuccessToast("Profile updated");
 
       handleClose();
     } catch (error) {
-      showToast(
-        error instanceof Error ? error.message : "Something went wrong",
-        "error",
-      );
+      toast.dismiss(toastId);
+      showErrorToast(error);
     }
   };
 
@@ -316,6 +312,10 @@ export function EditProfileModal({
               onRemove={() => {
                 if (coverImage.preview) revokePreviewUrl(coverImage.preview);
                 setCoverImage({ file: null, preview: null, processing: false });
+                showSuccessToast(
+                  "Cover image removed",
+                  "Click Save Changes to apply",
+                );
               }}
             />
 
@@ -334,6 +334,10 @@ export function EditProfileModal({
                   preview: null,
                   processing: false,
                 });
+                showSuccessToast(
+                  "Profile image removed",
+                  "Click Save Changes to apply",
+                );
               }}
             />
 
