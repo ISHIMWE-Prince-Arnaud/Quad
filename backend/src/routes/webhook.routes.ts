@@ -59,7 +59,9 @@ router.post(
             profileImage,
           });
 
-          logger.info("User created via Clerk webhook", { clerkId: evt.data.id });
+          logger.info("User created via Clerk webhook", {
+            clerkId: evt.data.id,
+          });
           break;
         }
 
@@ -71,21 +73,21 @@ router.post(
           const firstName = (evt.data as { first_name?: string }).first_name;
           const lastName = (evt.data as { last_name?: string }).last_name;
 
-          const existingUser = await User.findOne({ clerkId: evt.data.id });
+          const usernameConflict = await User.findOne({ username })
+            .select("clerkId")
+            .lean();
 
           const updateOps: Record<string, unknown> = {
             $set: {
-              username,
+              ...(usernameConflict && usernameConflict.clerkId !== evt.data.id
+                ? {}
+                : { username }),
               email,
               profileImage,
               firstName,
               lastName,
             },
           };
-
-          if (existingUser && username && username !== existingUser.username) {
-            updateOps.$addToSet = { previousUsernames: existingUser.username };
-          }
 
           const session = await mongoose.startSession();
           try {
@@ -94,16 +96,8 @@ router.post(
             const updatedUser = await User.findOneAndUpdate(
               { clerkId: evt.data.id },
               updateOps,
-              { new: true, upsert: true, session }
+              { new: true, upsert: true, session },
             );
-
-            if (existingUser && username && username !== existingUser.username) {
-              await User.updateOne(
-                { clerkId: evt.data.id },
-                { $pull: { previousUsernames: username } },
-                { session }
-              );
-            }
 
             if (updatedUser) {
               await propagateUserSnapshotUpdates(
@@ -118,7 +112,7 @@ router.post(
                   coverImage: updatedUser.coverImage,
                   bio: updatedUser.bio,
                 },
-                { session }
+                { session },
               );
             }
 
@@ -139,27 +133,23 @@ router.post(
                 msg.includes("not supported"));
 
             if (!isTxnUnsupported) {
-              logger.error("Clerk user.updated webhook failed", propagationError);
+              logger.error(
+                "Clerk user.updated webhook failed",
+                propagationError,
+              );
               return res.status(500).json({ success: false });
             }
 
             logger.warn(
               "Transactions not supported; falling back to awaited non-transactional propagation for Clerk webhook",
-              { clerkId: evt.data.id }
+              { clerkId: evt.data.id },
             );
 
             const updatedUser = await User.findOneAndUpdate(
               { clerkId: evt.data.id },
               updateOps,
-              { new: true, upsert: true }
+              { new: true, upsert: true },
             );
-
-            if (existingUser && username && username !== existingUser.username) {
-              await User.updateOne(
-                { clerkId: evt.data.id },
-                { $pull: { previousUsernames: username } }
-              );
-            }
 
             if (updatedUser) {
               await propagateUserSnapshotUpdates({
@@ -186,7 +176,9 @@ router.post(
 
         case "user.deleted": {
           await User.findOneAndDelete({ clerkId: evt.data.id });
-          logger.info("User deleted via Clerk webhook", { clerkId: evt.data.id });
+          logger.info("User deleted via Clerk webhook", {
+            clerkId: evt.data.id,
+          });
           break;
         }
 
@@ -200,12 +192,13 @@ router.post(
         message: err instanceof Error ? err.message : undefined,
         name: err instanceof Error ? err.name : undefined,
       });
-      const message = err instanceof Error ? err.message : "Invalid webhook signature";
+      const message =
+        err instanceof Error ? err.message : "Invalid webhook signature";
       return res
         .status(400)
         .json({ error: "Invalid webhook signature", details: message });
     }
-  }
+  },
 );
 
 export default router;

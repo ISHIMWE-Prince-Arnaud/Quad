@@ -2,7 +2,6 @@ declare global {
   interface IUser {
     clerkId: string;
     username: string;
-    previousUsernames?: string[];
     email: string;
     displayName?: string;
     firstName?: string;

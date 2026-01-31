@@ -106,24 +106,22 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError("User not found", 404);
   }
 
+  const nextUsername = safeUpdates.username;
+  if (
+    typeof nextUsername === "string" &&
+    nextUsername !== existingUser.username
+  ) {
+    const conflict = await User.findOne({ username: nextUsername })
+      .select("clerkId")
+      .lean();
+    if (conflict && conflict.clerkId !== clerkId) {
+      throw new AppError("Username already taken", 409);
+    }
+  }
+
   const updateOps: {
     $set: Record<string, unknown>;
-    $addToSet?: Record<string, unknown>;
   } = { $set: safeUpdates as Record<string, unknown> };
-
-  const nextUsername = safeUpdates.username;
-  if (typeof nextUsername === "string" && nextUsername !== existingUser.username) {
-    const current = Array.isArray(existingUser.previousUsernames)
-      ? existingUser.previousUsernames
-      : [];
-
-    const next = current.filter((u) => u !== nextUsername);
-    if (!next.includes(existingUser.username)) {
-      next.push(existingUser.username);
-    }
-
-    updateOps.$set.previousUsernames = next;
-  }
 
   let updatedUser = null;
 
@@ -155,7 +153,7 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
         coverImage: updatedUser.coverImage,
         bio: updatedUser.bio,
       },
-      { session }
+      { session },
     );
 
     await session.commitTransaction();
@@ -177,23 +175,31 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
     }
 
     // Fallback for deployments without transaction support.
-    const msg = propagationError instanceof Error ? propagationError.message : "";
+    const msg =
+      propagationError instanceof Error ? propagationError.message : "";
     const isTxnUnsupported =
       msg.includes("Transaction") &&
-      (msg.includes("replica set") || msg.includes("mongos") || msg.includes("not supported"));
+      (msg.includes("replica set") ||
+        msg.includes("mongos") ||
+        msg.includes("not supported"));
 
     if (!isTxnUnsupported) {
-      logger.error("Failed to propagate user snapshot updates after updateUser", propagationError);
+      logger.error(
+        "Failed to propagate user snapshot updates after updateUser",
+        propagationError,
+      );
       throw new AppError("Failed to update user snapshots", 500);
     }
 
     logger.warn(
       "Transactions not supported; falling back to awaited non-transactional snapshot propagation",
-      { clerkId }
+      { clerkId },
     );
 
     // Non-transactional path (still awaited; request fails if propagation fails)
-    updatedUser = await User.findOneAndUpdate({ clerkId }, updateOps, { new: true });
+    updatedUser = await User.findOneAndUpdate({ clerkId }, updateOps, {
+      new: true,
+    });
     if (!updatedUser) {
       throw new AppError("User not found", 404);
     }
@@ -210,10 +216,13 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
       bio: updatedUser.bio,
     });
 
-    logger.info("Propagated user snapshot updates after updateUser (no transaction)", {
-      clerkId: updatedUser.clerkId,
-      ...propagationResult,
-    });
+    logger.info(
+      "Propagated user snapshot updates after updateUser (no transaction)",
+      {
+        clerkId: updatedUser.clerkId,
+        ...propagationResult,
+      },
+    );
   } finally {
     session.endSession();
   }
@@ -245,5 +254,7 @@ export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError("User not found", 404);
   }
 
-  return res.status(200).json({ success: true, message: "User deleted successfully" });
+  return res
+    .status(200)
+    .json({ success: true, message: "User deleted successfully" });
 });

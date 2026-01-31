@@ -7,7 +7,6 @@
     "dev:tunnel": "node start-dev-with-tunnel.js",
     "dev:simple": "concurrently \"npm run dev\" \"ngrok http 4000\"",
     "tunnel": "ngrok http 4000",
-    "verify:aliases": "tsx src/scripts/verifyUserAliases.ts",
     "build": "tsc",
     "build:production": "NODE_ENV=production tsc",
     "start": "node dist/server.js",

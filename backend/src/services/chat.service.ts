@@ -18,11 +18,14 @@ import {
   createNotification,
   generateNotificationMessage,
 } from "../utils/notification.util.js";
-import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
+import { findUserByUsername } from "../utils/userLookup.util.js";
 import { AppError } from "../utils/appError.util.js";
 
 export class ChatService {
-  static async sendMessage(userId: string, messageData: CreateMessageSchemaType) {
+  static async sendMessage(
+    userId: string,
+    messageData: CreateMessageSchemaType,
+  ) {
     const user = await User.findOne({ clerkId: userId });
     if (!user) {
       throw new AppError("User not found", 404);
@@ -53,7 +56,7 @@ export class ChatService {
 
     if (mentions && mentions.length > 0) {
       for (const mentionedUsername of mentions) {
-        const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
+        const mentionedUser = await findUserByUsername(mentionedUsername);
         if (mentionedUser && mentionedUser.clerkId !== userId) {
           await createNotification({
             userId: mentionedUser.clerkId,
@@ -72,7 +75,10 @@ export class ChatService {
     return formattedMessage;
   }
 
-  static async getMessages(userId: string | undefined, query: GetMessagesQuerySchemaType) {
+  static async getMessages(
+    userId: string | undefined,
+    query: GetMessagesQuerySchemaType,
+  ) {
     const { page, limit, before } = query;
 
     const filter: mongoose.FilterQuery<IChatMessageDocument> = {};
@@ -91,7 +97,9 @@ export class ChatService {
       ChatMessage.countDocuments(filter),
     ]);
 
-    const formattedMessages = messages.map((message) => formatMessageResponse(message));
+    const formattedMessages = messages.map((message) =>
+      formatMessageResponse(message),
+    );
 
     return {
       messages: formattedMessages.reverse(),
@@ -105,7 +113,11 @@ export class ChatService {
     };
   }
 
-  static async editMessage(userId: string, id: string, updates: UpdateMessageSchemaType) {
+  static async editMessage(
+    userId: string,
+    id: string,
+    updates: UpdateMessageSchemaType,
+  ) {
     const message = await ChatMessage.findById(id);
     if (!message) {
       throw new AppError("Message not found", 404);

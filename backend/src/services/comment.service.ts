@@ -13,7 +13,7 @@ import {
   generateNotificationMessage,
 } from "../utils/notification.util.js";
 import { extractMentions } from "../utils/chat.util.js";
-import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
+import { findUserByUsername } from "../utils/userLookup.util.js";
 import { getPaginatedData } from "../utils/pagination.util.js";
 import { AppError } from "../utils/appError.util.js";
 
@@ -26,12 +26,16 @@ export interface CreateCommentInput {
 export class CommentService {
   private static async getContentEngagementCounts(
     contentType: "post" | "story",
-    contentId: string
-  ): Promise<{ reactionsCount: number; commentsCount: number; votes?: number }> {
+    contentId: string,
+  ): Promise<{
+    reactionsCount: number;
+    commentsCount: number;
+    votes?: number;
+  }> {
     if (contentType === "post") {
       const { Post } = await import("../models/Post.model.js");
       const post = await Post.findById(contentId).select(
-        "reactionsCount commentsCount"
+        "reactionsCount commentsCount",
       );
       return {
         reactionsCount: post?.reactionsCount ?? 0,
@@ -41,7 +45,7 @@ export class CommentService {
 
     const { Story } = await import("../models/Story.model.js");
     const story = await Story.findById(contentId).select(
-      "reactionsCount commentsCount"
+      "reactionsCount commentsCount",
     );
     return {
       reactionsCount: story?.reactionsCount ?? 0,
@@ -54,7 +58,7 @@ export class CommentService {
 
     const { exists, content } = await verifyCommentableContent(
       contentType,
-      contentId
+      contentId,
     );
     if (!exists || !content) {
       throw new AppError(`${contentType} not found`, 404);
@@ -89,7 +93,7 @@ export class CommentService {
     const mentions = extractMentions(text);
     if (mentions.length > 0) {
       for (const mentionedUsername of mentions) {
-        const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
+        const mentionedUser = await findUserByUsername(mentionedUsername);
         if (mentionedUser && mentionedUser.clerkId !== userId) {
           await createNotification({
             userId: mentionedUser.clerkId,
@@ -99,7 +103,7 @@ export class CommentService {
             contentType: contentType === "post" ? "Post" : "Story",
             message: generateNotificationMessage(
               "mention_comment",
-              user.username
+              user.username,
             ),
           });
         }
@@ -109,7 +113,8 @@ export class CommentService {
     await updateContentCommentsCount(contentType, contentId, 1);
 
     if (contentOwnerId && contentOwnerId !== userId) {
-      const notificationType = contentType === "post" ? "comment_post" : "comment_story";
+      const notificationType =
+        contentType === "post" ? "comment_post" : "comment_story";
 
       await createNotification({
         userId: contentOwnerId,
@@ -120,7 +125,7 @@ export class CommentService {
         message: generateNotificationMessage(
           notificationType,
           user.username,
-          contentType
+          contentType,
         ),
       });
     }
@@ -133,14 +138,17 @@ export class CommentService {
     });
 
     try {
-      const counts = await this.getContentEngagementCounts(contentType, contentId);
+      const counts = await this.getContentEngagementCounts(
+        contentType,
+        contentId,
+      );
       emitEngagementUpdate(
         io,
         contentType,
         contentId,
         counts.reactionsCount,
         counts.commentsCount,
-        counts.votes
+        counts.votes,
       );
     } catch {
       // best-effort
@@ -152,7 +160,7 @@ export class CommentService {
   static async getCommentsByContent(
     contentType: string,
     contentId: string,
-    opts: { page?: number; limit?: number }
+    opts: { page?: number; limit?: number },
   ) {
     const { page = 1, limit = 20 } = opts;
     const query = { contentType, contentId };
@@ -206,7 +214,11 @@ export class CommentService {
       throw new AppError("Unauthorized", 403);
     }
 
-    await updateContentCommentsCount(comment.contentType, comment.contentId, -1);
+    await updateContentCommentsCount(
+      comment.contentType,
+      comment.contentId,
+      -1,
+    );
 
     await CommentLike.deleteMany({ commentId: id });
     await Comment.findByIdAndDelete(id);
@@ -221,7 +233,7 @@ export class CommentService {
     try {
       const counts = await this.getContentEngagementCounts(
         comment.contentType,
-        comment.contentId
+        comment.contentId,
       );
       emitEngagementUpdate(
         io,
@@ -229,7 +241,7 @@ export class CommentService {
         comment.contentId,
         counts.reactionsCount,
         counts.commentsCount,
-        counts.votes
+        counts.votes,
       );
     } catch {
       // best-effort

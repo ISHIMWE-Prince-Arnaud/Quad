@@ -11,12 +11,28 @@ import type {
   PaginationQuerySchemaType,
   UpdateProfileSchemaType,
 } from "../schemas/profile.schema.js";
-import { calculateProfileStats, formatUserProfile } from "../utils/profile.util.js";
+import {
+  calculateProfileStats,
+  formatUserProfile,
+} from "../utils/profile.util.js";
 import { propagateUserSnapshotUpdates } from "../utils/userSnapshotPropagation.util.js";
-import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
+import { findUserByUsername } from "../utils/userLookup.util.js";
 import { getPaginatedData } from "../utils/pagination.util.js";
 import { AppError } from "../utils/appError.util.js";
 import { logger } from "../utils/logger.util.js";
+
+function isMongoDuplicateKeyError(error: unknown): error is {
+  code: number;
+  keyPattern?: Record<string, unknown>;
+  keyValue?: Record<string, unknown>;
+} {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === 11000
+  );
+}
 
 export class ProfileService {
   static async ensureUserByClerkId(clerkId: string | null) {
@@ -81,12 +97,15 @@ export class ProfileService {
     return formatUserProfile(user, stats);
   }
 
-  static async getProfileByUsername(username: string, currentUserId: string | null) {
+  static async getProfileByUsername(
+    username: string,
+    currentUserId: string | null,
+  ) {
     if (currentUserId) {
       await ProfileService.ensureUserByClerkId(currentUserId);
     }
 
-    const user = await findUserByUsernameOrAlias(username);
+    const user = await findUserByUsername(username);
     if (!user) {
       throw new AppError("User not found", 404);
     }
@@ -106,38 +125,47 @@ export class ProfileService {
   static async updateProfile(
     username: string,
     currentUserId: string,
-    updates: UpdateProfileSchemaType
+    updates: UpdateProfileSchemaType,
   ) {
-    const userToUpdate = await findUserByUsernameOrAlias(username);
+    const userToUpdate = await findUserByUsername(username);
     if (!userToUpdate) {
       throw new AppError("User not found", 404);
     }
 
     if (userToUpdate.clerkId !== currentUserId) {
-      throw new AppError("Forbidden: You can only update your own profile", 403);
+      throw new AppError(
+        "Forbidden: You can only update your own profile",
+        403,
+      );
     }
 
     const updateOps: {
       $set: Record<string, unknown>;
-      $addToSet?: Record<string, unknown>;
-      $pull?: Record<string, unknown>;
     } = { $set: updates as Record<string, unknown> };
     if (updates.username && updates.username !== userToUpdate.username) {
-      updateOps.$addToSet = { previousUsernames: userToUpdate.username };
-      updateOps.$pull = { previousUsernames: updates.username };
+      const existing = await User.findOne({ username: updates.username })
+        .select("clerkId")
+        .lean();
+      if (existing && existing.clerkId !== currentUserId) {
+        throw new AppError("Username already taken", 409);
+      }
     }
 
-    let user: (typeof userToUpdate) | null = null;
+    let user: typeof userToUpdate | null = null;
 
     const session = await mongoose.startSession();
     try {
       session.startTransaction();
 
-      user = await User.findOneAndUpdate({ clerkId: currentUserId }, updateOps, {
-        new: true,
-        runValidators: true,
-        session,
-      });
+      user = await User.findOneAndUpdate(
+        { clerkId: currentUserId },
+        updateOps,
+        {
+          new: true,
+          runValidators: true,
+          session,
+        },
+      );
 
       if (!user) {
         await session.abortTransaction();
@@ -156,7 +184,7 @@ export class ProfileService {
           coverImage: user.coverImage,
           bio: user.bio,
         },
-        { session }
+        { session },
       );
 
       await session.commitTransaction();
@@ -172,29 +200,51 @@ export class ProfileService {
         // ignore
       }
 
-      const msg = propagationError instanceof Error ? propagationError.message : "";
+      if (isMongoDuplicateKeyError(propagationError)) {
+        const keyPattern = propagationError.keyPattern || {};
+        if ("username" in keyPattern) {
+          throw new AppError("Username already taken", 409);
+        }
+        if ("email" in keyPattern) {
+          throw new AppError("Email already taken", 409);
+        }
+
+        throw new AppError("Duplicate key error", 409);
+      }
+
+      const msg =
+        propagationError instanceof Error ? propagationError.message : "";
       const isTxnUnsupported =
         msg.includes("Transaction") &&
-        (msg.includes("replica set") || msg.includes("mongos") || msg.includes("not supported"));
+        (msg.includes("replica set") ||
+          msg.includes("mongos") ||
+          msg.includes("not supported"));
 
       if (!isTxnUnsupported) {
         if (propagationError instanceof AppError) {
           throw propagationError;
         }
 
-        logger.error("Failed to propagate user snapshot updates after updateProfile", propagationError);
+        logger.error(
+          "Failed to propagate user snapshot updates after updateProfile",
+          propagationError,
+        );
         throw new AppError("Failed to update user snapshots", 500);
       }
 
       logger.warn(
         "Transactions not supported; falling back to awaited non-transactional snapshot propagation",
-        { clerkId: currentUserId }
+        { clerkId: currentUserId },
       );
 
-      user = await User.findOneAndUpdate({ clerkId: currentUserId }, updateOps, {
-        new: true,
-        runValidators: true,
-      });
+      user = await User.findOneAndUpdate(
+        { clerkId: currentUserId },
+        updateOps,
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
 
       if (!user) {
         throw new AppError("User not found", 404);
@@ -212,24 +262,27 @@ export class ProfileService {
         bio: user.bio,
       });
 
-      logger.info("Propagated user snapshot updates after updateProfile (no transaction)", {
-        clerkId: user.clerkId,
-        ...propagationResult,
-      });
+      logger.info(
+        "Propagated user snapshot updates after updateProfile (no transaction)",
+        {
+          clerkId: user.clerkId,
+          ...propagationResult,
+        },
+      );
     } finally {
       session.endSession();
     }
 
     try {
-      await clerkClient.users.updateUser(
-        currentUserId,
-        ({
-          firstName: updates.firstName ?? undefined,
-          lastName: updates.lastName ?? undefined,
-          username: updates.username ?? undefined,
-          imageUrl: updates.profileImage === null ? null : updates.profileImage ?? undefined,
-        } as unknown) as Parameters<typeof clerkClient.users.updateUser>[1]
-      );
+      await clerkClient.users.updateUser(currentUserId, {
+        firstName: updates.firstName ?? undefined,
+        lastName: updates.lastName ?? undefined,
+        username: updates.username ?? undefined,
+        imageUrl:
+          updates.profileImage === null
+            ? null
+            : (updates.profileImage ?? undefined),
+      } as unknown as Parameters<typeof clerkClient.users.updateUser>[1]);
     } catch (clerkError) {
       logger.error("Failed to sync profile updates to Clerk", clerkError);
     }
@@ -243,13 +296,13 @@ export class ProfileService {
   static async getUserPosts(
     username: string,
     currentUserId: string | null,
-    query: PaginationQuerySchemaType
+    query: PaginationQuerySchemaType,
   ) {
     if (currentUserId) {
       await ProfileService.ensureUserByClerkId(currentUserId);
     }
 
-    const user = await findUserByUsernameOrAlias(username);
+    const user = await findUserByUsername(username);
     if (!user) {
       throw new AppError("User not found", 404);
     }
@@ -260,13 +313,13 @@ export class ProfileService {
   static async getUserStories(
     username: string,
     currentUserId: string | null,
-    query: PaginationQuerySchemaType
+    query: PaginationQuerySchemaType,
   ) {
     if (currentUserId) {
       await ProfileService.ensureUserByClerkId(currentUserId);
     }
 
-    const user = await findUserByUsernameOrAlias(username);
+    const user = await findUserByUsername(username);
     if (!user) {
       throw new AppError("User not found", 404);
     }
@@ -277,13 +330,13 @@ export class ProfileService {
   static async getUserPolls(
     username: string,
     currentUserId: string | null,
-    query: PaginationQuerySchemaType
+    query: PaginationQuerySchemaType,
   ) {
     if (currentUserId) {
       await ProfileService.ensureUserByClerkId(currentUserId);
     }
 
-    const user = await findUserByUsernameOrAlias(username);
+    const user = await findUserByUsername(username);
     if (!user) {
       throw new AppError("User not found", 404);
     }

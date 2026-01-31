@@ -3,19 +3,30 @@ import { User } from "../models/User.model.js";
 import { getSocketIO } from "../config/socket.config.js";
 import { emitContentDeleted, emitNewContent } from "../sockets/feed.socket.js";
 import { extractMentions } from "../utils/chat.util.js";
-import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
-import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
+import {
+  createNotification,
+  generateNotificationMessage,
+} from "../utils/notification.util.js";
+import { findUserByUsername } from "../utils/userLookup.util.js";
 import { sanitizePostText } from "../utils/content.util.js";
 import { AppError } from "../utils/appError.util.js";
 
 export interface CreatePostInput {
   text?: string;
-  media: Array<{ url: string; type: "image" | "video"; aspectRatio?: "1:1" | "16:9" | "9:16" }>;
+  media: Array<{
+    url: string;
+    type: "image" | "video";
+    aspectRatio?: "1:1" | "16:9" | "9:16";
+  }>;
 }
 
 export interface UpdatePostInput {
   text?: string;
-  media?: Array<{ url: string; type: "image" | "video"; aspectRatio?: "1:1" | "16:9" | "9:16" }>;
+  media?: Array<{
+    url: string;
+    type: "image" | "video";
+    aspectRatio?: "1:1" | "16:9" | "9:16";
+  }>;
 }
 
 export class PostService {
@@ -24,7 +35,7 @@ export class PostService {
     if (!author) {
       throw new AppError(
         "User not found. Please create a user profile first.",
-        404
+        404,
       );
     }
 
@@ -42,10 +53,16 @@ export class PostService {
         clerkId: author.clerkId,
         username: author.username,
         email: author.email,
-        ...(author.displayName !== undefined ? { displayName: author.displayName } : {}),
-        ...(author.firstName !== undefined ? { firstName: author.firstName } : {}),
+        ...(author.displayName !== undefined
+          ? { displayName: author.displayName }
+          : {}),
+        ...(author.firstName !== undefined
+          ? { firstName: author.firstName }
+          : {}),
         ...(author.lastName !== undefined ? { lastName: author.lastName } : {}),
-        ...(author.profileImage !== undefined ? { profileImage: author.profileImage } : {}),
+        ...(author.profileImage !== undefined
+          ? { profileImage: author.profileImage }
+          : {}),
       },
     });
 
@@ -56,7 +73,12 @@ export class PostService {
     emitNewContent(io, "post", newPostId, author.clerkId);
 
     if (newPost?.text) {
-      await this.processMentions(newPost.text, userId, newPostId, author.username);
+      await this.processMentions(
+        newPost.text,
+        userId,
+        newPostId,
+        author.username,
+      );
     }
 
     return newPost;
@@ -89,7 +111,11 @@ export class PostService {
     return post;
   }
 
-  static async updatePost(userId: string, id: string, updates: UpdatePostInput) {
+  static async updatePost(
+    userId: string,
+    id: string,
+    updates: UpdatePostInput,
+  ) {
     const post = await Post.findById(id);
     if (!post) {
       throw new AppError("Post not found", 404);
@@ -129,7 +155,12 @@ export class PostService {
     getSocketIO().emit("updatePost", updatedPost);
 
     if (updatedPost?.text) {
-      await this.processMentions(updatedPost.text, userId, id, post.author.username);
+      await this.processMentions(
+        updatedPost.text,
+        userId,
+        id,
+        post.author.username,
+      );
     }
 
     return updatedPost;
@@ -156,13 +187,13 @@ export class PostService {
     text: string,
     actorId: string,
     postId: string,
-    actorUsername: string
+    actorUsername: string,
   ) {
     const mentions = extractMentions(text);
     if (mentions.length === 0) return;
 
     for (const mentionedUsername of mentions) {
-      const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
+      const mentionedUser = await findUserByUsername(mentionedUsername);
       if (mentionedUser && mentionedUser.clerkId !== actorId) {
         await createNotification({
           userId: mentionedUser.clerkId,

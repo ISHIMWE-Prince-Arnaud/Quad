@@ -12,7 +12,7 @@ import {
   createNotification,
   generateNotificationMessage,
 } from "../utils/notification.util.js";
-import { findUserByUsernameOrAlias } from "../utils/userLookup.util.js";
+import { findUserByUsername } from "../utils/userLookup.util.js";
 import {
   calculateReadingTime,
   generateExcerpt,
@@ -65,12 +65,17 @@ export class StoryService {
     if (newStory.status === "published") {
       const io = getSocketIO();
       io.emit("newStory", newStory);
-      emitNewContent(io, "story", String(newStory._id), newStory.author.clerkId);
+      emitNewContent(
+        io,
+        "story",
+        String(newStory._id),
+        newStory.author.clerkId,
+      );
 
       const mentions = extractMentions(newStory.content);
       if (mentions.length > 0) {
         for (const mentionedUsername of mentions) {
-          const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
+          const mentionedUser = await findUserByUsername(mentionedUsername);
           if (mentionedUser && mentionedUser.clerkId !== userId) {
             await createNotification({
               userId: mentionedUser.clerkId,
@@ -78,7 +83,10 @@ export class StoryService {
               actorId: userId,
               contentId: String(newStory._id),
               contentType: "Story",
-              message: generateNotificationMessage("mention_story", user.username),
+              message: generateNotificationMessage(
+                "mention_story",
+                user.username,
+              ),
             });
           }
         }
@@ -90,7 +98,7 @@ export class StoryService {
 
   static async getAllStories(
     _userId: string | undefined,
-    query: GetStoriesQuerySchemaType
+    query: GetStoriesQuerySchemaType,
   ) {
     const filter: Record<string, unknown> = {
       status: "published",
@@ -125,7 +133,11 @@ export class StoryService {
       throw new AppError("You don't have permission to view this draft", 403);
     }
 
-    if (story.status === "published" && userId && userId !== story.author.clerkId) {
+    if (
+      story.status === "published" &&
+      userId &&
+      userId !== story.author.clerkId
+    ) {
       try {
         story.viewsCount = (story.viewsCount || 0) + 1;
         await story.save();
@@ -142,7 +154,11 @@ export class StoryService {
     return story;
   }
 
-  static async updateStory(userId: string, id: string, inputUpdates: UpdateStorySchemaType) {
+  static async updateStory(
+    userId: string,
+    id: string,
+    inputUpdates: UpdateStorySchemaType,
+  ) {
     const story = await Story.findById(id);
     if (!story) {
       throw new AppError("Story not found", 404);
@@ -186,7 +202,7 @@ export class StoryService {
         const mentions = extractMentions(story.content);
         if (mentions.length > 0) {
           for (const mentionedUsername of mentions) {
-            const mentionedUser = await findUserByUsernameOrAlias(mentionedUsername);
+            const mentionedUser = await findUserByUsername(mentionedUsername);
             if (mentionedUser && mentionedUser.clerkId !== userId) {
               await createNotification({
                 userId: mentionedUser.clerkId,
@@ -196,7 +212,7 @@ export class StoryService {
                 contentType: "Story",
                 message: generateNotificationMessage(
                   "mention_story",
-                  story.author.username
+                  story.author.username,
                 ),
               });
             }
@@ -231,7 +247,7 @@ export class StoryService {
 
   static async getMyStories(
     userId: string,
-    opts: { limit?: string; skip?: string; status?: string }
+    opts: { limit?: string; skip?: string; status?: string },
   ) {
     const { limit = "20", skip = "0", status } = opts;
 
