@@ -93,6 +93,7 @@ export function useProfileHeaderController({
       followers: updatedProfile.followers,
       following: updatedProfile.following,
       postsCount: updatedProfile.postsCount,
+      reactionsReceived: updatedProfile.stats?.reactionsReceived,
     });
   };
 

@@ -22,6 +22,14 @@ export interface ApiProfile extends ApiUser {
   postsCount?: number;
   storiesCount?: number;
   pollsCount?: number;
+  stats?: {
+    postsCount: number;
+    storiesCount: number;
+    pollsCount: number;
+    reactionsReceived: number;
+    followersCount: number;
+    followingCount: number;
+  };
   isFollowing?: boolean;
   mutualFollows?: number;
 }
@@ -196,4 +204,3 @@ export interface ContentItem {
   readTime?: number;
   question?: string;
 }
-

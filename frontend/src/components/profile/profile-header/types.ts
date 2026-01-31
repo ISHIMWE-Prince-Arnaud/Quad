@@ -13,6 +13,7 @@ export type ProfileHeaderUser = {
   followers?: number;
   following?: number;
   postsCount?: number;
+  reactionsReceived?: number;
   mutualFollows?: number;
 };
 

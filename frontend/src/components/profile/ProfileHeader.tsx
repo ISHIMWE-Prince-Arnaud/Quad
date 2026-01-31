@@ -202,9 +202,9 @@ export function ProfileHeader({
               </button>
               <div className="flex gap-1">
                 <span className="font-semibold text-foreground">
-                  {user.postsCount?.toLocaleString() || 0}
+                  {user.reactionsReceived?.toLocaleString() || 0}
                 </span>
-                <span className="text-muted-foreground">Posts</span>
+                <span className="text-muted-foreground">Reactions</span>
               </div>
               {!isOwnProfile && typeof user.mutualFollows === "number" && (
                 <button

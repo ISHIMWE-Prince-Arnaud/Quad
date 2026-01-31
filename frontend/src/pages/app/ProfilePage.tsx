@@ -1,13 +1,8 @@
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import {
-  ProfileTabs,
-  TabContent,
-} from "@/components/profile/ProfileTabs";
-import {
-  ProfileContentGrid,
-} from "@/components/profile/ProfileContentGrid";
+import { ProfileTabs, TabContent } from "@/components/profile/ProfileTabs";
+import { ProfileContentGrid } from "@/components/profile/ProfileContentGrid";
 import { ProfileSkeleton } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
 import { useAuthStore } from "@/stores/authStore";
@@ -39,6 +34,7 @@ const convertApiProfileToUser = (profile: ApiProfile) => {
     followers: profile.followers,
     following: profile.following,
     postsCount: profile.postsCount,
+    reactionsReceived: profile.stats?.reactionsReceived,
     mutualFollows: profile.mutualFollows,
   };
 };
@@ -74,7 +70,9 @@ export default function ProfilePage() {
   if (controller.error) {
     return (
       <ErrorFallback
-        title={controller.isNotFound ? "Profile Not Found" : "Something Went Wrong"}
+        title={
+          controller.isNotFound ? "Profile Not Found" : "Something Went Wrong"
+        }
         description={controller.error}
         resetErrorBoundary={() => window.location.reload()}
       />
