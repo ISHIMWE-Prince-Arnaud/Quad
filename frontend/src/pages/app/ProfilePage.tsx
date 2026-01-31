@@ -461,13 +461,7 @@ export default function ProfilePage() {
                 ) : null}
               </div>
             )
-          ) : (
-            <div className="px-4 py-8">
-              <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                Profile tab content will be rebuilt from scratch.
-              </div>
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
     </ComponentErrorBoundary>
