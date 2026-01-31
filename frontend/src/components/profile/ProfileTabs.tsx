@@ -1,8 +1,8 @@
 import { type ReactNode } from "react";
-import { FileText, Calendar, BarChart3, Bookmark, Heart } from "lucide-react";
+import { FileText, Calendar, BarChart3, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type ProfileTab = "posts" | "stories" | "polls" | "saved" | "liked";
+export type ProfileTab = "posts" | "stories" | "polls" | "saved";
 
 interface ProfileTabsProps {
   activeTab: ProfileTab;
@@ -41,13 +41,6 @@ const tabs = [
     label: "Saved",
     icon: Bookmark,
     description: "Saved posts and content",
-    public: false, // Only visible to own profile
-  },
-  {
-    id: "liked" as ProfileTab,
-    label: "Liked",
-    icon: Heart,
-    description: "Liked posts and content",
     public: false, // Only visible to own profile
   },
 ];
@@ -109,7 +102,7 @@ export function ProfileTabs({
                     "flex items-center justify-center gap-2 px-4 py-4 text-sm font-medium transition-colors duration-200 relative group flex-1 sm:flex-none sm:min-w-[120px]",
                     isActive
                       ? "text-primary border-b-2 border-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
                   )}
                   title={tab.description}>
                   <Icon className="h-4 w-4" />
@@ -120,7 +113,7 @@ export function ProfileTabs({
                         "text-xs px-2 py-0.5 rounded-full font-medium",
                         isActive
                           ? "bg-primary/10 text-primary"
-                          : "bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-foreground"
+                          : "bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-foreground",
                       )}>
                       {count.toLocaleString()}
                     </span>
