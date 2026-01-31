@@ -5,9 +5,12 @@ import type { NavigateFunction } from "react-router-dom";
 import type { ProfileTab } from "@/components/profile/ProfileTabs";
 import { BookmarkService } from "@/services/bookmarkService";
 import { FollowService } from "@/services/followService";
+import { PostService } from "@/services/postService";
 import { ProfileService } from "@/services/profileService";
 import type { ApiProfile } from "@/types/api";
+import type { Post } from "@/types/post";
 import { logError } from "@/lib/errorHandling";
+import toast from "react-hot-toast";
 
 type AuthUser = {
   clerkId: string;
@@ -42,6 +45,12 @@ export function useProfilePageController({
   const [isNotFound, setIsNotFound] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [bookmarksCount, setBookmarksCount] = useState(0);
+
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [postsError, setPostsError] = useState<string | null>(null);
+  const [postsPage, setPostsPage] = useState(1);
+  const [postsHasMore, setPostsHasMore] = useState(false);
 
   // Check if this is the current user's profile
   const isOwnProfile = currentUser?.username === username;
@@ -175,6 +184,115 @@ export function useProfilePageController({
     void fetchBookmarksCount();
   }, [authLoading, isOwnProfile]);
 
+  useEffect(() => {
+    if (!username || authLoading) return;
+
+    if (activeTab !== "posts") return;
+
+    let cancelled = false;
+
+    const fetchPosts = async () => {
+      try {
+        setPostsLoading(true);
+        setPostsError(null);
+        setPosts([]);
+        setPostsPage(1);
+        setPostsHasMore(false);
+
+        const res = await ProfileService.getUserPostsAsPosts(username, {
+          page: 1,
+          limit: 20,
+        });
+
+        if (cancelled) return;
+
+        setPosts(res.posts);
+        setPostsPage(1);
+        setPostsHasMore(Boolean(res.hasMore));
+      } catch (e) {
+        logError(e, {
+          component: "ProfilePage",
+          action: "getUserPostsAsPosts",
+          metadata: { username },
+        });
+
+        if (!cancelled) {
+          setPostsError("Failed to load posts");
+          setPosts([]);
+          setPostsHasMore(false);
+        }
+      } finally {
+        if (!cancelled) setPostsLoading(false);
+      }
+    };
+
+    void fetchPosts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, authLoading, username]);
+
+  const handleLoadMorePosts = useCallback(async () => {
+    if (!username) return;
+    if (activeTab !== "posts") return;
+    if (postsLoading || !postsHasMore) return;
+
+    try {
+      setPostsLoading(true);
+      setPostsError(null);
+
+      const nextPage = postsPage + 1;
+      const res = await ProfileService.getUserPostsAsPosts(username, {
+        page: nextPage,
+        limit: 20,
+      });
+
+      setPosts((prev) => [...prev, ...res.posts]);
+      setPostsPage(nextPage);
+      setPostsHasMore(Boolean(res.hasMore));
+    } catch (e) {
+      logError(e, {
+        component: "ProfilePage",
+        action: "getUserPostsAsPosts.loadMore",
+        metadata: { username, postsPage },
+      });
+      setPostsError("Failed to load more posts");
+    } finally {
+      setPostsLoading(false);
+    }
+  }, [activeTab, postsHasMore, postsLoading, postsPage, username]);
+
+  const handleDeletePost = useCallback(async (postId: string) => {
+    try {
+      const res = await PostService.deletePost(postId);
+
+      if (!res?.success) {
+        toast.error(res?.message || "Failed to delete post");
+        return;
+      }
+
+      setPosts((prev) => prev.filter((p) => p._id !== postId));
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              postsCount: Math.max((prev.postsCount ?? 0) - 1, 0),
+            }
+          : prev,
+      );
+
+      toast.success("Post deleted successfully");
+    } catch (e) {
+      logError(e, {
+        component: "ProfilePage",
+        action: "deletePost",
+        metadata: { postId },
+      });
+      toast.error("Failed to delete post");
+    }
+  }, []);
+
   // Handle follow/unfollow
   const handleFollow = useCallback(async () => {
     if (!user) return;
@@ -264,6 +382,12 @@ export function useProfilePageController({
     isFollowing,
     isOwnProfile,
     bookmarksCount,
+    posts,
+    postsLoading,
+    postsError,
+    postsHasMore,
+    handleLoadMorePosts,
+    handleDeletePost,
     handleFollow,
     handleUnfollow,
     handleEditProfile,

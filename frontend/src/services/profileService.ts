@@ -8,6 +8,7 @@ import type {
   ApiStory,
   ApiPoll,
 } from "@/types/api";
+import type { Post } from "@/types/post";
 
 export class ProfileService {
   // Get user profile by username
@@ -61,6 +62,48 @@ export class ProfileService {
       media: post.media,
       reactionsCount: post.reactionsCount,
       commentsCount: post.commentsCount,
+    }));
+
+    return {
+      posts,
+      hasMore: pagination.hasMore || false,
+      total: pagination.total || rawPosts.length,
+    };
+  }
+
+  static async getUserPostsAsPosts(
+    username: string,
+    params: PaginationParams = {},
+  ): Promise<{ posts: Post[]; hasMore: boolean; total: number }> {
+    const response = await endpoints.profiles.getUserPosts(username, {
+      page: params.page || 1,
+      limit: params.limit || 20,
+      ...params,
+    });
+
+    const rawData = response.data?.data;
+    const rawPosts: ApiPost[] = Array.isArray(rawData)
+      ? (rawData as ApiPost[])
+      : [];
+    const pagination = response.data.pagination || {};
+
+    const posts: Post[] = rawPosts.map((post) => ({
+      _id: post._id,
+      userId: post.userId ?? post.clerkId ?? post.author?.clerkId ?? "",
+      author: {
+        clerkId: post.author.clerkId,
+        username: post.author.username,
+        email: post.author.email,
+        firstName: post.author.firstName,
+        lastName: post.author.lastName,
+        profileImage: post.author.profileImage,
+      },
+      text: post.text ?? post.content,
+      media: Array.isArray(post.media) ? post.media : [],
+      reactionsCount: post.reactionsCount ?? 0,
+      commentsCount: post.commentsCount ?? 0,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
     }));
 
     return {

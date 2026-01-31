@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
+import { PostCard } from "@/components/posts/PostCard";
+import { Button } from "@/components/ui/button";
 import { ProfileSkeleton } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
 import { useAuthStore } from "@/stores/authStore";
@@ -121,11 +123,59 @@ export default function ProfilePage() {
           />
 
           {/* Profile Content */}
-          <div className="px-4 py-8">
-            <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-              Profile tab content will be rebuilt from scratch.
+          {controller.activeTab === "posts" ? (
+            <div className="px-4 py-8 space-y-6">
+              {controller.postsError && (
+                <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                  {controller.postsError}
+                </div>
+              )}
+
+              {!controller.postsError && controller.postsLoading && (
+                <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                  Loading posts...
+                </div>
+              )}
+
+              {!controller.postsError &&
+                !controller.postsLoading &&
+                controller.posts.length === 0 && (
+                  <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                    No posts yet.
+                  </div>
+                )}
+
+              {controller.posts.map((post) => (
+                <PostCard
+                  key={post._id}
+                  post={post}
+                  onDelete={
+                    controller.isOwnProfile
+                      ? controller.handleDeletePost
+                      : undefined
+                  }
+                />
+              ))}
+
+              {controller.postsHasMore && (
+                <div className="flex justify-center pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void controller.handleLoadMorePosts()}
+                    disabled={controller.postsLoading}>
+                    {controller.postsLoading ? "Loading..." : "Load more"}
+                  </Button>
+                </div>
+              )}
             </div>
-          </div>
+          ) : (
+            <div className="px-4 py-8">
+              <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                Profile tab content will be rebuilt from scratch.
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </ComponentErrorBoundary>
