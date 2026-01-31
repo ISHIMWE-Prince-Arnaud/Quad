@@ -99,6 +99,14 @@ export default function ProfilePage() {
               user={profileHeaderUser}
               isOwnProfile={controller.isOwnProfile}
               isFollowing={controller.isFollowing}
+              activeTab={controller.activeTab}
+              onTabChange={controller.setActiveTab}
+              tabCounts={{
+                posts: controller.user?.postsCount ?? 0,
+                stories: controller.user?.storiesCount ?? 0,
+                polls: controller.user?.pollsCount ?? 0,
+                bookmarks: controller.bookmarksCount,
+              }}
               onFollow={controller.handleFollow}
               onUnfollow={controller.handleUnfollow}
               onEditProfile={controller.handleEditProfile}
@@ -110,9 +118,6 @@ export default function ProfilePage() {
           <ProfileTabs
             activeTab={controller.activeTab}
             onTabChange={controller.setActiveTab}
-            postCount={controller.postCount}
-            storyCount={controller.storyCount}
-            pollCount={controller.pollCount}
             isOwnProfile={controller.isOwnProfile}
           />
 

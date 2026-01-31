@@ -13,10 +13,7 @@ import { StoryService } from "@/services/storyService";
 import type { ApiProfile } from "@/types/api";
 import { logError } from "@/lib/errorHandling";
 
-import {
-  filterProfileContent,
-  getProfileContentCounts,
-} from "./filterProfileContent";
+import { filterProfileContent } from "./filterProfileContent";
 
 type AuthUser = {
   clerkId: string;
@@ -54,6 +51,7 @@ export function useProfilePageController({
   const [isFollowing, setIsFollowing] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [bookmarksCount, setBookmarksCount] = useState(0);
 
   // Check if this is the current user's profile
   const isOwnProfile = currentUser?.username === username;
@@ -365,10 +363,31 @@ export function useProfilePageController({
     loadUserContent,
     authLoading,
     currentUser?.clerkId,
-    currentUser?.username,
-    isOwnProfile,
     navigate,
+    isOwnProfile,
   ]);
+
+  useEffect(() => {
+    if (!isOwnProfile || authLoading) {
+      setBookmarksCount(0);
+      return;
+    }
+
+    const fetchBookmarksCount = async () => {
+      try {
+        const res = await BookmarkService.list({ page: 1, limit: 1 });
+        setBookmarksCount(res.pagination?.total ?? 0);
+      } catch (err) {
+        logError(err, {
+          component: "ProfilePage",
+          action: "getBookmarksCount",
+        });
+        setBookmarksCount(0);
+      }
+    };
+
+    void fetchBookmarksCount();
+  }, [authLoading, isOwnProfile]);
 
   useEffect(() => {
     if (!username) return;
@@ -382,11 +401,6 @@ export function useProfilePageController({
   const filteredContent = useMemo(() => {
     return filterProfileContent(content, activeTab);
   }, [content, activeTab]);
-
-  // Get content counts
-  const { postCount, storyCount, pollCount } = useMemo(() => {
-    return getProfileContentCounts(content);
-  }, [content]);
 
   // Handle follow/unfollow
   const handleFollow = useCallback(async () => {
@@ -480,9 +494,7 @@ export function useProfilePageController({
     isOwnProfile,
     filteredContent,
     hasMore,
-    postCount,
-    storyCount,
-    pollCount,
+    bookmarksCount,
     handleFollow,
     handleUnfollow,
     handleEditProfile,

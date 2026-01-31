@@ -1,3 +1,5 @@
+import type { ProfileTab } from "@/components/profile/ProfileTabs";
+
 export type ProfileHeaderUser = {
   _id: string;
   clerkId: string;
@@ -21,6 +23,14 @@ export type ProfileHeaderProps = {
   user: ProfileHeaderUser;
   isOwnProfile?: boolean;
   isFollowing?: boolean;
+  activeTab?: ProfileTab;
+  onTabChange?: (tab: ProfileTab) => void;
+  tabCounts?: {
+    posts: number;
+    stories: number;
+    polls: number;
+    bookmarks: number;
+  };
   onFollow?: () => void;
   onUnfollow?: () => void;
   onEditProfile?: () => void;

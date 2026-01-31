@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EditProfileModal } from "./EditProfileModal";
 import { FollowersModal } from "@/components/user/FollowersModal";
+import { cn } from "@/lib/utils";
 
 import { useProfileHeaderController } from "./profile-header/useProfileHeaderController";
 import type { ProfileHeaderProps } from "./profile-header/types";
@@ -13,6 +14,9 @@ export function ProfileHeader({
   user,
   isOwnProfile = false,
   isFollowing = false,
+  activeTab,
+  onTabChange,
+  tabCounts,
   onFollow,
   onUnfollow,
   onEditProfile,
@@ -55,6 +59,8 @@ export function ProfileHeader({
 
   // Handle profile save
   const handleProfileSave = controller.handleProfileSave;
+
+  const showTabCards = Boolean(tabCounts);
 
   return (
     <>
@@ -239,6 +245,134 @@ export function ProfileHeader({
                 </div>
               )}
             </div>
+
+            {showTabCards && tabCounts && (
+              <div className="mt-4">
+                <div
+                  className={cn(
+                    "grid gap-3",
+                    isOwnProfile ? "grid-cols-4" : "grid-cols-3",
+                  )}>
+                  <button
+                    type="button"
+                    onClick={() => onTabChange?.("posts")}
+                    className={cn(
+                      "rounded-2xl border bg-card/40 px-4 py-4 text-center shadow-sm transition-colors hover:bg-card/60",
+                      activeTab === "posts"
+                        ? "border-primary/60 ring-1 ring-primary/30 bg-primary/5"
+                        : "border-border/60 hover:border-border",
+                    )}>
+                    <div
+                      className={cn(
+                        "text-xl font-extrabold leading-none tabular-nums",
+                        activeTab === "posts"
+                          ? "text-primary"
+                          : "text-foreground",
+                      )}>
+                      {formatStatNumber(tabCounts.posts)}
+                    </div>
+                    <div
+                      className={cn(
+                        "mt-2 text-[11px] font-bold tracking-widest uppercase",
+                        activeTab === "posts"
+                          ? "text-primary"
+                          : "text-muted-foreground",
+                      )}>
+                      Posts
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onTabChange?.("stories")}
+                    className={cn(
+                      "rounded-2xl border bg-card/40 px-4 py-4 text-center shadow-sm transition-colors hover:bg-card/60",
+                      activeTab === "stories"
+                        ? "border-primary/60 ring-1 ring-primary/30 bg-primary/5"
+                        : "border-border/60 hover:border-border",
+                    )}>
+                    <div
+                      className={cn(
+                        "text-xl font-extrabold leading-none tabular-nums",
+                        activeTab === "stories"
+                          ? "text-primary"
+                          : "text-foreground",
+                      )}>
+                      {formatStatNumber(tabCounts.stories)}
+                    </div>
+                    <div
+                      className={cn(
+                        "mt-2 text-[11px] font-bold tracking-widest uppercase",
+                        activeTab === "stories"
+                          ? "text-primary"
+                          : "text-muted-foreground",
+                      )}>
+                      Stories
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onTabChange?.("polls")}
+                    className={cn(
+                      "rounded-2xl border bg-card/40 px-4 py-4 text-center shadow-sm transition-colors hover:bg-card/60",
+                      activeTab === "polls"
+                        ? "border-primary/60 ring-1 ring-primary/30 bg-primary/5"
+                        : "border-border/60 hover:border-border",
+                    )}>
+                    <div
+                      className={cn(
+                        "text-xl font-extrabold leading-none tabular-nums",
+                        activeTab === "polls"
+                          ? "text-primary"
+                          : "text-foreground",
+                      )}>
+                      {formatStatNumber(tabCounts.polls)}
+                    </div>
+                    <div
+                      className={cn(
+                        "mt-2 text-[11px] font-bold tracking-widest uppercase",
+                        activeTab === "polls"
+                          ? "text-primary"
+                          : "text-muted-foreground",
+                      )}>
+                      Polls
+                    </div>
+                  </button>
+
+                  {isOwnProfile && (
+                    <button
+                      type="button"
+                      onClick={() => onTabChange?.("saved")}
+                      className={cn(
+                        "rounded-2xl border bg-card/40 px-4 py-4 text-center shadow-sm transition-colors hover:bg-card/60",
+                        activeTab === "saved"
+                          ? "border-primary/60 ring-1 ring-primary/30 bg-primary/5"
+                          : "border-border/60 hover:border-border",
+                      )}>
+                      <div
+                        className={cn(
+                          "text-xl font-extrabold leading-none tabular-nums",
+                          activeTab === "saved"
+                            ? "text-primary"
+                            : "text-foreground",
+                        )}>
+                        {formatStatNumber(tabCounts.bookmarks)}
+                      </div>
+                      <div
+                        className={cn(
+                          "mt-2 text-[11px] font-bold tracking-widest uppercase",
+                          activeTab === "saved"
+                            ? "text-primary"
+                            : "text-muted-foreground",
+                        )}>
+                        Bookmarks
+                      </div>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </Card>

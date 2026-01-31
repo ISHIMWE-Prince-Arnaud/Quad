@@ -20,11 +20,3 @@ export function filterProfileContent(
     }
   });
 }
-
-export function getProfileContentCounts(content: ContentItem[]) {
-  return {
-    postCount: content.filter((item) => item.type === "post").length,
-    storyCount: content.filter((item) => item.type === "story").length,
-    pollCount: content.filter((item) => item.type === "poll").length,
-  };
-}

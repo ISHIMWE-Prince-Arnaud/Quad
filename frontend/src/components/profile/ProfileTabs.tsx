@@ -7,9 +7,6 @@ export type ProfileTab = "posts" | "stories" | "polls" | "saved";
 interface ProfileTabsProps {
   activeTab: ProfileTab;
   onTabChange: (tab: ProfileTab) => void;
-  postCount?: number;
-  storyCount?: number;
-  pollCount?: number;
   isOwnProfile?: boolean;
   className?: string;
 }
@@ -48,25 +45,9 @@ const tabs = [
 export function ProfileTabs({
   activeTab,
   onTabChange,
-  postCount = 0,
-  storyCount = 0,
-  pollCount = 0,
   isOwnProfile = false,
   className,
 }: ProfileTabsProps) {
-  const getTabCount = (tabId: ProfileTab): number => {
-    switch (tabId) {
-      case "posts":
-        return postCount;
-      case "stories":
-        return storyCount;
-      case "polls":
-        return pollCount;
-      default:
-        return 0;
-    }
-  };
-
   const visibleTabs = tabs.filter((tab) => tab.public || isOwnProfile);
 
   return (
@@ -80,7 +61,7 @@ export function ProfileTabs({
             className="w-full p-3 bg-background border-0 text-foreground font-medium focus:outline-none">
             {visibleTabs.map((tab) => (
               <option key={tab.id} value={tab.id}>
-                {tab.label} ({getTabCount(tab.id)})
+                {tab.label}
               </option>
             ))}
           </select>
@@ -91,7 +72,6 @@ export function ProfileTabs({
           <div className="flex space-x-1 w-full">
             {visibleTabs.map((tab) => {
               const Icon = tab.icon;
-              const count = getTabCount(tab.id);
               const isActive = activeTab === tab.id;
 
               return (
@@ -111,17 +91,6 @@ export function ProfileTabs({
                     )}>
                     <Icon className="h-4 w-4" />
                     <span className="hidden sm:inline">{tab.label}</span>
-                    {count > 0 && (
-                      <span
-                        className={cn(
-                          "text-xs px-2 py-0.5 rounded-full font-semibold",
-                          isActive
-                            ? "bg-primary-foreground/20 text-primary-foreground"
-                            : "bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-foreground",
-                        )}>
-                        {count.toLocaleString()}
-                      </span>
-                    )}
                   </span>
                 </button>
               );
