@@ -3,7 +3,10 @@ import { z } from "zod";
 // Create User
 export const createUserSchema = z
   .object({
-    username: z.string().min(3, "Username must be at least 3 characters").optional(),
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .optional(),
     email: z.string().email("Invalid email address").optional(),
     displayName: z.string().min(1).max(100).optional(),
     firstName: z.string().min(1).max(50).optional(),
@@ -17,7 +20,10 @@ export const createUserSchema = z
 // Update User Profile (all editable fields optional)
 export const updateUserProfileSchema = z
   .object({
-    username: z.string().min(3, "Username must be at least 3 characters").optional(),
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .optional(),
     displayName: z.string().min(1).max(100).optional(),
     firstName: z.string().min(1).max(50).optional(),
     lastName: z.string().min(1).max(50).optional(),
@@ -43,6 +49,8 @@ export const deleteUserSchema = z
 
 // Types
 export type CreateUserSchemaType = z.infer<typeof createUserSchema>;
-export type UpdateUserProfileSchemaType = z.infer<typeof updateUserProfileSchema>;
+export type UpdateUserProfileSchemaType = z.infer<
+  typeof updateUserProfileSchema
+>;
 export type GetUserSchemaType = z.infer<typeof getUserSchema>;
 export type DeleteUserSchemaType = z.infer<typeof deleteUserSchema>;

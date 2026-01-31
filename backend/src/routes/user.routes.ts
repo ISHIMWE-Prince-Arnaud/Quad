@@ -32,7 +32,7 @@ router.post(
   authRateLimiter, // Rate limit user creation
   requireApiAuth, // API authentication using Clerk session
   validateSchema(createUserSchema), // Validate request body
-  createUser // Controller handles creation
+  createUser, // Controller handles creation
 );
 
 /**
@@ -46,7 +46,7 @@ router.get(
   "/:clerkId",
   requireApiAuth,
   validateSchema(getUserSchema, "params"),
-  getUser
+  getUser,
 );
 
 /**
@@ -60,7 +60,7 @@ router.put(
   "/:clerkId",
   requireApiAuth,
   validateSchema(updateUserProfileSchema),
-  updateUser
+  updateUser,
 );
 
 /**
@@ -74,7 +74,7 @@ router.delete(
   "/:clerkId",
   requireApiAuth,
   validateSchema(deleteUserSchema, "params"),
-  deleteUser
+  deleteUser,
 );
 
 export default router;
