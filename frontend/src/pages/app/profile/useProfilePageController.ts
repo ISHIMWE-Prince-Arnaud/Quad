@@ -5,10 +5,12 @@ import type { NavigateFunction } from "react-router-dom";
 import type { ProfileTab } from "@/components/profile/ProfileTabs";
 import { BookmarkService } from "@/services/bookmarkService";
 import { FollowService } from "@/services/followService";
+import { PollService } from "@/services/pollService";
 import { PostService } from "@/services/postService";
 import { ProfileService } from "@/services/profileService";
 import { StoryService } from "@/services/storyService";
 import type { ApiProfile } from "@/types/api";
+import type { Poll } from "@/types/poll";
 import type { Post } from "@/types/post";
 import type { Story } from "@/types/story";
 import { logError } from "@/lib/errorHandling";
@@ -59,6 +61,12 @@ export function useProfilePageController({
   const [storiesError, setStoriesError] = useState<string | null>(null);
   const [storiesPage, setStoriesPage] = useState(1);
   const [storiesHasMore, setStoriesHasMore] = useState(false);
+
+  const [polls, setPolls] = useState<Poll[]>([]);
+  const [pollsLoading, setPollsLoading] = useState(false);
+  const [pollsError, setPollsError] = useState<string | null>(null);
+  const [pollsPage, setPollsPage] = useState(1);
+  const [pollsHasMore, setPollsHasMore] = useState(false);
 
   // Check if this is the current user's profile
   const isOwnProfile = currentUser?.username === username;
@@ -244,6 +252,55 @@ export function useProfilePageController({
   useEffect(() => {
     if (!username || authLoading) return;
 
+    if (activeTab !== "polls") return;
+
+    let cancelled = false;
+
+    const fetchPolls = async () => {
+      try {
+        setPollsLoading(true);
+        setPollsError(null);
+        setPolls([]);
+        setPollsPage(1);
+        setPollsHasMore(false);
+
+        const res = await ProfileService.getUserPollsAsPolls(username, {
+          page: 1,
+          limit: 10,
+        });
+
+        if (cancelled) return;
+
+        setPolls(res.polls);
+        setPollsPage(1);
+        setPollsHasMore(Boolean(res.hasMore));
+      } catch (e) {
+        logError(e, {
+          component: "ProfilePage",
+          action: "getUserPollsAsPolls",
+          metadata: { username },
+        });
+
+        if (!cancelled) {
+          setPollsError("Failed to load polls");
+          setPolls([]);
+          setPollsHasMore(false);
+        }
+      } finally {
+        if (!cancelled) setPollsLoading(false);
+      }
+    };
+
+    void fetchPolls();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, authLoading, username]);
+
+  useEffect(() => {
+    if (!username || authLoading) return;
+
     if (activeTab !== "stories") return;
 
     let cancelled = false;
@@ -350,6 +407,40 @@ export function useProfilePageController({
     }
   }, [activeTab, storiesHasMore, storiesLoading, storiesPage, username]);
 
+  const handleLoadMorePolls = useCallback(async () => {
+    if (!username) return;
+    if (activeTab !== "polls") return;
+    if (pollsLoading || !pollsHasMore) return;
+
+    try {
+      setPollsLoading(true);
+      setPollsError(null);
+
+      const nextPage = pollsPage + 1;
+      const res = await ProfileService.getUserPollsAsPolls(username, {
+        page: nextPage,
+        limit: 10,
+      });
+
+      setPolls((prev) => {
+        const existingIds = new Set(prev.map((p) => p.id));
+        const newOnes = res.polls.filter((p) => !existingIds.has(p.id));
+        return [...prev, ...newOnes];
+      });
+      setPollsPage(nextPage);
+      setPollsHasMore(Boolean(res.hasMore));
+    } catch (e) {
+      logError(e, {
+        component: "ProfilePage",
+        action: "getUserPollsAsPolls.loadMore",
+        metadata: { username, pollsPage },
+      });
+      setPollsError("Failed to load more polls");
+    } finally {
+      setPollsLoading(false);
+    }
+  }, [activeTab, pollsHasMore, pollsLoading, pollsPage, username]);
+
   const handleDeletePost = useCallback(async (postId: string) => {
     try {
       const res = await PostService.deletePost(postId);
@@ -377,6 +468,42 @@ export function useProfilePageController({
         metadata: { postId },
       });
       toast.error("Failed to delete post");
+    }
+  }, []);
+
+  const handlePollUpdate = useCallback((updatedPoll: Poll) => {
+    setPolls((prev) =>
+      prev.map((p) => (p.id === updatedPoll.id ? updatedPoll : p)),
+    );
+  }, []);
+
+  const handleDeletePoll = useCallback(async (pollId: string) => {
+    try {
+      const res = await PollService.delete(pollId);
+
+      if (!res?.success) {
+        toast.error(res?.message || "Failed to delete poll");
+        return;
+      }
+
+      setPolls((prev) => prev.filter((p) => p.id !== pollId));
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              pollsCount: Math.max((prev.pollsCount ?? 0) - 1, 0),
+            }
+          : prev,
+      );
+
+      toast.success("Poll deleted successfully");
+    } catch (e) {
+      logError(e, {
+        component: "ProfilePage",
+        action: "deletePoll",
+        metadata: { pollId },
+      });
+      toast.error("Failed to delete poll");
     }
   }, []);
 
@@ -511,6 +638,13 @@ export function useProfilePageController({
     storiesHasMore,
     handleLoadMoreStories,
     handleDeleteStory,
+    polls,
+    pollsLoading,
+    pollsError,
+    pollsHasMore,
+    handleLoadMorePolls,
+    handlePollUpdate,
+    handleDeletePoll,
     handleFollow,
     handleUnfollow,
     handleEditProfile,

@@ -10,6 +10,7 @@ import type {
 } from "@/types/api";
 import type { Post } from "@/types/post";
 import type { Story } from "@/types/story";
+import type { Poll } from "@/types/poll";
 
 export class ProfileService {
   // Get user profile by username
@@ -199,6 +200,97 @@ export class ProfileService {
       createdAt: poll.createdAt,
       totalVotes: poll.totalVotes,
     }));
+
+    return {
+      polls,
+      hasMore: pagination.hasMore || false,
+      total: pagination.total || rawPolls.length,
+    };
+  }
+
+  static async getUserPollsAsPolls(
+    username: string,
+    params: PaginationParams = {},
+  ): Promise<{ polls: Poll[]; hasMore: boolean; total: number }> {
+    const response = await endpoints.profiles.getUserPolls(username, {
+      page: params.page || 1,
+      limit: params.limit || 20,
+      ...params,
+    });
+
+    const rawData = response.data?.data;
+    const rawPolls: Array<Record<string, unknown>> = Array.isArray(rawData)
+      ? (rawData as Array<Record<string, unknown>>)
+      : [];
+    const pagination = response.data.pagination || {};
+
+    const polls: Poll[] = rawPolls
+      .map((poll): Poll | null => {
+        const idRaw = poll.id;
+        const _idRaw = poll._id;
+        const id =
+          (typeof idRaw === "string" && idRaw) ||
+          (typeof _idRaw === "string" && _idRaw) ||
+          "";
+
+        const author = poll.author as Poll["author"] | undefined;
+        const question = poll.question as string | undefined;
+
+        if (!id || !author || !question) return null;
+
+        const optionsRaw = Array.isArray(poll.options)
+          ? (poll.options as Array<Record<string, unknown>>)
+          : [];
+
+        const options = optionsRaw.map((opt, idx) => {
+          const text = (opt.text as string | undefined) ?? "";
+          const votesCount =
+            typeof opt.votesCount === "number" ? opt.votesCount : undefined;
+          const percentage =
+            typeof opt.percentage === "number" ? opt.percentage : undefined;
+          const index = typeof opt.index === "number" ? opt.index : idx;
+
+          return {
+            index,
+            text,
+            ...(typeof votesCount === "number" ? { votesCount } : {}),
+            ...(typeof percentage === "number" ? { percentage } : {}),
+          };
+        });
+
+        const settingsRaw = poll.settings as
+          | Record<string, unknown>
+          | undefined;
+        const anonymousVoting =
+          typeof settingsRaw?.anonymousVoting === "boolean"
+            ? settingsRaw.anonymousVoting
+            : false;
+
+        const userVoteRaw = poll.userVote;
+        const userVote = Array.isArray(userVoteRaw)
+          ? (userVoteRaw as number[])
+          : [];
+
+        return {
+          id,
+          author,
+          question,
+          questionMedia: poll.questionMedia as Poll["questionMedia"],
+          options,
+          settings: { anonymousVoting },
+          status: (poll.status as Poll["status"]) ?? "active",
+          expiresAt: (poll.expiresAt as string | null | undefined) ?? null,
+          totalVotes: (poll.totalVotes as number | undefined) ?? 0,
+          reactionsCount: (poll.reactionsCount as number | undefined) ?? 0,
+          userVote,
+          canViewResults: Boolean(poll.canViewResults),
+          createdAt:
+            (poll.createdAt as string | undefined) ?? new Date().toISOString(),
+          updatedAt:
+            (poll.updatedAt as string | undefined) ?? new Date().toISOString(),
+        };
+      })
+      .filter((p): p is Poll => Boolean(p));
 
     return {
       polls,

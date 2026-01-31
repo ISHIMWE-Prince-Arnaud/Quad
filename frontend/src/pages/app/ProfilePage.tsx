@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { PostCard } from "@/components/posts/PostCard";
+import { PollCard } from "@/components/polls/PollCard";
 import { StoryCard } from "@/components/stories/StoryCard";
 import { Button } from "@/components/ui/button";
 import { ProfileSkeleton } from "@/components/ui/loading";
@@ -215,6 +216,55 @@ export default function ProfilePage() {
                     onClick={() => void controller.handleLoadMoreStories()}
                     disabled={controller.storiesLoading}>
                     {controller.storiesLoading ? "Loading..." : "Load more"}
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : controller.activeTab === "polls" ? (
+            <div className="px-4 py-8 space-y-6">
+              {controller.pollsError && (
+                <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                  {controller.pollsError}
+                </div>
+              )}
+
+              {!controller.pollsError && controller.pollsLoading && (
+                <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                  Loading polls...
+                </div>
+              )}
+
+              {!controller.pollsError &&
+                !controller.pollsLoading &&
+                controller.polls.length === 0 && (
+                  <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
+                    No polls yet.
+                  </div>
+                )}
+
+              <div className="space-y-6">
+                {controller.polls.map((poll) => (
+                  <PollCard
+                    key={poll.id}
+                    poll={poll}
+                    onUpdate={controller.handlePollUpdate}
+                    onDelete={
+                      controller.isOwnProfile
+                        ? controller.handleDeletePoll
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+
+              {controller.pollsHasMore && (
+                <div className="flex justify-center pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void controller.handleLoadMorePolls()}
+                    disabled={controller.pollsLoading}>
+                    {controller.pollsLoading ? "Loading..." : "Load more"}
                   </Button>
                 </div>
               )}
