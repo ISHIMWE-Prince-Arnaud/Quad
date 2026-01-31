@@ -32,6 +32,15 @@ export function ProfileHeaderCard({
 }) {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
+  const formatStatNumber = (value?: number) => {
+    const formatted = new Intl.NumberFormat("en-US", {
+      notation: "compact",
+      compactDisplay: "short",
+      maximumFractionDigits: 1,
+    }).format(value ?? 0);
+    return formatted.replace(/([KMBT])/g, (m) => m.toLowerCase());
+  };
+
   return (
     <Card className="relative overflow-hidden border-0 shadow-lg">
       <div className="relative h-48 sm:h-56 lg:h-64">
@@ -156,39 +165,51 @@ export function ProfileHeaderCard({
             </div>
           </div>
 
-          <div className="flex gap-6 text-sm">
-            <button
-              onClick={onOpenFollowing}
-              className="flex gap-1 hover:underline transition-colors">
-              <span className="font-semibold text-foreground">
-                {user.following?.toLocaleString() || 0}
-              </span>
-              <span className="text-muted-foreground">Following</span>
-            </button>
-            <button
-              onClick={onOpenFollowers}
-              className="flex gap-1 hover:underline transition-colors">
-              <span className="font-semibold text-foreground">
-                {user.followers?.toLocaleString() || 0}
-              </span>
-              <span className="text-muted-foreground">Followers</span>
-            </button>
-            <div className="flex gap-1">
-              <span className="font-semibold text-foreground">
-                {user.reactionsReceived?.toLocaleString() || 0}
-              </span>
-              <span className="text-muted-foreground">Reactions</span>
-            </div>
-            {!isOwnProfile && typeof user.mutualFollows === "number" && (
+          <div className="mt-2 -mx-6 px-6 py-5 bg-[#0b1020]/60 border-t border-white/5">
+            <div className="grid grid-cols-3">
+              <div className="text-center">
+                <div className="text-[#3b82f6] text-3xl font-extrabold leading-none tabular-nums">
+                  {formatStatNumber(user.reactionsReceived)}
+                </div>
+                <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
+                  Reactions
+                </div>
+              </div>
+
               <button
                 type="button"
-                onClick={onOpenMutual}
-                className="flex gap-1 hover:underline transition-colors">
-                <span className="font-semibold text-foreground">
-                  {user.mutualFollows.toLocaleString()}
-                </span>
-                <span className="text-muted-foreground">Mutual</span>
+                onClick={onOpenFollowers}
+                className="text-center transition-opacity hover:opacity-90">
+                <div className="text-[#3b82f6] text-3xl font-extrabold leading-none tabular-nums">
+                  {formatStatNumber(user.followers)}
+                </div>
+                <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
+                  Followers
+                </div>
               </button>
+
+              <button
+                type="button"
+                onClick={onOpenFollowing}
+                className="text-center transition-opacity hover:opacity-90">
+                <div className="text-[#3b82f6] text-3xl font-extrabold leading-none tabular-nums">
+                  {formatStatNumber(user.following)}
+                </div>
+                <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
+                  Following
+                </div>
+              </button>
+            </div>
+
+            {!isOwnProfile && typeof user.mutualFollows === "number" && (
+              <div className="mt-4 flex justify-center">
+                <button
+                  type="button"
+                  onClick={onOpenMutual}
+                  className="text-sm text-muted-foreground hover:underline transition-colors">
+                  {formatStatNumber(user.mutualFollows)} Mutual
+                </button>
+              </div>
             )}
           </div>
         </div>
