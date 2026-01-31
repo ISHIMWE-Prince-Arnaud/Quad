@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { FileText, Calendar, BarChart3, Bookmark } from "lucide-react";
+import { SquarePen, Images, BarChart3, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type ProfileTab = "posts" | "stories" | "polls" | "saved";
@@ -18,14 +18,14 @@ const tabs = [
   {
     id: "posts" as ProfileTab,
     label: "Posts",
-    icon: FileText,
+    icon: SquarePen,
     description: "All posts and updates",
     public: true,
   },
   {
     id: "stories" as ProfileTab,
     label: "Stories",
-    icon: Calendar,
+    icon: Images,
     description: "Shared stories and moments",
     public: true,
   },
@@ -38,7 +38,7 @@ const tabs = [
   },
   {
     id: "saved" as ProfileTab,
-    label: "Saved",
+    label: "Bookmarks",
     icon: Bookmark,
     description: "Saved posts and content",
     public: false, // Only visible to own profile
@@ -99,25 +99,30 @@ export function ProfileTabs({
                   key={tab.id}
                   onClick={() => onTabChange(tab.id)}
                   className={cn(
-                    "flex items-center justify-center gap-2 px-4 py-4 text-sm font-medium transition-colors duration-200 relative group flex-1 sm:flex-none sm:min-w-[120px]",
-                    isActive
-                      ? "text-primary border-b-2 border-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+                    "flex items-center justify-center relative group flex-1 py-2",
                   )}
                   title={tab.description}>
-                  <Icon className="h-4 w-4" />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  {count > 0 && (
-                    <span
-                      className={cn(
-                        "text-xs px-2 py-0.5 rounded-full font-medium",
-                        isActive
-                          ? "bg-primary/10 text-primary"
-                          : "bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-foreground",
-                      )}>
-                      {count.toLocaleString()}
-                    </span>
-                  )}
+                  <span
+                    className={cn(
+                      "inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200",
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/60",
+                    )}>
+                    <Icon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    {count > 0 && (
+                      <span
+                        className={cn(
+                          "text-xs px-2 py-0.5 rounded-full font-semibold",
+                          isActive
+                            ? "bg-primary-foreground/20 text-primary-foreground"
+                            : "bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-foreground",
+                        )}>
+                        {count.toLocaleString()}
+                      </span>
+                    )}
+                  </span>
                 </button>
               );
             })}
