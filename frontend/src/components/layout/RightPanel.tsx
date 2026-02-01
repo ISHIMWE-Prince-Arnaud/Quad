@@ -6,11 +6,21 @@ import {
   MessageCircle,
   BarChart3,
   LogOut,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "@clerk/clerk-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
 import { cn } from "@/lib/utils";
 import { logError } from "@/lib/errorHandling";
@@ -189,6 +199,7 @@ function ActiveChatsMini() {
 function AccountMiniCard() {
   const { user, logout } = useAuthStore();
   const { signOut } = useAuth();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const displayName =
     user?.firstName && user?.lastName
@@ -203,6 +214,7 @@ function AccountMiniCard() {
     try {
       logout();
       await signOut();
+      setIsDialogOpen(false);
     } catch (error) {
       logError(error, { component: "RightPanel", action: "signOut" });
     }
@@ -229,15 +241,44 @@ function AccountMiniCard() {
           </p>
         </div>
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => void handleSignOut()}
-          className="rounded-full text-[#94a3b8] hover:text-white hover:bg-white/5"
-          aria-label="Log out">
-          <LogOut className="h-4 w-4" />
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="rounded-full text-destructive/90 hover:text-destructive hover:bg-destructive/10"
+              aria-label="Log out">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-[#0f121a] border-border/10 text-white">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                Log Out
+              </DialogTitle>
+              <DialogDescription className="text-[#64748b]">
+                This will end your session on this device. You will need to sign
+                in again to continue.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="ghost"
+                onClick={() => setIsDialogOpen(false)}
+                className="text-[#64748b] hover:text-white hover:bg-white/5">
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => void handleSignOut()}
+                className="bg-destructive hover:bg-destructive/90">
+                Log Out
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );
