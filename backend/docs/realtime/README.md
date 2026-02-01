@@ -9,11 +9,13 @@ Quad implements real-time functionality using Socket.IO, providing instant chat 
 ## 🏗️ **Real-time Architecture**
 
 ### **Socket.IO Setup**
+
 ```
 Client (Frontend) ←→ Socket.IO Server ←→ Backend API ←→ Database
 ```
 
 ### **Core Components**
+
 - **Socket Server**: Main Socket.IO server configuration
 - **Socket Handlers**: Event handlers for different features
 - **Room Management**: User rooms and channels
@@ -24,20 +26,21 @@ Client (Frontend) ←→ Socket.IO Server ←→ Backend API ←→ Database
 ## ⚙️ **Configuration**
 
 ### **Socket Server Setup** (`config/socket.config.ts`)
+
 ```typescript
-import { Server as SocketIOServer } from 'socket.io';
-import { createServer } from 'http';
+import { Server as SocketIOServer } from "socket.io";
+import { createServer } from "http";
 
 export const setupSocketIO = (app: Express) => {
   const server = createServer(app);
-  
+
   const io = new SocketIOServer(server, {
     cors: {
       origin: process.env.FRONTEND_URL || "http://localhost:3000",
       methods: ["GET", "POST"],
-      credentials: true
+      credentials: true,
     },
-    transports: ['polling', 'websocket'],
+    transports: ["polling", "websocket"],
     pingTimeout: 60000,
     pingInterval: 25000,
   });
@@ -47,20 +50,21 @@ export const setupSocketIO = (app: Express) => {
 ```
 
 ### **Socket Authentication Middleware**
+
 ```typescript
-import { clerkClient } from '@clerk/express';
+import { clerkClient } from "@clerk/express";
 
 io.use(async (socket, next) => {
   try {
     const token = socket.handshake.auth.token;
     const user = await clerkClient.verifyToken(token);
-    
+
     socket.userId = user.sub;
     socket.join(`user:${user.sub}`); // Join user-specific room
-    
+
     next();
   } catch (error) {
-    next(new Error('Authentication failed'));
+    next(new Error("Authentication failed"));
   }
 });
 ```
@@ -70,23 +74,23 @@ io.use(async (socket, next) => {
 ## 💬 **Chat System**
 
 ### **Chat Socket Handler** (`sockets/chat.socket.ts`)
+
 ```typescript
 export const setupChatSocket = (io: SocketIOServer) => {
-  io.on('connection', (socket) => {
-    
+  io.on("connection", (socket) => {
     // Join chat room
-    socket.on('chat:join', async ({ receiverId }) => {
+    socket.on("chat:join", async ({ receiverId }) => {
       const chatRoom = getChatRoomId(socket.userId, receiverId);
       await socket.join(chatRoom);
-      
-      socket.emit('chat:joined', { room: chatRoom });
+
+      socket.emit("chat:joined", { room: chatRoom });
       logger.socket(`User ${socket.userId} joined chat room ${chatRoom}`);
     });
 
     // Send message
-    socket.on('chat:message', async (data) => {
+    socket.on("chat:message", async (data) => {
       const { receiverId, content, mediaUrl, messageType } = data;
-      
+
       try {
         // Save message to database
         const message = await ChatMessage.create({
@@ -94,18 +98,18 @@ export const setupChatSocket = (io: SocketIOServer) => {
           receiverId,
           content,
           mediaUrl,
-          messageType: messageType || 'text'
+          messageType: messageType || "text",
         });
 
         // Populate sender data
-        await message.populate('sender', 'username displayName profileImage');
+        await message.populate("sender", "username displayName profileImage");
 
         const chatRoom = getChatRoomId(socket.userId, receiverId);
-        
+
         // Broadcast to chat room
-        io.to(chatRoom).emit('chat:message', {
+        io.to(chatRoom).emit("chat:message", {
           ...message.toObject(),
-          chatRoom
+          chatRoom,
         });
 
         // Send notification to receiver if offline
@@ -114,75 +118,72 @@ export const setupChatSocket = (io: SocketIOServer) => {
           await createNotification({
             userId: receiverId,
             actorId: socket.userId,
-            type: 'message',
-            message: `New message from ${message.sender.displayName}`
+            type: "message",
+            message: `New message from ${message.sender.displayName}`,
           });
         }
-        
       } catch (error) {
-        socket.emit('chat:error', { 
-          message: 'Failed to send message',
-          error: error.message 
+        socket.emit("chat:error", {
+          message: "Failed to send message",
+          error: error.message,
         });
       }
     });
 
     // Typing indicator
-    socket.on('chat:typing', ({ receiverId, isTyping }) => {
+    socket.on("chat:typing", ({ receiverId, isTyping }) => {
       const chatRoom = getChatRoomId(socket.userId, receiverId);
-      socket.to(chatRoom).emit('chat:typing', {
+      socket.to(chatRoom).emit("chat:typing", {
         senderId: socket.userId,
-        isTyping
+        isTyping,
       });
     });
 
     // Message reactions
-    socket.on('chat:reaction', async ({ messageId, reaction }) => {
+    socket.on("chat:reaction", async ({ messageId, reaction }) => {
       try {
         const messageReaction = await MessageReaction.findOneAndUpdate(
           { messageId, userId: socket.userId },
           { reaction },
-          { upsert: true, new: true }
+          { upsert: true, new: true },
         );
 
         const message = await ChatMessage.findById(messageId);
         const chatRoom = getChatRoomId(message.senderId, message.receiverId);
 
-        io.to(chatRoom).emit('chat:reaction', {
+        io.to(chatRoom).emit("chat:reaction", {
           messageId,
           userId: socket.userId,
           reaction,
-          reactionId: messageReaction._id
+          reactionId: messageReaction._id,
         });
-        
       } catch (error) {
-        socket.emit('chat:error', { 
-          message: 'Failed to add reaction' 
+        socket.emit("chat:error", {
+          message: "Failed to add reaction",
         });
       }
     });
 
     // Mark messages as read
-    socket.on('chat:read', async ({ messageIds, senderId }) => {
+    socket.on("chat:read", async ({ messageIds, senderId }) => {
       try {
         await ChatMessage.updateMany(
-          { 
+          {
             _id: { $in: messageIds },
             receiverId: socket.userId,
-            senderId 
+            senderId,
           },
-          { readAt: new Date() }
+          { readAt: new Date() },
         );
 
         const chatRoom = getChatRoomId(socket.userId, senderId);
-        socket.to(chatRoom).emit('chat:read', {
+        socket.to(chatRoom).emit("chat:read", {
           messageIds,
           readBy: socket.userId,
-          readAt: new Date()
+          readAt: new Date(),
         });
-        
       } catch (error) {
-        logger.error('Failed to mark messages as read', error);
+        logger.error("Failed to mark messages as read", error);
       }
     });
   });
@@ -190,7 +191,7 @@ export const setupChatSocket = (io: SocketIOServer) => {
 
 // Helper function to generate consistent room IDs
 const getChatRoomId = (userId1: string, userId2: string): string => {
-  return [userId1, userId2].sort().join(':');
+  return [userId1, userId2].sort().join(":");
 };
 ```
 
@@ -199,59 +200,59 @@ const getChatRoomId = (userId1: string, userId2: string): string => {
 ## 🔔 **Notification System**
 
 ### **Notification Socket Handler** (`sockets/notification.socket.ts`)
+
 ```typescript
 export const setupNotificationSocket = (io: SocketIOServer) => {
-  io.on('connection', (socket) => {
-    
+  io.on("connection", (socket) => {
     // Mark notification as read
-    socket.on('notification:read', async ({ notificationId }) => {
+    socket.on("notification:read", async ({ notificationId }) => {
       try {
         await Notification.findByIdAndUpdate(notificationId, {
-          isRead: true
+          isRead: true,
         });
 
-        socket.emit('notification:read', { notificationId });
-        
+        socket.emit("notification:read", { notificationId });
       } catch (error) {
-        logger.error('Failed to mark notification as read', error);
+        logger.error("Failed to mark notification as read", error);
       }
     });
 
     // Mark all notifications as read
-    socket.on('notification:readAll', async () => {
+    socket.on("notification:readAll", async () => {
       try {
         await Notification.updateMany(
           { userId: socket.userId, isRead: false },
-          { isRead: true }
+          { isRead: true },
         );
 
-        socket.emit('notification:readAll', { success: true });
-        
+        socket.emit("notification:readAll", { success: true });
       } catch (error) {
-        logger.error('Failed to mark all notifications as read', error);
+        logger.error("Failed to mark all notifications as read", error);
       }
     });
 
     // Get unread count
-    socket.on('notification:getUnreadCount', async () => {
+    socket.on("notification:getUnreadCount", async () => {
       try {
         const count = await Notification.countDocuments({
           userId: socket.userId,
-          isRead: false
+          isRead: false,
         });
 
-        socket.emit('notification:unreadCount', { count });
-        
+        socket.emit("notification:unreadCount", { count });
       } catch (error) {
-        logger.error('Failed to get unread count', error);
+        logger.error("Failed to get unread count", error);
       }
     });
   });
 };
 
 // Utility function to send notifications
-export const emitNotification = (io: SocketIOServer, notification: INotificationDocument) => {
-  io.to(`user:${notification.userId}`).emit('notification:new', notification);
+export const emitNotification = (
+  io: SocketIOServer,
+  notification: INotificationDocument,
+) => {
+  io.to(`user:${notification.userId}`).emit("notification:new", notification);
 };
 ```
 
@@ -260,71 +261,74 @@ export const emitNotification = (io: SocketIOServer, notification: INotification
 ## 📰 **Feed Updates**
 
 ### **Feed Socket Handler** (`sockets/feed.socket.ts`)
+
 ```typescript
 export const setupFeedSocket = (io: SocketIOServer) => {
-  io.on('connection', (socket) => {
-    
+  io.on("connection", (socket) => {
     // Join feed room based on user's following
-    socket.on('feed:join', async () => {
+    socket.on("feed:join", async () => {
       try {
-        const following = await Follow.find({ 
-          followerId: socket.userId 
-        }).select('followingId');
+        const following = await Follow.find({
+          followerId: socket.userId,
+        }).select("followingId");
 
         // Join rooms for users they follow
-        following.forEach(follow => {
+        following.forEach((follow) => {
           socket.join(`feed:${follow.followingId}`);
         });
 
         // Join general feed room
-        socket.join('feed:general');
-        
-        socket.emit('feed:joined', { 
-          rooms: following.length + 1 
+        socket.join("feed:general");
+
+        socket.emit("feed:joined", {
+          rooms: following.length + 1,
         });
-        
       } catch (error) {
-        logger.error('Failed to join feed rooms', error);
+        logger.error("Failed to join feed rooms", error);
       }
     });
 
     // Real-time post updates
-    socket.on('feed:newPost', (postData) => {
+    socket.on("feed:newPost", (postData) => {
       // Broadcast to followers
-      socket.to(`feed:${socket.userId}`).emit('feed:newPost', postData);
-      
+      socket.to(`feed:${socket.userId}`).emit("feed:newPost", postData);
+
       // Broadcast to general feed
-      socket.to('feed:general').emit('feed:newPost', postData);
+      socket.to("feed:general").emit("feed:newPost", postData);
     });
 
     // Live reaction updates
-    socket.on('feed:reaction', ({ postId, reaction, count }) => {
-      io.emit('feed:reactionUpdate', {
+    socket.on("feed:reaction", ({ postId, reaction, count }) => {
+      io.emit("feed:reactionUpdate", {
         postId,
         reaction,
         count,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     });
 
     // Live comment updates
-    socket.on('feed:comment', ({ postId, comment }) => {
-      io.emit('feed:newComment', {
+    socket.on("feed:comment", ({ postId, comment }) => {
+      io.emit("feed:newComment", {
         postId,
         comment,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     });
   });
 };
 
 // Broadcast new content to feeds
-export const broadcastToFeeds = (io: SocketIOServer, userId: string, content: any) => {
+export const broadcastToFeeds = (
+  io: SocketIOServer,
+  userId: string,
+  content: any,
+) => {
   // Emit to user's followers
-  io.to(`feed:${userId}`).emit('feed:update', content);
-  
+  io.to(`feed:${userId}`).emit("feed:update", content);
+
   // Emit to general feed
-  io.to('feed:general').emit('feed:update', content);
+  io.to("feed:general").emit("feed:update", content);
 };
 ```
 
@@ -333,111 +337,72 @@ export const broadcastToFeeds = (io: SocketIOServer, userId: string, content: an
 ## 👥 **User Presence System**
 
 ### **Presence Tracking**
+
 ```typescript
-const userPresence = new Map<string, {
-  socketId: string;
-  status: 'online' | 'away' | 'offline';
-  lastSeen: Date;
-}>();
+const userPresence = new Map<
+  string,
+  {
+    socketId: string;
+    status: "online" | "away" | "offline";
+    lastSeen: Date;
+  }
+>();
 
 export const setupPresenceSocket = (io: SocketIOServer) => {
-  io.on('connection', (socket) => {
-    
+  io.on("connection", (socket) => {
     // User comes online
-    socket.on('presence:online', () => {
+    socket.on("presence:online", () => {
       userPresence.set(socket.userId, {
         socketId: socket.id,
-        status: 'online',
-        lastSeen: new Date()
+        status: "online",
+        lastSeen: new Date(),
       });
 
       // Broadcast to friends
-      socket.broadcast.emit('presence:userOnline', {
+      socket.broadcast.emit("presence:userOnline", {
         userId: socket.userId,
-        status: 'online'
+        status: "online",
       });
     });
 
     // User goes away
-    socket.on('presence:away', () => {
+    socket.on("presence:away", () => {
       const presence = userPresence.get(socket.userId);
       if (presence) {
-        presence.status = 'away';
+        presence.status = "away";
         presence.lastSeen = new Date();
       }
 
-      socket.broadcast.emit('presence:userAway', {
+      socket.broadcast.emit("presence:userAway", {
         userId: socket.userId,
-        status: 'away'
+        status: "away",
       });
     });
 
     // Handle disconnect
-    socket.on('disconnect', () => {
+    socket.on("disconnect", () => {
       const presence = userPresence.get(socket.userId);
       if (presence) {
-        presence.status = 'offline';
+        presence.status = "offline";
         presence.lastSeen = new Date();
       }
 
-      socket.broadcast.emit('presence:userOffline', {
+      socket.broadcast.emit("presence:userOffline", {
         userId: socket.userId,
-        status: 'offline',
-        lastSeen: new Date()
+        status: "offline",
+        lastSeen: new Date(),
       });
     });
 
     // Get user presence
-    socket.on('presence:get', ({ userIds }) => {
-      const presenceData = userIds.map(userId => ({
+    socket.on("presence:get", ({ userIds }) => {
+      const presenceData = userIds.map((userId) => ({
         userId,
-        ...userPresence.get(userId) || { status: 'offline' }
+        ...(userPresence.get(userId) || { status: "offline" }),
       }));
 
-      socket.emit('presence:data', presenceData);
+      socket.emit("presence:data", presenceData);
     });
-  });
-};
-```
-
----
-
-## 📊 **Live Analytics**
-
-### **Real-time Analytics Events**
-```typescript
-export const setupAnalyticsSocket = (io: SocketIOServer) => {
-  io.on('connection', (socket) => {
-    
-    // Track page views
-    socket.on('analytics:pageView', ({ page, duration }) => {
-      // Emit to admin dashboard
-      io.to('admin:analytics').emit('analytics:livePageView', {
-        userId: socket.userId,
-        page,
-        duration,
-        timestamp: new Date()
-      });
-    });
-
-    // Track user interactions
-    socket.on('analytics:interaction', ({ action, target }) => {
-      io.to('admin:analytics').emit('analytics:liveInteraction', {
-        userId: socket.userId,
-        action,
-        target,
-        timestamp: new Date()
-      });
-    });
-
-    // Live user count
-    setInterval(() => {
-      const connectedUsers = io.sockets.sockets.size;
-      io.to('admin:analytics').emit('analytics:liveUserCount', {
-        count: connectedUsers,
-        timestamp: new Date()
-      });
-    }, 30000); // Every 30 seconds
   });
 };
 ```
@@ -447,20 +412,27 @@ export const setupAnalyticsSocket = (io: SocketIOServer) => {
 ## 🎯 **Event Broadcasting Utilities**
 
 ### **Notification Broadcasting**
+
 ```typescript
 // utils/socketBroadcast.util.ts
-import { getSocketIO } from '../config/socket.config.js';
+import { getSocketIO } from "../config/socket.config.js";
 
 export const broadcastNotification = (userId: string, notification: any) => {
   const io = getSocketIO();
-  io.to(`user:${userId}`).emit('notification:new', notification);
+  io.to(`user:${userId}`).emit("notification:new", notification);
 };
 
-export const broadcastToFollowers = async (userId: string, event: string, data: any) => {
+export const broadcastToFollowers = async (
+  userId: string,
+  event: string,
+  data: any,
+) => {
   const io = getSocketIO();
-  const followers = await Follow.find({ followingId: userId }).select('followerId');
-  
-  followers.forEach(follow => {
+  const followers = await Follow.find({ followingId: userId }).select(
+    "followerId",
+  );
+
+  followers.forEach((follow) => {
     io.to(`user:${follow.followerId}`).emit(event, data);
   });
 };
@@ -476,16 +448,20 @@ export const broadcastGlobal = (event: string, data: any) => {
 ## 🛡️ **Security & Rate Limiting**
 
 ### **Socket Rate Limiting**
+
 ```typescript
-const socketRateLimit = new Map<string, {
-  count: number;
-  resetTime: number;
-}>();
+const socketRateLimit = new Map<
+  string,
+  {
+    count: number;
+    resetTime: number;
+  }
+>();
 
 const RATE_LIMIT = {
   messages: { max: 30, window: 60000 }, // 30 messages per minute
   reactions: { max: 60, window: 60000 }, // 60 reactions per minute
-  typing: { max: 10, window: 10000 }     // 10 typing events per 10 seconds
+  typing: { max: 10, window: 10000 }, // 10 typing events per 10 seconds
 };
 
 export const checkRateLimit = (userId: string, action: string): boolean => {
@@ -494,36 +470,39 @@ export const checkRateLimit = (userId: string, action: string): boolean => {
 
   const key = `${userId}:${action}`;
   const now = Date.now();
-  
+
   let userLimit = socketRateLimit.get(key);
-  
+
   if (!userLimit || now > userLimit.resetTime) {
     socketRateLimit.set(key, {
       count: 1,
-      resetTime: now + limit.window
+      resetTime: now + limit.window,
     });
     return true;
   }
-  
+
   if (userLimit.count >= limit.max) {
     return false;
   }
-  
+
   userLimit.count++;
   return true;
 };
 ```
 
 ### **Message Content Filtering**
+
 ```typescript
-export const filterMessage = (content: string): { safe: boolean; filtered: string } => {
+export const filterMessage = (
+  content: string,
+): { safe: boolean; filtered: string } => {
   // Basic profanity filter
   const profanityRegex = /badword1|badword2|badword3/gi;
-  const filtered = content.replace(profanityRegex, '***');
-  
+  const filtered = content.replace(profanityRegex, "***");
+
   return {
     safe: !profanityRegex.test(content),
-    filtered
+    filtered,
   };
 };
 ```
@@ -533,9 +512,10 @@ export const filterMessage = (content: string): { safe: boolean; filtered: strin
 ## 📱 **Frontend Integration Examples**
 
 ### **React Socket Connection**
+
 ```jsx
-import { io } from 'socket.io-client';
-import { useAuth } from '@clerk/clerk-react';
+import { io } from "socket.io-client";
+import { useAuth } from "@clerk/clerk-react";
 
 const useSocket = () => {
   const { getToken } = useAuth();
@@ -544,18 +524,18 @@ const useSocket = () => {
   useEffect(() => {
     const initSocket = async () => {
       const token = await getToken();
-      
+
       const newSocket = io(process.env.REACT_APP_API_URL, {
         auth: { token },
-        transports: ['websocket', 'polling']
+        transports: ["websocket", "polling"],
       });
 
-      newSocket.on('connect', () => {
-        console.log('Connected to socket server');
+      newSocket.on("connect", () => {
+        console.log("Connected to socket server");
       });
 
-      newSocket.on('disconnect', () => {
-        console.log('Disconnected from socket server');
+      newSocket.on("disconnect", () => {
+        console.log("Disconnected from socket server");
       });
 
       setSocket(newSocket);
@@ -575,67 +555,68 @@ const useSocket = () => {
 ```
 
 ### **Chat Component Example**
+
 ```jsx
 const ChatComponent = ({ receiverId }) => {
   const socket = useSocket();
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
 
   useEffect(() => {
     if (!socket) return;
 
     // Join chat room
-    socket.emit('chat:join', { receiverId });
+    socket.emit("chat:join", { receiverId });
 
     // Listen for new messages
-    socket.on('chat:message', (message) => {
-      setMessages(prev => [...prev, message]);
+    socket.on("chat:message", (message) => {
+      setMessages((prev) => [...prev, message]);
     });
 
     // Listen for typing indicators
-    socket.on('chat:typing', ({ senderId, isTyping }) => {
+    socket.on("chat:typing", ({ senderId, isTyping }) => {
       // Update typing state
     });
 
     return () => {
-      socket.off('chat:message');
-      socket.off('chat:typing');
+      socket.off("chat:message");
+      socket.off("chat:typing");
     };
   }, [socket, receiverId]);
 
   const sendMessage = () => {
     if (socket && newMessage.trim()) {
-      socket.emit('chat:message', {
+      socket.emit("chat:message", {
         receiverId,
         content: newMessage,
-        messageType: 'text'
+        messageType: "text",
       });
-      setNewMessage('');
+      setNewMessage("");
     }
   };
 
   const handleTyping = (isTyping) => {
     if (socket) {
-      socket.emit('chat:typing', { receiverId, isTyping });
+      socket.emit("chat:typing", { receiverId, isTyping });
     }
   };
 
   return (
     <div className="chat-container">
       <div className="messages">
-        {messages.map(message => (
+        {messages.map((message) => (
           <MessageComponent key={message._id} message={message} />
         ))}
       </div>
-      
+
       <input
         value={newMessage}
         onChange={(e) => setNewMessage(e.target.value)}
         onFocus={() => handleTyping(true)}
         onBlur={() => handleTyping(false)}
-        onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+        onKeyPress={(e) => e.key === "Enter" && sendMessage()}
       />
-      
+
       <button onClick={sendMessage}>Send</button>
     </div>
   );
@@ -647,6 +628,7 @@ const ChatComponent = ({ receiverId }) => {
 ## 📊 **Performance Monitoring**
 
 ### **Socket Metrics**
+
 ```typescript
 export const trackSocketMetrics = (io: SocketIOServer) => {
   setInterval(() => {
@@ -654,11 +636,11 @@ export const trackSocketMetrics = (io: SocketIOServer) => {
       connectedSockets: io.sockets.sockets.size,
       rooms: io.sockets.adapter.rooms.size,
       memoryUsage: process.memoryUsage(),
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    logger.info('Socket metrics', metrics);
-    
+    logger.info("Socket metrics", metrics);
+
     // Send to monitoring service
     // monitoringService.track('socket_metrics', metrics);
   }, 60000); // Every minute
@@ -670,14 +652,15 @@ export const trackSocketMetrics = (io: SocketIOServer) => {
 ## 🔧 **Development & Testing**
 
 ### **Socket Testing Helper**
+
 ```typescript
 // test/socket.helper.ts
-import { io as Client } from 'socket.io-client';
+import { io as Client } from "socket.io-client";
 
 export const createTestSocket = (token: string) => {
-  return Client('http://localhost:3001', {
+  return Client("http://localhost:3001", {
     auth: { token },
-    forceNew: true
+    forceNew: true,
   });
 };
 
@@ -700,18 +683,21 @@ export const waitForEvent = (socket: any, event: string, timeout = 5000) => {
 ## 📝 **Best Practices**
 
 ### **Performance Optimization**
+
 1. **Use rooms efficiently** to minimize broadcast overhead
 2. **Implement connection pooling** for database operations
 3. **Cache frequently accessed data** (user presence, room membership)
 4. **Use message queuing** for high-volume events
 
 ### **Scalability Considerations**
+
 1. **Redis adapter** for multi-server deployments
 2. **Horizontal scaling** with load balancers
 3. **Message persistence** for reliability
 4. **Graceful degradation** when sockets fail
 
 ### **Security Guidelines**
+
 1. **Always authenticate** socket connections
 2. **Validate all incoming** socket events
 3. **Implement rate limiting** for socket events

@@ -96,11 +96,15 @@ import multer from "multer";
 import path from "path";
 
 // File filter function
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback,
+) => {
   // Allowed file types
   const allowedTypes = /jpeg|jpg|png|gif|mp4|mov|avi|webm|webp/;
   const extname = allowedTypes.test(
-    path.extname(file.originalname).toLowerCase()
+    path.extname(file.originalname).toLowerCase(),
   );
   const mimetype = allowedTypes.test(file.mimetype);
 
@@ -138,7 +142,7 @@ import type { Request, Response, NextFunction } from "express";
 export const validateFileUpload = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   if (!req.file && !req.files) {
     return res.status(400).json({
@@ -212,7 +216,7 @@ export interface UploadResult {
 
 export const uploadToCloudinary = async (
   file: Express.Multer.File,
-  options: Record<string, unknown> = {}
+  options: Record<string, unknown> = {},
 ): Promise<UploadResult> => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
@@ -235,7 +239,7 @@ export const uploadToCloudinary = async (
             aspectRatio,
           });
         }
-      }
+      },
     );
 
     // Convert buffer to stream and pipe to Cloudinary
@@ -248,7 +252,7 @@ export const uploadToCloudinary = async (
 
 export const uploadMultipleToCloudinary = async (
   files: Express.Multer.File[],
-  options: any = {}
+  options: any = {},
 ): Promise<UploadResult[]> => {
   const uploadPromises = files.map((file) => uploadToCloudinary(file, options));
   return Promise.all(uploadPromises);
@@ -256,7 +260,7 @@ export const uploadMultipleToCloudinary = async (
 
 // Delete file from Cloudinary
 export const deleteFromCloudinary = async (
-  publicId: string
+  publicId: string,
 ): Promise<{ success: boolean; message: string }> => {
   try {
     const result = await cloudinary.uploader.destroy(publicId);
@@ -372,7 +376,7 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
     const { userId } = req.auth;
     await User.findOneAndUpdate(
       { clerkId: userId },
-      { profileImage: result.url }
+      { profileImage: result.url },
     );
 
     return res.status(200).json({
@@ -496,7 +500,7 @@ export const deleteFile = async (req: Request, res: Response) => {
 
 const verifyFileOwnership = async (
   userId: string,
-  publicId: string
+  publicId: string,
 ): Promise<boolean> => {
   // Check if user owns content containing this file
   const posts = await Post.find({
@@ -519,19 +523,19 @@ const removeFileReferences = async (publicId: string) => {
   // Remove from posts
   await Post.updateMany(
     { mediaUrls: { $regex: publicId } },
-    { $pull: { mediaUrls: { $regex: publicId } } }
+    { $pull: { mediaUrls: { $regex: publicId } } },
   );
 
   // Remove from stories
   await Story.updateMany(
     { mediaUrls: { $regex: publicId } },
-    { $pull: { mediaUrls: { $regex: publicId } } }
+    { $pull: { mediaUrls: { $regex: publicId } } },
   );
 
   // Update cover images
   await Story.updateMany(
     { coverImage: { $regex: publicId } },
-    { $unset: { coverImage: 1 } }
+    { $unset: { coverImage: 1 } },
   );
 };
 ```
@@ -551,7 +555,7 @@ export const getOptimizedImageUrl = (
     crop?: string;
     quality?: string;
     format?: string;
-  } = {}
+  } = {},
 ): string => {
   if (!originalUrl.includes("cloudinary.com")) {
     return originalUrl;
@@ -695,7 +699,8 @@ const DragDropUpload = ({ onUpload }) => {
 
     const files = Array.from(e.dataTransfer.files);
     const validFiles = files.filter(
-      (file) => file.type.startsWith("image/") || file.type.startsWith("video/")
+      (file) =>
+        file.type.startsWith("image/") || file.type.startsWith("video/"),
     );
 
     if (validFiles.length > 0) {
@@ -717,60 +722,13 @@ const DragDropUpload = ({ onUpload }) => {
 
 ---
 
-## 📊 **Upload Analytics**
-
-### **Track Upload Metrics**
-
-```typescript
-export const trackUploadMetrics = async (
-  userId: string,
-  fileType: string,
-  fileSize: number,
-  uploadTime: number
-) => {
-  await UploadAnalytics.create({
-    userId,
-    fileType,
-    fileSize,
-    uploadTime,
-    timestamp: new Date(),
-  });
-};
-
-export const getUploadStats = async (userId: string) => {
-  const stats = await UploadAnalytics.aggregate([
-    { $match: { userId } },
-    {
-      $group: {
-        _id: null,
-        totalUploads: { $sum: 1 },
-        totalSize: { $sum: "$fileSize" },
-        avgUploadTime: { $avg: "$uploadTime" },
-        fileTypes: { $push: "$fileType" },
-      },
-    },
-  ]);
-
-  return (
-    stats[0] || {
-      totalUploads: 0,
-      totalSize: 0,
-      avgUploadTime: 0,
-      fileTypes: [],
-    }
-  );
-};
-```
-
----
-
-## 🛡️ **Security Measures**
+## ️ **Security Measures**
 
 ### **File Security Validation**
 
 ```typescript
 export const validateFileContent = async (
-  file: Express.Multer.File
+  file: Express.Multer.File,
 ): Promise<boolean> => {
   // Check file signature/magic numbers
   const fileSignature = file.buffer.slice(0, 4);
@@ -787,7 +745,7 @@ export const validateFileContent = async (
 };
 
 export const scanForMalware = async (
-  file: Express.Multer.File
+  file: Express.Multer.File,
 ): Promise<boolean> => {
   // Integrate with malware scanning service
   // For example: ClamAV, VirusTotal API
@@ -800,7 +758,7 @@ export const scanForMalware = async (
 ```typescript
 export const checkUploadPermissions = (
   userId: string,
-  uploadType: string
+  uploadType: string,
 ): boolean => {
   // Implement your permission logic
   const permissions = {

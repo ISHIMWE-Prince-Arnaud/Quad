@@ -1,6 +1,6 @@
 # Quad – Student Social Entertainment Platform
 
-Quad is a full-stack social entertainment platform for students, featuring posts, stories, polls, real-time chat, notifications, advanced search, and personal analytics.
+Quad is a full-stack social entertainment platform for students, featuring posts, stories, polls, real-time chat and notifications.
 
 This repository contains both the **backend API** and the **frontend web app**.
 
@@ -22,7 +22,7 @@ Frontend-specific docs live under the root `docs/` folder:
   Architecture, component/page structure, services → API integration, Zustand stores, testing strategy, and deployment flow.
 
 - **[Frontend User Guide](docs/FRONTEND_USER_GUIDE.md)**  
-  Onboarding, feature usage (posts, chat, stories, polls, notifications, search, analytics), FAQs, troubleshooting, and accessibility notes.
+  Onboarding, feature usage (posts, chat, stories, polls, notifications, search), FAQs, troubleshooting, and accessibility notes.
 
 You may also find high-level planning and design PDFs in `docs/`:
 
@@ -52,6 +52,5 @@ For detailed setup, see the backend and frontend documentation. At a high level:
 - User profiles and follow system
 - Real-time chat
 - Real-time notifications
-- Advanced search with analytics
-- Personal analytics dashboard
+- Advanced search
 - Theming (light/dark/system) and UI/UX polish

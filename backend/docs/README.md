@@ -57,7 +57,7 @@ The Quad backend is built with:
 - ✅ **Real-time Chat** - Messaging with reactions and typing indicators
 - ✅ **Notifications** - Real-time notification system
 - ✅ **Feed Algorithm** - Following and For You feeds
-- ✅ **Advanced Search** - Full-text search with filters and analytics
+- ✅ **Advanced Search** - Full-text search with filters
 - ✅ **Media Handling** - Image/video uploads with Cloudinary
 - ✅ **Comments & Reactions** - Engagement features
 

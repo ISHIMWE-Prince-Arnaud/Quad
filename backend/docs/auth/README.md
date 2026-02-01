@@ -68,7 +68,7 @@ export const requireAuthentication = requireAuth({
   onError: (error) => {
     return Response.json(
       { success: false, message: "Authentication required" },
-      { status: 401 }
+      { status: 401 },
     );
   },
 });
@@ -159,7 +159,7 @@ app.get("/api/admin", requireAuth(), isAdmin, handler);
 export const requireOwnership = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { userId } = req.auth;
   const { id } = req.params;
@@ -277,7 +277,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 export const validateSession = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { sessionId } = req.auth;
@@ -328,14 +328,14 @@ import { Webhook } from "svix";
 export const verifyWebhook = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const webhook = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
 
   try {
     const payload = webhook.verify(
       JSON.stringify(req.body),
-      req.headers as Record<string, string>
+      req.headers as Record<string, string>,
     );
 
     req.body = payload;
@@ -442,44 +442,7 @@ export const searchUsers = async (req: Request, res: Response) => {
 
 ---
 
-## 📊 **Authentication Analytics**
-
-### **User Activity Tracking**
-
-```typescript
-export const trackUserActivity = async (userId: string, action: string) => {
-  await UserActivity.create({
-    userId,
-    action,
-    timestamp: new Date(),
-    ip: req.ip,
-    userAgent: req.get("User-Agent"),
-  });
-};
-```
-
-### **Login Analytics**
-
-```typescript
-// Track login events
-export const handleLogin = async (req: Request, res: Response) => {
-  const { userId } = req.auth;
-
-  await User.findOneAndUpdate(
-    { clerkId: userId },
-    {
-      lastLoginAt: new Date(),
-      $inc: { loginCount: 1 },
-    }
-  );
-
-  await trackUserActivity(userId, "login");
-};
-```
-
----
-
-## 🔧 **Development & Testing**
+## **Development & Testing**
 
 ### **Mock Authentication (Testing)**
 
@@ -516,7 +479,11 @@ export const debugAuth = (req: Request, res: Response) => {
 ### **Common Auth Errors**
 
 ```typescript
-export const authErrorHandler = (error: Error & { code?: string }, req: Request, res: Response) => {
+export const authErrorHandler = (
+  error: Error & { code?: string },
+  req: Request,
+  res: Response,
+) => {
   switch (error.code) {
     case "unauthenticated":
       return res.status(401).json({
