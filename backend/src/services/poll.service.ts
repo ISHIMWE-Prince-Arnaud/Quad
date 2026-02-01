@@ -215,7 +215,7 @@ export class PollService {
 
     if (updates.questionMedia !== undefined) {
       if (updates.questionMedia === null) {
-        poll.questionMedia = undefined;
+        delete poll.questionMedia;
       } else {
         const { url, type, aspectRatio } = updates.questionMedia;
 
@@ -239,7 +239,7 @@ export class PollService {
 
     if (updates.expiresAt !== undefined) {
       if (updates.expiresAt === null) {
-        poll.expiresAt = undefined;
+        delete poll.expiresAt;
       } else {
         poll.expiresAt = updates.expiresAt;
       }
