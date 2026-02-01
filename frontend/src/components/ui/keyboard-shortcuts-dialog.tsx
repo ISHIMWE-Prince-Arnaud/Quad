@@ -14,7 +14,6 @@ interface Shortcut {
 }
 
 const shortcuts: Shortcut[] = [
-  { key: "N", description: "Create new post" },
   { key: "H", description: "Go to home/feed" },
   { key: "P", description: "Go to your profile" },
   { key: "B", description: "Go to notifications (Bell)" },
@@ -34,7 +33,7 @@ export function KeyboardShortcutsDialog() {
     return () =>
       window.removeEventListener(
         "show-keyboard-shortcuts",
-        handleShowShortcuts
+        handleShowShortcuts,
       );
   }, []);
 

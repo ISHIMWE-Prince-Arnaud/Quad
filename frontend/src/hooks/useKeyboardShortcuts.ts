@@ -18,7 +18,7 @@ export interface KeyboardShortcut {
  */
 export function useKeyboardShortcuts(
   shortcuts: KeyboardShortcut[],
-  enabled: boolean = true
+  enabled: boolean = true,
 ) {
   useEffect(() => {
     if (!enabled) return;
@@ -73,11 +73,6 @@ export function useAppKeyboardShortcuts() {
   const navigate = useNavigate();
 
   const shortcuts: KeyboardShortcut[] = [
-    {
-      key: "n",
-      description: "Create new post",
-      action: () => navigate("/app/create"),
-    },
     {
       key: "h",
       description: "Go to home/feed",
