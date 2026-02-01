@@ -9,29 +9,29 @@ const ReactionSchema = new Schema<IReactionDocument>(
       type: String,
       enum: ["post", "story", "poll", "comment"],
       required: true,
-      index: true  // For querying reactions by content type
+      index: true, // For querying reactions by content type
     },
-    contentId: { 
-      type: String, 
+    contentId: {
+      type: String,
       required: true,
-      index: true  // For querying reactions by content
+      index: true, // For querying reactions by content
     },
-    userId: { 
-      type: String, 
+    userId: {
+      type: String,
       required: true,
-      index: true  // For querying user's reactions
+      index: true, // For querying user's reactions
     },
     username: { type: String, required: true },
     profileImage: { type: String },
-    type: { 
-      type: String, 
+    type: {
+      type: String,
       enum: ["love"],
-      required: true 
+      required: true,
     },
   },
-  { 
-    timestamps: true 
-  }
+  {
+    timestamps: true,
+  },
 );
 
 // ===========================
@@ -41,15 +41,21 @@ const ReactionSchema = new Schema<IReactionDocument>(
 ReactionSchema.index({ contentType: 1, contentId: 1, createdAt: -1 });
 
 // Compound unique index: One reaction per user per content
-ReactionSchema.index({ contentType: 1, contentId: 1, userId: 1 }, { unique: true });
+ReactionSchema.index(
+  { contentType: 1, contentId: 1, userId: 1 },
+  { unique: true },
+);
 
 // Index for user's reaction history
 ReactionSchema.index({ userId: 1, createdAt: -1 });
 
-// Index for reaction type analytics
+// Index for reaction type
 ReactionSchema.index({ type: 1 });
 
 // Index for content-specific queries
 ReactionSchema.index({ contentId: 1, type: 1 });
 
-export const Reaction = mongoose.model<IReactionDocument>("Reaction", ReactionSchema);
+export const Reaction = mongoose.model<IReactionDocument>(
+  "Reaction",
+  ReactionSchema,
+);
