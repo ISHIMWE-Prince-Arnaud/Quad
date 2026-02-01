@@ -1,11 +1,11 @@
 import { Users } from "lucide-react";
-
 import { UserCard, type UserCardData } from "@/components/user/UserCard";
 import {
   SkeletonAvatar,
   SkeletonBlock,
   SkeletonLine,
 } from "@/components/ui/loading";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export function FollowersModalBody({
   isLoading,
@@ -59,24 +59,24 @@ export function FollowersModalBody({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-8 text-muted-foreground">
-      <Users className="h-8 w-8" />
-      <div className="text-center">
-        <p className="font-medium">
-          {type === "followers"
-            ? "No followers yet"
-            : type === "following"
-              ? "No following yet"
-              : "No mutual connections yet"}
-        </p>
-        <p className="text-sm">
-          {type === "followers"
-            ? "When people follow this user, they will appear here"
-            : type === "following"
-              ? "When this user follows people, they will appear here"
-              : "When you share connections with this user, they will appear here"}
-        </p>
-      </div>
-    </div>
+    <EmptyState
+      variant="inline"
+      icon={<Users className="h-7 w-7" />}
+      title={
+        type === "followers"
+          ? "No followers yet"
+          : type === "following"
+            ? "Not following anyone"
+            : "No mutual connections yet"
+      }
+      description={
+        type === "followers"
+          ? "When people follow this user, they’ll appear here."
+          : type === "following"
+            ? "When this user follows people, they’ll appear here."
+            : "When you share connections with this user, they’ll appear here."
+      }
+      className="py-8"
+    />
   );
 }

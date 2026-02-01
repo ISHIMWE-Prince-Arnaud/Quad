@@ -1,11 +1,13 @@
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Bookmark, Images, SquarePen, BarChart3 } from "lucide-react";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { PostCard } from "@/components/posts/PostCard";
 import { PollCard } from "@/components/polls/PollCard";
 import { StoryCard } from "@/components/stories/StoryCard";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   FeedSkeleton,
   ProfileBookmarksPollsTabSkeleton,
@@ -148,9 +150,11 @@ export default function ProfilePage() {
               {!controller.postsError &&
                 !controller.postsLoading &&
                 controller.posts.length === 0 && (
-                  <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                    No posts yet.
-                  </div>
+                  <EmptyState
+                    icon={<SquarePen className="h-7 w-7" />}
+                    title="No posts yet"
+                    description="When you publish posts, they’ll show up here."
+                  />
                 )}
 
               {controller.posts.map((post) => (
@@ -193,9 +197,11 @@ export default function ProfilePage() {
                 {!controller.storiesError &&
                   !controller.storiesLoading &&
                   controller.stories.length === 0 && (
-                    <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                      No stories yet.
-                    </div>
+                    <EmptyState
+                      icon={<Images className="h-7 w-7" />}
+                      title="No stories yet"
+                      description="Stories you create will appear here."
+                    />
                   )}
 
                 <div className="grid gap-6 md:grid-cols-2 items-start">
@@ -242,9 +248,11 @@ export default function ProfilePage() {
                 {!controller.pollsError &&
                   !controller.pollsLoading &&
                   controller.polls.length === 0 && (
-                    <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                      No polls yet.
-                    </div>
+                    <EmptyState
+                      icon={<BarChart3 className="h-7 w-7" />}
+                      title="No polls yet"
+                      description="Create a poll and it will show up here for people to vote on."
+                    />
                   )}
 
                 <div className="space-y-6">
@@ -345,9 +353,11 @@ export default function ProfilePage() {
                     {!controller.savedPostsError &&
                       !controller.savedPostsLoading &&
                       controller.savedPosts.length === 0 && (
-                        <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                          No bookmarked posts yet.
-                        </div>
+                        <EmptyState
+                          icon={<Bookmark className="h-7 w-7" />}
+                          title="No bookmarked posts"
+                          description="Posts you bookmark will appear here for quick access."
+                        />
                       )}
 
                     {controller.savedPosts.map((post) => (
@@ -383,9 +393,11 @@ export default function ProfilePage() {
                     {!controller.savedStoriesError &&
                       !controller.savedStoriesLoading &&
                       controller.savedStories.length === 0 && (
-                        <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                          No bookmarked stories yet.
-                        </div>
+                        <EmptyState
+                          icon={<Bookmark className="h-7 w-7" />}
+                          title="No bookmarked stories"
+                          description="Stories you bookmark will be saved here."
+                        />
                       )}
 
                     <div className="grid gap-6 md:grid-cols-2 items-start">
@@ -427,9 +439,11 @@ export default function ProfilePage() {
                     {!controller.savedPollsError &&
                       !controller.savedPollsLoading &&
                       controller.savedPolls.length === 0 && (
-                        <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                          No bookmarked polls yet.
-                        </div>
+                        <EmptyState
+                          icon={<Bookmark className="h-7 w-7" />}
+                          title="No bookmarked polls"
+                          description="Polls you bookmark will show up here."
+                        />
                       )}
 
                     <div className="space-y-6">
