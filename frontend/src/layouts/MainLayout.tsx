@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "../components/layout/Navbar";
 import { Sidebar } from "../components/layout/Sidebar";
+import { RightPanel } from "../components/layout/RightPanel";
 import { useAuthStore } from "@/stores/authStore";
 import {
   FeedSkeleton,
@@ -51,7 +52,7 @@ function MainLayoutSkeleton() {
           </div>
         </div>
 
-        <div className="flex-1 lg:pl-64">
+        <div className="flex-1 lg:pl-64 xl:pr-80">
           <div className="max-w-4xl mx-auto">
             <main className="px-4 py-6 sm:px-6 lg:px-8">
               <div className="space-y-8">
@@ -79,6 +80,23 @@ function MainLayoutSkeleton() {
                 <FeedSkeleton />
               </div>
             </main>
+          </div>
+        </div>
+
+        <div className="hidden xl:flex xl:w-80 xl:flex-col xl:fixed xl:right-0 xl:inset-y-0 xl:z-10">
+          <div className="h-full px-4 py-6 space-y-6 border-l border-white/5">
+            <div className="space-y-3">
+              <SkeletonLine className="w-32" />
+              <SkeletonBlock className="h-44 rounded-3xl" />
+            </div>
+            <div className="space-y-3">
+              <SkeletonLine className="w-28" />
+              <SkeletonBlock className="h-20 rounded-3xl" />
+            </div>
+            <div className="mt-auto space-y-3">
+              <SkeletonBlock className="h-12 rounded-3xl" />
+              <SkeletonBlock className="h-20 rounded-3xl" />
+            </div>
           </div>
         </div>
       </div>
@@ -117,7 +135,7 @@ export function MainLayout() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 lg:pl-64">
+        <div className="flex-1 lg:pl-64 xl:pr-80">
           <div className="max-w-4xl mx-auto">
             <main
               id="main-content"
@@ -135,6 +153,11 @@ export function MainLayout() {
               </AnimatePresence>
             </main>
           </div>
+        </div>
+
+        {/* Right Panel */}
+        <div className="hidden xl:flex xl:w-80 xl:flex-col xl:fixed xl:right-0 xl:inset-y-0 xl:z-10">
+          <RightPanel />
         </div>
       </div>
     </div>
