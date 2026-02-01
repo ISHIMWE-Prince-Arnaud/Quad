@@ -24,7 +24,6 @@ const PollsPage = lazy(() => import("@/pages/PollsPage"));
 const CreatePollPage = lazy(() => import("@/pages/CreatePollPage"));
 const EditPollPage = lazy(() => import("@/pages/EditPollPage"));
 const ChatPage = lazy(() => import("@/pages/ChatPage"));
-const CreatePage = lazy(() => import("@/pages/app/CreatePage"));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
@@ -114,14 +113,6 @@ export const router = createBrowserRouter([
             element: (
               <LazyRoute>
                 <EditPostPage />
-              </LazyRoute>
-            ),
-          },
-          {
-            path: "create",
-            element: (
-              <LazyRoute>
-                <CreatePage />
               </LazyRoute>
             ),
           },

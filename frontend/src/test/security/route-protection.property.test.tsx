@@ -33,39 +33,35 @@ function LoginPage() {
 function renderWithProviders(
   initialPath: string,
   isSignedIn: boolean,
-  isLoaded: boolean
+  isLoaded: boolean,
 ) {
   // Mock useAuth hook
   vi.mocked(useAuth).mockReturnValue(
-    (
-      isLoaded
-        ? {
-            isSignedIn,
-            isLoaded: true as const,
-            getToken: vi.fn().mockResolvedValue("mock-token"),
-          }
-        : {
-            isSignedIn: false as const,
-            isLoaded: false as const,
-            getToken: vi.fn().mockResolvedValue("mock-token"),
-          }
-    ) as unknown as ReturnType<typeof useAuth>
+    (isLoaded
+      ? {
+          isSignedIn,
+          isLoaded: true as const,
+          getToken: vi.fn().mockResolvedValue("mock-token"),
+        }
+      : {
+          isSignedIn: false as const,
+          isLoaded: false as const,
+          getToken: vi.fn().mockResolvedValue("mock-token"),
+        }) as unknown as ReturnType<typeof useAuth>,
   );
 
   vi.mocked(useUser).mockReturnValue(
-    (
-      isLoaded
-        ? {
-            user: null,
-            isLoaded: true as const,
-            isSignedIn,
-          }
-        : {
-            user: null,
-            isLoaded: false as const,
-            isSignedIn: false as const,
-          }
-    ) as unknown as ReturnType<typeof useUser>
+    (isLoaded
+      ? {
+          user: null,
+          isLoaded: true as const,
+          isSignedIn,
+        }
+      : {
+          user: null,
+          isLoaded: false as const,
+          isSignedIn: false as const,
+        }) as unknown as ReturnType<typeof useUser>,
   );
 
   return render(
@@ -81,7 +77,7 @@ function renderWithProviders(
           }
         />
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -103,11 +99,10 @@ describe("Property 56: Protected Route Authentication Check", () => {
           "/app/feed",
           "/app/profile/testuser",
           "/app/posts/123",
-          "/app/create",
           "/app/chat",
           "/app/notifications",
           "/app/settings",
-          "/app/polls"
+          "/app/polls",
         ),
         async (protectedPath) => {
           // Clean up before each property test iteration
@@ -125,15 +120,15 @@ describe("Property 56: Protected Route Authentication Check", () => {
 
           // Should NOT show protected content
           expect(
-            screen.queryByTestId("protected-content")
+            screen.queryByTestId("protected-content"),
           ).not.toBeInTheDocument();
 
           // Should save intended destination
           const savedPath = sessionStorage.getItem("redirectAfterLogin");
           expect(savedPath).toBe(protectedPath);
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -145,11 +140,10 @@ describe("Property 56: Protected Route Authentication Check", () => {
           "/app/feed",
           "/app/profile/testuser",
           "/app/posts/123",
-          "/app/create",
           "/app/chat",
           "/app/notifications",
           "/app/settings",
-          "/app/polls"
+          "/app/polls",
         ),
         async (protectedPath) => {
           // Clean up before each property test iteration
@@ -168,9 +162,9 @@ describe("Property 56: Protected Route Authentication Check", () => {
 
           // Should NOT show login page
           expect(screen.queryByTestId("login-page")).not.toBeInTheDocument();
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -193,12 +187,12 @@ describe("Property 56: Protected Route Authentication Check", () => {
 
           // Should NOT show protected content or login page yet
           expect(
-            screen.queryByTestId("protected-content")
+            screen.queryByTestId("protected-content"),
           ).not.toBeInTheDocument();
           expect(screen.queryByTestId("login-page")).not.toBeInTheDocument();
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -231,9 +225,9 @@ describe("Property 56: Protected Route Authentication Check", () => {
           // Should save full path including query params
           const savedPath = sessionStorage.getItem("redirectAfterLogin");
           expect(savedPath).toBe(pathWithQuery);
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 
@@ -248,8 +242,8 @@ describe("Property 56: Protected Route Authentication Check", () => {
               .string({ minLength: 1, maxLength: 10 })
               .filter((s) => /^[a-zA-Z0-9_-]+$/.test(s)),
             {
-            nil: null,
-            }
+              nil: null,
+            },
           ),
           subpath: fc.option(fc.constantFrom("/edit", "/view", "/settings"), {
             nil: null,
@@ -274,11 +268,11 @@ describe("Property 56: Protected Route Authentication Check", () => {
           });
 
           expect(
-            screen.queryByTestId("protected-content")
+            screen.queryByTestId("protected-content"),
           ).not.toBeInTheDocument();
-        }
+        },
       ),
-      { numRuns: 30 }
+      { numRuns: 30 },
     );
   });
 });
