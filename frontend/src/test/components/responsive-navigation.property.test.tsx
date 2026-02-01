@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  waitFor,
+} from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import * as fc from "fast-check";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -40,15 +46,6 @@ vi.mock("@/components/theme/ThemeSelector", () => ({
   ThemeSelector: () => <div role="group" aria-label="Theme selector" />,
 }));
 
-// Mock right panel children to avoid async effects leaking after teardown
-vi.mock("@/components/polls/FeaturedPoll", () => ({
-  FeaturedPoll: () => <div data-testid="featured-poll" />,
-}));
-
-vi.mock("@/components/discovery/WhoToFollow", () => ({
-  WhoToFollow: () => <div data-testid="who-to-follow" />,
-}));
-
 // Mock KeyboardShortcutsDialog component
 vi.mock("@/components/ui/keyboard-shortcuts-dialog", () => ({
   KeyboardShortcutsDialog: () => null,
@@ -71,9 +68,8 @@ describe("Responsive Navigation Property Tests", () => {
 
         // Mock the stores
         const { useAuthStore } = await import("@/stores/authStore");
-        const { useNotificationStore } = await import(
-          "@/stores/notificationStore"
-        );
+        const { useNotificationStore } =
+          await import("@/stores/notificationStore");
 
         vi.mocked(useAuthStore).mockReturnValue({
           user: { username: "testuser" },
@@ -87,7 +83,7 @@ describe("Responsive Navigation Property Tests", () => {
         const { container } = render(
           <BrowserRouter>
             <Sidebar />
-          </BrowserRouter>
+          </BrowserRouter>,
         );
 
         // Property: Sidebar should exist and be renderable
@@ -99,7 +95,7 @@ describe("Responsive Navigation Property Tests", () => {
         expect(nav).not.toBeNull();
         expect(nav?.getAttribute("aria-label")).toBe("Sidebar navigation");
       }),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -111,9 +107,8 @@ describe("Responsive Navigation Property Tests", () => {
 
         // Mock the stores
         const { useAuthStore } = await import("@/stores/authStore");
-        const { useNotificationStore } = await import(
-          "@/stores/notificationStore"
-        );
+        const { useNotificationStore } =
+          await import("@/stores/notificationStore");
 
         vi.mocked(useAuthStore).mockReturnValue({
           user: { username: "testuser" },
@@ -127,7 +122,7 @@ describe("Responsive Navigation Property Tests", () => {
         render(
           <BrowserRouter>
             <Navbar />
-          </BrowserRouter>
+          </BrowserRouter>,
         );
 
         // Property: Hamburger menu button should exist
@@ -138,7 +133,7 @@ describe("Responsive Navigation Property Tests", () => {
         // Property: Button should have aria-expanded attribute
         expect(menuButton).toHaveAttribute("aria-expanded");
       }),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -150,9 +145,8 @@ describe("Responsive Navigation Property Tests", () => {
 
         // Mock the stores
         const { useAuthStore } = await import("@/stores/authStore");
-        const { useNotificationStore } = await import(
-          "@/stores/notificationStore"
-        );
+        const { useNotificationStore } =
+          await import("@/stores/notificationStore");
 
         vi.mocked(useAuthStore).mockReturnValue({
           user: { username: "testuser" },
@@ -166,29 +160,27 @@ describe("Responsive Navigation Property Tests", () => {
         const { container } = render(
           <BrowserRouter>
             <Navbar />
-          </BrowserRouter>
+          </BrowserRouter>,
         );
 
         fireEvent.click(screen.getByLabelText("Toggle mobile menu"));
 
         await waitFor(() => {
           const mobileNavEl = container.querySelector(
-            'nav[aria-label="Mobile navigation"]'
+            'nav[aria-label="Mobile navigation"]',
           );
           expect(mobileNavEl).toBeInTheDocument();
         });
 
         // Property: Mobile menu should have navigation with aria-label
-        container.querySelector(
-          'nav[aria-label="Mobile navigation"]'
-        );
+        container.querySelector('nav[aria-label="Mobile navigation"]');
 
         // The mobile menu is hidden by default, but should exist in the DOM
         // We can't test visibility without actually setting viewport size,
         // but we can verify the structure exists
         expect(container.querySelector("header")).toBeInTheDocument();
       }),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -200,9 +192,8 @@ describe("Responsive Navigation Property Tests", () => {
 
         // Mock the stores
         const { useAuthStore } = await import("@/stores/authStore");
-        const { useNotificationStore } = await import(
-          "@/stores/notificationStore"
-        );
+        const { useNotificationStore } =
+          await import("@/stores/notificationStore");
 
         vi.mocked(useAuthStore).mockReturnValue({
           user: { username: "testuser" },
@@ -216,12 +207,12 @@ describe("Responsive Navigation Property Tests", () => {
         const { container: sidebarContainer } = render(
           <BrowserRouter>
             <Sidebar />
-          </BrowserRouter>
+          </BrowserRouter>,
         );
 
         const sidebarNavLinks = sidebarContainer.querySelectorAll("nav a");
         const sidebarHrefs = Array.from(sidebarNavLinks).map((link) =>
-          link.getAttribute("href")
+          link.getAttribute("href"),
         );
 
         cleanup();
@@ -230,7 +221,7 @@ describe("Responsive Navigation Property Tests", () => {
         render(
           <BrowserRouter>
             <Navbar />
-          </BrowserRouter>
+          </BrowserRouter>,
         );
 
         // Property: Both should have the same core navigation structure
@@ -248,7 +239,7 @@ describe("Responsive Navigation Property Tests", () => {
           expect(href).toMatch(/^\/app\//);
         });
       }),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -260,9 +251,8 @@ describe("Responsive Navigation Property Tests", () => {
 
         // Mock the stores
         const { useAuthStore } = await import("@/stores/authStore");
-        const { useNotificationStore } = await import(
-          "@/stores/notificationStore"
-        );
+        const { useNotificationStore } =
+          await import("@/stores/notificationStore");
 
         vi.mocked(useAuthStore).mockReturnValue({
           user: { username: "testuser" },
@@ -276,7 +266,7 @@ describe("Responsive Navigation Property Tests", () => {
         render(
           <BrowserRouter>
             <Sidebar />
-          </BrowserRouter>
+          </BrowserRouter>,
         );
 
         // Property: Logo should be present in sidebar
@@ -289,14 +279,14 @@ describe("Responsive Navigation Property Tests", () => {
         render(
           <BrowserRouter>
             <Navbar />
-          </BrowserRouter>
+          </BrowserRouter>,
         );
 
         // Property: Logo should be present in navbar
         const navbarLogos = screen.getAllByText("Quad");
         expect(navbarLogos.length).toBeGreaterThan(0);
       }),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -308,9 +298,8 @@ describe("Responsive Navigation Property Tests", () => {
 
         // Mock the stores
         const { useAuthStore } = await import("@/stores/authStore");
-        const { useNotificationStore } = await import(
-          "@/stores/notificationStore"
-        );
+        const { useNotificationStore } =
+          await import("@/stores/notificationStore");
 
         vi.mocked(useAuthStore).mockReturnValue({
           user: { username: "testuser" },
@@ -324,24 +313,24 @@ describe("Responsive Navigation Property Tests", () => {
         const { container } = render(
           <BrowserRouter>
             <Navbar />
-          </BrowserRouter>
+          </BrowserRouter>,
         );
 
         fireEvent.click(screen.getByLabelText("Toggle mobile menu"));
 
         await waitFor(() => {
           const mobileNavEl = container.querySelector(
-            'nav[aria-label="Mobile navigation"]'
+            'nav[aria-label="Mobile navigation"]',
           );
           expect(mobileNavEl).toBeInTheDocument();
         });
 
         // Property: Theme selector should be present in navbar mobile menu
-        expect(screen.getAllByRole("group", { name: "Theme selector" }).length).toBeGreaterThan(
-          0
-        );
+        expect(
+          screen.getAllByRole("group", { name: "Theme selector" }).length,
+        ).toBeGreaterThan(0);
       }),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 });
