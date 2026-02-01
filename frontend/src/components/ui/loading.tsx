@@ -284,7 +284,14 @@ function ProfileHeaderSkeleton({
 }) {
   return (
     <div className="relative overflow-hidden border-0 shadow-lg rounded-lg">
-      <div className="relative h-48 sm:h-56 lg:h-64 bg-gradient-to-br from-primary/20 via-purple-500/20 to-pink-500/20">
+      <div
+        className="relative h-48 sm:h-56 lg:h-64"
+        style={{
+          backgroundImage:
+            "linear-gradient(90deg, #1d4ed8 0%, #3b82f6 55%, #2563eb 100%), radial-gradient(circle at 18px 18px, transparent 0 14px, rgba(255,255,255,0.14) 14px 15px, transparent 15px 36px)",
+          backgroundSize: "cover, 36px 36px",
+          backgroundPosition: "center, 0 0",
+        }}>
         {isOwnProfile && (
           <div className="absolute top-4 right-4">
             <SkeletonBlock className="h-9 w-28 rounded-full bg-black/20" />

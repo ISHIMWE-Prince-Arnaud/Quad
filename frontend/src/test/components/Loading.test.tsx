@@ -143,7 +143,7 @@ describe("Loading Components", () => {
 
     it("should contain large avatar for profile", () => {
       const { container } = render(<ProfileSkeleton />);
-      const largeAvatar = container.querySelector(".h-20");
+      const largeAvatar = container.querySelector(".h-24");
       expect(largeAvatar).toBeInTheDocument();
     });
   });
