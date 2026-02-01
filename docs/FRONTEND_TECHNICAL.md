@@ -77,15 +77,11 @@ The frontend is a React + TypeScript SPA using React Router, Tailwind CSS, and Z
   - `src/pages/SettingsPage.tsx`
   - User account and preference settings.
 
-- **Analytics**
-  - `src/pages/app/AnalyticsPage.tsx`
-  - Client-driven personal analytics for posts/stories/polls.
-
 ### 1.3 Shared Components
 
 - **Layout components**
   - `Navbar` – theme selector, notifications bell with unread badge.
-  - `Sidebar` – primary navigation (Feed, Notifications, Messages, Stories, Polls, Analytics, Settings, Profile).
+  - `Sidebar` – primary navigation (Feed, Notifications, Messages, Stories, Polls, Settings, Profile).
   - `RightPanel` – suggestions, trends, and contextual widgets.
 
 - **Content components**
@@ -113,7 +109,7 @@ Each service encapsulates a backend domain. Detailed route definitions live in *
 
 - **`ProfileService`** – `src/services/profileService.ts`
   - Profile details by username/ID.
-  - User posts, stories, and polls (for profile timelines and analytics).
+  - User posts, stories, and polls (for profile timelines).
   - Maps to profile-related controllers/routes in the backend (see `backend/docs/api/`).
 
 - **`StoryService`** – `src/services/storyService.ts`
@@ -223,7 +219,6 @@ The recommended testing strategy focuses on:
     - Sign up / login flow.
     - Posting content and seeing it appear in feed/profile.
     - Real-time notifications and chat behavior.
-    - Analytics views.
 
 ---
 

@@ -3,7 +3,7 @@
 This document explains how end-users interact with Quad’s main features:
 
 - Onboarding and first-time setup
-- Using core features (posts, chat, stories, polls, notifications, analytics)
+- Using core features (posts, chat, stories, polls, notifications)
 - Frequently asked questions & troubleshooting
 - Accessibility and keyboard usage
 
@@ -39,7 +39,7 @@ Once logged in, you’ll see three main areas:
   - Access to account/user menu.
 
 - **Left Sidebar**
-  - Main navigation: Feed, Notifications, Messages, Stories, Polls, Analytics, Settings, Profile.
+  - Main navigation: Feed, Notifications, Messages, Stories, Polls, Settings, Profile.
 
 - **Right Panel**
   - Suggested users, trending content, and other contextual widgets.
@@ -114,20 +114,6 @@ Once logged in, you’ll see three main areas:
   - Use filters (e.g., show all vs. unread).
   - Click a notification to open the related post, story, poll, chat, or profile.
   - Mark single notifications as read or clear read ones using available actions.
-
-### 2.6 Analytics
-
-- **Accessing analytics**
-  - Open **Analytics** from the sidebar.
-
-- **What you see**
-  - Overview of your content volume:
-    - Number of posts, stories, and polls.
-    - Total reactions/comments on posts.
-    - Total views on stories.
-    - Total votes on polls.
-  - Simple timeline of posting activity over recent months.
-  - Top-performing posts and polls by engagement.
 
 ---
 

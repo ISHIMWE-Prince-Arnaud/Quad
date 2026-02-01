@@ -16,19 +16,17 @@ All frontend environment variables must be prefixed with `VITE_` to be exposed t
 
 ### Optional Variables
 
-| Variable                       | Description                     | Default       | Example                     |
-| ------------------------------ | ------------------------------- | ------------- | --------------------------- |
-| `VITE_CLERK_SIGN_IN_URL`       | Sign in page route              | `/login`      | `/login`                    |
-| `VITE_CLERK_SIGN_UP_URL`       | Sign up page route              | `/signup`     | `/signup`                   |
-| `VITE_CLERK_AFTER_SIGN_IN_URL` | Redirect after sign in          | `/app/feed`   | `/app/feed`                 |
-| `VITE_CLERK_AFTER_SIGN_UP_URL` | Redirect after sign up          | `/app/feed`   | `/app/feed`                 |
-| `VITE_ENABLE_ANALYTICS`        | Enable analytics tracking       | `false`       | `true`                      |
-| `VITE_ENABLE_PWA`              | Enable PWA features             | `false`       | `true`                      |
-| `VITE_ENABLE_NOTIFICATIONS`    | Enable push notifications       | `false`       | `true`                      |
-| `VITE_NODE_ENV`                | Environment mode                | `development` | `production`                |
-| `VITE_SENTRY_DSN`              | Sentry error tracking DSN       | -             | `https://...@sentry.io/...` |
-| `VITE_SENTRY_ENVIRONMENT`      | Sentry environment name         | -             | `production`                |
-| `VITE_GA_MEASUREMENT_ID`       | Google Analytics measurement ID | -             | `G-XXXXXXXXXX`              |
+| Variable                       | Description               | Default       | Example                     |
+| ------------------------------ | ------------------------- | ------------- | --------------------------- |
+| `VITE_CLERK_SIGN_IN_URL`       | Sign in page route        | `/login`      | `/login`                    |
+| `VITE_CLERK_SIGN_UP_URL`       | Sign up page route        | `/signup`     | `/signup`                   |
+| `VITE_CLERK_AFTER_SIGN_IN_URL` | Redirect after sign in    | `/app/feed`   | `/app/feed`                 |
+| `VITE_CLERK_AFTER_SIGN_UP_URL` | Redirect after sign up    | `/app/feed`   | `/app/feed`                 |
+| `VITE_ENABLE_PWA`              | Enable PWA features       | `false`       | `true`                      |
+| `VITE_ENABLE_NOTIFICATIONS`    | Enable push notifications | `false`       | `true`                      |
+| `VITE_NODE_ENV`                | Environment mode          | `development` | `production`                |
+| `VITE_SENTRY_DSN`              | Sentry error tracking DSN | -             | `https://...@sentry.io/...` |
+| `VITE_SENTRY_ENVIRONMENT`      | Sentry environment name   | -             | `production`                |
 
 ### Configuration Files
 
@@ -134,11 +132,6 @@ All frontend environment variables must be prefixed with `VITE_` to be exposed t
 1. Sign up at [sentry.io](https://sentry.io)
 2. Create a new project
 3. Copy the DSN from project settings
-
-### Google Analytics (Optional)
-
-1. Create a property at [analytics.google.com](https://analytics.google.com)
-2. Copy the measurement ID (format: G-XXXXXXXXXX)
 
 ## Security Best Practices
 

@@ -57,12 +57,6 @@ Use this checklist to ensure all steps are completed before and after deployment
 - [ ] Source maps upload configured
 - [ ] Test error reporting
 
-#### Google Analytics (Optional)
-
-- [ ] Property created
-- [ ] Measurement ID obtained
-- [ ] Test event tracking
-
 ### Security
 
 - [ ] HTTPS configured
@@ -201,7 +195,6 @@ Use this checklist to ensure all steps are completed before and after deployment
 ### Monitoring Setup
 
 - [ ] Error tracking active (Sentry)
-- [ ] Analytics tracking active (Google Analytics)
 - [ ] Server monitoring configured
 - [ ] Uptime monitoring configured
 - [ ] Log aggregation configured
@@ -266,7 +259,7 @@ Use this checklist to ensure all steps are completed before and after deployment
 
 ### Hour 24
 
-- [ ] Review analytics
+- [ ] Review key metrics
 - [ ] Check error trends
 - [ ] Review performance metrics
 - [ ] Check backup completion

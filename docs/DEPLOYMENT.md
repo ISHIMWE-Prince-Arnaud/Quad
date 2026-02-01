@@ -22,13 +22,11 @@ This guide covers deploying the Quad platform to production.
 - [ ] Domain name and DNS access
 - [ ] Hosting provider account (Vercel, Railway, AWS, etc.)
 - [ ] (Optional) Sentry account for error tracking
-- [ ] (Optional) Google Analytics account
 
 ### Required Tools
 
 - Node.js 18+ and npm
 - Git
-- (Optional) Docker for containerized deployment
 
 ## Environment Setup
 
@@ -45,15 +43,11 @@ VITE_SOCKET_URL=https://api.yourproductiondomain.com
 VITE_CLERK_PUBLISHABLE_KEY=pk_live_your_production_key
 
 # Feature Flags
-VITE_ENABLE_ANALYTICS=true
 VITE_ENABLE_NOTIFICATIONS=true
 
 # Error Tracking
 VITE_SENTRY_DSN=your_sentry_dsn
 VITE_SENTRY_ENVIRONMENT=production
-
-# Analytics
-VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 #### Backend (.env.production)
@@ -470,10 +464,6 @@ See [CDN_CONFIGURATION.md](./CDN_CONFIGURATION.md) for detailed instructions.
 
 Errors are automatically sent to Sentry if `SENTRY_DSN` is configured.
 
-#### Analytics (Google Analytics)
-
-Analytics are automatically tracked if `VITE_GA_MEASUREMENT_ID` is configured.
-
 #### Server Monitoring
 
 Use PM2 monitoring:
@@ -655,7 +645,6 @@ localStorage.setItem("debug", "*");
 - [ ] Test real-time features
 - [ ] Test file uploads
 - [ ] Verify error tracking
-- [ ] Verify analytics
 - [ ] Set up monitoring
 - [ ] Configure backups
 - [ ] Document deployment

@@ -319,7 +319,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open("static-v1").then((cache) => {
       return cache.addAll(["/", "/assets/main.js", "/assets/main.css"]);
-    })
+    }),
   );
 });
 
@@ -328,14 +328,14 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
       return response || fetch(event.request);
-    })
+    }),
   );
 });
 ```
 
 ## Monitoring
 
-### Cloudflare Analytics
+### Cloudflare Monitoring
 
 Monitor:
 
@@ -354,7 +354,7 @@ res.setHeader("X-Cache-Status", cacheStatus);
 res.setHeader("X-Cache-Age", age);
 ```
 
-Track in analytics:
+Track:
 
 - Cache hit rate
 - Average response time
