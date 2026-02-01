@@ -5,7 +5,6 @@ import { User } from "../models/User.model.js";
 import { Post } from "../models/Post.model.js";
 import { Story } from "../models/Story.model.js";
 import { Poll } from "../models/Poll.model.js";
-import { ProfileView } from "../models/ProfileView.model.js";
 
 import type {
   PaginationQuerySchemaType,
@@ -63,25 +62,7 @@ export class ProfileService {
     }
   }
 
-  static async trackProfileView(profileId: string, viewerId: string | null) {
-    if (!viewerId) return;
-    if (viewerId === profileId) return;
-
-    const cutoff = new Date(Date.now() - 60 * 60 * 1000);
-    const recent = await ProfileView.findOne({
-      profileId,
-      viewerId,
-      createdAt: { $gte: cutoff },
-    })
-      .select("_id")
-      .lean();
-
-    if (!recent) {
-      await ProfileView.create({ profileId, viewerId });
-    }
-  }
-
-  static async getProfileById(userId: string, currentUserId: string | null) {
+  static async getProfileById(userId: string, _currentUserId: string | null) {
     let user = await User.findOne({ clerkId: userId });
     if (!user) {
       user = await ProfileService.ensureUserByClerkId(userId ?? null);
@@ -90,8 +71,6 @@ export class ProfileService {
     if (!user) {
       throw new AppError("User not found", 404);
     }
-
-    await ProfileService.trackProfileView(user.clerkId, currentUserId);
 
     const stats = await calculateProfileStats(user.clerkId);
     return formatUserProfile(user, stats);
@@ -111,7 +90,6 @@ export class ProfileService {
     }
 
     const isOwnProfile = user.clerkId === currentUserId;
-    await ProfileService.trackProfileView(user.clerkId, currentUserId);
 
     const stats = await calculateProfileStats(user.clerkId);
     const profile = formatUserProfile(user, stats);

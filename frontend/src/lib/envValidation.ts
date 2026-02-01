@@ -16,7 +16,6 @@ interface EnvConfig {
   clerkAfterSignUpUrl: string;
 
   // Feature Flags
-  enableAnalytics: boolean;
   enablePWA: boolean;
   enableNotifications: boolean;
 
@@ -26,9 +25,6 @@ interface EnvConfig {
   // Optional: Error Tracking
   sentryDsn?: string;
   sentryEnvironment?: string;
-
-  // Optional: Analytics
-  gaMeasurementId?: string;
 }
 
 /**
@@ -53,7 +49,7 @@ export function validateEnv(): EnvConfig {
   if (missing.length > 0) {
     throw new Error(
       `Missing required environment variables:\n${missing.join("\n")}\n\n` +
-        `Please check your .env file and ensure all required variables are set.`
+        `Please check your .env file and ensure all required variables are set.`,
     );
   }
 
@@ -67,14 +63,12 @@ export function validateEnv(): EnvConfig {
       import.meta.env.VITE_CLERK_AFTER_SIGN_IN_URL || "/app/feed",
     clerkAfterSignUpUrl:
       import.meta.env.VITE_CLERK_AFTER_SIGN_UP_URL || "/app/feed",
-    enableAnalytics: import.meta.env.VITE_ENABLE_ANALYTICS === "true",
     enablePWA: import.meta.env.VITE_ENABLE_PWA === "true",
     enableNotifications: import.meta.env.VITE_ENABLE_NOTIFICATIONS === "true",
     nodeEnv:
       import.meta.env.VITE_NODE_ENV || import.meta.env.MODE || "development",
     sentryDsn: import.meta.env.VITE_SENTRY_DSN,
     sentryEnvironment: import.meta.env.VITE_SENTRY_ENVIRONMENT,
-    gaMeasurementId: import.meta.env.VITE_GA_MEASUREMENT_ID,
   };
 }
 

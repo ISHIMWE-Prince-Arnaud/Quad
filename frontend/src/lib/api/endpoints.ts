@@ -99,16 +99,6 @@ export const endpoints = {
       api.get(`/bookmarks/${contentType}/${contentId}/check`),
   },
 
-  analytics: {
-    profile: (params?: unknown) => api.get("/analytics/profile", { params }),
-    followers: (params?: unknown) =>
-      api.get("/analytics/followers", { params }),
-    summary: () => api.get("/analytics/summary"),
-    recordProfileView: (data: unknown) =>
-      api.post("/analytics/profile-view", data),
-    content: (params?: unknown) => api.get("/analytics/content", { params }),
-  },
-
   chat: {
     sendMessage: (data: unknown) => api.post("/chat/messages", data),
     getMessages: (params?: unknown) => api.get("/chat/messages", { params }),

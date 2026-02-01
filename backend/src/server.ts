@@ -13,7 +13,6 @@ import { connectDB } from "./config/db.config.js";
 import { setSocketIO } from "./config/socket.config.js";
 import { ensureIndexes } from "./utils/indexes.util.js";
 import { startPollExpiryJob } from "./jobs/poll.cron.js";
-import { startAnalyticsCronJob } from "./jobs/analytics.cron.js";
 import { logger } from "./utils/logger.util.js";
 import { setupChatSocket } from "./sockets/chat.socket.js";
 import { setupNotificationSocket } from "./sockets/notification.socket.js";
@@ -103,7 +102,6 @@ const startServer = async () => {
     await connectDB(); // Connect to MongoDB first
     await ensureIndexes(); // Create database indexes
     startPollExpiryJob(); // Start poll expiry cron job
-    startAnalyticsCronJob();
     logCorsConfig(); // Log CORS configuration
     server.listen(env.PORT, () => {
       logger.server(`Server running on port ${env.PORT}`);

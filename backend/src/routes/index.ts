@@ -16,7 +16,6 @@ import feedRoutes from "./feed.routes.js";
 import reactionRoutes from "./reaction.routes.js";
 import commentRoutes from "./comment.routes.js";
 import bookmarkRoutes from "./bookmark.routes.js";
-import analyticsRoutes from "./analytics.routes.js";
 import uploadRoutes from "./upload.routes.js";
 
 const router = Router();
@@ -36,7 +35,6 @@ router.use("/feed", feedRoutes);
 router.use("/reactions", writeRateLimiter, reactionRoutes);
 router.use("/comments", writeRateLimiter, commentRoutes);
 router.use("/bookmarks", writeRateLimiter, bookmarkRoutes);
-router.use("/analytics", analyticsRoutes);
 router.use("/upload", uploadRateLimiter, uploadRoutes);
 
 export default router;
