@@ -243,11 +243,6 @@ export function PollCard({
                       <div className="text-[11px] font-medium text-[#94a3b8] mt-0.5 truncate">
                         {timeAgoShort(poll.createdAt)}
                       </div>
-                      {subtitle && (
-                        <div className="text-[11px] font-medium text-[#94a3b8] truncate max-w-[320px]">
-                          {subtitle}
-                        </div>
-                      )}
                     </div>
                   </Link>
 
