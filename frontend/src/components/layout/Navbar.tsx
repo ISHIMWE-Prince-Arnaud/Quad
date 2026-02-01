@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import {
   Menu,
   X,
-  Plus,
   Bell,
   Home,
   MessageCircle,
@@ -87,15 +86,6 @@ export function Navbar() {
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2">
-            {/* Create Post Button */}
-            <Link
-              to="/app/create"
-              className="p-2 rounded-lg hover:bg-accent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              title="Create Post"
-              aria-label="Create new post (Shortcut: N)">
-              <Plus className="h-5 w-5" aria-hidden="true" />
-            </Link>
-
             {/* Notifications */}
             <Link
               to="/app/notifications"
@@ -176,13 +166,13 @@ export function Navbar() {
                           "relative flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                           isActive
                             ? "bg-primary text-primary-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent",
                         )}
                         aria-current={isActive ? "page" : undefined}>
                         <Icon
                           className={cn(
                             "h-5 w-5 transition-colors duration-200",
-                            isActive ? "text-primary-foreground" : ""
+                            isActive ? "text-primary-foreground" : "",
                           )}
                           aria-hidden="true"
                         />
