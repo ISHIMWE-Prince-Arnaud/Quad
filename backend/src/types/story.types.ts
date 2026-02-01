@@ -13,38 +13,28 @@ export type StoryStatus = "draft" | "published";
  */
 export interface IStory {
   id: string;
-  author: IUser;                    // User snapshot (embedded for performance)
-  
-  // Content
-  title: string;                    // Story title (required)
-  content: string;                  // Rich text content (HTML from editor)
-  excerpt?: string;                 // Short preview text (auto-generated or custom)
-  coverImage?: string;              // Cover image URL from Cloudinary
-  
-  // Metadata
-  status: StoryStatus;              // draft or published
-  tags?: string[];                  // Categories/topics for filtering
-  readTime?: number;                // Estimated reading time in minutes
-  
-  // Engagement (cached counts for performance)
-  viewsCount?: number;              // How many times viewed
-  reactionsCount?: number;          // Total reactions
-  commentsCount?: number;           // Total comments
-  
-  // Timestamps
-  createdAt?: Date;                 // When created
-  updatedAt?: Date;                 // When last edited
-  publishedAt?: Date;               // When published (null if draft)
-}
+  author: IUser; // User snapshot (embedded for performance)
 
-/**
- * Story View (for tracking who viewed the story)
- */
-export interface IStoryView {
-  id: string;
-  storyId: string;
-  userId: string;                   // Clerk user ID
-  viewedAt: Date;
+  // Content
+  title: string; // Story title (required)
+  content: string; // Rich text content (HTML from editor)
+  excerpt?: string; // Short preview text (auto-generated or custom)
+  coverImage?: string; // Cover image URL from Cloudinary
+
+  // Metadata
+  status: StoryStatus; // draft or published
+  tags?: string[]; // Categories/topics for filtering
+  readTime?: number; // Estimated reading time in minutes
+
+  // Engagement (cached counts for performance)
+  viewsCount?: number; // How many times viewed
+  reactionsCount?: number; // Total reactions
+  commentsCount?: number; // Total comments
+
+  // Timestamps
+  createdAt?: Date; // When created
+  updatedAt?: Date; // When last edited
+  publishedAt?: Date; // When published (null if draft)
 }
 
 /**
@@ -55,7 +45,7 @@ export interface ICreateStory {
   content: string;
   excerpt?: string;
   coverImage?: string;
-  status?: StoryStatus;             // Default: "draft"
+  status?: StoryStatus; // Default: "draft"
   tags?: string[];
 }
 
