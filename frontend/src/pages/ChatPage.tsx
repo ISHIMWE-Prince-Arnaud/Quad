@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { useCallback, useEffect, useRef } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAuthStore } from "@/stores/authStore";
 import { ChatComposer } from "./chat/ChatComposer";
@@ -18,7 +17,6 @@ export default function ChatPage() {
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  const [unseenCount, setUnseenCount] = useState(0);
   const nearBottomRef = useRef(true);
 
   const pendingScrollBottomRef = useRef(false);
@@ -30,7 +28,6 @@ export default function ChatPage() {
 
   const handleNearBottomChange = useCallback((isNear: boolean) => {
     nearBottomRef.current = isNear;
-    if (isNear) setUnseenCount(0);
   }, []);
 
   const nearBottom = useNearBottom(listRef, 120, handleNearBottomChange);
@@ -61,15 +58,6 @@ export default function ChatPage() {
     if (!el) return;
     el.scrollTop = el.scrollHeight;
   }, []);
-
-  const handleIncomingMessage = useCallback(() => {
-    if (!nearBottomRef.current) setUnseenCount((c) => c + 1);
-  }, []);
-
-  const handleJumpToBottom = useCallback(() => {
-    scrollToBottom();
-    setUnseenCount(0);
-  }, [scrollToBottom]);
 
   useEffect(() => {
     if (!pendingScrollBottomRef.current) return;
@@ -112,7 +100,6 @@ export default function ChatPage() {
     nearBottom,
     scrollToBottom,
     setMessages,
-    onIncomingMessage: handleIncomingMessage,
   });
 
   useChatReadMarker({ newestMessageId, nearBottom });
@@ -140,15 +127,10 @@ export default function ChatPage() {
     (id: string) => {
       void handleSaveEdit(id);
     },
-    [handleSaveEdit]
+    [handleSaveEdit],
   );
 
-  const {
-    text,
-    sending,
-    handleTextChange,
-    handleSend,
-  } = useChatComposer({
+  const { text, sending, handleTextChange, handleSend } = useChatComposer({
     emitTypingStart,
     emitTypingStop,
     onMessageSent: (m) => {
@@ -161,7 +143,7 @@ export default function ChatPage() {
   });
 
   return (
-    <div className="flex flex-col h-[calc(100vh-47px)] max-w-4xl mx-auto overflow-hidden bg-card rounded-3xl border border-border shadow-2xl">
+    <div className="flex flex-col h-[calc(100vh-47px)] max-w-4xl mx-auto overflow-hidden">
       <ChatHeader />
 
       <div className="flex-1 flex flex-col min-h-0 relative">
@@ -181,21 +163,6 @@ export default function ChatPage() {
           onSaveEdit={handleSaveEditClick}
           onDeleteMessage={handleDeleteClick}
         />
-
-        {!nearBottom && (
-          <button
-            type="button"
-            onClick={handleJumpToBottom}
-            className="absolute bottom-4 right-6 z-20 flex items-center gap-2 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-background transition-colors"
-            aria-label="Scroll to bottom">
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            <span className="tabular-nums">
-              {unseenCount > 0
-                ? `${unseenCount > 99 ? "99+" : unseenCount} new`
-                : "Scroll to bottom"}
-            </span>
-          </button>
-        )}
       </div>
 
       <div className="px-6 pb-2">
