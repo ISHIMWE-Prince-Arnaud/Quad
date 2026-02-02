@@ -165,7 +165,7 @@ export const ChatMessageList = memo(function ChatMessageList({
     <>
       <div
         ref={listRef}
-        className="flex-1 overflow-y-auto scrollbar-hide px-6 py-4">
+        className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide px-6 py-4">
         {loading && <ChatMessageListSkeleton />}
 
         {!loading && messages.length === 0 && <ChatEmptyState />}
@@ -244,11 +244,10 @@ export const ChatMessageList = memo(function ChatMessageList({
                       ))}
 
                     <div
-                      className={
-                        isSelf
-                          ? "flex flex-col items-end max-w-[75%] group"
-                          : "flex flex-col items-start max-w-[75%] group"
-                      }>
+                      className={cn(
+                        "flex flex-col max-w-[75%] group min-w-0",
+                        isSelf ? "items-end" : "items-start",
+                      )}>
                       {showHeader && (
                         <div
                           className={
