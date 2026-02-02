@@ -170,7 +170,7 @@ export const ChatMessageList = memo(function ChatMessageList({
     <>
       <div
         ref={listRef}
-        className="flex-1 overflow-y-auto scrollbar-hide px-6 pt-4 pb-6">
+        className="flex-1 overflow-y-auto scrollbar-hide">
         {loading && <ChatMessageListSkeleton />}
 
         {!loading && messages.length === 0 && <ChatEmptyState />}
