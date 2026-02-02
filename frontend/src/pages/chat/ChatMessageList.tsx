@@ -208,7 +208,9 @@ export const ChatMessageList = memo(function ChatMessageList({
               }`;
 
               return (
-                <div key={m.id} className="py-0">
+                <div
+                  key={m.id}
+                  className={cn("py-0", !startsNewGroup && "mt-1.5")}>
                   {showDaySeparator && (
                     <div className="flex items-center justify-center py-3">
                       <div className="h-px flex-1 bg-border/60" />
