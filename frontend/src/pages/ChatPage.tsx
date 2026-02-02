@@ -136,7 +136,7 @@ export default function ChatPage() {
   });
 
   return (
-    <div className="flex flex-col h-[calc(100vh)] max-w-4xl mx-auto overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-47px)] max-w-4xl mx-auto overflow-hidden">
       <ChatMessageList
         listRef={listRef}
         loading={loading}
@@ -154,9 +154,9 @@ export default function ChatPage() {
         onDeleteMessage={handleDeleteClick}
       />
 
-      <div className="px-6 pb-2">
+      {Object.keys(typingUsers).length > 0 && (
         <ChatTypingIndicator typingUsers={typingUsers} />
-      </div>
+      )}
 
       <ChatComposer
         text={text}
