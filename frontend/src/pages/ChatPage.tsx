@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAuthStore } from "@/stores/authStore";
 import { ChatComposer } from "./chat/ChatComposer";
-import { ChatHeader } from "./chat/ChatHeader";
 import { ChatMessageList } from "./chat/ChatMessageList";
 import { ChatTypingIndicator } from "./chat/ChatTypingIndicator";
 import { useNearBottom } from "./chat/useNearBottom";
@@ -138,7 +137,14 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-47px)] max-w-4xl mx-auto overflow-hidden">
-      <ChatHeader />
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
+        <div className="px-6 pt-5 pb-4">
+          <h1 className="text-sm font-semibold tracking-tight text-foreground/90">
+            Global Chat
+          </h1>
+          <div className="mt-4 h-px w-full bg-white/5" />
+        </div>
+      </div>
 
       <div className="flex-1 flex flex-col min-h-0 relative">
         <ChatMessageList
