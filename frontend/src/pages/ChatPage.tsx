@@ -136,7 +136,7 @@ export default function ChatPage() {
   });
 
   return (
-    <div className="flex flex-col h-[calc(100vh-47px)] max-w-4xl mx-auto overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh)] max-w-4xl mx-auto overflow-hidden">
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
         <div className="px-6 pt-5 pb-4">
           <h1 className="text-sm font-semibold tracking-tight text-foreground/90">
