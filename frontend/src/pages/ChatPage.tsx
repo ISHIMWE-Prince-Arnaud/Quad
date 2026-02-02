@@ -137,24 +137,22 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh)] max-w-4xl mx-auto overflow-hidden">
-      <div className="flex-1 flex flex-col min-h-0 relative">
-        <ChatMessageList
-          listRef={listRef}
-          loading={loading}
-          loadingOlder={loadingOlder}
-          hasMoreOlder={hasMoreOlder}
-          onLoadOlder={handleLoadOlder}
-          messages={messages}
-          user={user}
-          editingId={editingId}
-          editText={editText}
-          onEditTextChange={setEditText}
-          onStartEdit={handleEdit}
-          onCancelEdit={handleCancelEdit}
-          onSaveEdit={handleSaveEditClick}
-          onDeleteMessage={handleDeleteClick}
-        />
-      </div>
+      <ChatMessageList
+        listRef={listRef}
+        loading={loading}
+        loadingOlder={loadingOlder}
+        hasMoreOlder={hasMoreOlder}
+        onLoadOlder={handleLoadOlder}
+        messages={messages}
+        user={user}
+        editingId={editingId}
+        editText={editText}
+        onEditTextChange={setEditText}
+        onStartEdit={handleEdit}
+        onCancelEdit={handleCancelEdit}
+        onSaveEdit={handleSaveEditClick}
+        onDeleteMessage={handleDeleteClick}
+      />
 
       <div className="px-6 pb-2">
         <ChatTypingIndicator typingUsers={typingUsers} />
