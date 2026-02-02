@@ -65,18 +65,18 @@ function QuickCreate() {
 
         <Button
           asChild
-          className="w-full justify-start rounded-2xl border shadow-none bg-[#7c3aed]/10 hover:bg-[#7c3aed]/15 border-[#7c3aed]/20 text-white h-11">
+          className="w-full justify-start rounded-2xl border shadow-none bg-[#2563eb]/10 hover:bg-[#2563eb]/15 border-[#2563eb]/20 text-white h-11">
           <Link to="/app/create/poll" aria-label="Create a poll">
-            <BarChart3 className="h-4 w-4 text-[#c4b5fd]" />
+            <BarChart3 className="h-4 w-4 text-[#60a5fa]" />
             Poll
           </Link>
         </Button>
 
         <Button
           asChild
-          className="w-full justify-start rounded-2xl border shadow-none bg-[#10b981]/10 hover:bg-[#10b981]/15 border-[#10b981]/20 text-white h-11">
+          className="w-full justify-start rounded-2xl border shadow-none bg-[#2563eb]/10 hover:bg-[#2563eb]/15 border-[#2563eb]/20 text-white h-11">
           <Link to="/app/create/story" aria-label="Create a story">
-            <Camera className="h-4 w-4 text-[#6ee7b7]" />
+            <Camera className="h-4 w-4 text-[#60a5fa]" />
             Story
           </Link>
         </Button>
@@ -179,8 +179,7 @@ function ActiveChatsMini() {
                         {(a.username || a.email || "U")[0]?.toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#22c55e] border-2 border-[#0a0c10]" />
-                  </div>
+                    </div>
                 ))
               : loading && user
                 ? [0, 1, 2].map((i) => (
