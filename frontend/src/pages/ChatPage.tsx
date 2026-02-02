@@ -136,7 +136,7 @@ export default function ChatPage() {
   });
 
   return (
-    <div className="flex flex-col h-[calc(100vh-47px)] overflow-hidden -mx-4 -my-6 sm:-mx-6 lg:-mx-8">
+    <div className="flex flex-col h-full overflow-hidden">
       <ChatMessageList
         listRef={listRef}
         loading={loading}

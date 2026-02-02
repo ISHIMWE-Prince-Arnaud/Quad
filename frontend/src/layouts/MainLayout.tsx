@@ -108,6 +108,10 @@ export function MainLayout() {
   const { isLoading } = useAuthStore();
   const location = useLocation();
 
+  const isChatRoute =
+    location.pathname === "/app/chat" ||
+    location.pathname.startsWith("/app/chat/");
+
   if (isLoading) {
     return <MainLayoutSkeleton />;
   }
@@ -139,11 +143,16 @@ export function MainLayout() {
           <div className="max-w-4xl mx-auto">
             <main
               id="main-content"
-              className="px-4 py-6 sm:px-6 lg:px-8"
+              className={
+                isChatRoute
+                  ? "p-0 h-[calc(100vh-4rem)] lg:h-screen overflow-hidden"
+                  : "px-4 py-6 sm:px-6 lg:px-8"
+              }
               tabIndex={-1}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={location.pathname}
+                  className={isChatRoute ? "h-full" : undefined}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
