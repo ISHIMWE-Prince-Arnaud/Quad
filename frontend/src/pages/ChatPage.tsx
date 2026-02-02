@@ -17,8 +17,6 @@ export default function ChatPage() {
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  const nearBottomRef = useRef(true);
-
   const pendingScrollBottomRef = useRef(false);
   const pendingRestoreAfterPrependRef = useRef(false);
   const pendingPrependScrollRef = useRef<{
@@ -26,11 +24,7 @@ export default function ChatPage() {
     prevScrollTop: number;
   } | null>(null);
 
-  const handleNearBottomChange = useCallback((isNear: boolean) => {
-    nearBottomRef.current = isNear;
-  }, []);
-
-  const nearBottom = useNearBottom(listRef, 120, handleNearBottomChange);
+  const nearBottom = useNearBottom(listRef, 120);
 
   const handleInitialLoaded = useCallback(() => {
     pendingScrollBottomRef.current = true;
