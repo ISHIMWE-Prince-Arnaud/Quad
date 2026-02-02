@@ -74,7 +74,7 @@ function ChatMessageListSkeleton() {
         <div key={`skel-${i}`}>
           <div className="flex items-start gap-3">
             <div className="h-8 w-8 rounded-full bg-muted animate-pulse shrink-0" />
-            <div className="flex flex-col items-start max-w-[75%] md:max-w-[60%] w-full">
+            <div className="flex flex-col items-start max-w-[75%] w-full">
               <div className="flex items-center gap-2 mb-2">
                 <div className="h-3 w-28 rounded-full bg-muted animate-pulse" />
                 <div className="h-3 w-14 rounded-full bg-muted animate-pulse" />
@@ -86,7 +86,7 @@ function ChatMessageListSkeleton() {
             </div>
           </div>
           <div className="flex items-start justify-end gap-3 mt-6">
-            <div className="flex flex-col items-end max-w-[75%] md:max-w-[60%] w-full">
+            <div className="flex flex-col items-end max-w-[75%] w-full">
               <div className="rounded-2xl bg-primary/10 px-4 py-2.5 w-full animate-pulse">
                 <div className="h-4 w-[78%] rounded bg-primary/10" />
               </div>
@@ -163,7 +163,9 @@ export const ChatMessageList = memo(function ChatMessageList({
 
   return (
     <>
-      <div ref={listRef} className="flex-1 overflow-y-auto scrollbar-hide px-6">
+      <div
+        ref={listRef}
+        className="flex-1 overflow-y-auto scrollbar-hide px-6 py-4">
         {loading && <ChatMessageListSkeleton />}
 
         {!loading && messages.length === 0 && <ChatEmptyState />}
@@ -197,7 +199,7 @@ export const ChatMessageList = memo(function ChatMessageList({
               const showHeader = startsNewGroup;
               const showActions = isSelf && editingId !== m.id;
               const bubbleBase =
-                "relative rounded-2xl px-4 py-2.5 shadow-sm transition-all duration-200 group-hover:shadow-md";
+                "relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm transition-all duration-200 group-hover:shadow-md";
               const bubbleClass = isSelf
                 ? cn(bubbleBase, "bg-primary/50 text-primary-foreground")
                 : cn(bubbleBase, "bg-muted text-foreground hover:bg-muted/70");
@@ -244,8 +246,8 @@ export const ChatMessageList = memo(function ChatMessageList({
                     <div
                       className={
                         isSelf
-                          ? "flex flex-col items-end max-w-[75%] md:max-w-[60%] group"
-                          : "flex flex-col items-start max-w-[75%] md:max-w-[60%] group"
+                          ? "flex flex-col items-end max-w-[75%] group"
+                          : "flex flex-col items-start max-w-[75%] group"
                       }>
                       {showHeader && (
                         <div
