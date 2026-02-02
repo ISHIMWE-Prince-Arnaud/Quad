@@ -7,6 +7,7 @@ import {
   BarChart3,
   LogOut,
   AlertTriangle,
+  BadgeCheck,
 } from "lucide-react";
 import { useAuth } from "@clerk/clerk-react";
 
@@ -47,35 +48,35 @@ export function RightPanel() {
 
 function QuickCreate() {
   return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between">
+    <section className="rounded-3xl border border-white/5 bg-white/[0.02] overflow-hidden">
+      <div className="px-4 pt-4 pb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-white">Quick Create</h2>
       </div>
 
-      <div className="grid grid-cols-1 gap-2">
+      <div className="px-4 pb-4 grid grid-cols-1 gap-2">
         <Button
           asChild
-          className="w-full justify-start rounded-2xl bg-white/[0.04] hover:bg-white/[0.07] text-white border border-white/5 shadow-none">
+          className="w-full justify-start rounded-2xl border shadow-none bg-[#2563eb]/10 hover:bg-[#2563eb]/15 border-[#2563eb]/20 text-white h-11">
           <Link to="/app/create/post" aria-label="Create a post">
-            <FileText className="h-4 w-4" />
+            <FileText className="h-4 w-4 text-[#60a5fa]" />
             Post
           </Link>
         </Button>
 
         <Button
           asChild
-          className="w-full justify-start rounded-2xl bg-white/[0.04] hover:bg-white/[0.07] text-white border border-white/5 shadow-none">
+          className="w-full justify-start rounded-2xl border shadow-none bg-[#7c3aed]/10 hover:bg-[#7c3aed]/15 border-[#7c3aed]/20 text-white h-11">
           <Link to="/app/create/poll" aria-label="Create a poll">
-            <BarChart3 className="h-4 w-4" />
+            <BarChart3 className="h-4 w-4 text-[#c4b5fd]" />
             Poll
           </Link>
         </Button>
 
         <Button
           asChild
-          className="w-full justify-start rounded-2xl bg-white/[0.04] hover:bg-white/[0.07] text-white border border-white/5 shadow-none">
+          className="w-full justify-start rounded-2xl border shadow-none bg-[#10b981]/10 hover:bg-[#10b981]/15 border-[#10b981]/20 text-white h-11">
           <Link to="/app/create/story" aria-label="Create a story">
-            <Camera className="h-4 w-4" />
+            <Camera className="h-4 w-4 text-[#6ee7b7]" />
             Story
           </Link>
         </Button>
@@ -138,53 +139,82 @@ function ActiveChatsMini() {
     };
   }, [user]);
 
-  const label = useMemo(() => {
-    if (loading) return "Loading…";
-    return "Open Chat";
-  }, [loading]);
+  const statusLabel = useMemo(() => {
+    if (!user) return "Signed out";
+    if (loading) return "Loading";
+    if (authors.length > 0) return "Active";
+    return "No activity";
+  }, [authors.length, loading, user]);
 
   return (
-    <section className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white">Active Chats</h2>
-        <span className="text-xs font-medium text-[#64748b]">
-          {authors.length}/3
+    <section className="rounded-3xl border border-white/5 bg-white/[0.02] overflow-hidden">
+      <div className="px-4 pt-4 pb-3 flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-white">Active Users</h2>
+        <span
+          className={cn(
+            "text-[11px] font-medium",
+            statusLabel === "Active" ? "text-[#34d399]" : "text-[#64748b]",
+          )}>
+          {statusLabel}
         </span>
       </div>
 
-      <div className="flex items-center justify-between gap-3 rounded-3xl border border-white/5 bg-white/[0.02] px-4 py-3">
-        <div className="flex -space-x-2">
-          {authors.length > 0
-            ? authors.map((a) => (
-                <Avatar
-                  key={a.clerkId || a.username || a.email}
-                  className="h-9 w-9 border-2 border-[#0a0c10]">
-                  <AvatarImage src={a.profileImage} alt={a.username} />
-                  <AvatarFallback className="bg-[#1e293b] text-white text-xs font-bold">
-                    {(a.username || a.email || "U")[0]?.toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              ))
-            : [0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "h-9 w-9 rounded-full border-2 border-[#0a0c10] bg-white/[0.05]",
-                    i > 0 && "-ml-2",
-                  )}
-                />
-              ))}
-        </div>
+      <div className="px-4 pb-4">
+        {!user && (
+          <p className="text-xs text-[#94a3b8] mb-3">
+            Sign in to see active chats
+          </p>
+        )}
 
-        <Button
-          asChild
-          size="sm"
-          className="rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-[0_10px_20px_rgba(37,99,235,0.25)]">
-          <Link to="/app/chat" aria-label="Open chat">
-            <MessageCircle className="h-4 w-4" />
-            {label}
-          </Link>
-        </Button>
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-white/[0.02] px-3 py-3">
+          <div className="flex -space-x-2">
+            {authors.length > 0
+              ? authors.map((a) => (
+                  <div
+                    key={a.clerkId || a.username || a.email}
+                    className="relative">
+                    <Avatar className="h-9 w-9 border-2 border-[#0a0c10]">
+                      <AvatarImage src={a.profileImage} alt={a.username} />
+                      <AvatarFallback className="bg-[#1e293b] text-white text-xs font-bold">
+                        {(a.username || a.email || "U")[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[#22c55e] border-2 border-[#0a0c10]" />
+                  </div>
+                ))
+              : loading && user
+                ? [0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "h-9 w-9 rounded-full border-2 border-[#0a0c10] bg-white/[0.08] animate-pulse",
+                        i > 0 && "-ml-2",
+                      )}
+                      aria-hidden="true"
+                    />
+                  ))
+                : [0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "h-9 w-9 rounded-full border-2 border-[#0a0c10] bg-white/[0.05]",
+                        i > 0 && "-ml-2",
+                      )}
+                      aria-hidden="true"
+                    />
+                  ))}
+          </div>
+
+          <Button
+            asChild
+            size="sm"
+            className="rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-[0_10px_20px_rgba(37,99,235,0.25)]">
+            <Link to="/app/chat" aria-label="Open chat" title="Go to chat">
+              <MessageCircle className="h-4 w-4" />
+              Open Chat
+            </Link>
+          </Button>
+        </div>
       </div>
     </section>
   );
@@ -217,23 +247,33 @@ function AccountMiniCard() {
   return (
     <section className="rounded-3xl border border-white/5 bg-white/[0.02] p-4">
       <div className="flex items-center gap-3">
-        <Link to={profileHref} className="shrink-0" aria-label="Go to profile">
+        <Link
+          to={profileHref}
+          aria-label="Go to profile"
+          className="flex items-center gap-3 min-w-0 flex-1 rounded-2xl p-2 -m-2 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0c10]">
           <Avatar className="h-11 w-11 border border-white/10">
             <AvatarImage src={user?.profileImage} alt={displayName} />
             <AvatarFallback className="bg-[#1e293b] text-white font-bold">
               {displayName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-        </Link>
 
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-white truncate">
-            {displayName}
-          </p>
-          <p className="text-xs text-[#94a3b8] truncate">
-            {user?.username ? `@${user.username}` : user?.email || ""}
-          </p>
-        </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 min-w-0">
+              <p className="text-sm font-semibold text-white truncate">
+                {displayName}
+              </p>
+              {user?.isVerified && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#60a5fa] shrink-0">
+                  <BadgeCheck className="h-4 w-4" />
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-[#94a3b8] truncate">
+              {user?.username ? `@${user.username}` : user?.email || ""}
+            </p>
+          </div>
+        </Link>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -241,7 +281,7 @@ function AccountMiniCard() {
               type="button"
               variant="ghost"
               size="icon"
-              className="rounded-full text-destructive/90 hover:text-destructive hover:bg-destructive/10"
+              className="rounded-full text-destructive/90 hover:text-destructive hover:bg-destructive/10 focus-visible:ring-[#2563eb]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0c10]"
               aria-label="Log out">
               <LogOut className="h-4 w-4" />
             </Button>
