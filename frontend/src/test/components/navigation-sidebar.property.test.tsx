@@ -5,7 +5,7 @@ import * as fc from "fast-check";
 import { Sidebar } from "@/components/layout/Sidebar";
 
 // Feature: quad-ui-ux-redesign, Property 40: Navigation sidebar completeness
-// For any navigation sidebar view, it should display icons and labels for Feed, Chat, Stories, Polls, and Profile
+// For any navigation sidebar view, it should display icons and labels for Feed, Polls, Stories, Chat, Notifications, and Profile
 // Validates: Requirements 9.1
 
 // Mock stores
@@ -47,9 +47,8 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
 
           // Mock the stores with generated values
           const { useAuthStore } = await import("@/stores/authStore");
-          const { useNotificationStore } = await import(
-            "@/stores/notificationStore"
-          );
+          const { useNotificationStore } =
+            await import("@/stores/notificationStore");
 
           vi.mocked(useAuthStore).mockReturnValue({
             user: {
@@ -67,15 +66,16 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
           const { container } = render(
             <BrowserRouter>
               <Sidebar />
-            </BrowserRouter>
+            </BrowserRouter>,
           );
 
           // Property 1: All required navigation items must be present
           const requiredItems = [
             "Feed",
-            "Chat",
-            "Stories",
             "Polls",
+            "Stories",
+            "Chat",
+            "Notifications",
             "Profile",
           ];
 
@@ -86,7 +86,7 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
 
           // Property 2: Each navigation item must have an icon (check for parent link)
           const navLinks = container.querySelectorAll("nav a");
-          expect(navLinks.length).toBe(5); // Includes Profile when username exists
+          expect(navLinks.length).toBe(6); // Includes Profile when username exists
 
           navLinks.forEach((link) => {
             // Check that each link has an svg icon (lucide icons render as svg)
@@ -97,9 +97,9 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
           // Property 3: Logo must be present
           const logos = screen.getAllByText("Quad");
           expect(logos.length).toBeGreaterThan(0);
-        }
+        },
       ),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -114,9 +114,8 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
 
           // Mock the stores
           const { useAuthStore } = await import("@/stores/authStore");
-          const { useNotificationStore } = await import(
-            "@/stores/notificationStore"
-          );
+          const { useNotificationStore } =
+            await import("@/stores/notificationStore");
 
           vi.mocked(useAuthStore).mockReturnValue({
             user: { username },
@@ -130,30 +129,31 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
           const { container } = render(
             <BrowserRouter>
               <Sidebar />
-            </BrowserRouter>
+            </BrowserRouter>,
           );
 
           // Property: Each navigation item must have the correct href
           const expectedHrefs: Record<string, string> = {
             Feed: "/app/feed",
-            Chat: "/app/chat",
-            Stories: "/app/stories",
             Polls: "/app/polls",
+            Stories: "/app/stories",
+            Chat: "/app/chat",
+            Notifications: "/app/notifications",
             Profile: `/app/profile/${username}`,
           };
 
           const navLinks = container.querySelectorAll("nav a");
           const hrefs = Array.from(navLinks).map((link) =>
-            link.getAttribute("href")
+            link.getAttribute("href"),
           );
 
           // Check that all expected hrefs are present
           for (const expectedHref of Object.values(expectedHrefs)) {
             expect(hrefs).toContain(expectedHref);
           }
-        }
+        },
       ),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -167,9 +167,8 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
 
           // Mock the stores with unread count
           const { useAuthStore } = await import("@/stores/authStore");
-          const { useNotificationStore } = await import(
-            "@/stores/notificationStore"
-          );
+          const { useNotificationStore } =
+            await import("@/stores/notificationStore");
 
           vi.mocked(useAuthStore).mockReturnValue({
             user: { username: "testuser" },
@@ -183,16 +182,16 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
           const { container } = render(
             <BrowserRouter>
               <Sidebar />
-            </BrowserRouter>
+            </BrowserRouter>,
           );
 
           // Property: Sidebar should still render and include Notifications navigation
           const navLinks = container.querySelectorAll("nav a");
           expect(navLinks.length).toBeGreaterThan(0);
           expect(screen.getAllByText("Chat").length).toBeGreaterThan(0);
-        }
+        },
       ),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -204,9 +203,8 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
 
         // Mock the stores
         const { useAuthStore } = await import("@/stores/authStore");
-        const { useNotificationStore } = await import(
-          "@/stores/notificationStore"
-        );
+        const { useNotificationStore } =
+          await import("@/stores/notificationStore");
 
         vi.mocked(useAuthStore).mockReturnValue({
           user: { username: "testuser" },
@@ -220,7 +218,7 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
         const { container } = render(
           <BrowserRouter>
             <Sidebar />
-          </BrowserRouter>
+          </BrowserRouter>,
         );
 
         // Property: All navigation links must be focusable
@@ -232,7 +230,7 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
           expect(tabIndex).not.toBe("-1");
         });
       }),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 });

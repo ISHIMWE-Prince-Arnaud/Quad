@@ -39,10 +39,11 @@ describe("Active Navigation Highlighting Property Tests", () => {
       fc.asyncProperty(
         fc.constantFrom(
           "/app/feed",
+          "/app/notifications",
           "/app/chat",
           "/app/stories",
           "/app/polls",
-          "/app/profile/testuser"
+          "/app/profile/testuser",
         ),
         async (activePath) => {
           // Clean up before each property test iteration
@@ -50,9 +51,8 @@ describe("Active Navigation Highlighting Property Tests", () => {
 
           // Mock the stores
           const { useAuthStore } = await import("@/stores/authStore");
-          const { useNotificationStore } = await import(
-            "@/stores/notificationStore"
-          );
+          const { useNotificationStore } =
+            await import("@/stores/notificationStore");
 
           vi.mocked(useAuthStore).mockReturnValue({
             user: { username: "testuser" },
@@ -66,11 +66,12 @@ describe("Active Navigation Highlighting Property Tests", () => {
           const { container } = render(
             <MemoryRouter initialEntries={[activePath]}>
               <Sidebar />
-            </MemoryRouter>
+            </MemoryRouter>,
           );
 
           // Property 1: Active link should have primary background class
-          const navLinks = container.querySelectorAll<HTMLAnchorElement>("nav a");
+          const navLinks =
+            container.querySelectorAll<HTMLAnchorElement>("nav a");
           let activeLink: HTMLAnchorElement | null = null;
 
           navLinks.forEach((link) => {
@@ -88,7 +89,7 @@ describe("Active Navigation Highlighting Property Tests", () => {
           expect(activeLinkClasses).toContain("bg-[#2563eb]");
           expect(
             activeLinkClasses.includes("text-primary-foreground") ||
-              activeLinkClasses.includes("text-white")
+              activeLinkClasses.includes("text-white"),
           ).toBe(true);
 
           // Property 2: Active link should have aria-current attribute
@@ -100,13 +101,13 @@ describe("Active Navigation Highlighting Property Tests", () => {
               expect(link.className).not.toContain("bg-[#2563eb]");
               expect(
                 link.className.includes("text-[#94a3b8]") ||
-                  link.className.includes("text-muted-foreground")
+                  link.className.includes("text-muted-foreground"),
               ).toBe(true);
             }
           });
-        }
+        },
       ),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -115,10 +116,11 @@ describe("Active Navigation Highlighting Property Tests", () => {
       fc.asyncProperty(
         fc.constantFrom(
           "/app/feed",
+          "/app/notifications",
           "/app/chat",
           "/app/stories",
           "/app/polls",
-          "/app/profile/testuser"
+          "/app/profile/testuser",
         ),
         async (activePath) => {
           // Clean up before each property test iteration
@@ -126,9 +128,8 @@ describe("Active Navigation Highlighting Property Tests", () => {
 
           // Mock the stores
           const { useAuthStore } = await import("@/stores/authStore");
-          const { useNotificationStore } = await import(
-            "@/stores/notificationStore"
-          );
+          const { useNotificationStore } =
+            await import("@/stores/notificationStore");
 
           vi.mocked(useAuthStore).mockReturnValue({
             user: { username: "testuser" },
@@ -142,11 +143,12 @@ describe("Active Navigation Highlighting Property Tests", () => {
           const { container } = render(
             <MemoryRouter initialEntries={[activePath]}>
               <Sidebar />
-            </MemoryRouter>
+            </MemoryRouter>,
           );
 
           // Property: Active link's icon should have primary foreground color class or inherit from parent
-          const navLinks = container.querySelectorAll<HTMLAnchorElement>("nav a");
+          const navLinks =
+            container.querySelectorAll<HTMLAnchorElement>("nav a");
           let activeLink: HTMLAnchorElement | null = null;
 
           navLinks.forEach((link) => {
@@ -177,9 +179,9 @@ describe("Active Navigation Highlighting Property Tests", () => {
             linkClasses.includes("text-white");
 
           expect(hasCorrectColor).toBe(true);
-        }
+        },
       ),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -188,10 +190,11 @@ describe("Active Navigation Highlighting Property Tests", () => {
       fc.asyncProperty(
         fc.constantFrom(
           "/app/feed",
+          "/app/notifications",
           "/app/chat",
           "/app/stories",
           "/app/polls",
-          "/app/profile/testuser"
+          "/app/profile/testuser",
         ),
         async (activePath) => {
           // Clean up before each property test iteration
@@ -199,9 +202,8 @@ describe("Active Navigation Highlighting Property Tests", () => {
 
           // Mock the stores
           const { useAuthStore } = await import("@/stores/authStore");
-          const { useNotificationStore } = await import(
-            "@/stores/notificationStore"
-          );
+          const { useNotificationStore } =
+            await import("@/stores/notificationStore");
 
           vi.mocked(useAuthStore).mockReturnValue({
             user: { username: "testuser" },
@@ -215,11 +217,12 @@ describe("Active Navigation Highlighting Property Tests", () => {
           const { container } = render(
             <MemoryRouter initialEntries={[activePath]}>
               <Sidebar />
-            </MemoryRouter>
+            </MemoryRouter>,
           );
 
           // Property: Exactly one link should have aria-current="page"
-          const navLinks = container.querySelectorAll<HTMLAnchorElement>("nav a");
+          const navLinks =
+            container.querySelectorAll<HTMLAnchorElement>("nav a");
           let activeCount = 0;
 
           navLinks.forEach((link) => {
@@ -229,9 +232,9 @@ describe("Active Navigation Highlighting Property Tests", () => {
           });
 
           expect(activeCount).toBe(1);
-        }
+        },
       ),
-      { numRuns: 10 }
+      { numRuns: 10 },
     );
   });
 
@@ -241,18 +244,20 @@ describe("Active Navigation Highlighting Property Tests", () => {
         fc.tuple(
           fc.constantFrom(
             "/app/feed",
+            "/app/notifications",
             "/app/chat",
             "/app/stories",
             "/app/polls",
-            "/app/profile/testuser"
+            "/app/profile/testuser",
           ),
           fc.constantFrom(
             "/app/feed",
+            "/app/notifications",
             "/app/chat",
             "/app/stories",
             "/app/polls",
-            "/app/profile/testuser"
-          )
+            "/app/profile/testuser",
+          ),
         ),
         async ([firstPath, secondPath]) => {
           // Clean up before each property test iteration
@@ -260,9 +265,8 @@ describe("Active Navigation Highlighting Property Tests", () => {
 
           // Mock the stores
           const { useAuthStore } = await import("@/stores/authStore");
-          const { useNotificationStore } = await import(
-            "@/stores/notificationStore"
-          );
+          const { useNotificationStore } =
+            await import("@/stores/notificationStore");
 
           vi.mocked(useAuthStore).mockReturnValue({
             user: { username: "testuser" },
@@ -276,10 +280,11 @@ describe("Active Navigation Highlighting Property Tests", () => {
           const { container: container1 } = render(
             <MemoryRouter initialEntries={[firstPath]}>
               <Sidebar />
-            </MemoryRouter>
+            </MemoryRouter>,
           );
 
-          const navLinks1 = container1.querySelectorAll<HTMLAnchorElement>("nav a");
+          const navLinks1 =
+            container1.querySelectorAll<HTMLAnchorElement>("nav a");
           let activeLink1: HTMLAnchorElement | null = null;
 
           navLinks1.forEach((link) => {
@@ -301,10 +306,11 @@ describe("Active Navigation Highlighting Property Tests", () => {
           const { container: container2 } = render(
             <MemoryRouter initialEntries={[secondPath]}>
               <Sidebar />
-            </MemoryRouter>
+            </MemoryRouter>,
           );
 
-          const navLinks2 = container2.querySelectorAll<HTMLAnchorElement>("nav a");
+          const navLinks2 =
+            container2.querySelectorAll<HTMLAnchorElement>("nav a");
           let activeLink2: HTMLAnchorElement | null = null;
 
           navLinks2.forEach((link) => {
@@ -326,9 +332,9 @@ describe("Active Navigation Highlighting Property Tests", () => {
             const secondHref = activeLink2El.getAttribute("href");
             expect(firstHref).not.toBe(secondHref);
           }
-        }
+        },
       ),
-      { numRuns: 5 }
+      { numRuns: 5 },
     );
   });
 });

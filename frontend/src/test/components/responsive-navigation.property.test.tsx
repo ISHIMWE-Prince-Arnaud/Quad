@@ -225,13 +225,14 @@ describe("Responsive Navigation Property Tests", () => {
         );
 
         // Property: Both should have the same core navigation structure
-        // The sidebar should include at least the core nav links (Feed, Chat, Stories, Polls, Profile)
-        expect(sidebarHrefs.length).toBeGreaterThanOrEqual(5);
+        // The sidebar should include at least the core nav links (Feed, Polls, Stories, Chat, Notifications, Profile)
+        expect(sidebarHrefs.length).toBeGreaterThanOrEqual(6);
 
         expect(sidebarHrefs).toContain("/app/feed");
-        expect(sidebarHrefs).toContain("/app/chat");
-        expect(sidebarHrefs).toContain("/app/stories");
         expect(sidebarHrefs).toContain("/app/polls");
+        expect(sidebarHrefs).toContain("/app/stories");
+        expect(sidebarHrefs).toContain("/app/chat");
+        expect(sidebarHrefs).toContain("/app/notifications");
         expect(sidebarHrefs).toContain("/app/profile/testuser");
 
         // Property: All hrefs should be valid paths

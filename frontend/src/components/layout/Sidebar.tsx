@@ -1,25 +1,41 @@
 import { Link, useLocation } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
-import { Home, MessagesSquare, BookOpen, BarChart3, User } from "lucide-react";
+import {
+  Home,
+  MessagesSquare,
+  BookOpen,
+  BarChart3,
+  User,
+  Bell,
+} from "lucide-react";
 import { LogoWithText } from "@/components/ui/Logo";
 import { useAuthStore } from "@/stores/authStore";
+import { useNotificationStore } from "@/stores/notificationStore";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
   name: string;
   href: string;
   icon: LucideIcon;
+  badge?: number;
 };
 
 export function Sidebar() {
   const location = useLocation();
   const { user } = useAuthStore();
+  const { unreadCount } = useNotificationStore();
 
   const navigationItems: NavItem[] = [
     { name: "Feed", href: "/app/feed", icon: Home },
-    { name: "Chat", href: "/app/chat", icon: MessagesSquare },
-    { name: "Stories", href: "/app/stories", icon: BookOpen },
     { name: "Polls", href: "/app/polls", icon: BarChart3 },
+    { name: "Stories", href: "/app/stories", icon: BookOpen },
+    { name: "Chat", href: "/app/chat", icon: MessagesSquare },
+    {
+      name: "Notifications",
+      href: "/app/notifications",
+      icon: Bell,
+      badge: unreadCount,
+    },
     ...(user?.username
       ? [
           {
@@ -81,6 +97,13 @@ export function Sidebar() {
                 />
               </span>
               <span>{item.name}</span>
+              {!!item.badge && item.badge > 0 && (
+                <span
+                  className="ml-auto inline-flex min-w-[1.25rem] h-5 items-center justify-center rounded-full bg-destructive px-2 text-[11px] font-semibold text-destructive-foreground"
+                  aria-label={`${item.badge} unread`}>
+                  {item.badge > 99 ? "99+" : item.badge}
+                </span>
+              )}
             </Link>
           );
         })}

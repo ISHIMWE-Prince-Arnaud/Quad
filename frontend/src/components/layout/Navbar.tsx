@@ -47,10 +47,10 @@ export function Navbar() {
       badge: 0,
     },
     {
-      name: "Chat",
-      href: "/app/chat",
-      icon: MessageCircle,
-      badge: unreadCount,
+      name: "Polls",
+      href: "/app/polls",
+      icon: BarChart3,
+      badge: 0,
     },
     {
       name: "Stories",
@@ -59,10 +59,16 @@ export function Navbar() {
       badge: 0,
     },
     {
-      name: "Polls",
-      href: "/app/polls",
-      icon: BarChart3,
+      name: "Chat",
+      href: "/app/chat",
+      icon: MessageCircle,
       badge: 0,
+    },
+    {
+      name: "Notifications",
+      href: "/app/notifications",
+      icon: Bell,
+      badge: unreadCount,
     },
     {
       name: "Profile",
