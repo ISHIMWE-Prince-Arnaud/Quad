@@ -86,3 +86,7 @@ export type ChatTypingStopPayload = {
 // Notifications
 
 export type NotificationPayload = ApiNotification;
+
+export type NotificationUnreadCountPayload = { unreadCount: number };
+
+export type NotificationIdPayload = { id: string };

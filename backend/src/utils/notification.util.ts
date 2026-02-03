@@ -1,14 +1,20 @@
 import { Notification } from "../models/Notification.model.js";
 import { User } from "../models/User.model.js";
 import { logger } from "./logger.util.js";
-import type { ICreateNotification, INotificationWithActor } from "../types/notification.types.js";
+import type {
+  ICreateNotification,
+  INotificationWithActor,
+} from "../types/notification.types.js";
 import { getSocketIO } from "../config/socket.config.js";
+
+export type NotificationUnreadCountPayload = { unreadCount: number };
+export type NotificationIdPayload = { id: string };
 
 /**
  * Create and emit a notification
  */
 export const createNotification = async (
-  data: ICreateNotification
+  data: ICreateNotification,
 ): Promise<void> => {
   try {
     // Create notification
@@ -18,7 +24,7 @@ export const createNotification = async (
     let actor = null;
     if (data.actorId) {
       actor = await User.findOne({ clerkId: data.actorId }).select(
-        "clerkId username email displayName profileImage"
+        "clerkId username email displayName profileImage",
       );
     }
 
@@ -27,8 +33,12 @@ export const createNotification = async (
       id: String(notification._id),
       userId: notification.userId,
       type: notification.type,
-      ...(notification.actorId !== undefined ? { actorId: notification.actorId } : {}),
-      ...(notification.contentId !== undefined ? { contentId: notification.contentId } : {}),
+      ...(notification.actorId !== undefined
+        ? { actorId: notification.actorId }
+        : {}),
+      ...(notification.contentId !== undefined
+        ? { contentId: notification.contentId }
+        : {}),
       ...(notification.contentType !== undefined
         ? { contentType: notification.contentType }
         : {}),
@@ -53,9 +63,85 @@ export const createNotification = async (
     };
 
     // Emit real-time notification
-    getSocketIO().to(data.userId).emit("notification:new", notificationWithActor);
+    getSocketIO()
+      .to(data.userId)
+      .emit("notification:new", notificationWithActor);
+
+    // Emit authoritative unread count to keep all connected clients in sync
+    const unreadCount = await getUnreadCount(data.userId);
+    getSocketIO()
+      .to(data.userId)
+      .emit("notification:unread_count", {
+        unreadCount,
+      } satisfies NotificationUnreadCountPayload);
   } catch (error) {
     logger.error("Error creating notification", error);
+  }
+};
+
+/**
+ * Emit authoritative unread notification count
+ */
+export const emitUnreadCount = async (userId: string): Promise<void> => {
+  try {
+    const unreadCount = await getUnreadCount(userId);
+    getSocketIO()
+      .to(userId)
+      .emit("notification:unread_count", {
+        unreadCount,
+      } satisfies NotificationUnreadCountPayload);
+  } catch (error) {
+    logger.error("Error emitting unread notification count", error);
+  }
+};
+
+export const emitNotificationRead = async (
+  userId: string,
+  id: string,
+): Promise<void> => {
+  try {
+    getSocketIO()
+      .to(userId)
+      .emit("notification:read", { id } satisfies NotificationIdPayload);
+    await emitUnreadCount(userId);
+  } catch (error) {
+    logger.error("Error emitting notification read", error);
+  }
+};
+
+export const emitNotificationsReadAll = async (
+  userId: string,
+): Promise<void> => {
+  try {
+    getSocketIO().to(userId).emit("notification:read_all");
+    await emitUnreadCount(userId);
+  } catch (error) {
+    logger.error("Error emitting notifications read all", error);
+  }
+};
+
+export const emitNotificationDeleted = async (
+  userId: string,
+  id: string,
+): Promise<void> => {
+  try {
+    getSocketIO()
+      .to(userId)
+      .emit("notification:deleted", { id } satisfies NotificationIdPayload);
+    await emitUnreadCount(userId);
+  } catch (error) {
+    logger.error("Error emitting notification deleted", error);
+  }
+};
+
+export const emitNotificationsClearedRead = async (
+  userId: string,
+): Promise<void> => {
+  try {
+    getSocketIO().to(userId).emit("notification:clear_read");
+    await emitUnreadCount(userId);
+  } catch (error) {
+    logger.error("Error emitting notifications cleared read", error);
   }
 };
 
@@ -71,10 +157,10 @@ export const getUnreadCount = async (userId: string): Promise<number> => {
  */
 export const markNotificationsAsRead = async (
   userId: string,
-  notificationIds?: string[]
+  notificationIds?: string[],
 ): Promise<number> => {
   const query: Record<string, unknown> = { userId, isRead: false };
-  
+
   if (notificationIds && notificationIds.length > 0) {
     query._id = { $in: notificationIds };
   }
@@ -86,7 +172,9 @@ export const markNotificationsAsRead = async (
 /**
  * Delete read notifications for a user
  */
-export const deleteReadNotifications = async (userId: string): Promise<number> => {
+export const deleteReadNotifications = async (
+  userId: string,
+): Promise<number> => {
   const result = await Notification.deleteMany({ userId, isRead: true });
   return result.deletedCount;
 };
@@ -97,24 +185,24 @@ export const deleteReadNotifications = async (userId: string): Promise<number> =
 export const generateNotificationMessage = (
   type: string,
   _actorUsername?: string,
-  _contentType?: string
+  _contentType?: string,
 ): string => {
   switch (type) {
     case "follow":
       return "started following you";
-    
+
     case "reaction_post":
       return "reacted to your post";
-    
+
     case "reaction_story":
       return "reacted to your story";
-    
+
     case "reaction_poll":
       return "reacted to your poll";
-    
+
     case "comment_post":
       return "commented on your post";
-    
+
     case "comment_story":
       return "commented on your story";
 
@@ -126,16 +214,16 @@ export const generateNotificationMessage = (
 
     case "mention_comment":
       return "mentioned you in a comment";
-    
+
     case "chat_mention":
       return "mentioned you in chat";
-    
+
     case "poll_expired":
       return "Your poll has expired";
-    
+
     case "poll_milestone":
       return "Your poll reached a voting milestone";
-    
+
     default:
       return "You have a new notification";
   }

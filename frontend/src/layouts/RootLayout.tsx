@@ -4,7 +4,11 @@ import { useThemeStore } from "../stores/themeStore";
 import { useAuthSync } from "../hooks/useAuthSync";
 import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/stores/authStore";
-import { getSocket, type NotificationPayload } from "@/lib/socket";
+import {
+  getSocket,
+  type NotificationPayload,
+  type NotificationUnreadCountPayload,
+} from "@/lib/socket";
 import { useNotificationStore } from "@/stores/notificationStore";
 
 export function RootLayout() {
@@ -12,7 +16,7 @@ export function RootLayout() {
   useAuthSync();
   const { user, isLoading } = useAuthStore();
   const joinedRef = useRef<string | null>(null);
-  const { fetchUnreadCount, incrementUnread } = useNotificationStore();
+  const { fetchUnreadCount, setUnreadCount } = useNotificationStore();
 
   // Initialize theme system
   const { initializeTheme, applyTheme } = useThemeStore();
@@ -31,35 +35,45 @@ export function RootLayout() {
       return;
     }
 
-    if (joinedRef.current !== userId) {
+    const joinRooms = () => {
       socket.emit("feed:join", userId);
       socket.emit("notification:join", userId);
+    };
+
+    // Join once for this user id (and re-join on reconnect)
+    if (joinedRef.current !== userId) {
+      joinRooms();
       joinedRef.current = userId;
     }
+
+    socket.on("connect", joinRooms);
 
     // Initial unread count sync for this session
     void fetchUnreadCount();
 
     const handleNotificationNew = (payload: NotificationPayload) => {
-      // Optimistically bump unread count, then reconcile via REST
-      incrementUnread(1);
-      void fetchUnreadCount();
-
       toast(payload.message, {
         position: "top-right",
       });
     };
 
+    const handleUnreadCount = (payload: NotificationUnreadCountPayload) => {
+      setUnreadCount(payload.unreadCount);
+    };
+
     socket.on("notification:new", handleNotificationNew);
+    socket.on("notification:unread_count", handleUnreadCount);
 
     return () => {
       socket.off("notification:new", handleNotificationNew);
+      socket.off("notification:unread_count", handleUnreadCount);
+      socket.off("connect", joinRooms);
       if (userId) {
         socket.emit("feed:leave", userId);
         socket.emit("notification:leave", userId);
       }
     };
-  }, [isLoading, user?.clerkId, fetchUnreadCount, incrementUnread]);
+  }, [isLoading, user?.clerkId, fetchUnreadCount, setUnreadCount]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
