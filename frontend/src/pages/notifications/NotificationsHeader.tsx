@@ -1,4 +1,4 @@
-import { MoreHorizontal, CheckCheck, Trash2 } from "lucide-react";
+import { MoreHorizontal, Check, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +40,7 @@ export function NotificationsHeader({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={onMarkAllAsRead}>
-              <CheckCheck className="w-4 h-4 mr-2" />
+              <Check className="w-4 h-4 mr-2" />
               Mark all read
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onClearRead}>

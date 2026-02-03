@@ -1,4 +1,4 @@
-import { MailOpen, Trash2 } from "lucide-react";
+import { Check, Trash2 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,7 @@ export function NotificationRow({
             variant="ghost"
             className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full"
             title="Mark as read">
-            <MailOpen className="w-4 h-4" />
+            <Check className="w-4 h-4" />
           </Button>
         )}
 

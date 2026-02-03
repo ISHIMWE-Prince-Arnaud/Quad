@@ -36,9 +36,6 @@ const UserSchema = new Schema<IUserDocument>(
 // INDEXES FOR PERFORMANCE
 // ===========================
 // Note: clerkId and email already have unique indexes (defined in schema)
-// Index for username search/lookup (case-insensitive future-ready)
-UserSchema.index({ username: 1 });
-
 // Index for searching users by creation date (e.g., newest users)
 UserSchema.index({ createdAt: -1 });
 
