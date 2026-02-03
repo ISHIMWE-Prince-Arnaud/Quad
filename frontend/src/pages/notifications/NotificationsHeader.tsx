@@ -50,7 +50,7 @@ export function NotificationsHeader({
               size="sm"
               onClick={onMarkAllAsRead}
               disabled={unreadLocalCount === 0}
-              className="transition-all hover:bg-accent/70 hover:border-accent-foreground/25 hover:shadow-sm">
+              className="transition-all hover:text-primary hover:bg-primary/10 hover:shadow-sm hover:border-primary">
               <Check className="h-4 w-4" />
               Mark all read
             </Button>

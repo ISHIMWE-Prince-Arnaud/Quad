@@ -18,17 +18,18 @@ export function NotificationRow({
   onDelete: (notification: ApiNotification) => void;
 }) {
   const hasActor = !!notification.actor;
-  const displayName = notification.actor?.displayName || notification.actor?.username || "";
+  const displayName =
+    notification.actor?.displayName || notification.actor?.username || "";
   const avatarInitial = hasActor ? displayName.charAt(0).toUpperCase() : "Q";
 
   return (
     <div
       onClick={() => onNavigate(notification)}
       className={cn(
-        "group relative flex gap-4 p-4 transition-all duration-200 cursor-pointer",
+        "group relative flex gap-4 p-4 transition-all duration-200 cursor-pointer rounded-xl border border-border/40 hover:shadow-sm",
         !notification.isRead
-          ? "bg-primary/5 hover:bg-primary/10"
-          : "bg-background hover:bg-muted/40"
+          ? "bg-primary/5 hover:bg-primary/10 hover:border-primary/30"
+          : "bg-card hover:bg-muted/40 hover:border-border/60",
       )}>
       {!notification.isRead && (
         <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-primary" />
@@ -48,7 +49,9 @@ export function NotificationRow({
         <div className="flex justify-between items-start gap-2">
           <div className="text-sm leading-snug">
             {hasActor && (
-              <span className="font-semibold text-foreground mr-1">{displayName}</span>
+              <span className="font-semibold text-foreground mr-1">
+                {displayName}
+              </span>
             )}
             <span className="text-foreground/80">{notification.message}</span>
           </div>

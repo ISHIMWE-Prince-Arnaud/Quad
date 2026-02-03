@@ -22,12 +22,12 @@ export interface GetNotificationsResponse {
 
 export class NotificationService {
   static async getNotifications(
-    params: GetNotificationsParams = {}
+    params: GetNotificationsParams = {},
   ): Promise<GetNotificationsResponse> {
     const response = await endpoints.notifications.getAll({
       page: params.page,
       limit: params.limit,
-      unreadOnly: params.unreadOnly,
+      unreadOnly: params.unreadOnly ? true : undefined,
     });
     return response.data as GetNotificationsResponse;
   }
@@ -42,7 +42,7 @@ export class NotificationService {
   }
 
   static async markAsRead(
-    id: string
+    id: string,
   ): Promise<{ success: boolean; message?: string }> {
     const response = await endpoints.notifications.markAsRead(id);
     return response.data as { success: boolean; message?: string };
@@ -62,7 +62,7 @@ export class NotificationService {
   }
 
   static async deleteNotification(
-    id: string
+    id: string,
   ): Promise<{ success: boolean; message?: string }> {
     const response = await endpoints.notifications.delete(id);
     return response.data as { success: boolean; message?: string };

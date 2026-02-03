@@ -87,7 +87,7 @@ export default function NotificationsPage() {
             )}
 
           {/* Notifications list */}
-          <div className="divide-y divide-border/40">
+          <div className="flex flex-col gap-2 p-2 sm:p-3">
             {controller.notifications.map((n) => (
               <NotificationRow
                 key={n.id}
