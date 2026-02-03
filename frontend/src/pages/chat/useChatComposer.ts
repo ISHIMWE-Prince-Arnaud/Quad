@@ -9,10 +9,14 @@ export function useChatComposer({
   emitTypingStart,
   emitTypingStop,
   onMessageSent,
+  onSendStart,
+  onSendError,
 }: {
   emitTypingStart: () => void;
   emitTypingStop: () => void;
   onMessageSent: (m: ChatMessage) => void;
+  onSendStart?: (text: string) => void;
+  onSendError?: (text: string) => void;
 }) {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
@@ -31,22 +35,28 @@ export function useChatComposer({
   const handleSend = async () => {
     const contentOk = text && text.trim().length > 0;
     if (!contentOk || sending) return;
+    const preparedText = text ? text.trim() : "";
     try {
       setSending(true);
 
-      const preparedText = text ? text.trim() : "";
+      setText("");
+      emitTypingStop();
+      onSendStart?.(preparedText);
+
       const res = await ChatService.sendMessage({
         text: preparedText || undefined,
       });
       if (res.success && res.data) {
         onMessageSent(res.data);
-        setText("");
-        emitTypingStop();
       } else {
+        setText(preparedText);
+        onSendError?.(preparedText);
         toast.error(res.message || "Failed to send");
       }
     } catch (err) {
       logError(err, { component: "ChatComposer", action: "sendMessage" });
+      setText(preparedText);
+      onSendError?.(preparedText);
       toast.error("Failed to send message");
     } finally {
       setSending(false);
