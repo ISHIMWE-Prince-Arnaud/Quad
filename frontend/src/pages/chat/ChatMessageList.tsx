@@ -2,7 +2,6 @@ import { memo, useEffect } from "react";
 import type { RefObject } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import type { ChatMessage } from "@/types/chat";
 import { Loader2, MessageSquare, Edit2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -123,12 +122,7 @@ export const ChatMessageList = memo(function ChatMessageList({
   onLoadOlder,
   messages,
   user,
-  editingId,
-  editText,
-  onEditTextChange,
   onStartEdit,
-  onCancelEdit,
-  onSaveEdit,
   onDeleteMessage,
 }: {
   listRef: RefObject<HTMLDivElement | null>;
@@ -138,12 +132,7 @@ export const ChatMessageList = memo(function ChatMessageList({
   onLoadOlder: () => void;
   messages: ChatMessage[];
   user: MinimalUser | null | undefined;
-  editingId: string | null;
-  editText: string;
-  onEditTextChange: (v: string) => void;
   onStartEdit: (m: ChatMessage) => void;
-  onCancelEdit: () => void;
-  onSaveEdit: (id: string) => void;
   onDeleteMessage: (id: string) => void;
 }) {
   useEffect(() => {
@@ -197,7 +186,7 @@ export const ChatMessageList = memo(function ChatMessageList({
 
               const showAvatar = startsNewGroup;
               const showHeader = startsNewGroup;
-              const showActions = isSelf && editingId !== m.id;
+              const showActions = isSelf;
               const bubbleBase =
                 "relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm transition-all duration-200 group-hover:shadow-md";
               const bubbleClass = isSelf
@@ -290,39 +279,10 @@ export const ChatMessageList = memo(function ChatMessageList({
                           </div>
                         )}
 
-                        {editingId === m.id ? (
-                          <div className="space-y-3">
-                            <textarea
-                              value={editText}
-                              onChange={(e) => onEditTextChange(e.target.value)}
-                              rows={2}
-                              className="w-full rounded-2xl bg-background border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                            />
-                            <div className="flex items-center justify-end gap-2">
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                onClick={onCancelEdit}>
-                                Cancel
-                              </Button>
-                              <Button
-                                size="sm"
-                                onClick={() => onSaveEdit(m.id)}>
-                                Save
-                              </Button>
-                            </div>
+                        {m.text && (
+                          <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                            {linkifyText(m.text)}
                           </div>
-                        ) : (
-                          <>
-                            {m.text && (
-                              <div
-                                className={
-                                  "text-[15px] leading-relaxed whitespace-pre-wrap break-words"
-                                }>
-                                {linkifyText(m.text)}
-                              </div>
-                            )}
-                          </>
                         )}
                       </div>
                     </div>

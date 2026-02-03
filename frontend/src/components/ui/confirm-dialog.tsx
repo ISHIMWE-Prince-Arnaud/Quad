@@ -52,6 +52,7 @@ export function ConfirmDialog({
           <Button
             type="button"
             variant="outline"
+            className="hover:bg-secondary"
             onClick={() => onOpenChange(false)}
             disabled={loading}>
             {cancelLabel}

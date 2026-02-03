@@ -1,9 +1,19 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
 import { ChatComposer } from "./chat/ChatComposer";
 import { ChatMessageList } from "./chat/ChatMessageList";
 import { ChatTypingIndicator } from "./chat/ChatTypingIndicator";
+import { MAX_MESSAGE_LENGTH } from "./chat/constants";
 import { useNearBottom } from "./chat/useNearBottom";
 import { useChatComposer } from "./chat/useChatComposer";
 import { useChatHistory } from "./chat/useChatHistory";
@@ -13,6 +23,11 @@ import { useChatSocket } from "./chat/useChatSocket";
 
 export default function ChatPage() {
   const { user } = useAuthStore();
+
+  const editTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [originalEditText, setOriginalEditText] = useState("");
+  const [confirmDiscardEdit, setConfirmDiscardEdit] = useState(false);
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -114,14 +129,43 @@ export default function ChatPage() {
   const handleCancelEdit = useCallback(() => {
     setEditingId(null);
     setEditText("");
+    setOriginalEditText("");
+    setConfirmDiscardEdit(false);
   }, [setEditText, setEditingId]);
 
-  const handleSaveEditClick = useCallback(
-    (id: string) => {
-      void handleSaveEdit(id);
-    },
-    [handleSaveEdit],
-  );
+  const handleSaveEditClick = useCallback(async () => {
+    if (!editingId) return;
+    try {
+      setSavingEdit(true);
+      await handleSaveEdit(editingId);
+    } finally {
+      setSavingEdit(false);
+    }
+  }, [editingId, handleSaveEdit]);
+
+  const hasEditChanges =
+    editingId !== null && editText.trim() !== originalEditText.trim();
+  const canSaveEdit =
+    !savingEdit && hasEditChanges && editText.trim().length > 0;
+
+  const requestCloseEdit = useCallback(() => {
+    if (!editingId) return;
+    if (savingEdit) return;
+    if (hasEditChanges) {
+      setConfirmDiscardEdit(true);
+      return;
+    }
+    handleCancelEdit();
+  }, [editingId, handleCancelEdit, hasEditChanges, savingEdit]);
+
+  useEffect(() => {
+    if (!editingId) return;
+    const original = messages.find((m) => m.id === editingId)?.text || "";
+    setOriginalEditText(original);
+    requestAnimationFrame(() => {
+      editTextareaRef.current?.focus();
+    });
+  }, [editingId, messages]);
 
   const { text, sending, handleTextChange, handleSend } = useChatComposer({
     emitTypingStart,
@@ -145,14 +189,114 @@ export default function ChatPage() {
         onLoadOlder={handleLoadOlder}
         messages={messages}
         user={user}
-        editingId={editingId}
-        editText={editText}
-        onEditTextChange={setEditText}
         onStartEdit={handleEdit}
-        onCancelEdit={handleCancelEdit}
-        onSaveEdit={handleSaveEditClick}
         onDeleteMessage={handleDeleteClick}
       />
+
+      <Dialog
+        open={!!editingId}
+        onOpenChange={(open) => !open && requestCloseEdit()}>
+        <DialogContent className="max-w-xl" showClose={!savingEdit}>
+          <DialogHeader>
+            <DialogTitle>
+              {confirmDiscardEdit ? "Discard changes?" : "Edit message"}
+            </DialogTitle>
+            <DialogDescription>
+              {confirmDiscardEdit
+                ? "You have unsaved edits. If you discard, your changes will be lost."
+                : "Press Enter to save, Shift+Enter for a new line."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {confirmDiscardEdit ? (
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setConfirmDiscardEdit(false);
+                  requestAnimationFrame(() => editTextareaRef.current?.focus());
+                }}
+                disabled={savingEdit}>
+                Keep editing
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleCancelEdit}
+                disabled={savingEdit}>
+                Discard
+              </Button>
+            </DialogFooter>
+          ) : (
+            <>
+              <div className="space-y-3">
+                <div className="rounded-xl border border-border bg-muted/30 px-4 py-3">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                    Original
+                  </div>
+                  <div className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap break-words">
+                    {originalEditText.trim().length > 0
+                      ? originalEditText
+                      : "(empty message)"}
+                  </div>
+                </div>
+
+                <textarea
+                  ref={editTextareaRef}
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  maxLength={MAX_MESSAGE_LENGTH}
+                  rows={4}
+                  className="w-full rounded-xl bg-background border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      requestCloseEdit();
+                      return;
+                    }
+
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (canSaveEdit) void handleSaveEditClick();
+                    }
+                  }}
+                />
+
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>
+                    {editText.trim().length === 0
+                      ? "Message cannot be empty"
+                      : !hasEditChanges
+                        ? "No changes"
+                        : ""}
+                  </span>
+                  <span className="tabular-nums">
+                    {editText.length}/{MAX_MESSAGE_LENGTH}
+                  </span>
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={requestCloseEdit}
+                  disabled={savingEdit}>
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => void handleSaveEditClick()}
+                  loading={savingEdit}
+                  disabled={!canSaveEdit}>
+                  Save changes
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {Object.keys(typingUsers).length > 0 && (
         <ChatTypingIndicator typingUsers={typingUsers} />
