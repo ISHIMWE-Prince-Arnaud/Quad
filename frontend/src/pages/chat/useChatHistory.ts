@@ -17,14 +17,16 @@ export function useChatHistory({
   const [loading, setLoading] = useState(true);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [hasMoreOlder, setHasMoreOlder] = useState(false);
+  const [initialLoadError, setInitialLoadError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const oldestMessageId = useMemo(
     () => (messages.length > 0 ? messages[0].id : null),
-    [messages]
+    [messages],
   );
   const newestMessageId = useMemo(
     () => (messages.length > 0 ? messages[messages.length - 1].id : null),
-    [messages]
+    [messages],
   );
 
   // Initial load
@@ -32,14 +34,23 @@ export function useChatHistory({
     let cancelled = false;
     (async () => {
       try {
+        setInitialLoadError(null);
         setLoading(true);
         const res = await ChatService.getMessages({ page: 1, limit: 30 });
-        if (!cancelled && res.success) {
+        if (cancelled) return;
+        if (res.success) {
           setMessages(res.data);
           setHasMoreOlder(res.pagination?.hasMore ?? false);
+        } else {
+          setInitialLoadError("Failed to load chat");
+          toast.error("Failed to load chat");
         }
       } catch (err) {
-        logError(err, { component: "ChatHistory", action: "loadInitialMessages" });
+        logError(err, {
+          component: "ChatHistory",
+          action: "loadInitialMessages",
+        });
+        if (!cancelled) setInitialLoadError("Failed to load chat");
         toast.error("Failed to load chat");
       } finally {
         if (!cancelled) setLoading(false);
@@ -49,7 +60,11 @@ export function useChatHistory({
     return () => {
       cancelled = true;
     };
-  }, [onInitialLoaded]);
+  }, [onInitialLoaded, reloadKey]);
+
+  const reload = useCallback(() => {
+    setReloadKey((k) => k + 1);
+  }, []);
 
   const loadOlder = useCallback(async () => {
     if (!oldestMessageId || loadingOlder) return;
@@ -84,9 +99,11 @@ export function useChatHistory({
     messages,
     setMessages: setMessages as Dispatch<SetStateAction<ChatMessage[]>>,
     loading,
+    initialLoadError,
     loadingOlder,
     hasMoreOlder,
     newestMessageId,
     loadOlder,
+    reload,
   };
 }

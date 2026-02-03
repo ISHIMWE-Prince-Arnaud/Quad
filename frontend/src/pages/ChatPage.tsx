@@ -52,10 +52,12 @@ export default function ChatPage() {
     messages,
     setMessages,
     loading,
+    initialLoadError,
     loadingOlder,
     hasMoreOlder,
     newestMessageId,
     loadOlder,
+    reload,
   } = useChatHistory({
     onInitialLoaded: handleInitialLoaded,
     onPrepended: handlePrepended,
@@ -184,6 +186,8 @@ export default function ChatPage() {
       <ChatMessageList
         listRef={listRef}
         loading={loading}
+        error={initialLoadError}
+        onRetry={reload}
         loadingOlder={loadingOlder}
         hasMoreOlder={hasMoreOlder}
         onLoadOlder={handleLoadOlder}

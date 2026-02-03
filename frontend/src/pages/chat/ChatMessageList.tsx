@@ -2,8 +2,9 @@ import { memo, useEffect } from "react";
 import type { RefObject } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import type { ChatMessage } from "@/types/chat";
-import { Loader2, MessageSquare, Edit2, Trash2 } from "lucide-react";
+import { AlertTriangle, MessageSquare, Edit2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type MinimalUser = {
@@ -68,31 +69,66 @@ const linkifyText = (text: string) => {
 
 function ChatMessageListSkeleton() {
   return (
-    <div className="py-6 space-y-6">
-      {[1, 2, 3].map((i) => (
-        <div key={`skel-${i}`}>
-          <div className="flex items-start gap-3">
-            <div className="h-8 w-8 rounded-full bg-muted animate-pulse shrink-0" />
-            <div className="flex flex-col items-start max-w-[75%] w-full">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="h-3 w-28 rounded-full bg-muted animate-pulse" />
-                <div className="h-3 w-14 rounded-full bg-muted animate-pulse" />
-              </div>
-              <div className="rounded-2xl bg-muted/50 px-4 py-2.5 w-full animate-pulse">
-                <div className="h-4 w-[85%] rounded bg-muted-foreground/10" />
-                <div className="mt-2 h-4 w-[62%] rounded bg-muted-foreground/10" />
-              </div>
+    <div className="space-y-5">
+      <div className="flex items-center justify-center py-3">
+        <div className="h-px flex-1 bg-border/60" />
+        <div className="mx-3 h-5 w-24 rounded-full bg-muted/70 animate-pulse" />
+        <div className="h-px flex-1 bg-border/60" />
+      </div>
+
+      <div className="py-0">
+        <div className="flex items-start gap-3 justify-start">
+          <div className="h-8 w-8 rounded-full bg-muted/70 animate-pulse shrink-0" />
+          <div className="flex flex-col max-w-[75%] min-w-0 items-start">
+            <div className="flex items-center justify-start gap-2 mb-2 w-full">
+              <div className="h-3 w-24 rounded-full bg-muted/70 animate-pulse" />
+              <div className="h-3 w-14 rounded-full bg-muted/70 animate-pulse" />
             </div>
-          </div>
-          <div className="flex items-start justify-end gap-3 mt-6">
-            <div className="flex flex-col items-end max-w-[75%] w-full">
-              <div className="rounded-2xl bg-primary/10 px-4 py-2.5 w-full animate-pulse">
-                <div className="h-4 w-[78%] rounded bg-primary/10" />
-              </div>
+            <div className="relative w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-muted animate-pulse">
+              <div className="h-4 w-56 max-w-[60vw] rounded bg-background/40" />
+              <div className="mt-2 h-4 w-40 max-w-[45vw] rounded bg-background/40" />
             </div>
           </div>
         </div>
-      ))}
+      </div>
+
+      <div className="py-0 mt-1.5">
+        <div className="flex items-start gap-3 justify-start">
+          <div className="w-9 shrink-0" />
+          <div className="flex flex-col max-w-[75%] min-w-0 items-start">
+            <div className="relative w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-muted animate-pulse">
+              <div className="h-4 w-44 max-w-[55vw] rounded bg-background/40" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="py-0">
+        <div className="flex items-start gap-3 justify-end">
+          <div className="flex flex-col max-w-[75%] min-w-0 items-end">
+            <div className="flex items-center justify-end gap-2 mb-2 w-full">
+              <div className="h-3 w-16 rounded-full bg-muted/70 animate-pulse" />
+              <div className="h-3 w-10 rounded-full bg-muted/70 animate-pulse" />
+            </div>
+            <div className="relative w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-primary/20 animate-pulse">
+              <div className="h-4 w-52 max-w-[58vw] rounded bg-primary/20" />
+              <div className="mt-2 h-4 w-28 max-w-[36vw] rounded bg-primary/20" />
+            </div>
+          </div>
+          <div className="h-8 w-8 rounded-full bg-muted/70 animate-pulse shrink-0" />
+        </div>
+      </div>
+
+      <div className="py-0 mt-1.5">
+        <div className="flex items-start gap-3 justify-end">
+          <div className="flex flex-col max-w-[75%] min-w-0 items-end">
+            <div className="relative w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-primary/20 animate-pulse">
+              <div className="h-4 w-40 max-w-[52vw] rounded bg-primary/20" />
+            </div>
+          </div>
+          <div className="w-9 shrink-0" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -100,15 +136,74 @@ function ChatMessageListSkeleton() {
 function ChatEmptyState() {
   return (
     <div className="flex flex-col items-center justify-center text-center py-16 animate-in fade-in duration-500">
-      <div className="h-16 w-16 rounded-3xl bg-muted/50 border border-border flex items-center justify-center shadow-sm mb-4">
-        <MessageSquare className="h-8 w-8 text-muted-foreground/70" />
+      <div className="h-16 w-16 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-sm mb-4">
+        <MessageSquare className="h-8 w-8 text-primary/80" />
       </div>
       <h3 className="text-lg font-semibold text-foreground">No messages yet</h3>
-      <p className="mt-1 text-sm text-muted-foreground max-w-xs">
-        Start the conversation by sending your first message.
+      <p className="mt-1 text-sm text-muted-foreground max-w-sm">
+        Say hi to start the conversation. Your message will appear here
+        instantly.
       </p>
-      <div className="mt-6 rounded-full bg-primary/10 border border-primary/20 px-4 py-1.5 text-xs font-medium text-primary">
-        Tip: Press Enter to send
+
+      <div className="mt-6 w-full max-w-md space-y-3">
+        <div className="flex items-start gap-3 justify-start">
+          <div className="h-8 w-8 rounded-full bg-muted/60 border border-border/40 flex items-center justify-center shrink-0">
+            <MessageSquare className="h-4 w-4 text-muted-foreground/70" />
+          </div>
+          <div className="max-w-[75%]">
+            <div className="w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-muted text-foreground">
+              <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                Try: “Hey everyone”
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3 justify-end">
+          <div className="max-w-[75%]">
+            <div className="w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-primary/50 text-primary-foreground">
+              <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                <span className="font-medium">Tip:</span> Press{" "}
+                <kbd className="px-1.5 py-0.5 rounded border border-border/60 bg-background/30 text-xs">
+                  Enter
+                </kbd>{" "}
+                to send,{" "}
+                <kbd className="px-1.5 py-0.5 rounded border border-border/60 bg-background/30 text-xs">
+                  Shift
+                </kbd>
+                +
+                <kbd className="px-1.5 py-0.5 rounded border border-border/60 bg-background/30 text-xs">
+                  Enter
+                </kbd>{" "}
+                for a new line.
+              </div>
+            </div>
+          </div>
+          <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+            <div className="h-3 w-3 rounded-full bg-primary/40" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ChatErrorState({ onRetry }: { onRetry?: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-16 animate-in fade-in duration-500">
+      <div className="h-16 w-16 rounded-3xl bg-destructive/10 border border-destructive/20 flex items-center justify-center shadow-sm mb-4">
+        <AlertTriangle className="h-8 w-8 text-destructive" />
+      </div>
+      <h3 className="text-lg font-semibold text-foreground">
+        Couldn’t load chat
+      </h3>
+      <p className="mt-1 text-sm text-muted-foreground max-w-sm">
+        Check your connection and try again.
+      </p>
+      <div className="mt-6">
+        <Button type="button" onClick={onRetry}>
+          Retry
+        </Button>
       </div>
     </div>
   );
@@ -117,6 +212,8 @@ function ChatEmptyState() {
 export const ChatMessageList = memo(function ChatMessageList({
   listRef,
   loading,
+  error,
+  onRetry,
   loadingOlder,
   hasMoreOlder,
   onLoadOlder,
@@ -127,6 +224,8 @@ export const ChatMessageList = memo(function ChatMessageList({
 }: {
   listRef: RefObject<HTMLDivElement | null>;
   loading: boolean;
+  error?: string | null;
+  onRetry?: () => void;
   loadingOlder: boolean;
   hasMoreOlder: boolean;
   onLoadOlder: () => void;
@@ -157,16 +256,24 @@ export const ChatMessageList = memo(function ChatMessageList({
         className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide px-6 py-4">
         {loading && <ChatMessageListSkeleton />}
 
-        {!loading && messages.length === 0 && <ChatEmptyState />}
+        {!loading && messages.length === 0 && error && (
+          <ChatErrorState onRetry={onRetry} />
+        )}
+
+        {!loading && messages.length === 0 && !error && <ChatEmptyState />}
 
         {!loading && messages.length > 0 && (
           <div>
             {loadingOlder && (
-              <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground animate-pulse">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-xs font-medium">
-                  Loading older messages...
-                </span>
+              <div className="flex items-center justify-center py-4">
+                <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-background/60 px-3 py-1">
+                  <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50 animate-pulse" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50 animate-pulse [animation-delay:120ms]" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50 animate-pulse [animation-delay:240ms]" />
+                  <span className="ml-1 text-xs font-medium text-muted-foreground">
+                    Loading older messages
+                  </span>
+                </div>
               </div>
             )}
 
