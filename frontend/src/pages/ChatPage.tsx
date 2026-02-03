@@ -29,6 +29,10 @@ export default function ChatPage() {
   const [originalEditText, setOriginalEditText] = useState("");
   const [confirmDiscardEdit, setConfirmDiscardEdit] = useState(false);
 
+  const [pendingOutgoingText, setPendingOutgoingText] = useState<string | null>(
+    null,
+  );
+
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const pendingScrollBottomRef = useRef(false);
@@ -177,7 +181,15 @@ export default function ChatPage() {
         if (prev.some((x) => x.id === m.id)) return prev;
         return [...prev, m];
       });
+      setPendingOutgoingText(null);
       requestAnimationFrame(() => scrollToBottom());
+    },
+    onSendStart: (outgoing) => {
+      setPendingOutgoingText(outgoing);
+      requestAnimationFrame(() => scrollToBottom());
+    },
+    onSendError: () => {
+      setPendingOutgoingText(null);
     },
   });
 
@@ -192,6 +204,7 @@ export default function ChatPage() {
         hasMoreOlder={hasMoreOlder}
         onLoadOlder={handleLoadOlder}
         messages={messages}
+        pendingOutgoingText={pendingOutgoingText}
         user={user}
         onStartEdit={handleEdit}
         onDeleteMessage={handleDeleteClick}

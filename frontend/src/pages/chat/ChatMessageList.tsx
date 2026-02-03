@@ -209,6 +209,21 @@ function ChatErrorState({ onRetry }: { onRetry?: () => void }) {
   );
 }
 
+export type ChatMessageListProps = {
+  listRef: RefObject<HTMLDivElement | null>;
+  loading: boolean;
+  error?: string | null;
+  onRetry?: () => void;
+  loadingOlder: boolean;
+  hasMoreOlder: boolean;
+  onLoadOlder: () => void;
+  messages: ChatMessage[];
+  pendingOutgoingText?: string | null;
+  user: MinimalUser | null | undefined;
+  onStartEdit: (m: ChatMessage) => void;
+  onDeleteMessage: (id: string) => void;
+};
+
 export const ChatMessageList = memo(function ChatMessageList({
   listRef,
   loading,
@@ -218,22 +233,11 @@ export const ChatMessageList = memo(function ChatMessageList({
   hasMoreOlder,
   onLoadOlder,
   messages,
+  pendingOutgoingText,
   user,
   onStartEdit,
   onDeleteMessage,
-}: {
-  listRef: RefObject<HTMLDivElement | null>;
-  loading: boolean;
-  error?: string | null;
-  onRetry?: () => void;
-  loadingOlder: boolean;
-  hasMoreOlder: boolean;
-  onLoadOlder: () => void;
-  messages: ChatMessage[];
-  user: MinimalUser | null | undefined;
-  onStartEdit: (m: ChatMessage) => void;
-  onDeleteMessage: (id: string) => void;
-}) {
+}: ChatMessageListProps) {
   useEffect(() => {
     const container = listRef.current;
     if (!container || !hasMoreOlder || loadingOlder) return;
@@ -256,11 +260,14 @@ export const ChatMessageList = memo(function ChatMessageList({
         className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide px-6 py-4">
         {loading && <ChatMessageListSkeleton />}
 
-        {!loading && messages.length === 0 && error && (
+        {!loading && !pendingOutgoingText && messages.length === 0 && error && (
           <ChatErrorState onRetry={onRetry} />
         )}
 
-        {!loading && messages.length === 0 && !error && <ChatEmptyState />}
+        {!loading &&
+          !pendingOutgoingText &&
+          messages.length === 0 &&
+          !error && <ChatEmptyState />}
 
         {!loading && messages.length > 0 && (
           <div>
@@ -412,6 +419,93 @@ export const ChatMessageList = memo(function ChatMessageList({
                 </div>
               );
             })}
+
+            {!!pendingOutgoingText &&
+              (() => {
+                const last = messages[messages.length - 1];
+                const lastIsSelf = last?.author.clerkId === user?.clerkId;
+                const lastSameDay = last
+                  ? isSameDay(new Date(last.createdAt), new Date())
+                  : false;
+                const startsNewGroup = !lastIsSelf || !lastSameDay;
+
+                const showAvatar = startsNewGroup;
+                const showHeader = startsNewGroup;
+                const bubbleBase =
+                  "relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm transition-all duration-200";
+
+                return (
+                  <div
+                    className={cn("py-0", !startsNewGroup && "mt-1.5")}
+                    aria-live="polite">
+                    <div
+                      className={cn("flex items-start gap-3", "justify-end")}>
+                      <div
+                        className={cn(
+                          "flex flex-col max-w-[75%] group min-w-0",
+                          "items-end",
+                        )}>
+                        {showHeader && (
+                          <div className="flex items-center justify-end gap-2 mb-2 w-full">
+                            <span className="text-xs text-muted-foreground/60 tabular-nums">
+                              Sending...
+                            </span>
+                            <span className="text-sm font-semibold text-foreground">
+                              You
+                            </span>
+                          </div>
+                        )}
+
+                        <div
+                          className={cn(
+                            bubbleBase,
+                            "bg-primary/40 text-primary-foreground opacity-80",
+                          )}>
+                          <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                            {pendingOutgoingText}
+                          </div>
+                          <div className="absolute -bottom-1 -right-1 h-2 w-2 rounded-full bg-primary/50 animate-pulse" />
+                        </div>
+                      </div>
+
+                      {showAvatar ? (
+                        <Avatar className="h-8 w-8 shrink-0 opacity-80">
+                          <AvatarImage
+                            src={user?.profileImage}
+                            alt={user?.username}
+                          />
+                          <AvatarFallback>
+                            {user?.username?.[0]?.toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <div className="w-9 shrink-0" />
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+          </div>
+        )}
+
+        {!loading && messages.length === 0 && !!pendingOutgoingText && (
+          <div className="pt-1">
+            <div className="flex items-start gap-3 justify-end">
+              <div className="flex flex-col max-w-[75%] min-w-0 items-end">
+                <div className="relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm bg-primary/40 text-primary-foreground opacity-80">
+                  <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                    {pendingOutgoingText}
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 h-2 w-2 rounded-full bg-primary/50 animate-pulse" />
+                </div>
+              </div>
+              <Avatar className="h-8 w-8 shrink-0 opacity-80">
+                <AvatarImage src={user?.profileImage} alt={user?.username} />
+                <AvatarFallback>
+                  {user?.username?.[0]?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+            </div>
           </div>
         )}
       </div>
