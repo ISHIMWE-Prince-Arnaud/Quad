@@ -1,6 +1,7 @@
 import { MoreHorizontal, Check, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,50 +27,103 @@ export function NotificationsHeader({
   onClearRead: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <CardTitle className="text-xl font-bold tracking-tight">Notifications</CardTitle>
+    <div className="flex flex-col gap-3 sm:gap-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-xl font-bold tracking-tight">
+              Notifications
+            </CardTitle>
+            {unreadLocalCount > 0 && (
+              <Badge variant="destructive" className="h-5 px-2 text-[11px]">
+                {unreadLocalCount > 99 ? "99+" : unreadLocalCount}
+              </Badge>
+            )}
+          </div>
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onMarkAllAsRead}>
-              <Check className="w-4 h-4 mr-2" />
+        <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onMarkAllAsRead}
+              disabled={unreadLocalCount === 0}
+              className="transition-all hover:bg-accent/70 hover:border-accent-foreground/25 hover:shadow-sm">
+              <Check className="h-4 w-4" />
               Mark all read
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onClearRead}>
-              <Trash2 className="w-4 h-4 mr-2" />
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onClearRead}
+              className="transition-all hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40 hover:shadow-sm">
+              <Trash2 className="h-4 w-4" />
               Clear read
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </Button>
+          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 sm:hidden">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={onMarkAllAsRead}
+                disabled={unreadLocalCount === 0}
+                className="focus:bg-accent/70">
+                <Check className="w-4 h-4 mr-2" />
+                Mark all read
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={onClearRead}
+                className="focus:bg-destructive/10 focus:text-destructive">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Clear read
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        {(["all", "unread"] as FilterTab[]).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => onFilterChange(tab)}
-            className={cn(
-              "relative px-4 py-1.5 text-sm font-medium rounded-full transition-colors",
-              filter === tab
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}>
-            {tab === "all" ? "All" : "Unread"}
-            {tab === "unread" && unreadLocalCount > 0 && (
-              <span className="ml-2 inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary-foreground text-primary text-[10px] font-bold">
-                {unreadLocalCount}
-              </span>
-            )}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center gap-2">
+        {(["all", "unread"] as FilterTab[]).map((tab) => {
+          const isActive = filter === tab;
+
+          return (
+            <Button
+              key={tab}
+              type="button"
+              onClick={() => onFilterChange(tab)}
+              variant={isActive ? "default" : "secondary"}
+              size="sm"
+              aria-pressed={isActive}
+              className={cn("rounded-full", !isActive && "hover:bg-muted")}>
+              {tab === "all" ? "All" : "Unread"}
+              {tab === "unread" && unreadLocalCount > 0 && (
+                <span
+                  className={cn(
+                    "ml-2 inline-flex min-w-[1.25rem] h-5 items-center justify-center rounded-full px-2 text-[11px] font-semibold",
+                    isActive
+                      ? "bg-primary-foreground text-primary"
+                      : "bg-background text-foreground",
+                  )}
+                  aria-label={`${unreadLocalCount} unread`}>
+                  {unreadLocalCount > 99 ? "99+" : unreadLocalCount}
+                </span>
+              )}
+            </Button>
+          );
+        })}
       </div>
     </div>
   );
