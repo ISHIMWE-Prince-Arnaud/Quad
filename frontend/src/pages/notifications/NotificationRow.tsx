@@ -1,10 +1,11 @@
-import { Check, Trash2 } from "lucide-react";
+import { Check,Trash2 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { timeAgo } from "@/lib/timeUtils";
 import { cn } from "@/lib/utils";
 import type { ApiNotification } from "@/types/api";
+import { FaInfo } from "react-icons/fa";
 
 export function NotificationRow({
   notification,
@@ -20,7 +21,7 @@ export function NotificationRow({
   const hasActor = !!notification.actor;
   const displayName =
     notification.actor?.displayName || notification.actor?.username || "";
-  const avatarInitial = hasActor ? displayName.charAt(0).toUpperCase() : "Q";
+  const avatarInitial = hasActor ? displayName.charAt(0).toUpperCase() : <FaInfo />;
 
   return (
     <div
@@ -49,8 +50,8 @@ export function NotificationRow({
         <div className="flex justify-between items-start gap-2">
           <div className="text-sm leading-snug">
             {hasActor && (
-              <span className="font-semibold text-foreground mr-1">
-                {displayName}
+              <span className="font-semibold text-primary mr-1">
+                @{displayName}
               </span>
             )}
             <span className="text-foreground/80">{notification.message}</span>
