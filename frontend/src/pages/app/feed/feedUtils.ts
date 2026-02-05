@@ -40,17 +40,15 @@ export function filterFeedItemsForTab(
   items: FeedItem[],
   tab: FeedTab,
 ): FeedItem[] {
-  const withoutStories = items.filter((item) => item.type !== "story");
-
   if (tab === "posts") {
-    return withoutStories.filter((item) => item.type === "post");
+    return items.filter((item) => item.type === "post");
   }
 
   if (tab === "polls") {
-    return withoutStories.filter((item) => item.type === "poll");
+    return items.filter((item) => item.type === "poll");
   }
 
-  return withoutStories;
+  return items;
 }
 
 export function mixPostsAndPolls(

@@ -4,7 +4,7 @@ export type FeedType = "following" | "foryou";
 export type FeedTab = "home" | "posts" | "polls";
 export type FeedSort = "newest" | "trending";
 
-export type FeedItemType = "post" | "poll" | "story";
+export type FeedItemType = "post" | "poll";
 
 export interface FeedAuthor {
   clerkId: string;

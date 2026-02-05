@@ -17,22 +17,6 @@ export interface Post {
   updatedAt: string;
 }
 
-export interface Story {
-  _id: string;
-  authorId: string;
-  title: string;
-  content: string;
-  coverImage?: string;
-  tags: string[];
-  status: "draft" | "published";
-  likesCount: number;
-  viewsCount: number;
-  commentsCount: number;
-  readingTime: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface Poll {
   _id: string;
   authorId: string;
@@ -50,7 +34,7 @@ export interface Poll {
   updatedAt: string;
 }
 
-export type FeedItem = Post | Story | Poll;
+export type FeedItem = Post | Poll;
 export type FeedType = "following" | "foryou";
 
 interface FeedState {
@@ -88,23 +72,23 @@ export const useFeedStore = create<FeedState>((set, get) => ({
   },
 
   setFeedItems: (items) => {
-    set({ 
+    set({
       feedItems: items,
-      itemIds: new Set(items.map(item => item._id))
+      itemIds: new Set(items.map((item) => item._id)),
     });
   },
 
   addFeedItems: (items) => {
     const { feedItems, itemIds } = get();
     const newItems = items.filter((item) => !itemIds.has(item._id));
-    
+
     if (newItems.length > 0) {
       const nextItemIds = new Set(itemIds);
-      newItems.forEach(item => nextItemIds.add(item._id));
-      
-      set({ 
+      newItems.forEach((item) => nextItemIds.add(item._id));
+
+      set({
         feedItems: [...feedItems, ...newItems],
-        itemIds: nextItemIds
+        itemIds: nextItemIds,
       });
     }
   },
@@ -112,7 +96,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
   updateFeedItem: (id, updates) => {
     const items = get().feedItems;
     const updatedItems = items.map((item) =>
-      item._id === id ? ({ ...item, ...updates } as FeedItem) : item
+      item._id === id ? ({ ...item, ...updates } as FeedItem) : item,
     );
     set({ feedItems: updatedItems });
   },
@@ -122,10 +106,10 @@ export const useFeedStore = create<FeedState>((set, get) => ({
     const filteredItems = feedItems.filter((item) => item._id !== id);
     const nextItemIds = new Set(itemIds);
     nextItemIds.delete(id);
-    
-    set({ 
+
+    set({
       feedItems: filteredItems,
-      itemIds: nextItemIds
+      itemIds: nextItemIds,
     });
   },
 
