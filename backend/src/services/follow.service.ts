@@ -3,7 +3,6 @@ import { User } from "../models/User.model.js";
 import type { GetFollowListQuerySchemaType } from "../schemas/follow.schema.js";
 import {
   getFollowStats as computeFollowStats,
-  getMutualFollowIds,
   isFollowing,
   updateFollowCounts,
 } from "../utils/follow.util.js";
@@ -209,37 +208,13 @@ export class FollowService {
     if (currentUserId === targetUserId) {
       return {
         isFollowing: false,
-        isFollowedBy: false,
-        isMutual: false,
       };
     }
 
-    const [following, followedBy] = await Promise.all([
-      isFollowing(currentUserId, targetUserId),
-      isFollowing(targetUserId, currentUserId),
-    ]);
+    const following = await isFollowing(currentUserId, targetUserId);
 
     return {
       isFollowing: following,
-      isFollowedBy: followedBy,
-      isMutual: following && followedBy,
-    };
-  }
-
-  static async getMutualFollows(currentUserId: string, targetUserId: string) {
-    if (currentUserId === targetUserId) {
-      return {
-        mutualUsers: [],
-        count: 0,
-      };
-    }
-
-    const mutualIds = await getMutualFollowIds(currentUserId, targetUserId);
-    const mutualUsers = await User.find({ clerkId: { $in: mutualIds } });
-
-    return {
-      mutualUsers,
-      count: mutualUsers.length,
     };
   }
 

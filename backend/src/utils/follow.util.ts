@@ -14,20 +14,6 @@ export const isFollowing = async (
 };
 
 /**
- * Check if two users follow each other (mutual follow)
- */
-export const isMutualFollow = async (
-  userId: string,
-  otherUserId: string,
-): Promise<boolean> => {
-  const [following, followedBy] = await Promise.all([
-    Follow.findOne({ userId, followingId: otherUserId }),
-    Follow.findOne({ userId: otherUserId, followingId: userId }),
-  ]);
-  return !!following && !!followedBy;
-};
-
-/**
  * Get follow statistics for a user
  */
 export const getFollowStats = async (
@@ -43,10 +29,7 @@ export const getFollowStats = async (
     return {
       followersCount: 0,
       followingCount: 0,
-      mutualFollows: 0,
       isFollowing: false,
-      isFollowedBy: false,
-      isMutual: false,
     };
   }
 
@@ -57,54 +40,25 @@ export const getFollowStats = async (
     return {
       followersCount,
       followingCount,
-      mutualFollows: 0,
       isFollowing: false,
-      isFollowedBy: false,
-      isMutual: false,
     };
   }
 
   // Check follow relationship
-  const [followingCheck, followedByCheck] = await Promise.all([
-    Follow.findOne({ userId: currentUserId, followingId: targetUserId }),
-    Follow.findOne({ userId: targetUserId, followingId: currentUserId }),
-  ]);
+  const followingCheck = await Follow.findOne({
+    userId: currentUserId,
+    followingId: targetUserId,
+  });
 
   const following = !!followingCheck;
-  const followedBy = !!followedByCheck;
   const followersCount = user.followersCount || 0;
   const followingCount = user.followingCount || 0;
-  const mutualIds = await getMutualFollowIds(currentUserId, targetUserId);
 
   return {
     followersCount,
     followingCount,
-    mutualFollows: mutualIds.length,
     isFollowing: following,
-    isFollowedBy: followedBy,
-    isMutual: following && followedBy,
   };
-};
-
-/**
- * Get mutual follows between two users
- */
-export const getMutualFollowIds = async (
-  userId: string,
-  otherUserId: string,
-): Promise<string[]> => {
-  // Get users that both users follow
-  const [userFollowing, otherUserFollowing] = await Promise.all([
-    Follow.find({ userId }).select("followingId"),
-    Follow.find({ userId: otherUserId }).select("followingId"),
-  ]);
-
-  const userFollowingIds = new Set(userFollowing.map((f) => f.followingId));
-  const mutualIds = otherUserFollowing
-    .filter((f) => userFollowingIds.has(f.followingId))
-    .map((f) => f.followingId);
-
-  return mutualIds;
 };
 
 /**

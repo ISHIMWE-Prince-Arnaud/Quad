@@ -121,30 +121,6 @@ export const checkFollowing = asyncHandler(
 );
 
 // =========================
-// GET MUTUAL FOLLOWS
-// =========================
-export const getMutualFollows = asyncHandler(
-  async (req: Request, res: Response) => {
-    const currentUserId = req.auth?.userId;
-    if (!currentUserId) {
-      throw new AppError("Unauthorized", 401);
-    }
-
-    const { userId: targetUserId } = req.params as { userId: string };
-    const result = await FollowService.getMutualFollows(
-      currentUserId,
-      targetUserId,
-    );
-
-    return res.json({
-      success: true,
-      data: result.mutualUsers,
-      count: result.count,
-    });
-  },
-);
-
-// =========================
 // GET FOLLOW STATS
 // =========================
 export const getFollowStatsController = asyncHandler(

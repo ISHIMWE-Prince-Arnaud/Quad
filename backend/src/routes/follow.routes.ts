@@ -11,7 +11,6 @@ import {
   getFollowers,
   getFollowing,
   checkFollowing,
-  getMutualFollows,
   getFollowStatsController,
 } from "../controllers/follow.controller.js";
 
@@ -26,7 +25,7 @@ router.post(
   "/:userId",
   requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
-  followUser
+  followUser,
 );
 
 // Unfollow a user
@@ -34,7 +33,7 @@ router.delete(
   "/:userId",
   requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
-  unfollowUser
+  unfollowUser,
 );
 
 // ===========================
@@ -47,7 +46,7 @@ router.get(
   requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
   validateSchema(getFollowListQuerySchema, "query"),
-  getFollowers
+  getFollowers,
 );
 
 // Get users that a user is following
@@ -56,7 +55,7 @@ router.get(
   requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
   validateSchema(getFollowListQuerySchema, "query"),
-  getFollowing
+  getFollowing,
 );
 
 // ===========================
@@ -68,15 +67,7 @@ router.get(
   "/:userId/check",
   requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
-  checkFollowing
-);
-
-// Get mutual follows
-router.get(
-  "/:userId/mutual",
-  requireApiAuth,
-  validateSchema(userIdParamSchema, "params"),
-  getMutualFollows
+  checkFollowing,
 );
 
 // Get follow statistics
@@ -84,7 +75,7 @@ router.get(
   "/:userId/stats",
   requireApiAuth,
   validateSchema(userIdParamSchema, "params"),
-  getFollowStatsController
+  getFollowStatsController,
 );
 
 export default router;
