@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Camera, Calendar } from "lucide-react";
+import { Camera, Calendar, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -45,6 +45,11 @@ export function ProfileHeader({
       : user.followingCount;
 
   const isPending = useFollowStore((s) => s.pendingByTarget[user.clerkId]);
+  const pendingAction = useFollowStore(
+    (s) => s.pendingActionByTarget[user.clerkId],
+  );
+  const isPendingFollow = Boolean(isPending) && pendingAction === "follow";
+  const isPendingUnfollow = Boolean(isPending) && pendingAction === "unfollow";
 
   const formatStatNumber = (value?: number) => {
     const formatted = new Intl.NumberFormat("en-US", {
@@ -214,13 +219,22 @@ export function ProfileHeader({
                         ? "border-border/70 text-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
                         : "bg-primary text-primary-foreground hover:bg-primary/90",
                     )}>
-                    {isPending
-                      ? "..."
-                      : isFollowing
-                        ? isFollowHovered
-                          ? "Unfollow"
-                          : "Following"
-                        : "Follow"}
+                    {isPendingFollow ? (
+                      <span className="inline-flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Following…
+                      </span>
+                    ) : isPendingUnfollow ? (
+                      "..."
+                    ) : isFollowing ? (
+                      isFollowHovered ? (
+                        "Unfollow"
+                      ) : (
+                        "Following"
+                      )
+                    ) : (
+                      "Follow"
+                    )}
                   </Button>
                 </>
               )}
@@ -451,6 +465,7 @@ export function ProfileHeader({
           onUnfollow?.();
           setUnfollowConfirmOpen(false);
         }}
+        loading={isPendingUnfollow}
       />
     </>
   );

@@ -13,8 +13,12 @@ type FollowState = {
   followersCountByUser: Record<string, number | undefined>;
   followingCountByUser: Record<string, number | undefined>;
   pendingByTarget: Record<string, boolean | undefined>;
+  pendingActionByTarget: Record<string, "follow" | "unfollow" | undefined>;
 
-  hydrateRelationshipIfMissing: (targetUserId: string, isFollowing: boolean) => void;
+  hydrateRelationshipIfMissing: (
+    targetUserId: string,
+    isFollowing: boolean,
+  ) => void;
   hydrateRelationshipsIfMissing: (
     items: Array<{ clerkId: string; isFollowing?: boolean }>,
   ) => void;
@@ -43,6 +47,7 @@ export const useFollowStore = create<FollowState>((set, get) => ({
   followersCountByUser: {},
   followingCountByUser: {},
   pendingByTarget: {},
+  pendingActionByTarget: {},
 
   hydrateRelationshipIfMissing: (targetUserId, isFollowing) => {
     const curr = get().isFollowingByTarget[targetUserId];
@@ -104,6 +109,10 @@ export const useFollowStore = create<FollowState>((set, get) => ({
 
     set((state) => ({
       pendingByTarget: { ...state.pendingByTarget, [targetUserId]: true },
+      pendingActionByTarget: {
+        ...state.pendingActionByTarget,
+        [targetUserId]: "follow",
+      },
       isFollowingByTarget: {
         ...state.isFollowingByTarget,
         [targetUserId]: true,
@@ -148,6 +157,10 @@ export const useFollowStore = create<FollowState>((set, get) => ({
     } finally {
       set((state) => ({
         pendingByTarget: { ...state.pendingByTarget, [targetUserId]: false },
+        pendingActionByTarget: {
+          ...state.pendingActionByTarget,
+          [targetUserId]: undefined,
+        },
       }));
     }
   },
@@ -168,6 +181,10 @@ export const useFollowStore = create<FollowState>((set, get) => ({
 
     set((state) => ({
       pendingByTarget: { ...state.pendingByTarget, [targetUserId]: true },
+      pendingActionByTarget: {
+        ...state.pendingActionByTarget,
+        [targetUserId]: "unfollow",
+      },
       isFollowingByTarget: {
         ...state.isFollowingByTarget,
         [targetUserId]: false,
@@ -212,6 +229,10 @@ export const useFollowStore = create<FollowState>((set, get) => ({
     } finally {
       set((state) => ({
         pendingByTarget: { ...state.pendingByTarget, [targetUserId]: false },
+        pendingActionByTarget: {
+          ...state.pendingActionByTarget,
+          [targetUserId]: undefined,
+        },
       }));
     }
   },

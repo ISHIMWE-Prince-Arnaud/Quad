@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle, MoreHorizontal } from "lucide-react";
+import { CheckCircle, Loader2, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -56,11 +56,17 @@ export function UserCard({
     (s) => s.isFollowingByTarget[user.clerkId],
   );
   const isPending = useFollowStore((s) => s.pendingByTarget[user.clerkId]);
+  const pendingAction = useFollowStore(
+    (s) => s.pendingActionByTarget[user.clerkId],
+  );
 
   const isFollowing =
     typeof isFollowingFromStore === "boolean"
       ? isFollowingFromStore
       : Boolean(user.isFollowing);
+
+  const isPendingFollow = Boolean(isPending) && pendingAction === "follow";
+  const isPendingUnfollow = Boolean(isPending) && pendingAction === "unfollow";
 
   const displayName =
     user.firstName && user.lastName
@@ -155,13 +161,22 @@ export function UserCard({
                   ? "flex-shrink-0 rounded-full border-border/70 text-foreground transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
                   : "flex-shrink-0 rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
               }>
-              {isPending
-                ? "..."
-                : isFollowing
-                  ? isFollowHovered
-                    ? "Unfollow"
-                    : "Following"
-                  : "Follow"}
+              {isPendingFollow ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Following…
+                </span>
+              ) : isPendingUnfollow ? (
+                "..."
+              ) : isFollowing ? (
+                isFollowHovered ? (
+                  "Unfollow"
+                ) : (
+                  "Following"
+                )
+              ) : (
+                "Follow"
+              )}
             </Button>
           )}
         </div>
@@ -175,7 +190,7 @@ export function UserCard({
           cancelLabel="Cancel"
           variant="destructive"
           onConfirm={handleConfirmUnfollow}
-          loading={Boolean(isPending)}
+          loading={isPendingUnfollow}
         />
       </>
     );
@@ -228,11 +243,18 @@ export function UserCard({
                   variant={isFollowing ? "outline" : "default"}
                   onClick={handleFollowClick}
                   disabled={Boolean(isPending)}>
-                  {isPending
-                    ? "Loading..."
-                    : isFollowing
-                      ? "Following"
-                      : "Follow"}
+                  {isPendingFollow ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Following…
+                    </span>
+                  ) : isPendingUnfollow ? (
+                    "Loading…"
+                  ) : isFollowing ? (
+                    "Following"
+                  ) : (
+                    "Follow"
+                  )}
                 </Button>
               )}
 
@@ -286,7 +308,7 @@ export function UserCard({
         cancelLabel="Cancel"
         variant="destructive"
         onConfirm={handleConfirmUnfollow}
-        loading={Boolean(isPending)}
+        loading={isPendingUnfollow}
       />
     </>
   );
