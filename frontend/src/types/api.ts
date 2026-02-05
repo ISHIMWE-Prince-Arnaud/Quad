@@ -127,9 +127,14 @@ export interface ApiFollowUser {
 }
 
 export interface ApiFollowStats {
-  followers: number;
-  following: number;
-  mutualFollows: number;
+  followers?: number;
+  following?: number;
+  mutualFollows?: number;
+  followersCount?: number;
+  followingCount?: number;
+  isFollowing?: boolean;
+  isFollowedBy?: boolean;
+  isMutual?: boolean;
 }
 
 export interface ApiUploadResponse {

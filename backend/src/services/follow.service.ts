@@ -75,36 +75,132 @@ export class FollowService {
     });
   }
 
-  static async getFollowers(targetUserId: string, query: GetFollowListQuerySchemaType) {
+  static async getFollowers(
+    currentUserId: string,
+    targetUserId: string,
+    query: GetFollowListQuerySchemaType,
+  ) {
     const user = await User.findOne({ clerkId: targetUserId });
     if (!user) {
       throw new AppError("User not found", 404);
     }
 
-    const result = await getPaginatedData(Follow, { followingId: targetUserId }, query);
+    const result = await getPaginatedData(
+      Follow,
+      { followingId: targetUserId },
+      {
+        ...query,
+        select: "userId createdAt",
+      },
+    );
 
     const followerIds = result.data.map((f: { userId: string }) => f.userId);
-    const followers = await User.find({ clerkId: { $in: followerIds } });
+
+    const [followers, followStatusDocs] = await Promise.all([
+      User.find({ clerkId: { $in: followerIds } })
+        .select(
+          "clerkId username firstName lastName profileImage bio isVerified",
+        )
+        .lean(),
+      Follow.find({ userId: currentUserId, followingId: { $in: followerIds } })
+        .select("followingId")
+        .lean(),
+    ]);
+
+    const isFollowingSet = new Set(
+      followStatusDocs.map((d: { followingId: string }) => d.followingId),
+    );
+
+    const followedAtMap = new Map<string, Date>();
+    result.data.forEach((f: { userId: string; createdAt: Date }) => {
+      followedAtMap.set(f.userId, f.createdAt);
+    });
+
+    const userByClerkId = new Map<string, Record<string, unknown>>();
+    followers.forEach((u: { clerkId: string }) => {
+      userByClerkId.set(u.clerkId, u as unknown as Record<string, unknown>);
+    });
+
+    const enrichedFollowers = followerIds
+      .map((id) => {
+        const u = userByClerkId.get(id);
+        if (!u) return null;
+        return {
+          ...u,
+          isFollowing: isFollowingSet.has(id),
+          followedAt: followedAtMap.get(id)?.toISOString(),
+        };
+      })
+      .filter(Boolean);
 
     return {
-      data: followers,
+      data: enrichedFollowers,
       pagination: result.pagination,
     };
   }
 
-  static async getFollowing(targetUserId: string, query: GetFollowListQuerySchemaType) {
+  static async getFollowing(
+    currentUserId: string,
+    targetUserId: string,
+    query: GetFollowListQuerySchemaType,
+  ) {
     const user = await User.findOne({ clerkId: targetUserId });
     if (!user) {
       throw new AppError("User not found", 404);
     }
 
-    const result = await getPaginatedData(Follow, { userId: targetUserId }, query);
+    const result = await getPaginatedData(
+      Follow,
+      { userId: targetUserId },
+      {
+        ...query,
+        select: "followingId createdAt",
+      },
+    );
 
-    const followingIds = result.data.map((f: { followingId: string }) => f.followingId);
-    const following = await User.find({ clerkId: { $in: followingIds } });
+    const followingIds = result.data.map(
+      (f: { followingId: string }) => f.followingId,
+    );
+
+    const [following, followStatusDocs] = await Promise.all([
+      User.find({ clerkId: { $in: followingIds } })
+        .select(
+          "clerkId username firstName lastName profileImage bio isVerified",
+        )
+        .lean(),
+      Follow.find({ userId: currentUserId, followingId: { $in: followingIds } })
+        .select("followingId")
+        .lean(),
+    ]);
+
+    const isFollowingSet = new Set(
+      followStatusDocs.map((d: { followingId: string }) => d.followingId),
+    );
+
+    const followedAtMap = new Map<string, Date>();
+    result.data.forEach((f: { followingId: string; createdAt: Date }) => {
+      followedAtMap.set(f.followingId, f.createdAt);
+    });
+
+    const userByClerkId = new Map<string, Record<string, unknown>>();
+    following.forEach((u: { clerkId: string }) => {
+      userByClerkId.set(u.clerkId, u as unknown as Record<string, unknown>);
+    });
+
+    const enrichedFollowing = followingIds
+      .map((id) => {
+        const u = userByClerkId.get(id);
+        if (!u) return null;
+        return {
+          ...u,
+          isFollowing: isFollowingSet.has(id),
+          followedAt: followedAtMap.get(id)?.toISOString(),
+        };
+      })
+      .filter(Boolean);
 
     return {
-      data: following,
+      data: enrichedFollowing,
       pagination: result.pagination,
     };
   }

@@ -7,7 +7,7 @@ import type { IFollowStats } from "../types/follow.types.js";
  */
 export const isFollowing = async (
   userId: string,
-  followingId: string
+  followingId: string,
 ): Promise<boolean> => {
   const follow = await Follow.findOne({ userId, followingId });
   return !!follow;
@@ -18,7 +18,7 @@ export const isFollowing = async (
  */
 export const isMutualFollow = async (
   userId: string,
-  otherUserId: string
+  otherUserId: string,
 ): Promise<boolean> => {
   const [following, followedBy] = await Promise.all([
     Follow.findOne({ userId, followingId: otherUserId }),
@@ -32,17 +32,20 @@ export const isMutualFollow = async (
  */
 export const getFollowStats = async (
   targetUserId: string,
-  currentUserId?: string
+  currentUserId?: string,
 ): Promise<IFollowStats> => {
   // Get user's follower and following counts
   const user = await User.findOne({ clerkId: targetUserId }).select(
-    "followersCount followingCount"
+    "followersCount followingCount",
   );
 
   if (!user) {
     return {
       followersCount: 0,
       followingCount: 0,
+      followers: 0,
+      following: 0,
+      mutualFollows: 0,
       isFollowing: false,
       isFollowedBy: false,
       isMutual: false,
@@ -51,9 +54,14 @@ export const getFollowStats = async (
 
   // If no current user, return basic stats
   if (!currentUserId || currentUserId === targetUserId) {
+    const followersCount = user.followersCount || 0;
+    const followingCount = user.followingCount || 0;
     return {
-      followersCount: user.followersCount || 0,
-      followingCount: user.followingCount || 0,
+      followersCount,
+      followingCount,
+      followers: followersCount,
+      following: followingCount,
+      mutualFollows: 0,
       isFollowing: false,
       isFollowedBy: false,
       isMutual: false,
@@ -68,10 +76,16 @@ export const getFollowStats = async (
 
   const following = !!followingCheck;
   const followedBy = !!followedByCheck;
+  const followersCount = user.followersCount || 0;
+  const followingCount = user.followingCount || 0;
+  const mutualIds = await getMutualFollowIds(currentUserId, targetUserId);
 
   return {
-    followersCount: user.followersCount || 0,
-    followingCount: user.followingCount || 0,
+    followersCount,
+    followingCount,
+    followers: followersCount,
+    following: followingCount,
+    mutualFollows: mutualIds.length,
     isFollowing: following,
     isFollowedBy: followedBy,
     isMutual: following && followedBy,
@@ -83,7 +97,7 @@ export const getFollowStats = async (
  */
 export const getMutualFollowIds = async (
   userId: string,
-  otherUserId: string
+  otherUserId: string,
 ): Promise<string[]> => {
   // Get users that both users follow
   const [userFollowing, otherUserFollowing] = await Promise.all([
@@ -91,9 +105,7 @@ export const getMutualFollowIds = async (
     Follow.find({ userId: otherUserId }).select("followingId"),
   ]);
 
-  const userFollowingIds = new Set(
-    userFollowing.map((f) => f.followingId)
-  );
+  const userFollowingIds = new Set(userFollowing.map((f) => f.followingId));
   const mutualIds = otherUserFollowing
     .filter((f) => userFollowingIds.has(f.followingId))
     .map((f) => f.followingId);
@@ -107,20 +119,30 @@ export const getMutualFollowIds = async (
 export const updateFollowCounts = async (
   userId: string,
   followingId: string,
-  increment: boolean
+  increment: boolean,
 ): Promise<void> => {
   const change = increment ? 1 : -1;
 
   await Promise.all([
     // Update follower count for the user being followed
-    User.findOneAndUpdate(
-      { clerkId: followingId },
-      { $inc: { followersCount: change } }
-    ),
+    User.updateOne({ clerkId: followingId }, [
+      {
+        $set: {
+          followersCount: {
+            $max: [0, { $add: ["$followersCount", change] }],
+          },
+        },
+      },
+    ]),
     // Update following count for the user who is following
-    User.findOneAndUpdate(
-      { clerkId: userId },
-      { $inc: { followingCount: change } }
-    ),
+    User.updateOne({ clerkId: userId }, [
+      {
+        $set: {
+          followingCount: {
+            $max: [0, { $add: ["$followingCount", change] }],
+          },
+        },
+      },
+    ]),
   ]);
 };

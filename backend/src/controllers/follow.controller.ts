@@ -26,104 +26,143 @@ export const followUser = asyncHandler(async (req: Request, res: Response) => {
 // =========================
 // UNFOLLOW USER
 // =========================
-export const unfollowUser = asyncHandler(async (req: Request, res: Response) => {
-  const currentUserId = req.auth?.userId;
-  if (!currentUserId) {
-    throw new AppError("Unauthorized", 401);
-  }
+export const unfollowUser = asyncHandler(
+  async (req: Request, res: Response) => {
+    const currentUserId = req.auth?.userId;
+    if (!currentUserId) {
+      throw new AppError("Unauthorized", 401);
+    }
 
-  const { userId: targetUserId } = req.params as { userId: string };
-  await FollowService.unfollowUser(currentUserId, targetUserId);
+    const { userId: targetUserId } = req.params as { userId: string };
+    await FollowService.unfollowUser(currentUserId, targetUserId);
 
-  return res.json({
-    success: true,
-    message: "Successfully unfollowed user",
-  });
-});
+    return res.json({
+      success: true,
+      message: "Successfully unfollowed user",
+    });
+  },
+);
 
 // =========================
 // GET FOLLOWERS
 // =========================
-export const getFollowers = asyncHandler(async (req: Request, res: Response) => {
-  const { userId: targetUserId } = req.params as { userId: string };
-  const query = req.query as unknown as GetFollowListQuerySchemaType;
+export const getFollowers = asyncHandler(
+  async (req: Request, res: Response) => {
+    const currentUserId = req.auth?.userId;
+    if (!currentUserId) {
+      throw new AppError("Unauthorized", 401);
+    }
 
-  const result = await FollowService.getFollowers(targetUserId, query);
+    const { userId: targetUserId } = req.params as { userId: string };
+    const query = req.query as unknown as GetFollowListQuerySchemaType;
 
-  return res.json({
-    success: true,
-    data: result.data,
-    pagination: result.pagination,
-  });
-});
+    const result = await FollowService.getFollowers(
+      currentUserId,
+      targetUserId,
+      query,
+    );
+
+    return res.json({
+      success: true,
+      data: result.data,
+      pagination: result.pagination,
+    });
+  },
+);
 
 // =========================
 // GET FOLLOWING
 // =========================
-export const getFollowing = asyncHandler(async (req: Request, res: Response) => {
-  const { userId: targetUserId } = req.params as { userId: string };
-  const query = req.query as unknown as GetFollowListQuerySchemaType;
+export const getFollowing = asyncHandler(
+  async (req: Request, res: Response) => {
+    const currentUserId = req.auth?.userId;
+    if (!currentUserId) {
+      throw new AppError("Unauthorized", 401);
+    }
 
-  const result = await FollowService.getFollowing(targetUserId, query);
+    const { userId: targetUserId } = req.params as { userId: string };
+    const query = req.query as unknown as GetFollowListQuerySchemaType;
 
-  return res.json({
-    success: true,
-    data: result.data,
-    pagination: result.pagination,
-  });
-});
+    const result = await FollowService.getFollowing(
+      currentUserId,
+      targetUserId,
+      query,
+    );
+
+    return res.json({
+      success: true,
+      data: result.data,
+      pagination: result.pagination,
+    });
+  },
+);
 
 // =========================
 // CHECK FOLLOWING STATUS
 // =========================
-export const checkFollowing = asyncHandler(async (req: Request, res: Response) => {
-  const currentUserId = req.auth?.userId;
-  if (!currentUserId) {
-    throw new AppError("Unauthorized", 401);
-  }
+export const checkFollowing = asyncHandler(
+  async (req: Request, res: Response) => {
+    const currentUserId = req.auth?.userId;
+    if (!currentUserId) {
+      throw new AppError("Unauthorized", 401);
+    }
 
-  const { userId: targetUserId } = req.params as { userId: string };
-  const data = await FollowService.checkFollowing(currentUserId, targetUserId);
+    const { userId: targetUserId } = req.params as { userId: string };
+    const data = await FollowService.checkFollowing(
+      currentUserId,
+      targetUserId,
+    );
 
-  return res.json({
-    success: true,
-    data,
-  });
-});
+    return res.json({
+      success: true,
+      data,
+    });
+  },
+);
 
 // =========================
 // GET MUTUAL FOLLOWS
 // =========================
-export const getMutualFollows = asyncHandler(async (req: Request, res: Response) => {
-  const currentUserId = req.auth?.userId;
-  if (!currentUserId) {
-    throw new AppError("Unauthorized", 401);
-  }
+export const getMutualFollows = asyncHandler(
+  async (req: Request, res: Response) => {
+    const currentUserId = req.auth?.userId;
+    if (!currentUserId) {
+      throw new AppError("Unauthorized", 401);
+    }
 
-  const { userId: targetUserId } = req.params as { userId: string };
-  const result = await FollowService.getMutualFollows(currentUserId, targetUserId);
+    const { userId: targetUserId } = req.params as { userId: string };
+    const result = await FollowService.getMutualFollows(
+      currentUserId,
+      targetUserId,
+    );
 
-  return res.json({
-    success: true,
-    data: result.mutualUsers,
-    count: result.count,
-  });
-});
+    return res.json({
+      success: true,
+      data: result.mutualUsers,
+      count: result.count,
+    });
+  },
+);
 
 // =========================
 // GET FOLLOW STATS
 // =========================
-export const getFollowStatsController = asyncHandler(async (req: Request, res: Response) => {
-  const currentUserId = req.auth?.userId;
-  if (!currentUserId) {
-    throw new AppError("Unauthorized", 401);
-  }
+export const getFollowStatsController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const currentUserId = req.auth?.userId;
+    if (!currentUserId) {
+      throw new AppError("Unauthorized", 401);
+    }
 
-  const { userId: targetUserId } = req.params as { userId: string };
-  const stats = await FollowService.getFollowStats(currentUserId, targetUserId);
+    const { userId: targetUserId } = req.params as { userId: string };
+    const stats = await FollowService.getFollowStats(
+      currentUserId,
+      targetUserId,
+    );
 
-  return res.json({
-    success: true,
-    data: stats,
-  });
-});
+    return res.json({
+      success: true,
+      data: stats,
+    });
+  },
+);

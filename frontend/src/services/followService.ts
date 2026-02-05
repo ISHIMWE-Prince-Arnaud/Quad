@@ -8,7 +8,7 @@ import type {
 export class FollowService {
   // Follow a user
   static async followUser(
-    userId: string
+    userId: string,
   ): Promise<{ success: boolean; message?: string }> {
     const response = await endpoints.follow.followUser(userId);
     return response.data;
@@ -16,7 +16,7 @@ export class FollowService {
 
   // Unfollow a user
   static async unfollowUser(
-    userId: string
+    userId: string,
   ): Promise<{ success: boolean; message?: string }> {
     const response = await endpoints.follow.unfollowUser(userId);
     return response.data;
@@ -25,7 +25,7 @@ export class FollowService {
   // Get user's followers
   static async getFollowers(
     userId: string,
-    params: FollowListParams = {}
+    params: FollowListParams = {},
   ): Promise<{ followers: ApiFollowUser[]; hasMore: boolean; total: number }> {
     const response = await endpoints.follow.getFollowers(userId, {
       page: params.page || 1,
@@ -48,7 +48,7 @@ export class FollowService {
   // Get users that a user is following
   static async getFollowing(
     userId: string,
-    params: FollowListParams = {}
+    params: FollowListParams = {},
   ): Promise<{ following: ApiFollowUser[]; hasMore: boolean; total: number }> {
     const response = await endpoints.follow.getFollowing(userId, {
       page: params.page || 1,
@@ -70,7 +70,7 @@ export class FollowService {
 
   // Check if currently following a user
   static async checkFollowing(
-    userId: string
+    userId: string,
   ): Promise<{ isFollowing: boolean }> {
     const response = await endpoints.follow.checkFollowing(userId);
     return {
@@ -80,7 +80,7 @@ export class FollowService {
 
   // Get mutual follows
   static async getMutualFollows(
-    userId: string
+    userId: string,
   ): Promise<{ mutualFollows: ApiFollowUser[]; count: number }> {
     const response = await endpoints.follow.getMutualFollows(userId);
     const payload = response.data;
@@ -99,15 +99,36 @@ export class FollowService {
   // Get follow statistics
   static async getFollowStats(userId: string): Promise<ApiFollowStats> {
     const response = await endpoints.follow.getStats(userId);
-    return response.data.data;
+    const data = (response.data?.data ?? {}) as ApiFollowStats;
+    const followers =
+      typeof data.followers === "number"
+        ? data.followers
+        : typeof data.followersCount === "number"
+          ? data.followersCount
+          : 0;
+    const following =
+      typeof data.following === "number"
+        ? data.following
+        : typeof data.followingCount === "number"
+          ? data.followingCount
+          : 0;
+    const mutualFollows =
+      typeof data.mutualFollows === "number" ? data.mutualFollows : 0;
+
+    return {
+      ...data,
+      followers,
+      following,
+      mutualFollows,
+    };
   }
 
   // Batch follow operations
   static async batchFollow(
-    userIds: string[]
+    userIds: string[],
   ): Promise<{ succeeded: string[]; failed: string[] }> {
     const results = await Promise.allSettled(
-      userIds.map((userId) => this.followUser(userId))
+      userIds.map((userId) => this.followUser(userId)),
     );
 
     const succeeded: string[] = [];
@@ -126,10 +147,10 @@ export class FollowService {
 
   // Batch unfollow operations
   static async batchUnfollow(
-    userIds: string[]
+    userIds: string[],
   ): Promise<{ succeeded: string[]; failed: string[] }> {
     const results = await Promise.allSettled(
-      userIds.map((userId) => this.unfollowUser(userId))
+      userIds.map((userId) => this.unfollowUser(userId)),
     );
 
     const succeeded: string[] = [];
