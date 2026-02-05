@@ -4,7 +4,9 @@ import { CheckCircle, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { logError } from "@/lib/errorHandling";
+import { useFollowStore } from "@/stores/followStore";
 
 export interface UserCardData {
   _id: string;
@@ -45,8 +47,20 @@ export function UserCard({
   compact = false,
   className = "",
 }: UserCardProps) {
-  const [isFollowing, setIsFollowing] = useState(user.isFollowing || false);
-  const [followLoading, setFollowLoading] = useState(false);
+  const [isFollowHovered, setIsFollowHovered] = useState(false);
+  const [unfollowConfirmOpen, setUnfollowConfirmOpen] = useState(false);
+
+  const follow = useFollowStore((s) => s.follow);
+  const unfollow = useFollowStore((s) => s.unfollow);
+  const isFollowingFromStore = useFollowStore(
+    (s) => s.isFollowingByTarget[user.clerkId],
+  );
+  const isPending = useFollowStore((s) => s.pendingByTarget[user.clerkId]);
+
+  const isFollowing =
+    typeof isFollowingFromStore === "boolean"
+      ? isFollowingFromStore
+      : Boolean(user.isFollowing);
 
   const displayName =
     user.firstName && user.lastName
@@ -54,24 +68,42 @@ export function UserCard({
       : user.firstName || user.username;
 
   const handleFollowClick = async () => {
-    setFollowLoading(true);
+    if (isFollowing) {
+      setIsFollowHovered(false);
+      setUnfollowConfirmOpen(true);
+      return;
+    }
 
     try {
-      if (isFollowing) {
-        await onUnfollow?.(user.clerkId);
-        setIsFollowing(false);
+      // Prefer centralized store for instant + realtime behavior.
+      if (onFollow) {
+        await onFollow(user.clerkId);
       } else {
-        await onFollow?.(user.clerkId);
-        setIsFollowing(true);
+        await follow(user.clerkId);
       }
     } catch (error) {
       logError(error, {
         component: "UserCard",
-        action: "toggleFollow",
+        action: "follow",
         metadata: { clerkId: user.clerkId, username: user.username },
       });
-    } finally {
-      setFollowLoading(false);
+    }
+  };
+
+  const handleConfirmUnfollow = async () => {
+    try {
+      if (onUnfollow) {
+        await onUnfollow(user.clerkId);
+      } else {
+        await unfollow(user.clerkId);
+      }
+      setUnfollowConfirmOpen(false);
+    } catch (error) {
+      logError(error, {
+        component: "UserCard",
+        action: "unfollow",
+        metadata: { clerkId: user.clerkId, username: user.username },
+      });
     }
   };
 
@@ -84,69 +116,13 @@ export function UserCard({
 
   if (compact) {
     return (
-      <div
-        className={`group flex items-center gap-3 p-3 transition-colors ${className}`}>
-        <Link
-          to={`/app/profile/${user.username}`}
-          className="flex items-center gap-3 flex-1 min-w-0 rounded-lg px-1 -mx-1 transition-colors group-hover:bg-muted/0">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={user.profileImage} alt={displayName} />
-            <AvatarFallback className="bg-primary/10">
-              {getUserInitials()}
-            </AvatarFallback>
-          </Avatar>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1">
-              <p className="font-semibold text-sm truncate">{displayName}</p>
-              {user.isVerified && (
-                <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-              )}
-            </div>
-            <p className="text-muted-foreground text-xs truncate">
-              @{user.username}
-            </p>
-          </div>
-        </Link>
-
-        {showFollowButton && (
-          <Button
-            size="sm"
-            variant={isFollowing ? "outline" : "default"}
-            onClick={handleFollowClick}
-            disabled={followLoading}
-            className={
-              isFollowing
-                ? "flex-shrink-0 rounded-full border-border/70 text-foreground transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-                : "flex-shrink-0 rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
-            }>
-            {followLoading ? "..." : isFollowing ? "Following" : "Follow"}
-          </Button>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <Card
-      className={`overflow-hidden transition-all duration-200 hover:shadow-md ${className}`}>
-      {/* Cover Image */}
-      {user.coverImage && (
-        <div className="h-20 overflow-hidden">
-          <img
-            src={user.coverImage}
-            alt="Cover"
-            className="w-full h-full object-cover"
-          />
-        </div>
-      )}
-
-      <div className="p-4">
-        <div className="flex items-start justify-between">
+      <>
+        <div
+          className={`group flex items-center gap-3 p-3 transition-colors ${className}`}>
           <Link
             to={`/app/profile/${user.username}`}
-            className="flex items-center gap-3 flex-1 min-w-0">
-            <Avatar className="h-12 w-12 ring-2 ring-background">
+            className="flex items-center gap-3 flex-1 min-w-0 rounded-lg px-1 -mx-1 transition-colors group-hover:bg-muted/0">
+            <Avatar className="h-10 w-10">
               <AvatarImage src={user.profileImage} alt={displayName} />
               <AvatarFallback className="bg-primary/10">
                 {getUserInitials()}
@@ -155,71 +131,163 @@ export function UserCard({
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1">
-                <h3 className="font-semibold truncate">{displayName}</h3>
+                <p className="font-semibold text-sm truncate">{displayName}</p>
                 {user.isVerified && (
                   <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
                 )}
               </div>
-              <p className="text-muted-foreground text-sm truncate">
+              <p className="text-muted-foreground text-xs truncate">
                 @{user.username}
               </p>
             </div>
           </Link>
 
-          <div className="flex items-center gap-2">
-            {showFollowButton && (
-              <Button
-                size="sm"
-                variant={isFollowing ? "outline" : "default"}
-                onClick={handleFollowClick}
-                disabled={followLoading}>
-                {followLoading
-                  ? "Loading..."
-                  : isFollowing
-                    ? "Following"
-                    : "Follow"}
-              </Button>
-            )}
-
-            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
+          {showFollowButton && (
+            <Button
+              size="sm"
+              variant={isFollowing ? "outline" : "default"}
+              onClick={handleFollowClick}
+              disabled={Boolean(isPending)}
+              onMouseEnter={() => setIsFollowHovered(true)}
+              onMouseLeave={() => setIsFollowHovered(false)}
+              className={
+                isFollowing
+                  ? "flex-shrink-0 rounded-full border-border/70 text-foreground transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                  : "flex-shrink-0 rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+              }>
+              {isPending
+                ? "..."
+                : isFollowing
+                  ? isFollowHovered
+                    ? "Unfollow"
+                    : "Following"
+                  : "Follow"}
             </Button>
-          </div>
+          )}
         </div>
 
-        {/* Bio */}
-        {showBio && user.bio && (
-          <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
-            {user.bio}
-          </p>
-        )}
+        <ConfirmDialog
+          open={unfollowConfirmOpen}
+          onOpenChange={setUnfollowConfirmOpen}
+          title={`Unfollow @${user.username}?`}
+          description={`You will stop following @${user.username}.`}
+          confirmLabel="Unfollow"
+          cancelLabel="Cancel"
+          variant="destructive"
+          onConfirm={handleConfirmUnfollow}
+          loading={Boolean(isPending)}
+        />
+      </>
+    );
+  }
 
-        {/* Stats */}
-        {showStats && (
-          <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
-            <div className="flex gap-1">
-              <span className="font-semibold text-foreground">
-                {user.followingCount?.toLocaleString() || 0}
-              </span>
-              <span>Following</span>
-            </div>
-            <div className="flex gap-1">
-              <span className="font-semibold text-foreground">
-                {user.followersCount?.toLocaleString() || 0}
-              </span>
-              <span>Followers</span>
-            </div>
-            {user.postsCount !== undefined && (
-              <div className="flex gap-1">
-                <span className="font-semibold text-foreground">
-                  {user.postsCount.toLocaleString()}
-                </span>
-                <span>Posts</span>
-              </div>
-            )}
+  return (
+    <>
+      <Card
+        className={`overflow-hidden transition-all duration-200 hover:shadow-md ${className}`}>
+        {/* Cover Image */}
+        {user.coverImage && (
+          <div className="h-20 overflow-hidden">
+            <img
+              src={user.coverImage}
+              alt="Cover"
+              className="w-full h-full object-cover"
+            />
           </div>
         )}
-      </div>
-    </Card>
+
+        <div className="p-4">
+          <div className="flex items-start justify-between">
+            <Link
+              to={`/app/profile/${user.username}`}
+              className="flex items-center gap-3 flex-1 min-w-0">
+              <Avatar className="h-12 w-12 ring-2 ring-background">
+                <AvatarImage src={user.profileImage} alt={displayName} />
+                <AvatarFallback className="bg-primary/10">
+                  {getUserInitials()}
+                </AvatarFallback>
+              </Avatar>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1">
+                  <h3 className="font-semibold truncate">{displayName}</h3>
+                  {user.isVerified && (
+                    <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                  )}
+                </div>
+                <p className="text-muted-foreground text-sm truncate">
+                  @{user.username}
+                </p>
+              </div>
+            </Link>
+
+            <div className="flex items-center gap-2">
+              {showFollowButton && (
+                <Button
+                  size="sm"
+                  variant={isFollowing ? "outline" : "default"}
+                  onClick={handleFollowClick}
+                  disabled={Boolean(isPending)}>
+                  {isPending
+                    ? "Loading..."
+                    : isFollowing
+                      ? "Following"
+                      : "Follow"}
+                </Button>
+              )}
+
+              <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Bio */}
+          {showBio && user.bio && (
+            <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
+              {user.bio}
+            </p>
+          )}
+
+          {/* Stats */}
+          {showStats && (
+            <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+              <div className="flex gap-1">
+                <span className="font-semibold text-foreground">
+                  {user.followingCount?.toLocaleString() || 0}
+                </span>
+                <span>Following</span>
+              </div>
+              <div className="flex gap-1">
+                <span className="font-semibold text-foreground">
+                  {user.followersCount?.toLocaleString() || 0}
+                </span>
+                <span>Followers</span>
+              </div>
+              {user.postsCount !== undefined && (
+                <div className="flex gap-1">
+                  <span className="font-semibold text-foreground">
+                    {user.postsCount.toLocaleString()}
+                  </span>
+                  <span>Posts</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <ConfirmDialog
+        open={unfollowConfirmOpen}
+        onOpenChange={setUnfollowConfirmOpen}
+        title={`Unfollow @${user.username}?`}
+        description={`You will stop following @${user.username}.`}
+        confirmLabel="Unfollow"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={handleConfirmUnfollow}
+        loading={Boolean(isPending)}
+      />
+    </>
   );
 }

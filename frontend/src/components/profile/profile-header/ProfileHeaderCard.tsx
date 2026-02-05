@@ -4,6 +4,7 @@ import { Camera, Calendar, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 import type { ProfileHeaderUser } from "./types";
 
@@ -29,6 +30,7 @@ export function ProfileHeaderCard({
   onOpenFollowing: () => void;
 }) {
   const [isImageLoading, setIsImageLoading] = useState(true);
+  const [unfollowConfirmOpen, setUnfollowConfirmOpen] = useState(false);
 
   const formatStatNumber = (value?: number) => {
     const formatted = new Intl.NumberFormat("en-US", {
@@ -37,6 +39,15 @@ export function ProfileHeaderCard({
       maximumFractionDigits: 1,
     }).format(value ?? 0);
     return formatted.replace(/([KMBT])/g, (m) => m.toLowerCase());
+  };
+
+  const handleFollowButtonClick = () => {
+    if (!isOwnProfile && isFollowing) {
+      setUnfollowConfirmOpen(true);
+      return;
+    }
+
+    onFollowClick();
   };
 
   return (
@@ -137,7 +148,7 @@ export function ProfileHeaderCard({
               <>
                 <Button
                   variant={isFollowing ? "outline" : "default"}
-                  onClick={onFollowClick}
+                  onClick={handleFollowButtonClick}
                   className="flex-1 sm:flex-none">
                   {isFollowing ? "Following" : "Follow"}
                 </Button>
@@ -201,6 +212,20 @@ export function ProfileHeaderCard({
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={unfollowConfirmOpen}
+        onOpenChange={setUnfollowConfirmOpen}
+        title={`Unfollow @${user.username}?`}
+        description={`You will stop following @${user.username}.`}
+        confirmLabel="Unfollow"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={async () => {
+          onFollowClick();
+          setUnfollowConfirmOpen(false);
+        }}
+      />
     </Card>
   );
 }

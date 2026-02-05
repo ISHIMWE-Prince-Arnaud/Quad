@@ -10,6 +10,7 @@ import {
   type NotificationUnreadCountPayload,
 } from "@/lib/socket";
 import { useNotificationStore } from "@/stores/notificationStore";
+import { useFollowStore, type FollowEventPayload } from "@/stores/followStore";
 
 export function RootLayout() {
   // Sync auth state with Clerk
@@ -17,6 +18,10 @@ export function RootLayout() {
   const { user, isLoading } = useAuthStore();
   const joinedRef = useRef<string | null>(null);
   const { fetchUnreadCount, setUnreadCount } = useNotificationStore();
+  const applyFollowNewEvent = useFollowStore((s) => s.applyFollowNewEvent);
+  const applyFollowRemovedEvent = useFollowStore(
+    (s) => s.applyFollowRemovedEvent,
+  );
 
   // Initialize theme system
   const { initializeTheme, applyTheme } = useThemeStore();
@@ -61,19 +66,38 @@ export function RootLayout() {
       setUnreadCount(payload.unreadCount);
     };
 
+    const handleFollowNew = (payload: FollowEventPayload) => {
+      applyFollowNewEvent(payload);
+    };
+
+    const handleFollowRemoved = (payload: FollowEventPayload) => {
+      applyFollowRemovedEvent(payload);
+    };
+
     socket.on("notification:new", handleNotificationNew);
     socket.on("notification:unread_count", handleUnreadCount);
+    socket.on("follow:new", handleFollowNew);
+    socket.on("follow:removed", handleFollowRemoved);
 
     return () => {
       socket.off("notification:new", handleNotificationNew);
       socket.off("notification:unread_count", handleUnreadCount);
+      socket.off("follow:new", handleFollowNew);
+      socket.off("follow:removed", handleFollowRemoved);
       socket.off("connect", joinRooms);
       if (userId) {
         socket.emit("feed:leave", userId);
         socket.emit("notification:leave", userId);
       }
     };
-  }, [isLoading, user?.clerkId, fetchUnreadCount, setUnreadCount]);
+  }, [
+    isLoading,
+    user?.clerkId,
+    fetchUnreadCount,
+    setUnreadCount,
+    applyFollowNewEvent,
+    applyFollowRemovedEvent,
+  ]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">

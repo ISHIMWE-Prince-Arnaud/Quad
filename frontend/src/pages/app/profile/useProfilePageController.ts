@@ -5,6 +5,7 @@ import type { NavigateFunction } from "react-router-dom";
 import type { ProfileTab } from "@/components/profile/ProfileTabs";
 import { BookmarkService } from "@/services/bookmarkService";
 import { FollowService } from "@/services/followService";
+import { useFollowStore } from "@/stores/followStore";
 import { PollService } from "@/services/pollService";
 import { PostService } from "@/services/postService";
 import { ProfileService } from "@/services/profileService";
@@ -50,8 +51,20 @@ export function useProfilePageController({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNotFound, setIsNotFound] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
   const [bookmarksCount, setBookmarksCount] = useState(0);
+
+  const follow = useFollowStore((s) => s.follow);
+  const unfollow = useFollowStore((s) => s.unfollow);
+  const hydrateCounts = useFollowStore((s) => s.hydrateCounts);
+  const hydrateRelationshipIfMissing = useFollowStore(
+    (s) => s.hydrateRelationshipIfMissing,
+  );
+
+  const isFollowing = useFollowStore((s) => {
+    const targetId = user?.clerkId;
+    if (!targetId) return false;
+    return s.isFollowingByTarget[targetId] ?? false;
+  });
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
@@ -157,6 +170,11 @@ export function useProfilePageController({
             followersCount: followStats.followersCount,
             followingCount: followStats.followingCount,
           };
+
+          hydrateCounts(profileData.clerkId, {
+            followersCount: followStats.followersCount,
+            followingCount: followStats.followingCount,
+          });
         } catch (statsError) {
           logError(statsError, {
             component: "ProfilePage",
@@ -171,7 +189,10 @@ export function useProfilePageController({
           const followStatus = await FollowService.checkFollowing(
             profileData.clerkId,
           );
-          setIsFollowing(followStatus.isFollowing);
+          hydrateRelationshipIfMissing(
+            profileData.clerkId,
+            followStatus.isFollowing,
+          );
         }
       } catch (err: unknown) {
         let status: number | undefined;
@@ -203,7 +224,15 @@ export function useProfilePageController({
     if (username && !authLoading) {
       void fetchProfileData();
     }
-  }, [username, authLoading, currentUser?.clerkId, navigate, isOwnProfile]);
+  }, [
+    username,
+    authLoading,
+    currentUser?.clerkId,
+    navigate,
+    isOwnProfile,
+    hydrateCounts,
+    hydrateRelationshipIfMissing,
+  ]);
 
   useEffect(() => {
     if (!isOwnProfile || authLoading) {
@@ -914,16 +943,7 @@ export function useProfilePageController({
     if (!user) return;
 
     try {
-      await FollowService.followUser(user.clerkId);
-      setIsFollowing(true);
-      setUser((prev) =>
-        prev
-          ? {
-              ...prev,
-              followersCount: (prev.followersCount || 0) + 1,
-            }
-          : prev,
-      );
+      await follow(user.clerkId);
     } catch (err) {
       logError(err, {
         component: "ProfilePage",
@@ -931,22 +951,13 @@ export function useProfilePageController({
         metadata: { targetClerkId: user.clerkId },
       });
     }
-  }, [user]);
+  }, [user, follow]);
 
   const handleUnfollow = useCallback(async () => {
     if (!user) return;
 
     try {
-      await FollowService.unfollowUser(user.clerkId);
-      setIsFollowing(false);
-      setUser((prev) =>
-        prev
-          ? {
-              ...prev,
-              followersCount: Math.max((prev.followersCount || 0) - 1, 0),
-            }
-          : prev,
-      );
+      await unfollow(user.clerkId);
     } catch (err) {
       logError(err, {
         component: "ProfilePage",
@@ -954,7 +965,7 @@ export function useProfilePageController({
         metadata: { targetClerkId: user.clerkId },
       });
     }
-  }, [user]);
+  }, [user, unfollow]);
 
   const handleEditProfile = useCallback(() => {
     // no-op

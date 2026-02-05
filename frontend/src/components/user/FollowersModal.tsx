@@ -3,6 +3,7 @@ import type { UserCardData } from "@/components/user/UserCard";
 import { FollowService } from "@/services/followService";
 import type { ApiFollowUser } from "@/types/api";
 import { logError } from "@/lib/errorHandling";
+import { useFollowStore } from "@/stores/followStore";
 
 import { FollowersModalBody } from "./followers-modal/FollowersModalBody";
 import { FollowersModalFooter } from "./followers-modal/FollowersModalFooter";
@@ -95,6 +96,12 @@ export function FollowersModal({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [totalCount, setTotalCount] = useState(initialCount || 0);
 
+  const follow = useFollowStore((s) => s.follow);
+  const unfollow = useFollowStore((s) => s.unfollow);
+  const hydrateRelationshipsIfMissing = useFollowStore(
+    (s) => s.hydrateRelationshipsIfMissing,
+  );
+
   const loadUsers = useCallback(
     async (pageToLoad: number = 1) => {
       if (pageToLoad === 1) {
@@ -111,6 +118,8 @@ export function FollowersModal({
           );
           setHasMore(result.hasMore);
           setTotalCount(result.total || initialCount || result.users.length);
+
+          hydrateRelationshipsIfMissing(result.users);
         } else {
           const result = await getFollowing(userId, pageToLoad, 20);
           setUsers((prev) =>
@@ -118,6 +127,8 @@ export function FollowersModal({
           );
           setHasMore(result.hasMore);
           setTotalCount(result.total || initialCount || result.users.length);
+
+          hydrateRelationshipsIfMissing(result.users);
         }
 
         setPage(pageToLoad);
@@ -135,7 +146,7 @@ export function FollowersModal({
         }
       }
     },
-    [userId, type, initialCount],
+    [userId, type, initialCount, hydrateRelationshipsIfMissing],
   );
 
   // Load users when modal opens
@@ -150,13 +161,7 @@ export function FollowersModal({
   // Handle follow/unfollow
   const handleFollow = async (targetUserId: string) => {
     try {
-      await FollowService.followUser(targetUserId);
-
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.clerkId === targetUserId ? { ...user, isFollowing: true } : user,
-        ),
-      );
+      await follow(targetUserId);
     } catch (error) {
       logError(error, {
         component: "FollowersModal",
@@ -173,15 +178,7 @@ export function FollowersModal({
 
   const handleUnfollow = async (targetUserId: string) => {
     try {
-      await FollowService.unfollowUser(targetUserId);
-
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.clerkId === targetUserId
-            ? { ...user, isFollowing: false }
-            : user,
-        ),
-      );
+      await unfollow(targetUserId);
     } catch (error) {
       logError(error, {
         component: "FollowersModal",

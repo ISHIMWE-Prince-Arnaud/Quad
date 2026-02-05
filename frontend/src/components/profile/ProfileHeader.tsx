@@ -3,9 +3,11 @@ import { Camera, Calendar, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EditProfileModal } from "./EditProfileModal";
 import { FollowersModal } from "@/components/user/FollowersModal";
 import { cn } from "@/lib/utils";
+import { useFollowStore } from "@/stores/followStore";
 
 import { useProfileHeaderController } from "./profile-header/useProfileHeaderController";
 import type { ProfileHeaderProps } from "./profile-header/types";
@@ -23,6 +25,23 @@ export function ProfileHeader({
   onUserUpdate,
 }: ProfileHeaderProps) {
   const [isImageLoading, setIsImageLoading] = useState(true);
+  const [unfollowConfirmOpen, setUnfollowConfirmOpen] = useState(false);
+
+  const followersCountFromStore = useFollowStore(
+    (s) => s.followersCountByUser[user.clerkId],
+  );
+  const followingCountFromStore = useFollowStore(
+    (s) => s.followingCountByUser[user.clerkId],
+  );
+
+  const followersCount =
+    typeof followersCountFromStore === "number"
+      ? followersCountFromStore
+      : user.followersCount;
+  const followingCount =
+    typeof followingCountFromStore === "number"
+      ? followingCountFromStore
+      : user.followingCount;
 
   const formatStatNumber = (value?: number) => {
     const formatted = new Intl.NumberFormat("en-US", {
@@ -59,6 +78,15 @@ export function ProfileHeader({
   const handleProfileSave = controller.handleProfileSave;
 
   const showTabCards = Boolean(tabCounts);
+
+  const handleFollowButtonClick = () => {
+    if (!isOwnProfile && isFollowing) {
+      setUnfollowConfirmOpen(true);
+      return;
+    }
+
+    handleFollowClick();
+  };
 
   return (
     <>
@@ -173,7 +201,7 @@ export function ProfileHeader({
                 <>
                   <Button
                     variant={isFollowing ? "outline" : "default"}
-                    onClick={handleFollowClick}
+                    onClick={handleFollowButtonClick}
                     className="flex-1 sm:flex-none">
                     {isFollowing ? "Following" : "Follow"}
                   </Button>
@@ -219,7 +247,7 @@ export function ProfileHeader({
                   onClick={() => setFollowersModalOpen(true)}
                   className="text-center">
                   <div className="text-primary text-lg font-extrabold leading-none tabular-nums">
-                    {formatStatNumber(user.followersCount)}
+                    {formatStatNumber(followersCount)}
                   </div>
                   <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
                     Followers
@@ -231,7 +259,7 @@ export function ProfileHeader({
                   onClick={() => setFollowingModalOpen(true)}
                   className="text-center">
                   <div className="text-primary text-lg font-extrabold leading-none tabular-nums">
-                    {formatStatNumber(user.followingCount)}
+                    {formatStatNumber(followingCount)}
                   </div>
                   <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
                     Following
@@ -395,6 +423,20 @@ export function ProfileHeader({
         userId={user.clerkId}
         type="following"
         initialCount={user.followingCount}
+      />
+
+      <ConfirmDialog
+        open={unfollowConfirmOpen}
+        onOpenChange={setUnfollowConfirmOpen}
+        title={`Unfollow @${user.username}?`}
+        description={`You will stop following @${user.username}.`}
+        confirmLabel="Unfollow"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={async () => {
+          onUnfollow?.();
+          setUnfollowConfirmOpen(false);
+        }}
       />
     </>
   );
