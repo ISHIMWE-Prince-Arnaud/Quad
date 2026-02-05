@@ -142,14 +142,16 @@ export class CommentService {
         contentType,
         contentId,
       );
-      emitEngagementUpdate(
-        io,
-        contentType,
-        contentId,
-        counts.reactionsCount,
-        counts.commentsCount,
-        counts.votes,
-      );
+      if (contentType === "post") {
+        emitEngagementUpdate(
+          io,
+          contentType,
+          contentId,
+          counts.reactionsCount,
+          counts.commentsCount,
+          counts.votes,
+        );
+      }
     } catch {
       // best-effort
     }
@@ -235,14 +237,16 @@ export class CommentService {
         comment.contentType,
         comment.contentId,
       );
-      emitEngagementUpdate(
-        io,
-        comment.contentType,
-        comment.contentId,
-        counts.reactionsCount,
-        counts.commentsCount,
-        counts.votes,
-      );
+      if (comment.contentType === "post") {
+        emitEngagementUpdate(
+          io,
+          comment.contentType,
+          comment.contentId,
+          counts.reactionsCount,
+          counts.commentsCount,
+          counts.votes,
+        );
+      }
     } catch {
       // best-effort
     }

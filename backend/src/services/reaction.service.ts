@@ -96,11 +96,7 @@ export class ReactionService {
           reactionCount,
         });
 
-        if (
-          contentType === "post" ||
-          contentType === "story" ||
-          contentType === "poll"
-        ) {
+        if (contentType === "post" || contentType === "poll") {
           const snapshot = await this.getEngagementSnapshot(
             contentType,
             contentId,
@@ -206,11 +202,7 @@ export class ReactionService {
       reactionCount,
     });
 
-    if (
-      contentType === "post" ||
-      contentType === "story" ||
-      contentType === "poll"
-    ) {
+    if (contentType === "post" || contentType === "poll") {
       const snapshot = await this.getEngagementSnapshot(contentType, contentId);
       emitEngagementUpdate(
         io,
