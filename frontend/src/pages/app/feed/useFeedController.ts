@@ -17,7 +17,11 @@ import { useAuthStore } from "@/stores/authStore";
 import type { CreatePostData } from "@/schemas/post.schema";
 
 import { getErrorMessage } from "./feedError";
-import { dedupeFeedItems } from "./feedUtils";
+import {
+  dedupeFeedItems,
+  filterFeedItemsForTab,
+  mixPostsAndPolls,
+} from "./feedUtils";
 
 export function useFeedController({
   feedType,
@@ -35,6 +39,21 @@ export function useFeedController({
   const [newCount, setNewCount] = useState(0);
   const [lastSeenId, setLastSeenId] = useState<string | null>(null);
   const [creatingPost, setCreatingPost] = useState(false);
+  const [mixPatternIndex, setMixPatternIndex] = useState(0);
+
+  const normalizeItems = useCallback(
+    (rawItems: FeedItem[], startIndex: number) => {
+      const dedupedItems = dedupeFeedItems(rawItems || []);
+      const tabFiltered = filterFeedItemsForTab(dedupedItems, tab);
+
+      if (tab === "home") {
+        return mixPostsAndPolls(tabFiltered, startIndex);
+      }
+
+      return { items: tabFiltered, nextPatternIndex: 0 };
+    },
+    [tab],
+  );
 
   const handleRefreshFeed = useCallback(async () => {
     if (loading) return;
@@ -44,6 +63,7 @@ export function useFeedController({
     try {
       setLoading(true);
       setError(null);
+      setMixPatternIndex(0);
 
       const response = await FeedService.getFeed(feedType, {
         tab,
@@ -57,12 +77,13 @@ export function useFeedController({
       }
 
       const data = response.data;
-      const dedupedItems = dedupeFeedItems(data.items || []);
-      setItems(dedupedItems);
+      const normalized = normalizeItems(data.items || [], 0);
+      setItems(normalized.items);
+      setMixPatternIndex(normalized.nextPatternIndex);
       setCursor(data.pagination.nextCursor || null);
       setHasMore(Boolean(data.pagination.hasMore));
       setLastSeenId(
-        dedupedItems.length > 0 ? String(dedupedItems[0]._id) : null,
+        normalized.items.length > 0 ? String(normalized.items[0]._id) : null,
       );
     } catch (err: unknown) {
       logError(err, {
@@ -74,7 +95,7 @@ export function useFeedController({
     } finally {
       setLoading(false);
     }
-  }, [feedType, tab, loading]);
+  }, [feedType, loading, normalizeItems, tab]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -87,6 +108,7 @@ export function useFeedController({
         setCursor(null);
         setHasMore(true);
         setNewCount(0);
+        setMixPatternIndex(0);
 
         const response = await FeedService.getFeed(feedType, {
           tab,
@@ -110,12 +132,15 @@ export function useFeedController({
         }
 
         if (!isCancelled) {
-          const dedupedItems = dedupeFeedItems(data.items);
-          setItems(dedupedItems);
+          const normalized = normalizeItems(data.items, 0);
+          setItems(normalized.items);
+          setMixPatternIndex(normalized.nextPatternIndex);
           setCursor(data.pagination.nextCursor || null);
           setHasMore(Boolean(data.pagination.hasMore));
           setLastSeenId(
-            dedupedItems.length > 0 ? String(dedupedItems[0]._id) : null,
+            normalized.items.length > 0
+              ? String(normalized.items[0]._id)
+              : null,
           );
         }
       } catch (err: unknown) {
@@ -139,7 +164,7 @@ export function useFeedController({
     return () => {
       isCancelled = true;
     };
-  }, [feedType, tab]);
+  }, [feedType, normalizeItems, tab]);
 
   useEffect(() => {
     if (!lastSeenId) return;
@@ -267,9 +292,9 @@ export function useFeedController({
       }
 
       const data = response.data;
-      const newItems = dedupeFeedItems(data.items || []);
-
-      setItems((prev) => dedupeFeedItems([...prev, ...newItems]));
+      const normalized = normalizeItems(data.items || [], mixPatternIndex);
+      setItems((prev) => dedupeFeedItems([...prev, ...normalized.items]));
+      setMixPatternIndex(normalized.nextPatternIndex);
       setCursor(data.pagination.nextCursor || null);
       setHasMore(Boolean(data.pagination.hasMore));
     } catch (err: unknown) {
@@ -282,7 +307,15 @@ export function useFeedController({
     } finally {
       setLoadingMore(false);
     }
-  }, [cursor, feedType, hasMore, loadingMore, tab]);
+  }, [
+    cursor,
+    feedType,
+    hasMore,
+    loadingMore,
+    mixPatternIndex,
+    normalizeItems,
+    tab,
+  ]);
 
   const handleDeletePost = useCallback(async (postId: string) => {
     try {

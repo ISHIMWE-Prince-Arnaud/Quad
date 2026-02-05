@@ -1,7 +1,7 @@
 import type { ApiResponse } from "./api";
 
 export type FeedType = "following" | "foryou";
-export type FeedTab = "home" | "posts" | "polls" | "stories";
+export type FeedTab = "home" | "posts" | "polls";
 export type FeedSort = "newest" | "trending";
 
 export type FeedItemType = "post" | "poll" | "story";
