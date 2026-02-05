@@ -22,7 +22,6 @@ export function useProfileHeaderController({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [followersModalOpen, setFollowersModalOpen] = useState(false);
   const [followingModalOpen, setFollowingModalOpen] = useState(false);
-  const [mutualModalOpen, setMutualModalOpen] = useState(false);
 
   const displayName = useMemo(() => {
     return user.firstName && user.lastName
@@ -106,8 +105,6 @@ export function useProfileHeaderController({
     setFollowersModalOpen,
     followingModalOpen,
     setFollowingModalOpen,
-    mutualModalOpen,
-    setMutualModalOpen,
     handleFollowClick,
     handleEditProfileClick,
     handleProfileSave,

@@ -50,8 +50,6 @@ export function ProfileHeader({
   const setFollowersModalOpen = controller.setFollowersModalOpen;
   const followingModalOpen = controller.followingModalOpen;
   const setFollowingModalOpen = controller.setFollowingModalOpen;
-  const mutualModalOpen = controller.mutualModalOpen;
-  const setMutualModalOpen = controller.setMutualModalOpen;
   const handleFollowClick = controller.handleFollowClick;
 
   // Handle edit profile modal
@@ -240,17 +238,6 @@ export function ProfileHeader({
                   </div>
                 </button>
               </div>
-
-              {!isOwnProfile && typeof user.mutualFollows === "number" && (
-                <div className="mt-4 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => setMutualModalOpen(true)}
-                    className="text-sm text-muted-foreground hover:underline transition-colors">
-                    {formatStatNumber(user.mutualFollows)} Mutual
-                  </button>
-                </div>
-              )}
             </div>
 
             {showTabCards && tabCounts && (
@@ -409,17 +396,6 @@ export function ProfileHeader({
         type="following"
         initialCount={user.followingCount}
       />
-
-      {/* Mutual Connections Modal */}
-      {!isOwnProfile && typeof user.mutualFollows === "number" && (
-        <FollowersModal
-          isOpen={mutualModalOpen}
-          onClose={() => setMutualModalOpen(false)}
-          userId={user.clerkId}
-          type="mutual"
-          initialCount={user.mutualFollows}
-        />
-      )}
     </>
   );
 }

@@ -16,7 +16,6 @@ export type ProfileHeaderUser = {
   followingCount?: number;
   postsCount?: number;
   reactionsReceived?: number;
-  mutualFollows?: number;
 };
 
 export type ProfileHeaderProps = {

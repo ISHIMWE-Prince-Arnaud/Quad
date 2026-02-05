@@ -17,7 +17,6 @@ export function ProfileHeaderCard({
   onFollowClick,
   onOpenFollowers,
   onOpenFollowing,
-  onOpenMutual,
 }: {
   user: ProfileHeaderUser;
   isOwnProfile: boolean;
@@ -28,7 +27,6 @@ export function ProfileHeaderCard({
   onFollowClick: () => void;
   onOpenFollowers: () => void;
   onOpenFollowing: () => void;
-  onOpenMutual: () => void;
 }) {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
@@ -200,17 +198,6 @@ export function ProfileHeaderCard({
                 </div>
               </button>
             </div>
-
-            {!isOwnProfile && typeof user.mutualFollows === "number" && (
-              <div className="mt-4 flex justify-center">
-                <button
-                  type="button"
-                  onClick={onOpenMutual}
-                  className="text-sm text-muted-foreground hover:underline transition-colors">
-                  {formatStatNumber(user.mutualFollows)} Mutual
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
