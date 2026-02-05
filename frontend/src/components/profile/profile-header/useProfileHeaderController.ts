@@ -36,11 +36,11 @@ export function useProfileHeaderController({
     });
   }, [user.joinedAt]);
 
-  const handleFollowClick = () => {
+  const handleFollowClick = async () => {
     if (isFollowing) {
-      onUnfollow?.();
+      await onUnfollow?.();
     } else {
-      onFollow?.();
+      await onFollow?.();
     }
   };
 

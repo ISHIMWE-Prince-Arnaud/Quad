@@ -93,7 +93,7 @@ export function ProfileHeader({
       return;
     }
 
-    handleFollowClick();
+    void handleFollowClick();
   };
 
   return (
@@ -462,7 +462,7 @@ export function ProfileHeader({
         cancelLabel="Cancel"
         variant="destructive"
         onConfirm={async () => {
-          onUnfollow?.();
+          await onUnfollow?.();
           setUnfollowConfirmOpen(false);
         }}
         loading={isPendingUnfollow}

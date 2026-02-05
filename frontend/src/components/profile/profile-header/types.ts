@@ -30,8 +30,8 @@ export type ProfileHeaderProps = {
     polls: number;
     bookmarks: number;
   };
-  onFollow?: () => void;
-  onUnfollow?: () => void;
+  onFollow?: () => void | Promise<void>;
+  onUnfollow?: () => void | Promise<void>;
   onEditProfile?: () => void;
   onUserUpdate?: (updatedUser: Partial<ProfileHeaderUser>) => void;
 };

@@ -26,7 +26,7 @@ export function ProfileHeaderCard({
   displayName: string;
   joinedDate: string;
   onEditProfileClick: () => void;
-  onFollowClick: () => void;
+  onFollowClick: () => void | Promise<void>;
   onOpenFollowers: () => void;
   onOpenFollowing: () => void;
 }) {
@@ -56,7 +56,7 @@ export function ProfileHeaderCard({
       return;
     }
 
-    onFollowClick();
+    void onFollowClick();
   };
 
   return (
@@ -250,7 +250,7 @@ export function ProfileHeaderCard({
         cancelLabel="Cancel"
         variant="destructive"
         onConfirm={async () => {
-          onFollowClick();
+          await onFollowClick();
           setUnfollowConfirmOpen(false);
         }}
         loading={isPendingUnfollow}
