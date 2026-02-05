@@ -21,8 +21,8 @@ export function FollowersModalFooter({
   if (isLoading || users.length === 0) return null;
 
   return (
-    <div className="p-4 border-t bg-muted/30 flex flex-col items-center gap-3">
-      <p className="text-sm text-muted-foreground text-center">
+    <div className="px-5 py-4 border-t bg-muted/20 flex items-center justify-between gap-3">
+      <p className="text-sm text-muted-foreground">
         {`${users.length} of ${totalCount || users.length} ${type}`}
       </p>
 
@@ -31,8 +31,9 @@ export function FollowersModalFooter({
           variant="outline"
           size="sm"
           onClick={onLoadMore}
-          disabled={isLoadingMore}>
-          {isLoadingMore ? "Loading..." : "Load more"}
+          disabled={isLoadingMore}
+          className="rounded-full border-border/70 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30">
+          {isLoadingMore ? "Loading…" : "Load more"}
         </Button>
       )}
     </div>

@@ -41,7 +41,7 @@ export function FollowersModalBody({
 
   if (users.length > 0) {
     return (
-      <div className="divide-y">
+      <div className="divide-y divide-border/60">
         {users.map((user) => (
           <UserCard
             key={user._id}
@@ -51,7 +51,7 @@ export function FollowersModalBody({
             compact={true}
             showBio={true}
             showStats={false}
-            className="border-0 rounded-none hover:bg-accent/50"
+            className="border-0 rounded-none transition-colors hover:bg-muted/35"
           />
         ))}
       </div>

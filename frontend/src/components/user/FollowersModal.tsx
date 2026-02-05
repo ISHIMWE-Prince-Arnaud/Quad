@@ -199,12 +199,12 @@ export function FollowersModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/55 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md mx-4 bg-background rounded-lg shadow-lg max-h-[80vh] flex flex-col">
+      <div className="relative w-full max-w-md mx-4 bg-background/95 rounded-2xl shadow-2xl border border-border/60 max-h-[80vh] flex flex-col overflow-hidden animate-in fade-in-0 zoom-in-95">
         {/* Header */}
         <FollowersModalHeader title={title} onClose={onClose} />
 

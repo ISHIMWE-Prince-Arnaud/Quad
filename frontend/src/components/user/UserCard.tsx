@@ -85,10 +85,10 @@ export function UserCard({
   if (compact) {
     return (
       <div
-        className={`flex items-center gap-3 p-3 hover:bg-accent/50 transition-colors ${className}`}>
+        className={`group flex items-center gap-3 p-3 transition-colors ${className}`}>
         <Link
           to={`/app/profile/${user.username}`}
-          className="flex items-center gap-3 flex-1 min-w-0">
+          className="flex items-center gap-3 flex-1 min-w-0 rounded-lg px-1 -mx-1 transition-colors group-hover:bg-muted/0">
           <Avatar className="h-10 w-10">
             <AvatarImage src={user.profileImage} alt={displayName} />
             <AvatarFallback className="bg-primary/10">
@@ -115,7 +115,11 @@ export function UserCard({
             variant={isFollowing ? "outline" : "default"}
             onClick={handleFollowClick}
             disabled={followLoading}
-            className="flex-shrink-0">
+            className={
+              isFollowing
+                ? "flex-shrink-0 rounded-full border-border/70 text-foreground transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                : "flex-shrink-0 rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+            }>
             {followLoading ? "..." : isFollowing ? "Following" : "Follow"}
           </Button>
         )}
