@@ -217,7 +217,7 @@ export function ProfileHeader({
                 <button
                   type="button"
                   onClick={() => setFollowersModalOpen(true)}
-                  className="text-center transition-opacity hover:opacity-90">
+                  className="text-center">
                   <div className="text-primary text-lg font-extrabold leading-none tabular-nums">
                     {formatStatNumber(user.followersCount)}
                   </div>
@@ -229,7 +229,7 @@ export function ProfileHeader({
                 <button
                   type="button"
                   onClick={() => setFollowingModalOpen(true)}
-                  className="text-center transition-opacity hover:opacity-90">
+                  className="text-center">
                   <div className="text-primary text-lg font-extrabold leading-none tabular-nums">
                     {formatStatNumber(user.followingCount)}
                   </div>
