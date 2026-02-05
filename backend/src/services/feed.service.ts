@@ -17,18 +17,15 @@ import {
 import { FEED_CONFIG } from "../config/feed.config.js";
 import { PostSource } from "./feed/PostSource.js";
 import { PollSource } from "./feed/PollSource.js";
-import { StorySource } from "./feed/StorySource.js";
 import type { FeedSource } from "./feed/FeedSource.interface.js";
 
 // Initialize sources
 const postSource = new PostSource();
 const pollSource = new PollSource();
-const storySource = new StorySource();
 
 const sources: Record<string, FeedSource> = {
   posts: postSource,
   polls: pollSource,
-  stories: storySource,
 };
 
 export class FeedService {
@@ -59,11 +56,8 @@ export class FeedService {
       // Mixed content from following
       const postsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POSTS_RATIO);
       const pollsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POLLS_RATIO);
-      const storiesLimit = Math.ceil(
-        limit * FEED_CONFIG.CONTENT_MIX.STORIES_RATIO,
-      );
 
-      const [posts, polls, stories] = await Promise.all([
+      const [posts, polls] = await Promise.all([
         postSource.fetch(
           { ...baseQuery, userId: { $in: followingIds } },
           postsLimit,
@@ -75,17 +69,9 @@ export class FeedService {
           },
           pollsLimit,
         ),
-        storySource.fetch(
-          {
-            ...baseQuery,
-            userId: { $in: followingIds },
-            status: "published",
-          },
-          storiesLimit,
-        ),
       ]);
 
-      items = [...posts, ...polls, ...stories];
+      items = [...posts, ...polls];
     } else {
       // Specific content type
       const source = sources[tab];
@@ -96,9 +82,6 @@ export class FeedService {
           typeQuery.userId = { $in: followingIds };
         } else if (tab === "polls") {
           typeQuery["author.clerkId"] = { $in: followingIds };
-        } else if (tab === "stories") {
-          typeQuery.userId = { $in: followingIds };
-          typeQuery.status = "published";
         }
 
         items = await source.fetch(typeQuery, limit);
@@ -165,19 +148,13 @@ export class FeedService {
     if (tab === "home") {
       const postsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POSTS_RATIO);
       const pollsLimit = Math.ceil(limit * FEED_CONFIG.CONTENT_MIX.POLLS_RATIO);
-      const storiesLimit = Math.ceil(
-        limit * FEED_CONFIG.CONTENT_MIX.STORIES_RATIO,
-      );
 
-      const [posts, polls, stories] = await Promise.all([
+      const [posts, polls] = await Promise.all([
         fetchMixedForSource(postSource, postsLimit, "userId"),
         fetchMixedForSource(pollSource, pollsLimit, "author.clerkId", {}),
-        fetchMixedForSource(storySource, storiesLimit, "userId", {
-          status: "published",
-        }),
       ]);
 
-      items = [...posts, ...polls, ...stories];
+      items = [...posts, ...polls];
     } else {
       // Specific tab
       if (tab === "posts") {
@@ -189,10 +166,6 @@ export class FeedService {
           "author.clerkId",
           {},
         );
-      } else if (tab === "stories") {
-        items = await fetchMixedForSource(storySource, limit, "userId", {
-          status: "published",
-        });
       }
     }
 
@@ -232,21 +205,16 @@ export class FeedService {
     let count = 0;
 
     if (tab === "home") {
-      const [postCount, pollCount, storyCount] = await Promise.all([
+      const [postCount, pollCount] = await Promise.all([
         getCountForSource(postSource, "userId"),
         getCountForSource(pollSource, "author.clerkId", {}),
-        getCountForSource(storySource, "userId", { status: "published" }),
       ]);
-      count = postCount + pollCount + storyCount;
+      count = postCount + pollCount;
     } else {
       if (tab === "posts") {
         count = await getCountForSource(postSource, "userId");
       } else if (tab === "polls") {
         count = await getCountForSource(pollSource, "author.clerkId", {});
-      } else if (tab === "stories") {
-        count = await getCountForSource(storySource, "userId", {
-          status: "published",
-        });
       }
     }
 

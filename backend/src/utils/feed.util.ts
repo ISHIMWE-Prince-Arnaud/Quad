@@ -1,13 +1,11 @@
 import { Post } from "../models/Post.model.js";
 import { Poll } from "../models/Poll.model.js";
-import { Story } from "../models/Story.model.js";
 import { User } from "../models/User.model.js";
 import { Follow } from "../models/Follow.model.js";
 import { DatabaseService } from "../services/database.service.js";
 import { logger } from "./logger.util.js";
 import type { IPost } from "../types/post.types.js";
 import type { IPoll } from "../types/poll.types.js";
-import type { IStory } from "../types/story.types.js";
 import type {
   FeedItemType,
   ContentTab,
@@ -189,37 +187,6 @@ export const fetchPolls = async (
 };
 
 /**
- * Fetch stories with filters
- */
-export const fetchStories = async (
-  cursor?: string,
-  limit: number = 20,
-): Promise<IRawContentItem[]> => {
-  const query: Record<string, unknown> = {
-    status: "published",
-  };
-
-  if (cursor) {
-    query._id = { $lt: cursor };
-  }
-
-  const stories = await Story.find(query)
-    .sort({ createdAt: -1 })
-    .limit(limit)
-    .lean();
-
-  return stories.map((story) => ({
-    _id: story._id,
-    type: "story" as FeedItemType,
-    content: story,
-    createdAt: story.createdAt || new Date(),
-    authorId: getContentAuthorId(story),
-    reactionsCount: story.reactionsCount || 0,
-    commentsCount: story.commentsCount || 0,
-  }));
-};
-
-/**
  * Fetch content based on tab
  */
 export const fetchContentByTab = async (
@@ -232,17 +199,14 @@ export const fetchContentByTab = async (
       return await fetchPosts(cursor, limit);
     case "polls":
       return await fetchPolls(cursor, limit);
-    case "stories":
-      return await fetchStories(cursor, limit);
     case "home":
     default: {
       // Fetch from all content types
-      const [posts, polls, stories] = await Promise.all([
-        fetchPosts(cursor, Math.ceil(limit * 0.5)),
+      const [posts, polls] = await Promise.all([
+        fetchPosts(cursor, Math.ceil(limit * 0.7)),
         fetchPolls(cursor, Math.ceil(limit * 0.3)),
-        fetchStories(cursor, Math.ceil(limit * 0.2)),
       ]);
-      return [...posts, ...polls, ...stories];
+      return [...posts, ...polls];
     }
   }
 };
@@ -334,7 +298,7 @@ export const scoreAndRankContent = async (
     return {
       _id: String(item._id),
       type: item.type,
-      content: item.content as IPost | IStory | IPoll,
+      content: item.content as IPost | IPoll,
       score,
       priority: isFollowing
         ? ("following" as ContentPriority)
@@ -407,40 +371,43 @@ export const applyAuthorDiversity = (items: IFeedItem[]): IFeedItem[] => {
 export const applyContentTypeDiversity = (items: IFeedItem[]): IFeedItem[] => {
   const posts = items.filter((item) => item.type === "post");
   const polls = items.filter((item) => item.type === "poll");
-  const stories = items.filter((item) => item.type === "story");
 
   const result: IFeedItem[] = [];
-  let postIndex = 0,
-    pollIndex = 0,
-    storyIndex = 0;
+  let postIndex = 0;
+  let pollIndex = 0;
 
-  // Interleave: 2 posts, 1 poll, 1 story, repeat
-  while (
-    postIndex < posts.length ||
-    pollIndex < polls.length ||
-    storyIndex < stories.length
-  ) {
-    // Add 2 posts
-    if (postIndex < posts.length) {
-      const post = posts[postIndex++];
-      if (post) result.push(post);
-    }
-    if (postIndex < posts.length) {
-      const post = posts[postIndex++];
-      if (post) result.push(post);
+  const pattern: Array<"post" | "poll"> = [
+    "post",
+    "post",
+    "post",
+    "post",
+    "post",
+    "post",
+    "post",
+    "poll",
+    "poll",
+    "poll",
+  ];
+
+  let patternIndex = 0;
+
+  while (postIndex < posts.length || pollIndex < polls.length) {
+    const desired = pattern[patternIndex % pattern.length];
+    let next: IFeedItem | undefined;
+
+    if (desired === "post") {
+      next = posts[postIndex] ?? polls[pollIndex];
+      if (posts[postIndex]) postIndex += 1;
+      else if (polls[pollIndex]) pollIndex += 1;
+    } else {
+      next = polls[pollIndex] ?? posts[postIndex];
+      if (polls[pollIndex]) pollIndex += 1;
+      else if (posts[postIndex]) postIndex += 1;
     }
 
-    // Add 1 poll
-    if (pollIndex < polls.length) {
-      const poll = polls[pollIndex++];
-      if (poll) result.push(poll);
-    }
-
-    // Add 1 story
-    if (storyIndex < stories.length) {
-      const story = stories[storyIndex++];
-      if (story) result.push(story);
-    }
+    if (!next) break;
+    result.push(next);
+    patternIndex += 1;
   }
 
   return result;

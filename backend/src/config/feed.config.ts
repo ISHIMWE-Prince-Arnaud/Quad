@@ -4,14 +4,13 @@ export const FEED_CONFIG = {
     FOLLOWING_RATIO: 0.7,
     DISCOVERY_RATIO: 0.3,
   },
-  
+
   // Distribution ratios for mixed content types (Home tab)
   CONTENT_MIX: {
-    POSTS_RATIO: 0.5,
+    POSTS_RATIO: 0.7,
     POLLS_RATIO: 0.3,
-    STORIES_RATIO: 0.2,
   },
-  
+
   // Default limits
   DEFAULT_LIMIT: 20,
 } as const;
