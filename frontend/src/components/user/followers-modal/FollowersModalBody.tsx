@@ -16,7 +16,7 @@ export function FollowersModalBody({
 }: {
   isLoading: boolean;
   users: UserCardData[];
-  type: "followers" | "following" | "mutual";
+  type: "followers" | "following";
   onFollow: (targetUserId: string) => void;
   onUnfollow: (targetUserId: string) => void;
 }) {
@@ -62,19 +62,11 @@ export function FollowersModalBody({
     <EmptyState
       variant="inline"
       icon={<Users className="h-7 w-7" />}
-      title={
-        type === "followers"
-          ? "No followers yet"
-          : type === "following"
-            ? "Not following anyone"
-            : "No mutual connections yet"
-      }
+      title={type === "followers" ? "No followers yet" : "Not following anyone"}
       description={
         type === "followers"
           ? "When people follow this user, they’ll appear here."
-          : type === "following"
-            ? "When this user follows people, they’ll appear here."
-            : "When you share connections with this user, they’ll appear here."
+          : "When this user follows people, they’ll appear here."
       }
       className="py-8"
     />

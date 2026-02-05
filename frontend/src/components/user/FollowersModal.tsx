@@ -12,7 +12,7 @@ interface FollowersModalProps {
   isOpen: boolean;
   onClose: () => void;
   userId: string;
-  type: "followers" | "following" | "mutual";
+  type: "followers" | "following";
   initialCount?: number;
 }
 
@@ -81,25 +81,6 @@ const getFollowing = async (
   }
 };
 
-const getMutualFollowsForUser = async (
-  userId: string,
-): Promise<{ users: UserCardData[]; total: number }> => {
-  try {
-    const result = await FollowService.getMutualFollows(userId);
-    return {
-      users: result.mutualFollows.map(convertApiFollowUserToUserCard),
-      total: result.count,
-    };
-  } catch (error) {
-    logError(error, {
-      component: "FollowersModal",
-      action: "getMutualFollowsForUser",
-      metadata: { userId },
-    });
-    return { users: [], total: 0 };
-  }
-};
-
 export function FollowersModal({
   isOpen,
   onClose,
@@ -130,17 +111,12 @@ export function FollowersModal({
           );
           setHasMore(result.hasMore);
           setTotalCount(result.total || initialCount || result.users.length);
-        } else if (type === "following") {
+        } else {
           const result = await getFollowing(userId, pageToLoad, 20);
           setUsers((prev) =>
             pageToLoad === 1 ? result.users : [...prev, ...result.users],
           );
           setHasMore(result.hasMore);
-          setTotalCount(result.total || initialCount || result.users.length);
-        } else {
-          const result = await getMutualFollowsForUser(userId);
-          setUsers(result.users);
-          setHasMore(false);
           setTotalCount(result.total || initialCount || result.users.length);
         }
 
@@ -191,7 +167,7 @@ export function FollowersModal({
   };
 
   const handleLoadMore = () => {
-    if (!hasMore || isLoadingMore || type === "mutual") return;
+    if (!hasMore || isLoadingMore) return;
     loadUsers(page + 1);
   };
 
@@ -217,12 +193,7 @@ export function FollowersModal({
 
   if (!isOpen) return null;
 
-  const title =
-    type === "followers"
-      ? "Followers"
-      : type === "following"
-        ? "Following"
-        : "Mutual Connections";
+  const title = type === "followers" ? "Followers" : "Following";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">

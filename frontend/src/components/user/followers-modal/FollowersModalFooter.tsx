@@ -13,7 +13,7 @@ export function FollowersModalFooter({
   isLoading: boolean;
   users: UserCardData[];
   totalCount: number;
-  type: "followers" | "following" | "mutual";
+  type: "followers" | "following";
   hasMore: boolean;
   isLoadingMore: boolean;
   onLoadMore: () => void;
@@ -26,8 +26,12 @@ export function FollowersModalFooter({
         {`${users.length} of ${totalCount || users.length} ${type}`}
       </p>
 
-      {hasMore && type !== "mutual" && (
-        <Button variant="outline" size="sm" onClick={onLoadMore} disabled={isLoadingMore}>
+      {hasMore && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onLoadMore}
+          disabled={isLoadingMore}>
           {isLoadingMore ? "Loading..." : "Load more"}
         </Button>
       )}

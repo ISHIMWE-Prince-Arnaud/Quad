@@ -48,7 +48,6 @@ const convertApiProfileToUser = (profile: ApiProfile) => {
     followingCount: profile.followingCount,
     postsCount: profile.postsCount,
     reactionsReceived: profile.stats?.reactionsReceived,
-    mutualFollows: profile.mutualFollows,
   };
 };
 

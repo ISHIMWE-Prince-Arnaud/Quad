@@ -156,7 +156,6 @@ export function useProfilePageController({
             ...profileData,
             followersCount: followStats.followersCount,
             followingCount: followStats.followingCount,
-            mutualFollows: followStats.mutualFollows,
           };
         } catch (statsError) {
           logError(statsError, {
