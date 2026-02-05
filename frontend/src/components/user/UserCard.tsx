@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { logError } from "@/lib/errorHandling";
-import { useAuthStore } from "@/stores/authStore";
 import { useFollowStore } from "@/stores/followStore";
 
 export interface UserCardData {
@@ -50,9 +49,6 @@ export function UserCard({
 }: UserCardProps) {
   const [isFollowHovered, setIsFollowHovered] = useState(false);
   const [unfollowConfirmOpen, setUnfollowConfirmOpen] = useState(false);
-
-  const currentUserId = useAuthStore((s) => s.user?.clerkId);
-  const isSelf = Boolean(currentUserId) && currentUserId === user.clerkId;
 
   const follow = useFollowStore((s) => s.follow);
   const unfollow = useFollowStore((s) => s.unfollow);
@@ -152,61 +148,50 @@ export function UserCard({
             </div>
           </Link>
 
-          {showFollowButton &&
-            (isSelf ? (
-              <Button
-                size="sm"
-                variant="outline"
-                disabled
-                className="flex-shrink-0 rounded-full border-border/70 text-muted-foreground">
-                You
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                variant={isFollowing ? "outline" : "default"}
-                onClick={handleFollowClick}
-                disabled={Boolean(isPending)}
-                onMouseEnter={() => setIsFollowHovered(true)}
-                onMouseLeave={() => setIsFollowHovered(false)}
-                className={
-                  isFollowing
-                    ? "flex-shrink-0 rounded-full border-border/70 text-foreground transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-                    : "flex-shrink-0 rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
-                }>
-                {isPendingFollow ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Following…
-                  </span>
-                ) : isPendingUnfollow ? (
-                  "..."
-                ) : isFollowing ? (
-                  isFollowHovered ? (
-                    "Unfollow"
-                  ) : (
-                    "Following"
-                  )
+          {showFollowButton && (
+            <Button
+              size="sm"
+              variant={isFollowing ? "outline" : "default"}
+              onClick={handleFollowClick}
+              disabled={Boolean(isPending)}
+              onMouseEnter={() => setIsFollowHovered(true)}
+              onMouseLeave={() => setIsFollowHovered(false)}
+              className={
+                isFollowing
+                  ? "flex-shrink-0 rounded-full border-border/70 text-foreground transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                  : "flex-shrink-0 rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+              }>
+              {isPendingFollow ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Following…
+                </span>
+              ) : isPendingUnfollow ? (
+                "..."
+              ) : isFollowing ? (
+                isFollowHovered ? (
+                  "Unfollow"
                 ) : (
-                  "Follow"
-                )}
-              </Button>
-            ))}
+                  "Following"
+                )
+              ) : (
+                "Follow"
+              )}
+            </Button>
+          )}
         </div>
 
-        {!isSelf && (
-          <ConfirmDialog
-            open={unfollowConfirmOpen}
-            onOpenChange={setUnfollowConfirmOpen}
-            title={`Unfollow @${user.username}?`}
-            description={`You will stop following @${user.username}.`}
-            confirmLabel="Unfollow"
-            cancelLabel="Cancel"
-            variant="destructive"
-            onConfirm={handleConfirmUnfollow}
-            loading={isPendingUnfollow}
-          />
-        )}
+        <ConfirmDialog
+          open={unfollowConfirmOpen}
+          onOpenChange={setUnfollowConfirmOpen}
+          title={`Unfollow @${user.username}?`}
+          description={`You will stop following @${user.username}.`}
+          confirmLabel="Unfollow"
+          cancelLabel="Cancel"
+          variant="destructive"
+          onConfirm={handleConfirmUnfollow}
+          loading={isPendingUnfollow}
+        />
       </>
     );
   }
@@ -252,35 +237,26 @@ export function UserCard({
             </Link>
 
             <div className="flex items-center gap-2">
-              {showFollowButton &&
-                (isSelf ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled
-                    className="rounded-full border-border/70 text-muted-foreground">
-                    You
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    variant={isFollowing ? "outline" : "default"}
-                    onClick={handleFollowClick}
-                    disabled={Boolean(isPending)}>
-                    {isPendingFollow ? (
-                      <span className="inline-flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Following…
-                      </span>
-                    ) : isPendingUnfollow ? (
-                      "Loading…"
-                    ) : isFollowing ? (
-                      "Following"
-                    ) : (
-                      "Follow"
-                    )}
-                  </Button>
-                ))}
+              {showFollowButton && (
+                <Button
+                  size="sm"
+                  variant={isFollowing ? "outline" : "default"}
+                  onClick={handleFollowClick}
+                  disabled={Boolean(isPending)}>
+                  {isPendingFollow ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Following…
+                    </span>
+                  ) : isPendingUnfollow ? (
+                    "Loading…"
+                  ) : isFollowing ? (
+                    "Following"
+                  ) : (
+                    "Follow"
+                  )}
+                </Button>
+              )}
 
               <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
                 <MoreHorizontal className="h-4 w-4" />
@@ -323,19 +299,17 @@ export function UserCard({
         </div>
       </Card>
 
-      {!isSelf && (
-        <ConfirmDialog
-          open={unfollowConfirmOpen}
-          onOpenChange={setUnfollowConfirmOpen}
-          title={`Unfollow @${user.username}?`}
-          description={`You will stop following @${user.username}.`}
-          confirmLabel="Unfollow"
-          cancelLabel="Cancel"
-          variant="destructive"
-          onConfirm={handleConfirmUnfollow}
-          loading={isPendingUnfollow}
-        />
-      )}
+      <ConfirmDialog
+        open={unfollowConfirmOpen}
+        onOpenChange={setUnfollowConfirmOpen}
+        title={`Unfollow @${user.username}?`}
+        description={`You will stop following @${user.username}.`}
+        confirmLabel="Unfollow"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={handleConfirmUnfollow}
+        loading={isPendingUnfollow}
+      />
     </>
   );
 }
