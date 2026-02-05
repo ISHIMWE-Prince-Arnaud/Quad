@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 import { FollowService } from "@/services/followService";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 import { useAuthStore } from "@/stores/authStore";
 
 export type FollowEventPayload = {
@@ -134,6 +135,7 @@ export const useFollowStore = create<FollowState>((set, get) => ({
     try {
       await FollowService.followUser(targetUserId);
     } catch (e) {
+      showErrorToast(e, "Failed to follow user. Please try again.");
       // rollback
       set((state) => ({
         isFollowingByTarget: {
@@ -206,6 +208,7 @@ export const useFollowStore = create<FollowState>((set, get) => ({
     try {
       await FollowService.unfollowUser(targetUserId);
     } catch (e) {
+      showErrorToast(e, "Failed to unfollow user. Please try again.");
       // rollback
       set((state) => ({
         isFollowingByTarget: {
