@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Camera, Calendar, MoreHorizontal } from "lucide-react";
+import { Camera, Calendar } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useFollowStore } from "@/stores/followStore";
 
 import type { ProfileHeaderUser } from "./types";
 
@@ -31,6 +32,9 @@ export function ProfileHeaderCard({
 }) {
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [unfollowConfirmOpen, setUnfollowConfirmOpen] = useState(false);
+  const [isFollowHovered, setIsFollowHovered] = useState(false);
+
+  const isPending = useFollowStore((s) => s.pendingByTarget[user.clerkId]);
 
   const formatStatNumber = (value?: number) => {
     const formatted = new Intl.NumberFormat("en-US", {
@@ -149,11 +153,21 @@ export function ProfileHeaderCard({
                 <Button
                   variant={isFollowing ? "outline" : "default"}
                   onClick={handleFollowButtonClick}
-                  className="flex-1 sm:flex-none">
-                  {isFollowing ? "Following" : "Follow"}
-                </Button>
-                <Button variant="outline" size="icon">
-                  <MoreHorizontal className="h-4 w-4" />
+                  disabled={Boolean(isPending)}
+                  onMouseEnter={() => setIsFollowHovered(true)}
+                  onMouseLeave={() => setIsFollowHovered(false)}
+                  className={
+                    isFollowing
+                      ? "flex-1 sm:flex-none rounded-full px-6 border-border/70 text-foreground transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                      : "flex-1 sm:flex-none rounded-full px-6 bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+                  }>
+                  {isPending
+                    ? "..."
+                    : isFollowing
+                      ? isFollowHovered
+                        ? "Unfollow"
+                        : "Following"
+                      : "Follow"}
                 </Button>
               </>
             )}

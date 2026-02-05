@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Camera, Calendar, MoreHorizontal } from "lucide-react";
+import { Camera, Calendar } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,6 +26,7 @@ export function ProfileHeader({
 }: ProfileHeaderProps) {
   const [isImageLoading, setIsImageLoading] = useState(true);
   const [unfollowConfirmOpen, setUnfollowConfirmOpen] = useState(false);
+  const [isFollowHovered, setIsFollowHovered] = useState(false);
 
   const followersCountFromStore = useFollowStore(
     (s) => s.followersCountByUser[user.clerkId],
@@ -42,6 +43,8 @@ export function ProfileHeader({
     typeof followingCountFromStore === "number"
       ? followingCountFromStore
       : user.followingCount;
+
+  const isPending = useFollowStore((s) => s.pendingByTarget[user.clerkId]);
 
   const formatStatNumber = (value?: number) => {
     const formatted = new Intl.NumberFormat("en-US", {
@@ -202,11 +205,22 @@ export function ProfileHeader({
                   <Button
                     variant={isFollowing ? "outline" : "default"}
                     onClick={handleFollowButtonClick}
-                    className="flex-1 sm:flex-none">
-                    {isFollowing ? "Following" : "Follow"}
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
+                    disabled={Boolean(isPending)}
+                    onMouseEnter={() => setIsFollowHovered(true)}
+                    onMouseLeave={() => setIsFollowHovered(false)}
+                    className={cn(
+                      "flex-1 sm:flex-none rounded-full px-6 transition-colors",
+                      isFollowing
+                        ? "border-border/70 text-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                        : "bg-primary text-primary-foreground hover:bg-primary/90",
+                    )}>
+                    {isPending
+                      ? "..."
+                      : isFollowing
+                        ? isFollowHovered
+                          ? "Unfollow"
+                          : "Following"
+                        : "Follow"}
                   </Button>
                 </>
               )}
