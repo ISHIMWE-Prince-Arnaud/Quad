@@ -78,24 +78,6 @@ export class FollowService {
     };
   }
 
-  // Get mutual follows
-  static async getMutualFollows(
-    userId: string,
-  ): Promise<{ mutualFollows: ApiFollowUser[]; count: number }> {
-    const response = await endpoints.follow.getMutualFollows(userId);
-    const payload = response.data;
-    const mutualFollows: ApiFollowUser[] = Array.isArray(payload.data)
-      ? payload.data
-      : [];
-    const count =
-      typeof payload.count === "number" ? payload.count : mutualFollows.length;
-
-    return {
-      mutualFollows,
-      count,
-    };
-  }
-
   // Get follow statistics
   static async getFollowStats(userId: string): Promise<ApiFollowStats> {
     const response = await endpoints.follow.getStats(userId);
@@ -105,16 +87,8 @@ export class FollowService {
         typeof data.followersCount === "number" ? data.followersCount : 0,
       followingCount:
         typeof data.followingCount === "number" ? data.followingCount : 0,
-      mutualFollows:
-        typeof data.mutualFollows === "number" ? data.mutualFollows : 0,
       ...(typeof data.isFollowing === "boolean"
         ? { isFollowing: data.isFollowing }
-        : {}),
-      ...(typeof data.isFollowedBy === "boolean"
-        ? { isFollowedBy: data.isFollowedBy }
-        : {}),
-      ...(typeof data.isMutual === "boolean"
-        ? { isMutual: data.isMutual }
         : {}),
     };
   }

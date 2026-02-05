@@ -21,7 +21,6 @@ vi.mock("@/lib/api", () => ({
       checkFollowing: vi.fn(),
       getFollowers: vi.fn(),
       getFollowing: vi.fn(),
-      getMutualFollows: vi.fn(),
       getStats: vi.fn(),
     },
   },
@@ -157,7 +156,6 @@ describe("Property 46: Follow Action Optimistic Update", () => {
               data: {
                 followersCount: initialFollowers,
                 followingCount: 0,
-                mutualFollows: 0,
               },
             },
           } as any);
@@ -176,7 +174,6 @@ describe("Property 46: Follow Action Optimistic Update", () => {
               data: {
                 followersCount: initialFollowers + 1,
                 followingCount: 0,
-                mutualFollows: 0,
               },
             },
           } as any);
@@ -206,7 +203,6 @@ describe("Property 46: Follow Action Optimistic Update", () => {
               data: {
                 followersCount: initialFollowers,
                 followingCount: 0,
-                mutualFollows: 0,
               },
             },
           } as any);
@@ -225,7 +221,6 @@ describe("Property 46: Follow Action Optimistic Update", () => {
               data: {
                 followersCount: initialFollowers - 1,
                 followingCount: 0,
-                mutualFollows: 0,
               },
             },
           } as any);

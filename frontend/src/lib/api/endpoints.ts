@@ -65,7 +65,6 @@ export const endpoints = {
     getFollowing: (userId: string, params?: unknown) =>
       api.get(`/follow/${userId}/following`, { params }),
     checkFollowing: (userId: string) => api.get(`/follow/${userId}/check`),
-    getMutualFollows: (userId: string) => api.get(`/follow/${userId}/mutual`),
     getStats: (userId: string) => api.get(`/follow/${userId}/stats`),
   },
 

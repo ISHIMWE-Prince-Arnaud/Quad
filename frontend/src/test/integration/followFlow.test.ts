@@ -118,7 +118,6 @@ describe("Follow Flow Integration", () => {
     const mockStats = {
       followersCount: 150,
       followingCount: 75,
-      mutualFollows: 0,
     };
 
     mock.onGet(`/follow/${userId}/stats`).reply(200, {
@@ -130,7 +129,6 @@ describe("Follow Flow Integration", () => {
 
     expect(result.followersCount).toBe(150);
     expect(result.followingCount).toBe(75);
-    expect(result.mutualFollows).toBe(0);
   });
 
   it("should handle complete follow/unfollow cycle", async () => {
@@ -213,28 +211,5 @@ describe("Follow Flow Integration", () => {
       expect(error.response.status).toBe(400);
       expect(error.response.data.message).toContain("Cannot follow");
     }
-  });
-
-  it("should get mutual follows", async () => {
-    const userId = "user123";
-
-    const mockMutualFollows = [
-      {
-        _id: "user456",
-        username: "mutual1",
-        profileImage: "https://example.com/avatar1.jpg",
-      },
-    ];
-
-    mock.onGet(`/follow/${userId}/mutual`).reply(200, {
-      success: true,
-      data: mockMutualFollows,
-      count: 1,
-    });
-
-    const result = await FollowService.getMutualFollows(userId);
-
-    expect(result.mutualFollows).toHaveLength(1);
-    expect(result.count).toBe(1);
   });
 });

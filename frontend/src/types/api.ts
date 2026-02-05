@@ -31,7 +31,6 @@ export interface ApiProfile extends ApiUser {
     followingCount: number;
   };
   isFollowing?: boolean;
-  mutualFollows?: number;
 }
 
 export interface ApiPost {
@@ -122,17 +121,13 @@ export interface ApiFollowUser {
   bio?: string;
   isVerified?: boolean;
   isFollowing?: boolean;
-  mutualFollows?: number;
   followedAt?: string;
 }
 
 export interface ApiFollowStats {
   followersCount: number;
   followingCount: number;
-  mutualFollows: number;
   isFollowing?: boolean;
-  isFollowedBy?: boolean;
-  isMutual?: boolean;
 }
 
 export interface ApiUploadResponse {
