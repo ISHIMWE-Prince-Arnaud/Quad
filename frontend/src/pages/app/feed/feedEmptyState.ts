@@ -21,12 +21,6 @@ export const emptyStateCopy: Record<FeedTab, FeedEmptyState> = {
     secondaryActionLabel: "Back to Feed",
     secondaryActionHref: "/app/feed",
   },
-  stories: {
-    title: "No stories yet",
-    description: "Share a long-form update or experience with the community.",
-    secondaryActionLabel: "Browse Stories",
-    secondaryActionHref: "/app/stories",
-  },
   polls: {
     title: "No polls yet",
     description:

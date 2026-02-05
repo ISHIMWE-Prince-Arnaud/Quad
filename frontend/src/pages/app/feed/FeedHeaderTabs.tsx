@@ -38,7 +38,6 @@ export function FeedHeaderTabs({
           [
             ["home", "Home"],
             ["posts", "Posts"],
-            ["stories", "Stories"],
             ["polls", "Polls"],
           ] as [FeedTab, string][]
         ).map(([value, label]) => (

@@ -6,11 +6,9 @@ import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/posts/PostCard";
 import { OptimisticPostCard } from "@/components/posts/OptimisticPostCard";
 import { PollCard } from "@/components/polls/PollCard";
-import { StoryCard } from "@/components/stories/StoryCard";
 import type { FeedItem } from "@/types/feed";
 import type { Post } from "@/types/post";
 import type { Poll } from "@/types/poll";
-import type { Story } from "@/types/story";
 
 export function FeedList({
   items,
@@ -82,19 +80,10 @@ export function FeedList({
                         "bg-[#0f121a] border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:border-white/10"
                       }
                     />
-                  ) : item.type === "story" ? (
-                    <StoryCard
-                      story={item.content as Story}
-                      className={
-                        "bg-[#0f121a] border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:border-white/10"
-                      }
-                    />
                   ) : (
                     <Card className="shadow-sm">
                       <CardContent className="py-6 text-center text-sm text-muted-foreground">
-                        {item.type === "poll"
-                          ? "Poll item will be shown here in a future phase."
-                          : "Story item will be shown here in a future phase."}
+                        Poll item will be shown here in a future phase.
                       </CardContent>
                     </Card>
                   )}
@@ -130,25 +119,10 @@ export function FeedList({
               );
             }
 
-            if (item.type === "story") {
-              const story = item.content as Story;
-              return (
-                <StoryCard
-                  key={story._id}
-                  story={story}
-                  className={
-                    "bg-[#0f121a] border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:border-white/10"
-                  }
-                />
-              );
-            }
-
             return (
               <Card key={String(item._id)} className="shadow-sm">
                 <CardContent className="py-6 text-center text-sm text-muted-foreground">
-                  {item.type === "poll"
-                    ? "Poll item will be shown here in a future phase."
-                    : "Story item will be shown here in a future phase."}
+                  Poll item will be shown here in a future phase.
                 </CardContent>
               </Card>
             );
