@@ -1,6 +1,5 @@
 import type { IPost } from "../../types/post.types.js";
 import type { IPoll } from "../../types/poll.types.js";
-import type { IStory } from "../../types/story.types.js";
 import type { ContentItem } from "./content.types.js";
 
 // Type Guards
@@ -13,22 +12,11 @@ export const isPoll = (item: unknown): item is IPoll => {
   );
 };
 
-export const isStory = (item: unknown): item is IStory => {
-  return (
-    typeof item === "object" &&
-    item !== null &&
-    "title" in item &&
-    "status" in item &&
-    !("question" in item)
-  );
-};
-
 export const isPost = (item: unknown): item is IPost => {
   return (
     typeof item === "object" &&
     item !== null &&
     !isPoll(item) &&
-    !isStory(item) &&
     ("media" in item || "text" in item)
   );
 };
@@ -43,15 +31,6 @@ export const getContentAuthorId = (content: ContentItem | unknown): string => {
       return userId;
     }
     // Fallback to author object if userId missing (unlikely in DB)
-    return content.author?.clerkId || "";
-  }
-
-  if (isStory(content)) {
-    // Story model has top-level userId
-    const userId = (content as unknown as { userId?: unknown }).userId;
-    if (typeof userId === "string") {
-      return userId;
-    }
     return content.author?.clerkId || "";
   }
 

@@ -6,7 +6,6 @@ import type {
   UpdateStorySchemaType,
 } from "../schemas/story.schema.js";
 import { getSocketIO } from "../config/socket.config.js";
-import { emitContentDeleted, emitNewContent } from "../sockets/feed.socket.js";
 import { extractMentions } from "../utils/chat.util.js";
 import {
   createNotification,
@@ -65,12 +64,6 @@ export class StoryService {
     if (newStory.status === "published") {
       const io = getSocketIO();
       io.emit("newStory", newStory);
-      emitNewContent(
-        io,
-        "story",
-        String(newStory._id),
-        newStory.author.clerkId,
-      );
 
       const mentions = extractMentions(newStory.content);
       if (mentions.length > 0) {
@@ -197,7 +190,6 @@ export class StoryService {
       if (!wasPublished) {
         const io = getSocketIO();
         io.emit("newStory", story);
-        emitNewContent(io, "story", String(story._id), story.author.clerkId);
 
         const mentions = extractMentions(story.content);
         if (mentions.length > 0) {
@@ -241,7 +233,6 @@ export class StoryService {
     if (story.status === "published") {
       const io = getSocketIO();
       io.emit("storyDeleted", id);
-      emitContentDeleted(io, "story", id);
     }
   }
 

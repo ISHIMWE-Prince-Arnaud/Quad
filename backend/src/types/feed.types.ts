@@ -1,6 +1,5 @@
 import type { IPost } from "./post.types.js";
 import type { IPoll } from "./poll.types.js";
-import type { IStory } from "./story.types.js";
 
 /**
  * Feed Types
@@ -10,7 +9,7 @@ export type FeedType = "following" | "foryou";
 /**
  * Content Tabs
  */
-export type ContentTab = "home" | "posts" | "polls" | "stories";
+export type ContentTab = "home" | "posts" | "polls";
 
 /**
  * Sort Options
@@ -25,7 +24,7 @@ export type ContentPriority = "following" | "discover";
 /**
  * Feed Item Type
  */
-export type FeedItemType = "post" | "poll" | "story";
+export type FeedItemType = "post" | "poll";
 
 /**
  * Base Feed Item
@@ -33,7 +32,7 @@ export type FeedItemType = "post" | "poll" | "story";
 export interface IFeedItem {
   _id: string;
   type: FeedItemType;
-  content: IPost | IPoll | IStory;
+  content: IPost | IPoll;
   score: number;
   priority: ContentPriority;
   createdAt: Date;
@@ -84,7 +83,6 @@ export interface IScoringWeights {
 export interface IContentFilters {
   maxAge?: number; // days
   minEngagement?: number;
-  excludeExpiredStories?: boolean;
   excludeClosedPolls?: boolean;
 }
 
