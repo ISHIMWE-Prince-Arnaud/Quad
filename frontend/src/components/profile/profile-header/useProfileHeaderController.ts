@@ -90,8 +90,8 @@ export function useProfileHeaderController({
       bio: updatedProfile.bio,
       joinedAt,
       isVerified: updatedProfile.isVerified,
-      followers: updatedProfile.followers,
-      following: updatedProfile.following,
+      followersCount: updatedProfile.followersCount,
+      followingCount: updatedProfile.followingCount,
       postsCount: updatedProfile.postsCount,
       reactionsReceived: updatedProfile.stats?.reactionsReceived,
     });

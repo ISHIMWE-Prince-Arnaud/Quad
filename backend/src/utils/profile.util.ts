@@ -9,7 +9,7 @@ import type { IProfileStats, IUserProfile } from "../types/profile.types.js";
  * Calculate profile statistics for a user
  */
 export const calculateProfileStats = async (
-  clerkId: string
+  clerkId: string,
 ): Promise<IProfileStats> => {
   // Run all queries in parallel for better performance
   const [postsCount, storiesCount, pollsCount, reactionsReceived] =
@@ -68,7 +68,7 @@ export const calculateProfileStats = async (
  */
 export const formatUserProfile = (
   user: IUserDocument,
-  stats: IProfileStats
+  stats: IProfileStats,
 ): IUserProfile => {
   // Update stats with follow counts from user document
   stats.followersCount = user.followersCount || 0;
@@ -83,18 +83,24 @@ export const formatUserProfile = (
     email: user.email,
     ...(user.firstName !== undefined ? { firstName: user.firstName } : {}),
     ...(user.lastName !== undefined ? { lastName: user.lastName } : {}),
-    ...(user.displayName !== undefined ? { displayName: user.displayName } : {}),
-    ...(user.profileImage !== undefined ? { profileImage: user.profileImage } : {}),
+    ...(user.displayName !== undefined
+      ? { displayName: user.displayName }
+      : {}),
+    ...(user.profileImage !== undefined
+      ? { profileImage: user.profileImage }
+      : {}),
     ...(user.coverImage !== undefined ? { coverImage: user.coverImage } : {}),
     ...(user.bio !== undefined ? { bio: user.bio } : {}),
     ...(user.isVerified !== undefined ? { isVerified: user.isVerified } : {}),
-    followers: stats.followersCount,
-    following: stats.followingCount,
     postsCount: stats.postsCount,
     storiesCount: stats.storiesCount,
     pollsCount: stats.pollsCount,
-    ...(user.followersCount !== undefined ? { followersCount: user.followersCount } : {}),
-    ...(user.followingCount !== undefined ? { followingCount: user.followingCount } : {}),
+    ...(user.followersCount !== undefined
+      ? { followersCount: user.followersCount }
+      : {}),
+    ...(user.followingCount !== undefined
+      ? { followingCount: user.followingCount }
+      : {}),
     ...(user.createdAt !== undefined ? { createdAt: user.createdAt } : {}),
     ...(user.updatedAt !== undefined ? { updatedAt: user.updatedAt } : {}),
     joinedAt: user.createdAt ?? new Date(0),

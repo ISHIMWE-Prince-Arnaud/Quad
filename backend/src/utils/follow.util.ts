@@ -43,8 +43,6 @@ export const getFollowStats = async (
     return {
       followersCount: 0,
       followingCount: 0,
-      followers: 0,
-      following: 0,
       mutualFollows: 0,
       isFollowing: false,
       isFollowedBy: false,
@@ -59,8 +57,6 @@ export const getFollowStats = async (
     return {
       followersCount,
       followingCount,
-      followers: followersCount,
-      following: followingCount,
       mutualFollows: 0,
       isFollowing: false,
       isFollowedBy: false,
@@ -83,8 +79,6 @@ export const getFollowStats = async (
   return {
     followersCount,
     followingCount,
-    followers: followersCount,
-    following: followingCount,
     mutualFollows: mutualIds.length,
     isFollowing: following,
     isFollowedBy: followedBy,

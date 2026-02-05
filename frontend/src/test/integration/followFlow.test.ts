@@ -118,6 +118,7 @@ describe("Follow Flow Integration", () => {
     const mockStats = {
       followersCount: 150,
       followingCount: 75,
+      mutualFollows: 0,
     };
 
     mock.onGet(`/follow/${userId}/stats`).reply(200, {
@@ -129,6 +130,7 @@ describe("Follow Flow Integration", () => {
 
     expect(result.followersCount).toBe(150);
     expect(result.followingCount).toBe(75);
+    expect(result.mutualFollows).toBe(0);
   });
 
   it("should handle complete follow/unfollow cycle", async () => {

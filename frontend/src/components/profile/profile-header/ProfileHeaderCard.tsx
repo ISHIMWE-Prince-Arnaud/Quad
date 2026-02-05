@@ -181,7 +181,7 @@ export function ProfileHeaderCard({
                 onClick={onOpenFollowers}
                 className="text-center transition-opacity hover:opacity-90">
                 <div className="text-[#3b82f6] text-3xl font-extrabold leading-none tabular-nums">
-                  {formatStatNumber(user.followers)}
+                  {formatStatNumber(user.followersCount)}
                 </div>
                 <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
                   Followers
@@ -193,7 +193,7 @@ export function ProfileHeaderCard({
                 onClick={onOpenFollowing}
                 className="text-center transition-opacity hover:opacity-90">
                 <div className="text-[#3b82f6] text-3xl font-extrabold leading-none tabular-nums">
-                  {formatStatNumber(user.following)}
+                  {formatStatNumber(user.followingCount)}
                 </div>
                 <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
                   Following

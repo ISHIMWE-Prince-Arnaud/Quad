@@ -22,8 +22,6 @@ export interface IUserProfile extends IUser {
   coverImage?: string;
   isVerified?: boolean;
   joinedAt: Date;
-  followers?: number;
-  following?: number;
   postsCount?: number;
   storiesCount?: number;
   pollsCount?: number;

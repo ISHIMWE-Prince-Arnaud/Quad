@@ -100,26 +100,22 @@ export class FollowService {
   static async getFollowStats(userId: string): Promise<ApiFollowStats> {
     const response = await endpoints.follow.getStats(userId);
     const data = (response.data?.data ?? {}) as ApiFollowStats;
-    const followers =
-      typeof data.followers === "number"
-        ? data.followers
-        : typeof data.followersCount === "number"
-          ? data.followersCount
-          : 0;
-    const following =
-      typeof data.following === "number"
-        ? data.following
-        : typeof data.followingCount === "number"
-          ? data.followingCount
-          : 0;
-    const mutualFollows =
-      typeof data.mutualFollows === "number" ? data.mutualFollows : 0;
-
     return {
-      ...data,
-      followers,
-      following,
-      mutualFollows,
+      followersCount:
+        typeof data.followersCount === "number" ? data.followersCount : 0,
+      followingCount:
+        typeof data.followingCount === "number" ? data.followingCount : 0,
+      mutualFollows:
+        typeof data.mutualFollows === "number" ? data.mutualFollows : 0,
+      ...(typeof data.isFollowing === "boolean"
+        ? { isFollowing: data.isFollowing }
+        : {}),
+      ...(typeof data.isFollowedBy === "boolean"
+        ? { isFollowedBy: data.isFollowedBy }
+        : {}),
+      ...(typeof data.isMutual === "boolean"
+        ? { isMutual: data.isMutual }
+        : {}),
     };
   }
 

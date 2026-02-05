@@ -154,8 +154,8 @@ export function useProfilePageController({
           );
           profileData = {
             ...profileData,
-            followers: followStats.followers,
-            following: followStats.following,
+            followersCount: followStats.followersCount,
+            followingCount: followStats.followingCount,
             mutualFollows: followStats.mutualFollows,
           };
         } catch (statsError) {
@@ -921,7 +921,7 @@ export function useProfilePageController({
         prev
           ? {
               ...prev,
-              followers: (prev.followers || 0) + 1,
+              followersCount: (prev.followersCount || 0) + 1,
             }
           : prev,
       );
@@ -944,7 +944,7 @@ export function useProfilePageController({
         prev
           ? {
               ...prev,
-              followers: Math.max((prev.followers || 0) - 1, 0),
+              followersCount: Math.max((prev.followersCount || 0) - 1, 0),
             }
           : prev,
       );

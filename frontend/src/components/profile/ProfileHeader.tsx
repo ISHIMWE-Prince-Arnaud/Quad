@@ -221,7 +221,7 @@ export function ProfileHeader({
                   onClick={() => setFollowersModalOpen(true)}
                   className="text-center transition-opacity hover:opacity-90">
                   <div className="text-primary text-lg font-extrabold leading-none tabular-nums">
-                    {formatStatNumber(user.followers)}
+                    {formatStatNumber(user.followersCount)}
                   </div>
                   <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
                     Followers
@@ -233,7 +233,7 @@ export function ProfileHeader({
                   onClick={() => setFollowingModalOpen(true)}
                   className="text-center transition-opacity hover:opacity-90">
                   <div className="text-primary text-lg font-extrabold leading-none tabular-nums">
-                    {formatStatNumber(user.following)}
+                    {formatStatNumber(user.followingCount)}
                   </div>
                   <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
                     Following
@@ -398,7 +398,7 @@ export function ProfileHeader({
         onClose={() => setFollowersModalOpen(false)}
         userId={user.clerkId}
         type="followers"
-        initialCount={user.followers}
+        initialCount={user.followersCount}
       />
 
       {/* Following Modal */}
@@ -407,7 +407,7 @@ export function ProfileHeader({
         onClose={() => setFollowingModalOpen(false)}
         userId={user.clerkId}
         type="following"
-        initialCount={user.following}
+        initialCount={user.followingCount}
       />
 
       {/* Mutual Connections Modal */}

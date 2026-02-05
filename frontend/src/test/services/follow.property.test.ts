@@ -57,9 +57,9 @@ describe("Property 46: Follow Action Optimistic Update", () => {
           // Verify follow status is updated
           const checkResult = await FollowService.checkFollowing(userId);
           expect(checkResult.isFollowing).toBe(true);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -88,9 +88,9 @@ describe("Property 46: Follow Action Optimistic Update", () => {
           // Verify follow status is updated
           const checkResult = await FollowService.checkFollowing(userId);
           expect(checkResult.isFollowing).toBe(false);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -137,9 +137,9 @@ describe("Property 46: Follow Action Optimistic Update", () => {
             const newState = await FollowService.checkFollowing(userId);
             expect(newState.isFollowing).toBe(true);
           }
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -155,15 +155,15 @@ describe("Property 46: Follow Action Optimistic Update", () => {
           vi.mocked(endpoints.follow.getStats).mockResolvedValue({
             data: {
               data: {
-                followers: initialFollowers,
-                following: 0,
+                followersCount: initialFollowers,
+                followingCount: 0,
                 mutualFollows: 0,
               },
             },
           } as any);
 
           const initialStats = await FollowService.getFollowStats(userId);
-          expect(initialStats.followers).toBe(initialFollowers);
+          expect(initialStats.followersCount).toBe(initialFollowers);
 
           // Mock follow action
           vi.mocked(endpoints.follow.followUser).mockResolvedValue({
@@ -174,8 +174,8 @@ describe("Property 46: Follow Action Optimistic Update", () => {
           vi.mocked(endpoints.follow.getStats).mockResolvedValue({
             data: {
               data: {
-                followers: initialFollowers + 1,
-                following: 0,
+                followersCount: initialFollowers + 1,
+                followingCount: 0,
                 mutualFollows: 0,
               },
             },
@@ -185,10 +185,10 @@ describe("Property 46: Follow Action Optimistic Update", () => {
 
           // Verify follower count increased
           const updatedStats = await FollowService.getFollowStats(userId);
-          expect(updatedStats.followers).toBe(initialFollowers + 1);
-        }
+          expect(updatedStats.followersCount).toBe(initialFollowers + 1);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -204,15 +204,15 @@ describe("Property 46: Follow Action Optimistic Update", () => {
           vi.mocked(endpoints.follow.getStats).mockResolvedValue({
             data: {
               data: {
-                followers: initialFollowers,
-                following: 0,
+                followersCount: initialFollowers,
+                followingCount: 0,
                 mutualFollows: 0,
               },
             },
           } as any);
 
           const initialStats = await FollowService.getFollowStats(userId);
-          expect(initialStats.followers).toBe(initialFollowers);
+          expect(initialStats.followersCount).toBe(initialFollowers);
 
           // Mock unfollow action
           vi.mocked(endpoints.follow.unfollowUser).mockResolvedValue({
@@ -223,8 +223,8 @@ describe("Property 46: Follow Action Optimistic Update", () => {
           vi.mocked(endpoints.follow.getStats).mockResolvedValue({
             data: {
               data: {
-                followers: initialFollowers - 1,
-                following: 0,
+                followersCount: initialFollowers - 1,
+                followingCount: 0,
                 mutualFollows: 0,
               },
             },
@@ -234,10 +234,10 @@ describe("Property 46: Follow Action Optimistic Update", () => {
 
           // Verify follower count decreased
           const updatedStats = await FollowService.getFollowStats(userId);
-          expect(updatedStats.followers).toBe(initialFollowers - 1);
-        }
+          expect(updatedStats.followersCount).toBe(initialFollowers - 1);
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -262,9 +262,9 @@ describe("Property 46: Follow Action Optimistic Update", () => {
           expect(result.succeeded.length).toBe(userIds.length);
           expect(result.failed.length).toBe(0);
           expect(result.succeeded).toEqual(userIds);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -289,9 +289,9 @@ describe("Property 46: Follow Action Optimistic Update", () => {
           expect(result.succeeded.length).toBe(userIds.length);
           expect(result.failed.length).toBe(0);
           expect(result.succeeded).toEqual(userIds);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -326,7 +326,7 @@ describe("Property 46: Follow Action Optimistic Update", () => {
               return {
                 data: { success: true },
               } as any;
-            }
+            },
           );
 
           // Perform batch follow
@@ -338,9 +338,9 @@ describe("Property 46: Follow Action Optimistic Update", () => {
 
           expect(result.succeeded.length).toBe(expectedSucceeded.length);
           expect(result.failed.length).toBe(expectedFailed.length);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });

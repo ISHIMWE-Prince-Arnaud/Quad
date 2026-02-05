@@ -24,8 +24,6 @@ export interface IFollowWithUser extends IFollow {
 export interface IFollowStats {
   followersCount: number;
   followingCount: number;
-  followers: number;
-  following: number;
   mutualFollows: number;
   isFollowing: boolean; // Is current user following this user
   isFollowedBy: boolean; // Is this user following current user

@@ -18,7 +18,7 @@ interface FollowersModalProps {
 
 // Convert API follow user to UserCardData
 const convertApiFollowUserToUserCard = (
-  followUser: ApiFollowUser
+  followUser: ApiFollowUser,
 ): UserCardData => ({
   _id: followUser._id,
   clerkId: followUser.clerkId,
@@ -29,8 +29,8 @@ const convertApiFollowUserToUserCard = (
   profileImage: followUser.profileImage,
   bio: followUser.bio,
   isVerified: followUser.isVerified,
-  followers: 0, // Not provided in follow lists
-  following: 0, // Not provided in follow lists
+  followersCount: 0, // Not provided in follow lists
+  followingCount: 0, // Not provided in follow lists
   postsCount: 0, // Not provided in follow lists
   joinedAt: followUser.followedAt || new Date().toISOString(),
   isFollowing: followUser.isFollowing,
@@ -40,7 +40,7 @@ const convertApiFollowUserToUserCard = (
 const getFollowers = async (
   userId: string,
   page: number,
-  limit: number
+  limit: number,
 ): Promise<{ users: UserCardData[]; hasMore: boolean; total: number }> => {
   try {
     const result = await FollowService.getFollowers(userId, { page, limit });
@@ -62,7 +62,7 @@ const getFollowers = async (
 const getFollowing = async (
   userId: string,
   page: number,
-  limit: number
+  limit: number,
 ): Promise<{ users: UserCardData[]; hasMore: boolean; total: number }> => {
   try {
     const result = await FollowService.getFollowing(userId, { page, limit });
@@ -82,7 +82,7 @@ const getFollowing = async (
 };
 
 const getMutualFollowsForUser = async (
-  userId: string
+  userId: string,
 ): Promise<{ users: UserCardData[]; total: number }> => {
   try {
     const result = await FollowService.getMutualFollows(userId);
@@ -126,14 +126,14 @@ export function FollowersModal({
         if (type === "followers") {
           const result = await getFollowers(userId, pageToLoad, 20);
           setUsers((prev) =>
-            pageToLoad === 1 ? result.users : [...prev, ...result.users]
+            pageToLoad === 1 ? result.users : [...prev, ...result.users],
           );
           setHasMore(result.hasMore);
           setTotalCount(result.total || initialCount || result.users.length);
         } else if (type === "following") {
           const result = await getFollowing(userId, pageToLoad, 20);
           setUsers((prev) =>
-            pageToLoad === 1 ? result.users : [...prev, ...result.users]
+            pageToLoad === 1 ? result.users : [...prev, ...result.users],
           );
           setHasMore(result.hasMore);
           setTotalCount(result.total || initialCount || result.users.length);
@@ -159,7 +159,7 @@ export function FollowersModal({
         }
       }
     },
-    [userId, type, initialCount]
+    [userId, type, initialCount],
   );
 
   // Load users when modal opens
@@ -178,8 +178,8 @@ export function FollowersModal({
 
       setUsers((prev) =>
         prev.map((user) =>
-          user.clerkId === targetUserId ? { ...user, isFollowing: true } : user
-        )
+          user.clerkId === targetUserId ? { ...user, isFollowing: true } : user,
+        ),
       );
     } catch (error) {
       logError(error, {
@@ -201,8 +201,10 @@ export function FollowersModal({
 
       setUsers((prev) =>
         prev.map((user) =>
-          user.clerkId === targetUserId ? { ...user, isFollowing: false } : user
-        )
+          user.clerkId === targetUserId
+            ? { ...user, isFollowing: false }
+            : user,
+        ),
       );
     } catch (error) {
       logError(error, {
@@ -219,8 +221,8 @@ export function FollowersModal({
     type === "followers"
       ? "Followers"
       : type === "following"
-      ? "Following"
-      : "Mutual Connections";
+        ? "Following"
+        : "Mutual Connections";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">

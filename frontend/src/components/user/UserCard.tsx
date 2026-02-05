@@ -17,8 +17,8 @@ export interface UserCardData {
   coverImage?: string;
   bio?: string;
   isVerified?: boolean;
-  followers?: number;
-  following?: number;
+  followersCount?: number;
+  followingCount?: number;
   postsCount?: number;
   joinedAt: string;
   isFollowing?: boolean;
@@ -172,8 +172,8 @@ export function UserCard({
                 {followLoading
                   ? "Loading..."
                   : isFollowing
-                  ? "Following"
-                  : "Follow"}
+                    ? "Following"
+                    : "Follow"}
               </Button>
             )}
 
@@ -195,13 +195,13 @@ export function UserCard({
           <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
             <div className="flex gap-1">
               <span className="font-semibold text-foreground">
-                {user.following?.toLocaleString() || 0}
+                {user.followingCount?.toLocaleString() || 0}
               </span>
               <span>Following</span>
             </div>
             <div className="flex gap-1">
               <span className="font-semibold text-foreground">
-                {user.followers?.toLocaleString() || 0}
+                {user.followersCount?.toLocaleString() || 0}
               </span>
               <span>Followers</span>
             </div>

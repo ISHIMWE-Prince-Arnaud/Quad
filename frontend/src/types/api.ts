@@ -17,8 +17,8 @@ export interface ApiUser {
 }
 
 export interface ApiProfile extends ApiUser {
-  followers?: number;
-  following?: number;
+  followersCount?: number;
+  followingCount?: number;
   postsCount?: number;
   storiesCount?: number;
   pollsCount?: number;
@@ -127,11 +127,9 @@ export interface ApiFollowUser {
 }
 
 export interface ApiFollowStats {
-  followers?: number;
-  following?: number;
-  mutualFollows?: number;
-  followersCount?: number;
-  followingCount?: number;
+  followersCount: number;
+  followingCount: number;
+  mutualFollows: number;
   isFollowing?: boolean;
   isFollowedBy?: boolean;
   isMutual?: boolean;

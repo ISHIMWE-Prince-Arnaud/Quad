@@ -12,8 +12,8 @@ export type ProfileHeaderUser = {
   bio?: string;
   joinedAt: string;
   isVerified?: boolean;
-  followers?: number;
-  following?: number;
+  followersCount?: number;
+  followingCount?: number;
   postsCount?: number;
   reactionsReceived?: number;
   mutualFollows?: number;
