@@ -30,6 +30,8 @@ export function useNotificationsController({
 
   // Reset when filter changes
   useEffect(() => {
+    setInitialLoading(true);
+    setError(null);
     setPage(1);
     setNotifications([]);
     setHasMore(true);
