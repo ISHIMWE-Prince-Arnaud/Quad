@@ -17,7 +17,7 @@ A modern social media frontend built with React, TypeScript, and cutting-edge te
 # Install dependencies
 npm install
 
-# Start development server  
+# Start development server
 npm run dev
 
 # Build for production
@@ -29,7 +29,7 @@ npm run build
 ```
 src/
 ├── components/     # UI components
-├── layouts/        # Page layouts  
+├── layouts/        # Page layouts
 ├── lib/           # Utilities & API
 ├── pages/         # Route pages
 ├── routes/        # Router config
@@ -40,14 +40,16 @@ src/
 
 - ✅ **30+ Themes** - Slack-like theme switching
 - ✅ **Responsive Design** - Mobile-first layouts
-- ✅ **Type Safety** - Full TypeScript support  
+- ✅ **Type Safety** - Full TypeScript support
 - ✅ **API Ready** - Pre-configured for Quad backend
 - ✅ **State Management** - Zustand stores setup
 - ✅ **Modern Stack** - Latest React ecosystem
 
 ## 📖 Documentation
 
-See [SETUP_COMPLETE.md](./SETUP_COMPLETE.md) for detailed setup information.
+- **Frontend docs**: `docs/README.md`
+- **Shared (full project) docs hub**: `../docs/README.md`
+- **Shared getting started**: `../docs/GETTING_STARTED.md`
 
 ---
 

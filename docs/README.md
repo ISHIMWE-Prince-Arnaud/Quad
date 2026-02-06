@@ -15,8 +15,11 @@ This is the documentation hub for the Quad monorepo.
 ## Architecture & Codebase Map
 
 - **System Architecture (High level)**: [ARCHITECTURE.md](./ARCHITECTURE.md)
-- **Frontend Technical Reference**: [FRONTEND_TECHNICAL.md](./FRONTEND_TECHNICAL.md)
-- **Frontend User Guide**: [FRONTEND_USER_GUIDE.md](./FRONTEND_USER_GUIDE.md)
+
+## App-specific documentation
+
+- **Frontend docs index**: ../frontend/docs/README.md
+- **Backend docs index**: ../backend/docs/README.md
 
 ## Quality, Security, Performance
 
@@ -27,12 +30,6 @@ This is the documentation hub for the Quad monorepo.
 - **Security Audit**: [SECURITY_AUDIT.md](./SECURITY_AUDIT.md)
 - **Production Readiness Summary**: [PRODUCTION_READINESS_SUMMARY.md](./PRODUCTION_READINESS_SUMMARY.md)
 - **Final Review Report**: [FINAL_REVIEW_REPORT.md](./FINAL_REVIEW_REPORT.md)
-
-## Backend docs (detailed)
-
-Backend documentation lives under `backend/docs/`:
-
-- **Backend Docs Index**: ../backend/docs/README.md
 
 ## Repo scripts
 

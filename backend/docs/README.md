@@ -9,14 +9,13 @@ This directory contains comprehensive documentation for the Quad social media pl
 - **[Authentication](./auth/README.md)** - Clerk authentication integration
 - **[Real-time Features](./realtime/README.md)** - Socket.IO implementation
 - **[File Upload](./upload/README.md)** - Cloudinary media handling
-- **[Search System](./search/README.md)** - MongoDB text search implementation
 - **[Deployment](./deployment/README.md)** - Production deployment guide
 - **[Development](./development/README.md)** - Local development setup
 
-### Frontend Documentation
+### Related documentation
 
-- **[Frontend Technical Documentation](../../docs/FRONTEND_TECHNICAL.md)** - Frontend architecture, components, services, and state management.
-- **[Frontend User Guide](../../docs/FRONTEND_USER_GUIDE.md)** - End-user onboarding, feature usage, FAQs, and accessibility.
+- **[Shared Docs Hub](../../docs/README.md)** - Full-stack setup, architecture, deployment, and audits.
+- **[Frontend Docs Index](../../frontend/docs/README.md)** - Frontend technical reference and user guides.
 
 ## 🚀 Quick Start
 
