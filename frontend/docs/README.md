@@ -4,8 +4,16 @@ This folder contains frontend-only documentation.
 
 ## Start here
 
-- **Technical Reference**: [FRONTEND_TECHNICAL.md](./FRONTEND_TECHNICAL.md)
+- **Technical Reference (overview)**: [FRONTEND_TECHNICAL.md](./FRONTEND_TECHNICAL.md)
 - **User Guide**: [FRONTEND_USER_GUIDE.md](./FRONTEND_USER_GUIDE.md)
+
+## Core technical docs
+
+- **Routing**: [ROUTING.md](./ROUTING.md)
+- **Authentication**: [AUTH.md](./AUTH.md)
+- **API client & endpoints**: [API_CLIENT.md](./API_CLIENT.md)
+- **State management**: [STATE.md](./STATE.md)
+- **Realtime (Socket.IO)**: [REALTIME.md](./REALTIME.md)
 
 ## Related (repo-wide)
 
