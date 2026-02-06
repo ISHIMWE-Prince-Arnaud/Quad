@@ -76,6 +76,7 @@ export function PollCard({
   const canManage = isOwner;
   const canDelete = Boolean(onDelete) && isOwner;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deletePending, setDeletePending] = useState(false);
 
   const formatExpiresIn = (future: Date): string => {
     const now = new Date();
@@ -200,10 +201,15 @@ export function PollCard({
     navigate(`/app/polls/${poll.id}/edit`);
   };
 
-  const handleDelete = () => {
-    if (!onDelete) return;
-    onDelete(poll.id);
-    setIsDeleteDialogOpen(false);
+  const handleDelete = async () => {
+    if (!onDelete || deletePending) return;
+    try {
+      setDeletePending(true);
+      await onDelete(poll.id);
+      setIsDeleteDialogOpen(false);
+    } finally {
+      setDeletePending(false);
+    }
   };
 
   const actionBase =
@@ -547,12 +553,16 @@ export function PollCard({
 
       <ConfirmDialog
         open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        onOpenChange={(open) => {
+          if (deletePending) return;
+          setIsDeleteDialogOpen(open);
+        }}
         title="Delete poll?"
         description="This action cannot be undone. This will permanently delete your poll."
         confirmLabel="Delete"
         variant="destructive"
         onConfirm={handleDelete}
+        loading={deletePending}
       />
     </>
   );
