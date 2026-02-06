@@ -24,7 +24,9 @@ export default function EditStoryPage() {
 
   const [title, setTitle] = useState("");
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
-  const [initialCoverImage, setInitialCoverImage] = useState<string | undefined>(undefined);
+  const [initialCoverImage, setInitialCoverImage] = useState<
+    string | undefined
+  >(undefined);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [editorHtml, setEditorHtml] = useState<string>("");
@@ -62,7 +64,11 @@ export default function EditStoryPage() {
           setError(res.message || "Failed to load story");
         }
       } catch (err) {
-        logError(err, { component: "EditStoryPage", action: "loadStory", metadata: { id } });
+        logError(err, {
+          component: "EditStoryPage",
+          action: "loadStory",
+          metadata: { id },
+        });
         if (!cancelled) setError(getErrorMessage(err));
       } finally {
         if (!cancelled) setLoading(false);
@@ -114,7 +120,11 @@ export default function EditStoryPage() {
       setCoverImage(res.url);
       toast.success("Cover image set");
     } catch (err) {
-      logError(err, { component: "EditStoryPage", action: "uploadCoverImage", metadata: { id } });
+      logError(err, {
+        component: "EditStoryPage",
+        action: "uploadCoverImage",
+        metadata: { id },
+      });
       toast.error(getErrorMessage(err));
     } finally {
       setUploadingCover(false);
@@ -174,7 +184,11 @@ export default function EditStoryPage() {
         state: { story: res.data, refreshKey: Date.now() },
       });
     } catch (err) {
-      logError(err, { component: "EditStoryPage", action: "updateStory", metadata: { id } });
+      logError(err, {
+        component: "EditStoryPage",
+        action: "updateStory",
+        metadata: { id },
+      });
       toast.error(getErrorMessage(err));
     } finally {
       setSubmitting(false);
@@ -201,9 +215,12 @@ export default function EditStoryPage() {
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold mb-2">Unable to edit story</h2>
           <p className="text-muted-foreground mb-4">
-            {error || "The story you are trying to edit does not exist or cannot be loaded."}
+            {error ||
+              "The story you are trying to edit does not exist or cannot be loaded."}
           </p>
-          <Button onClick={() => navigate("/app/stories")}>Back to Stories</Button>
+          <Button onClick={() => navigate("/app/stories")}>
+            Back to Stories
+          </Button>
         </div>
       </div>
     );
@@ -220,6 +237,7 @@ export default function EditStoryPage() {
         </div>
 
         <CreateStoryForm
+          headerTitle="Edit Story"
           title={title}
           coverImage={coverImage}
           uploadingCover={uploadingCover}
@@ -244,7 +262,9 @@ export default function EditStoryPage() {
           onPublish={() => void handleSubmit("published")}
           onInsertLink={handleInsertLink}
           onMention={() => {
-            const username = window.prompt("Enter username to mention (without @)");
+            const username = window.prompt(
+              "Enter username to mention (without @)",
+            );
             if (username) {
               editor?.chain().focus().insertContent(`@${username} `).run();
             }

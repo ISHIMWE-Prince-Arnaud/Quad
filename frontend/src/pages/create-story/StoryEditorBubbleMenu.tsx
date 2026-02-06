@@ -70,7 +70,7 @@ export function StoryEditorBubbleMenu({
         left: coords.left,
         transform: "translate(-50%, -100%)",
       }}>
-      <div className="flex items-center gap-1 rounded-full border border-border bg-popover px-2 py-1 shadow-lg shadow-black/30">
+      <div className="flex items-center gap-1 rounded-full border border-border bg-popover px-2 py-1 shadow-lg">
         <Button
           type="button"
           variant="ghost"

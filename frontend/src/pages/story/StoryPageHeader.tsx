@@ -30,7 +30,7 @@ export function StoryPageHeader({
           variant="ghost"
           size="sm"
           onClick={onShare}
-          className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent"
+          className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10 transition-all duration-200"
           aria-label="Copy story link">
           <Share2 className="h-4 w-4" aria-hidden="true" />
         </Button>

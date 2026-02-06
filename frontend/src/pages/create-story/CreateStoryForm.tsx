@@ -39,6 +39,7 @@ export function CreateStoryForm({
   onPublish,
   onInsertLink,
   onMention,
+  headerTitle,
 }: {
   title: string;
   coverImage: string | undefined;
@@ -56,6 +57,7 @@ export function CreateStoryForm({
   onPublish: () => void;
   onInsertLink: () => void;
   onMention: () => void;
+  headerTitle?: string;
 }) {
   const autosaveLabel = getAutosaveLabel(autoSaving, lastSaved);
 
@@ -63,7 +65,7 @@ export function CreateStoryForm({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-extrabold text-foreground tracking-tight">
-          Create a New Story
+          {headerTitle || "Create a New Story"}
         </h1>
         <div className="flex items-center gap-3">
           <Button
@@ -111,7 +113,7 @@ export function CreateStoryForm({
           onChange={(e) => onTitleChange(e.target.value)}
           placeholder="Add your story title..."
           className={cn(
-            "w-full bg-transparent border-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-foreground placeholder:text-muted-foreground/30 p-0",
+            "w-full bg-transparent border-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-foreground placeholder:text-muted-foreground/60 p-0",
             validationErrors.title && "text-destructive",
           )}
         />
@@ -125,7 +127,7 @@ export function CreateStoryForm({
       <div className="space-y-2">
         <div
           className={cn(
-            "relative rounded-[2rem] border border-border/40 bg-card shadow-xl overflow-hidden focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/20 transition-colors",
+            "relative rounded-[2rem] border border-border/40 bg-card shadow-md overflow-hidden focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/20 transition-colors",
             validationErrors.content && "border-destructive/60",
           )}>
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">

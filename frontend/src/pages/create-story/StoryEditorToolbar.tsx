@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export function StoryEditorToolbar({ editor }: { editor: Editor | null }) {
   return (
-    <div className="flex items-center gap-1 bg-card/70 border border-border/40 rounded-full px-2 py-1 shadow-lg shadow-black/20">
+    <div className="flex items-center gap-1 bg-card/70 backdrop-blur-md border border-border/40 rounded-full px-2 py-1 shadow-md">
       <Button
         type="button"
         variant="ghost"

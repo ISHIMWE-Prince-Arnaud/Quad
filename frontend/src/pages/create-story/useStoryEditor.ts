@@ -44,7 +44,7 @@ export function useStoryEditor() {
     editorProps: {
       attributes: {
         class:
-          "focus:outline-none min-h-[360px] max-w-none text-[#e2e8f0] text-[15px] leading-[1.45]",
+          "prose dark:prose-invert focus:outline-none min-h-[360px] max-w-none text-foreground text-[15px] leading-[1.45]",
       },
     },
   });
