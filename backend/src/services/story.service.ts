@@ -56,7 +56,6 @@ export class StoryService {
       status: storyData.status || "draft",
       tags: storyData.tags || [],
       readTime,
-      viewsCount: 0,
       reactionsCount: 0,
       commentsCount: 0,
     });
@@ -124,24 +123,6 @@ export class StoryService {
 
     if (story.status === "draft" && story.author.clerkId !== userId) {
       throw new AppError("You don't have permission to view this draft", 403);
-    }
-
-    if (
-      story.status === "published" &&
-      userId &&
-      userId !== story.author.clerkId
-    ) {
-      try {
-        story.viewsCount = (story.viewsCount || 0) + 1;
-        await story.save();
-
-        getSocketIO().emit("storyViewUpdated", {
-          storyId: id,
-          viewsCount: story.viewsCount,
-        });
-      } catch {
-        // best-effort
-      }
     }
 
     return story;

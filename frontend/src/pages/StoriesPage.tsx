@@ -148,7 +148,7 @@ export default function StoriesPage() {
           <div>
             <h1 className="text-lg font-semibold text-foreground">Stories</h1>
             <p className="text-xs text-muted-foreground">
-              Explore latest happenings on campus
+              Explore latest happenings
             </p>
           </div>
 

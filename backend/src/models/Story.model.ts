@@ -10,13 +10,12 @@ export interface IStoryDocument extends Document {
   userId: string; // Clerk ID for efficient queries
   author: IUser;
   title: string;
-  content: string;              // Rich text HTML
+  content: string; // Rich text HTML
   excerpt?: string;
   coverImage?: string;
   status: StoryStatus;
   tags?: string[];
-  readTime?: number;            // Minutes
-  viewsCount?: number;
+  readTime?: number; // Minutes
   reactionsCount?: number;
   commentsCount?: number;
   publishedAt?: Date;
@@ -28,55 +27,56 @@ const StorySchema = new Schema<IStoryDocument>(
   {
     userId: { type: String, required: true }, // Clerk ID for efficient queries
     author: { type: Object, required: true }, // User snapshot (embedded)
-    
+
     // Content fields
-    title: { 
-      type: String, 
+    title: {
+      type: String,
       required: true,
       trim: true,
-      maxlength: 200 
+      maxlength: 200,
     },
-    content: { 
-      type: String, 
-      required: true 
+    content: {
+      type: String,
+      required: true,
     },
-    excerpt: { 
-      type: String, 
+    excerpt: {
+      type: String,
       trim: true,
-      maxlength: 500 
+      maxlength: 500,
     },
-    coverImage: { 
-      type: String 
+    coverImage: {
+      type: String,
     },
-    
+
     // Metadata
-    status: { 
-      type: String, 
-      enum: ["draft", "published"], 
-      default: "draft" 
+    status: {
+      type: String,
+      enum: ["draft", "published"],
+      default: "draft",
     },
-    tags: [{ 
-      type: String, 
-      trim: true, 
-      lowercase: true 
-    }],
-    readTime: { 
-      type: Number, 
-      min: 0 
+    tags: [
+      {
+        type: String,
+        trim: true,
+        lowercase: true,
+      },
+    ],
+    readTime: {
+      type: Number,
+      min: 0,
     },
-    
+
     // Cached counts (for performance)
-    viewsCount: { type: Number, default: 0 },
     reactionsCount: { type: Number, default: 0 },
     commentsCount: { type: Number, default: 0 },
-    
+
     // Publishing timestamp
     publishedAt: { type: Date },
   },
-  { 
-    timestamps: true,  // Auto-creates createdAt and updatedAt
-    minimize: false 
-  }
+  {
+    timestamps: true, // Auto-creates createdAt and updatedAt
+    minimize: false,
+  },
 );
 
 // ===========================
@@ -97,9 +97,6 @@ StorySchema.index({ userId: 1, status: 1, publishedAt: -1 });
 // Index for filtering by tags
 StorySchema.index({ tags: 1, status: 1, publishedAt: -1 });
 
-// Index for sorting by views/popularity
-StorySchema.index({ viewsCount: -1, publishedAt: -1 });
-
 // ===========================
 // METHODS
 // ===========================
@@ -112,12 +109,12 @@ StorySchema.pre("save", function (next) {
   if (this.status === "published" && !this.publishedAt) {
     this.publishedAt = new Date();
   }
-  
+
   // If story is unpublished (back to draft), clear publishedAt
   if (this.status === "draft" && this.publishedAt) {
-    delete this.publishedAt;  // Remove the property entirely
+    delete this.publishedAt; // Remove the property entirely
   }
-  
+
   next();
 });
 

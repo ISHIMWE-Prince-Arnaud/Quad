@@ -93,32 +93,4 @@ describe("Stories CRUD", () => {
 
     expect(okDelete.status).toBe(200);
   });
-
-  it("increments views for non-author", async () => {
-    const app = createTestApp();
-    const authorId = "story_user_5";
-    const viewerId = "story_user_6";
-    await ensureUser(app, authorId);
-    await ensureUser(app, viewerId);
-
-    const createRes = await request(app)
-      .post("/api/stories")
-      .set(getAuthHeaders(authorId))
-      .send({ title: "View", content: "<p>Hello</p>", status: "published" });
-
-    const storyId = createRes.body?.data?._id as string;
-
-    const first = await request(app)
-      .get(`/api/stories/${storyId}`)
-      .set(getAuthHeaders(viewerId));
-
-    expect(first.status).toBe(200);
-
-    const second = await request(app)
-      .get(`/api/stories/${storyId}`)
-      .set(getAuthHeaders(viewerId));
-
-    expect(second.status).toBe(200);
-    expect((second.body?.data?.viewsCount ?? 0) >= 1).toBe(true);
-  });
 });

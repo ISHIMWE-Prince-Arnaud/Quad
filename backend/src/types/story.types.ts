@@ -27,7 +27,6 @@ export interface IStory {
   readTime?: number; // Estimated reading time in minutes
 
   // Engagement (cached counts for performance)
-  viewsCount?: number; // How many times viewed
   reactionsCount?: number; // Total reactions
   commentsCount?: number; // Total comments
 

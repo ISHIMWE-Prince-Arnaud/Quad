@@ -17,7 +17,6 @@ export interface Story {
   status: StoryStatus;
   tags?: string[];
   readTime?: number;
-  viewsCount?: number;
   reactionsCount?: number;
   commentsCount?: number;
   publishedAt?: string | null;

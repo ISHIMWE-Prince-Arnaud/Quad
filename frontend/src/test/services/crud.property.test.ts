@@ -58,10 +58,10 @@ describe("Property 1: CRUD Operations Preserve Data Integrity", () => {
               aspectRatio: fc.constantFrom(
                 "1:1" as const,
                 "16:9" as const,
-                "9:16" as const
+                "9:16" as const,
               ),
             }),
-            { maxLength: 4 }
+            { maxLength: 4 },
           ),
         }),
         async (postData) => {
@@ -133,11 +133,11 @@ describe("Property 1: CRUD Operations Preserve Data Integrity", () => {
 
           // Verify it's no longer retrievable
           await expect(
-            PostService.getPostById(createdPost._id)
+            PostService.getPostById(createdPost._id),
           ).rejects.toThrow();
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -172,7 +172,6 @@ describe("Property 1: CRUD Operations Preserve Data Integrity", () => {
             status: storyData.status,
             tags: storyData.tags,
             readTime: 5,
-            viewsCount: 0,
             reactionsCount: 0,
             commentsCount: 0,
             createdAt: new Date().toISOString(),
@@ -227,11 +226,11 @@ describe("Property 1: CRUD Operations Preserve Data Integrity", () => {
 
           // Verify it's no longer retrievable
           await expect(
-            StoryService.getById(createdStory._id)
+            StoryService.getById(createdStory._id),
           ).rejects.toThrow();
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -245,7 +244,7 @@ describe("Property 1: CRUD Operations Preserve Data Integrity", () => {
             fc.record({
               text: fc.string({ minLength: 1, maxLength: 100 }),
             }),
-            { minLength: 2, maxLength: 6 }
+            { minLength: 2, maxLength: 6 },
           ),
           settings: fc.record({
             anonymousVoting: fc.boolean(),
@@ -328,9 +327,9 @@ describe("Property 1: CRUD Operations Preserve Data Integrity", () => {
 
           // Verify it's no longer retrievable
           await expect(PollService.getById(createdPoll.id)).rejects.toThrow();
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
