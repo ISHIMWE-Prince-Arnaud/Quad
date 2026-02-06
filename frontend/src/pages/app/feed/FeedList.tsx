@@ -77,7 +77,7 @@ export function FeedList({
                       poll={item.content as Poll}
                       onDelete={onDeletePoll}
                       className={
-                        "bg-[#0f121a] border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:border-white/10"
+                        "bg-card border border-border/40 rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-card-hover hover:border-border/60"
                       }
                     />
                   ) : (
@@ -113,7 +113,7 @@ export function FeedList({
                   poll={poll}
                   onDelete={onDeletePoll}
                   className={
-                    "bg-[#0f121a] border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:border-white/10"
+                    "bg-card border border-border/40 rounded-[2rem] overflow-hidden transition-all duration-300 hover:shadow-card-hover hover:border-border/60"
                   }
                 />
               );

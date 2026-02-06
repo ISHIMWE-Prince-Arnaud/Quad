@@ -39,14 +39,12 @@ export function PostCard({
   const isOwner = user?.clerkId === post.author.clerkId;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const {
-    userReaction,
-    reactionPending,
-    reactionCount,
-    selectReaction,
-  } = usePostReactions(post._id);
+  const { userReaction, reactionPending, reactionCount, selectReaction } =
+    usePostReactions(post._id);
 
-  const { bookmarked, bookmarkPending, toggleBookmark } = usePostBookmark(post._id);
+  const { bookmarked, bookmarkPending, toggleBookmark } = usePostBookmark(
+    post._id,
+  );
 
   const displayName = getDisplayName(post.author);
 
@@ -96,9 +94,9 @@ export function PostCard({
         transition={{ type: "spring", stiffness: 300, damping: 25 }}>
         <Card
           className={cn(
-            "w-full bg-[#0f121a] border border-white/5 rounded-[2rem] overflow-hidden transition-all duration-300",
-            "hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:border-white/10",
-            className
+            "w-full bg-card border border-border/40 rounded-[2rem] overflow-hidden transition-all duration-300",
+            "hover:shadow-card-hover hover:border-border/60",
+            className,
           )}>
           <CardHeader className="pb-4">
             {/* Author info */}
@@ -128,7 +126,7 @@ export function PostCard({
 
           {/* Interaction buttons */}
           <CardFooter
-            className="px-6 py-4 flex items-center gap-2 border-t border-white/5 bg-white/[0.02]"
+            className="px-6 py-4 flex items-center gap-2 border-t border-border/40 bg-muted/30"
             role="group"
             aria-label="Post actions">
             <PostCardFooter

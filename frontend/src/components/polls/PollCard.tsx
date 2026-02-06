@@ -207,7 +207,7 @@ export function PollCard({
   };
 
   const actionBase =
-    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[#64748b] transition-all";
+    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground transition-all";
 
   return (
     <>
@@ -217,7 +217,7 @@ export function PollCard({
         transition={{ type: "spring", stiffness: 260, damping: 20 }}>
         <Card
           className={cn(
-            "bg-[#0f121a] border border-white/5 rounded-3xl overflow-hidden shadow-xl",
+            "bg-card border border-border/40 rounded-3xl overflow-hidden shadow-card",
             className,
           )}>
           <CardContent className="p-6">
@@ -237,10 +237,10 @@ export function PollCard({
                       className="h-11 w-11 rounded-full object-cover border-2 border-white/10 shadow-inner"
                     />
                     <div className="min-w-0">
-                      <div className="text-[14px] font-bold text-white leading-tight truncate">
+                      <div className="text-[14px] font-bold text-foreground leading-tight truncate">
                         {displayName}
                       </div>
-                      <div className="text-[11px] font-medium text-[#94a3b8] mt-0.5 truncate">
+                      <div className="text-[11px] font-medium text-muted-foreground mt-0.5 truncate">
                         {timeAgoShort(poll.createdAt)}
                       </div>
                     </div>
@@ -267,7 +267,7 @@ export function PollCard({
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-9 w-9 p-0 shrink-0 rounded-full text-[#94a3b8] hover:text-white hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="h-9 w-9 p-0 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-2 focus-visible:ring-primary/40"
                             aria-label="Poll options">
                             <MoreHorizontal
                               className="h-4 w-4"
@@ -277,7 +277,7 @@ export function PollCard({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"
-                          className="min-w-[180px] rounded-xl border border-white/10 bg-[#0b1220] p-1 text-white shadow-xl">
+                          className="min-w-[180px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-dropdown">
                           <DropdownMenuItem
                             onClick={handleEdit}
                             disabled={cannotEdit}
@@ -288,9 +288,9 @@ export function PollCard({
                                   : "Edit locked: poll is expired"
                                 : undefined
                             }
-                            className="gap-2 rounded-lg px-3 py-2 hover:bg-white/5 focus:bg-white/5">
+                            className="gap-2 rounded-lg px-3 py-2 hover:bg-accent focus:bg-accent">
                             <Pencil
-                              className="h-4 w-4 text-[#94a3b8]"
+                              className="h-4 w-4 text-muted-foreground"
                               aria-hidden="true"
                             />
                             <div className="flex flex-col min-w-0 leading-tight">
@@ -305,7 +305,7 @@ export function PollCard({
 
                           {canDelete && (
                             <>
-                              <DropdownMenuSeparator className="bg-white/10" />
+                              <DropdownMenuSeparator className="bg-border" />
                               <DropdownMenuItem
                                 className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
                                 onClick={() => setIsDeleteDialogOpen(true)}>
@@ -327,14 +327,14 @@ export function PollCard({
               {!hasAvatar && (
                 <div className="flex items-center justify-between gap-3 w-full">
                   <div className={cn("min-w-0", !subtitle && "text-center")}>
-                    <div className="text-[14px] font-bold text-white leading-tight truncate">
+                    <div className="text-[14px] font-bold text-foreground leading-tight truncate">
                       {displayName}
                     </div>
-                    <div className="text-[11px] font-medium text-[#94a3b8] mt-0.5 truncate">
+                    <div className="text-[11px] font-medium text-muted-foreground mt-0.5 truncate">
                       {timeAgoShort(poll.createdAt)}
                     </div>
                     {subtitle && (
-                      <div className="text-[11px] font-medium text-[#94a3b8] mt-0.5 truncate">
+                      <div className="text-[11px] font-medium text-muted-foreground mt-0.5 truncate">
                         {subtitle}
                       </div>
                     )}
@@ -361,7 +361,7 @@ export function PollCard({
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-9 w-9 p-0 shrink-0 rounded-full text-[#94a3b8] hover:text-white hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-primary/40"
+                            className="h-9 w-9 p-0 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-2 focus-visible:ring-primary/40"
                             aria-label="Poll options">
                             <MoreHorizontal
                               className="h-4 w-4"
@@ -371,7 +371,7 @@ export function PollCard({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"
-                          className="min-w-[180px] rounded-xl border border-white/10 bg-[#0b1220] p-1 text-white shadow-xl">
+                          className="min-w-[180px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-dropdown">
                           <DropdownMenuItem
                             onClick={handleEdit}
                             disabled={cannotEdit}
@@ -499,8 +499,8 @@ export function PollCard({
                       "p-2 rounded-xl transition-all",
                       "disabled:opacity-50 disabled:cursor-not-allowed",
                       bookmarked
-                        ? "text-[#f59e0b] bg-[#f59e0b]/10"
-                        : "text-[#94a3b8] hover:text-[#f59e0b] hover:bg-[#f59e0b]/5",
+                        ? "text-warning bg-warning/10"
+                        : "text-muted-foreground hover:text-warning hover:bg-warning/5",
                     )}
                     aria-label={
                       bookmarked ? "Remove bookmark" : "Bookmark poll"
@@ -515,16 +515,16 @@ export function PollCard({
             </div>
 
             {isActive && !poll.canViewResults && (
-              <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-white/[0.03] px-4 py-3">
+              <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-border/40 bg-muted/30 px-4 py-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="h-9 w-9 rounded-xl bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center shrink-0">
+                  <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <Info className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[12px] font-semibold text-white/90 leading-tight truncate">
+                    <p className="text-[12px] font-semibold text-foreground/90 leading-tight truncate">
                       Vote to see the results
                     </p>
-                    <p className="text-[11px] font-medium text-[#94a3b8] leading-tight truncate">
+                    <p className="text-[11px] font-medium text-muted-foreground leading-tight truncate">
                       Results unlock after you vote.
                     </p>
                   </div>
