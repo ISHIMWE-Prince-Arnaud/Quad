@@ -180,9 +180,9 @@ export default function PostPage() {
       <Button
         variant="ghost"
         size="sm"
-        className="mb-4 hover:bg-secondary"
+        className="mb-2 h-10 px-4 text-muted-foreground hover:text-foreground hover:bg-accent transition-all group"
         onClick={() => navigate(-1)}>
-        <ArrowLeft className="h-4 w-4 mr-2" />
+        <ArrowLeft className="h-4 w-4 mr-2 transition-transform group-hover:-translate-x-1" />
         Back
       </Button>
 
