@@ -16,18 +16,17 @@ Backend docs live under `backend/docs/`:
 
 ### Frontend Documentation
 
-Frontend-specific docs live under the root `docs/` folder:
+Frontend-specific docs live under `frontend/docs/`:
 
-- **[Frontend Technical Documentation](docs/FRONTEND_TECHNICAL.md)**  
-  Architecture, component/page structure, services → API integration, Zustand stores, testing strategy, and deployment flow.
+- **[Frontend Docs Index](frontend/docs/README.md)**
+  Technical reference and user documentation for the web app.
 
-- **[Frontend User Guide](docs/FRONTEND_USER_GUIDE.md)**  
-  Onboarding, feature usage (posts, chat, stories, polls, notifications, search), FAQs, troubleshooting, and accessibility notes.
+### Shared (full project)
 
-You may also find high-level planning and design PDFs in `docs/`:
+Shared docs live under the root `docs/` folder:
 
-- `Quad - Student Social Entertainment Platform.pdf`
-- `🚀 QUAD FRONTEND IMPLEMENTATION PLAN.pdf`
+- **[Documentation Hub](docs/README.md)**
+  Full-stack setup, architecture overview, deployment, and audits.
 
 ---
 

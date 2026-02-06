@@ -703,4 +703,4 @@ For deployment issues:
 - [Environment Variables Documentation](./ENVIRONMENT_VARIABLES.md)
 - [CDN Configuration Guide](./CDN_CONFIGURATION.md)
 - [Backend API Documentation](../backend/docs/README.md)
-- [Frontend Technical Documentation](./FRONTEND_TECHNICAL.md)
+- [Frontend Technical Documentation](../frontend/docs/FRONTEND_TECHNICAL.md)
