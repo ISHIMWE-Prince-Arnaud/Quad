@@ -31,12 +31,12 @@ import type { ChatAuthor } from "@/types/chat";
 
 export function RightPanel() {
   return (
-    <aside className="h-full bg-[#0a0c10] border-l border-white/5 flex flex-col overflow-hidden">
+    <aside className="h-full bg-sidebar border-l border-border/40 flex flex-col overflow-hidden">
       <div className="flex flex-col gap-6 p-6 flex-1 min-h-0">
         <QuickCreate />
         <ActiveChatsMini />
         <div className="mt-auto flex flex-col gap-4">
-          <div className="rounded-3xl border border-white/5 bg-white/[0.02] overflow-hidden">
+          <div className="rounded-3xl border border-border/40 bg-card/50 overflow-hidden">
             <ThemeSelector />
           </div>
           <AccountMiniCard />
@@ -48,35 +48,35 @@ export function RightPanel() {
 
 function QuickCreate() {
   return (
-    <section className="rounded-3xl border border-white/5 bg-white/[0.02] overflow-hidden">
+    <section className="rounded-3xl border border-border/40 bg-card/50 overflow-hidden">
       <div className="px-4 pt-4 pb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white">Quick Create</h2>
+        <h2 className="text-sm font-semibold text-foreground">Quick Create</h2>
       </div>
 
       <div className="px-4 pb-4 grid grid-cols-1 gap-2">
         <Button
           asChild
-          className="w-full justify-start rounded-2xl border shadow-none bg-[#2563eb]/10 hover:bg-[#2563eb]/15 border-[#2563eb]/20 text-white h-11">
+          className="w-full justify-start rounded-2xl border shadow-none bg-primary/10 hover:bg-primary/15 border-primary/20 text-foreground h-11">
           <Link to="/app/create/post" aria-label="Create a post">
-            <FileText className="h-4 w-4 text-[#60a5fa]" />
+            <FileText className="h-4 w-4 text-primary" />
             Post
           </Link>
         </Button>
 
         <Button
           asChild
-          className="w-full justify-start rounded-2xl border shadow-none bg-[#2563eb]/10 hover:bg-[#2563eb]/15 border-[#2563eb]/20 text-white h-11">
+          className="w-full justify-start rounded-2xl border shadow-none bg-primary/10 hover:bg-primary/15 border-primary/20 text-foreground h-11">
           <Link to="/app/create/poll" aria-label="Create a poll">
-            <BarChart3 className="h-4 w-4 text-[#60a5fa]" />
+            <BarChart3 className="h-4 w-4 text-primary" />
             Poll
           </Link>
         </Button>
 
         <Button
           asChild
-          className="w-full justify-start rounded-2xl border shadow-none bg-[#2563eb]/10 hover:bg-[#2563eb]/15 border-[#2563eb]/20 text-white h-11">
+          className="w-full justify-start rounded-2xl border shadow-none bg-primary/10 hover:bg-primary/15 border-primary/20 text-foreground h-11">
           <Link to="/app/create/story" aria-label="Create a story">
-            <Camera className="h-4 w-4 text-[#60a5fa]" />
+            <Camera className="h-4 w-4 text-primary" />
             Story
           </Link>
         </Button>
@@ -147,13 +147,13 @@ function ActiveChatsMini() {
   }, [authors.length, loading, user]);
 
   return (
-    <section className="rounded-3xl border border-white/5 bg-white/[0.02] overflow-hidden">
+    <section className="rounded-3xl border border-border/40 bg-card/50 overflow-hidden">
       <div className="px-4 pt-4 pb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-white">Active Users</h2>
+        <h2 className="text-sm font-semibold text-foreground">Active Users</h2>
         <span
           className={cn(
             "text-[11px] font-medium",
-            statusLabel === "Active" ? "text-[#34d399]" : "text-[#64748b]",
+            statusLabel === "Active" ? "text-success" : "text-muted-foreground",
           )}>
           {statusLabel}
         </span>
@@ -161,32 +161,32 @@ function ActiveChatsMini() {
 
       <div className="px-4 pb-4">
         {!user && (
-          <p className="text-xs text-[#94a3b8] mb-3">
+          <p className="text-xs text-muted-foreground mb-3">
             Sign in to see active chats
           </p>
         )}
 
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-white/[0.02] px-3 py-3">
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/40 bg-background/50 px-3 py-3">
           <div className="flex -space-x-2">
             {authors.length > 0
               ? authors.map((a) => (
                   <div
                     key={a.clerkId || a.username || a.email}
                     className="relative">
-                    <Avatar className="h-9 w-9 border-2 border-[#0a0c10]">
+                    <Avatar className="h-9 w-9 border-2 border-sidebar">
                       <AvatarImage src={a.profileImage} alt={a.username} />
-                      <AvatarFallback className="bg-[#1e293b] text-white text-xs font-bold">
+                      <AvatarFallback className="bg-secondary text-secondary-foreground text-xs font-bold">
                         {(a.username || a.email || "U")[0]?.toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    </div>
+                  </div>
                 ))
               : loading && user
                 ? [0, 1, 2].map((i) => (
                     <div
                       key={i}
                       className={cn(
-                        "h-9 w-9 rounded-full border-2 border-[#0a0c10] bg-white/[0.08] animate-pulse",
+                        "h-9 w-9 rounded-full border-2 border-sidebar bg-skeleton animate-pulse",
                         i > 0 && "-ml-2",
                       )}
                       aria-hidden="true"
@@ -196,7 +196,7 @@ function ActiveChatsMini() {
                     <div
                       key={i}
                       className={cn(
-                        "h-9 w-9 rounded-full border-2 border-[#0a0c10] bg-white/[0.05]",
+                        "h-9 w-9 rounded-full border-2 border-sidebar bg-muted/50",
                         i > 0 && "-ml-2",
                       )}
                       aria-hidden="true"
@@ -207,7 +207,7 @@ function ActiveChatsMini() {
           <Button
             asChild
             size="sm"
-            className="rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-[0_10px_20px_rgba(37,99,235,0.25)]">
+            className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md">
             <Link to="/app/chat" aria-label="Open chat" title="Go to chat">
               <MessageCircle className="h-4 w-4" />
               Open Chat
@@ -244,31 +244,31 @@ function AccountMiniCard() {
   };
 
   return (
-    <section className="rounded-3xl border border-white/5 bg-white/[0.02] p-4">
+    <section className="rounded-3xl border border-border/40 bg-card/50 p-4">
       <div className="flex items-center gap-3">
         <Link
           to={profileHref}
           aria-label="Go to profile"
-          className="flex items-center gap-3 min-w-0 flex-1 rounded-2xl p-2 -m-2 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0c10]">
-          <Avatar className="h-11 w-11 border border-white/10">
+          className="flex items-center gap-3 min-w-0 flex-1 rounded-2xl p-2 -m-2 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar">
+          <Avatar className="h-11 w-11 border border-border/40">
             <AvatarImage src={user?.profileImage} alt={displayName} />
-            <AvatarFallback className="bg-[#1e293b] text-white font-bold">
+            <AvatarFallback className="bg-secondary text-secondary-foreground font-bold">
               {displayName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 min-w-0">
-              <p className="text-sm font-semibold text-white truncate">
+              <p className="text-sm font-semibold text-foreground truncate">
                 {displayName}
               </p>
               {user?.isVerified && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#60a5fa] shrink-0">
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary shrink-0">
                   <BadgeCheck className="h-4 w-4" />
                 </span>
               )}
             </div>
-            <p className="text-xs text-[#94a3b8] truncate">
+            <p className="text-xs text-muted-foreground truncate">
               {user?.username ? `@${user.username}` : user?.email || ""}
             </p>
           </div>
@@ -280,18 +280,18 @@ function AccountMiniCard() {
               type="button"
               variant="ghost"
               size="icon"
-              className="rounded-full text-destructive/90 hover:text-destructive hover:bg-destructive/10 focus-visible:ring-[#2563eb]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0c10]"
+              className="rounded-full text-destructive/90 hover:text-destructive hover:bg-destructive/10 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
               aria-label="Log out">
               <LogOut className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-[#0f121a] border-border/10 text-white">
+          <DialogContent className="bg-card border-border text-card-foreground">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-destructive" />
                 Log Out
               </DialogTitle>
-              <DialogDescription className="text-[#64748b]">
+              <DialogDescription className="text-muted-foreground">
                 This will end your session on this device. You will need to sign
                 in again to continue.
               </DialogDescription>
@@ -300,7 +300,7 @@ function AccountMiniCard() {
               <Button
                 variant="ghost"
                 onClick={() => setIsDialogOpen(false)}
-                className="text-[#64748b] hover:text-white hover:bg-white/5">
+                className="text-muted-foreground hover:text-foreground hover:bg-accent">
                 Cancel
               </Button>
               <Button
