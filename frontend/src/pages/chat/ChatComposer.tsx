@@ -34,9 +34,9 @@ export function ChatComposer({
   };
 
   return (
-    <div className="py-4 px-6 bg-background/80 backdrop-blur-md border-t border-border/50 sticky bottom-0">
+    <div className="py-4 px-6 bg-card border-t border-border/60 shadow-[0_-4px_12px_rgba(0,0,0,0.03)] z-10 sticky bottom-0">
       <div className="flex items-end gap-3 max-w-4xl mx-auto w-full">
-        <div className="flex-1 min-w-0 flex items-end gap-2 rounded-[1.5rem] bg-muted/50 border border-border/40 focus-within:border-primary/30 focus-within:bg-background focus-within:shadow-md px-4 py-2.5 transition-all duration-200">
+        <div className="flex-1 min-w-0 flex items-end gap-2 rounded-[1.25rem] bg-muted/40 border border-border focus-within:border-primary/40 focus-within:bg-background focus-within:shadow-sm px-4 py-2.5 transition-all duration-200">
           <textarea
             ref={textareaRef}
             value={text}
@@ -45,7 +45,7 @@ export function ChatComposer({
             maxLength={MAX_MESSAGE_LENGTH}
             placeholder="Type a message..."
             rows={1}
-            className="flex-1 bg-transparent border-none focus:ring-0 outline-none text-foreground placeholder:text-muted-foreground text-sm min-h-[24px] resize-none py-1 scrollbar-hide"
+            className="flex-1 bg-transparent border-none focus:ring-0 outline-none text-foreground placeholder:text-muted-foreground/50 text-[15px] min-h-[24px] resize-none py-1 scrollbar-hide"
             aria-label="Message input"
           />
         </div>
@@ -59,7 +59,7 @@ export function ChatComposer({
             "h-11 w-11 rounded-full shrink-0 shadow-sm transition-all",
             sending || !text.trim()
               ? "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
-              : "bg-primary text-primary-foreground hover:scale-105 active:scale-95 hover:shadow-primary/20 hover:shadow-lg",
+              : "bg-primary text-primary-foreground hover:scale-105 active:scale-95 shadow-primary/20 hover:shadow-lg",
           )}>
           {sending ? (
             <Loader2 className="h-5 w-5 animate-spin" />
