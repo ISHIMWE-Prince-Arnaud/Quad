@@ -18,7 +18,8 @@ export default function StoryPage() {
   const { user } = useAuthStore();
 
   const initialStory = (location.state as { story?: Story } | null)?.story;
-  const refreshKey = (location.state as { refreshKey?: number } | null)?.refreshKey;
+  const refreshKey = (location.state as { refreshKey?: number } | null)
+    ?.refreshKey;
 
   const controller = useStoryPageController({
     id,
@@ -33,8 +34,7 @@ export default function StoryPage() {
         type="button"
         variant="ghost"
         size="sm"
-        onClick={() => navigate("/app/stories")}
-      >
+        onClick={() => navigate("/app/stories")}>
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Stories
       </Button>
@@ -57,7 +57,7 @@ export default function StoryPage() {
 
           <Skeleton className="w-full h-[320px] rounded-lg bg-white/5" />
 
-          <div className="rounded-[1.5rem] border border-white/5 bg-[#0f121a] overflow-hidden">
+          <div className="rounded-[1.5rem] border border-border/40 bg-card overflow-hidden">
             <div className="p-4 md:p-6">
               <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
                 <Skeleton variant="text" className="h-4 w-24 bg-white/5" />
@@ -79,19 +79,34 @@ export default function StoryPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl bg-[#0b1220] border border-white/5 p-5">
+          <div className="rounded-3xl bg-card border border-border/40 p-5">
             <Skeleton variant="text" className="h-4 w-40 bg-white/5" />
             <div className="mt-4 space-y-4">
               {Array.from({ length: 2 }).map((_, i) => (
                 <div key={i} className="flex gap-3">
-                  <Skeleton variant="circular" className="h-9 w-9 shrink-0 bg-white/5" />
+                  <Skeleton
+                    variant="circular"
+                    className="h-9 w-9 shrink-0 bg-white/5"
+                  />
                   <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex items-center justify-between gap-3">
-                      <Skeleton variant="text" className="h-4 w-28 bg-white/5" />
-                      <Skeleton variant="text" className="h-3 w-16 bg-white/5" />
+                      <Skeleton
+                        variant="text"
+                        className="h-4 w-28 bg-white/5"
+                      />
+                      <Skeleton
+                        variant="text"
+                        className="h-3 w-16 bg-white/5"
+                      />
                     </div>
-                    <Skeleton variant="text" className="h-4 w-full bg-white/5" />
-                    <Skeleton variant="text" className="h-4 w-10/12 bg-white/5" />
+                    <Skeleton
+                      variant="text"
+                      className="h-4 w-full bg-white/5"
+                    />
+                    <Skeleton
+                      variant="text"
+                      className="h-4 w-10/12 bg-white/5"
+                    />
                   </div>
                 </div>
               ))}
@@ -140,7 +155,9 @@ export default function StoryPage() {
           readingTime={controller.readingTime}
           userReaction={controller.userReaction}
           totalReactions={controller.totalReactions}
-          onSelectReaction={(type) => void controller.handleSelectReaction(type)}
+          onSelectReaction={(type) =>
+            void controller.handleSelectReaction(type)
+          }
         />
 
         <CommentsSection
