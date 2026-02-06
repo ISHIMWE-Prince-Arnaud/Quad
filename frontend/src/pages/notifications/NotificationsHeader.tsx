@@ -104,18 +104,25 @@ export function NotificationsHeader({
               key={tab}
               type="button"
               onClick={() => onFilterChange(tab)}
-              variant={isActive ? "default" : "secondary"}
+              variant={isActive ? "default" : "ghost"}
               size="sm"
               aria-pressed={isActive}
-              className={cn("rounded-full", !isActive && "hover:bg-muted")}>
-              {tab === "all" ? "All" : "Unread"}
+              className={cn(
+                "rounded-full px-5 transition-all duration-200",
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                  : "bg-muted/40 text-muted-foreground hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20",
+              )}>
+              <span className="font-semibold tracking-tight capitalize">
+                {tab}
+              </span>
               {tab === "unread" && unreadLocalCount > 0 && (
                 <span
                   className={cn(
-                    "ml-2 inline-flex min-w-[1.25rem] h-5 items-center justify-center rounded-full px-2 text-[11px] font-semibold",
+                    "ml-2 inline-flex min-w-[1.25rem] h-5 items-center justify-center rounded-full px-2 text-[10px] font-bold transition-colors",
                     isActive
                       ? "bg-primary-foreground text-primary"
-                      : "bg-background text-foreground",
+                      : "bg-primary/20 text-primary",
                   )}
                   aria-label={`${unreadLocalCount} unread`}>
                   {unreadLocalCount > 99 ? "99+" : unreadLocalCount}

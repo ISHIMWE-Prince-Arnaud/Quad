@@ -37,13 +37,19 @@ export default function NotificationsPage() {
         <CardContent className="p-0">
           {/* Skeleton loading */}
           {controller.initialLoading && (
-            <div className="divide-y divide-border/40">
+            <div className="flex flex-col gap-2 p-2 sm:p-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="flex gap-4 p-4 animate-pulse">
-                  <div className="h-10 w-10 shrink-0 rounded-full bg-muted" />
+                <div
+                  key={i}
+                  className="flex gap-4 p-4 animate-pulse rounded-xl border border-border/40 bg-card">
+                  <div className="h-10 w-10 shrink-0 rounded-full bg-muted/60 border border-border/40" />
                   <div className="flex-1 space-y-2 py-1">
-                    <div className="h-4 w-3/4 bg-muted rounded" />
-                    <div className="h-3 w-1/2 bg-muted rounded" />
+                    <div className="h-4 w-3/4 bg-muted/60 rounded-md" />
+                    <div className="h-3 w-1/2 bg-muted/40 rounded-md" />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="h-8 w-8 rounded-full bg-muted/40" />
+                    <div className="h-8 w-8 rounded-full bg-muted/40" />
                   </div>
                 </div>
               ))}
