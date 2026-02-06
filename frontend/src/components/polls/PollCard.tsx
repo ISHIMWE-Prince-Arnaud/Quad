@@ -234,7 +234,7 @@ export function PollCard({
                     <img
                       src={poll.author.profileImage}
                       alt=""
-                      className="h-11 w-11 rounded-full object-cover border-2 border-white/10 shadow-inner"
+                      className="h-11 w-11 rounded-full object-cover border-2 border-background shadow-sm"
                     />
                     <div className="min-w-0">
                       <div className="text-[14px] font-bold text-foreground leading-tight truncate">
@@ -382,9 +382,9 @@ export function PollCard({
                                   : "Edit locked: poll is expired"
                                 : undefined
                             }
-                            className="gap-2 rounded-lg px-3 py-2 hover:bg-white/5 focus:bg-white/5">
+                            className="gap-2 rounded-lg px-3 py-2 hover:bg-accent focus:bg-accent">
                             <Pencil
-                              className="h-4 w-4 text-[#94a3b8]"
+                              className="h-4 w-4 text-muted-foreground"
                               aria-hidden="true"
                             />
                             <div className="flex flex-col min-w-0 leading-tight">
@@ -399,7 +399,7 @@ export function PollCard({
 
                           {canDelete && (
                             <>
-                              <DropdownMenuSeparator className="bg-white/10" />
+                              <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
                                 onClick={() => setIsDeleteDialogOpen(true)}>

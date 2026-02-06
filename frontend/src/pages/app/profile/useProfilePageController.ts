@@ -878,6 +878,36 @@ export function useProfilePageController({
     );
   }, []);
 
+  const handleDeleteSavedPoll = useCallback(async (pollId: string) => {
+    try {
+      const res = await PollService.delete(pollId);
+
+      if (!res?.success) {
+        toast.error(res?.message || "Failed to delete poll");
+        return;
+      }
+
+      setSavedPolls((prev) => prev.filter((p) => p.id !== pollId));
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              pollsCount: Math.max((prev.pollsCount ?? 0) - 1, 0),
+            }
+          : prev,
+      );
+
+      toast.success("Poll deleted successfully");
+    } catch (e) {
+      logError(e, {
+        component: "ProfilePage",
+        action: "deleteSavedPoll",
+        metadata: { pollId },
+      });
+      toast.error("Failed to delete poll");
+    }
+  }, []);
+
   const handleDeletePoll = useCallback(async (pollId: string) => {
     try {
       const res = await PollService.delete(pollId);
@@ -1030,6 +1060,7 @@ export function useProfilePageController({
     handleLoadMorePolls,
     handlePollUpdate,
     handleDeletePoll,
+    handleDeleteSavedPoll,
     handleSavedPollUpdate,
     savedPosts,
     savedPostsLoading,

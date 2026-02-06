@@ -123,9 +123,9 @@ export function PollOptionBar({
       <div className="relative z-10 flex h-full items-center justify-between gap-4 px-5">
         <span
           className={cn(
-            "min-w-0 truncate text-[13px] font-semibold",
-            "text-foreground",
-            selected && "text-primary-foreground",
+            "min-w-0 truncate text-[13px] font-semibold transition-colors duration-300",
+            barWidth > 35 ? "text-primary-foreground" : "text-foreground",
+            selected && barWidth <= 35 && "text-primary font-bold",
           )}>
           {option.text}
         </span>
@@ -133,10 +133,8 @@ export function PollOptionBar({
         {showResults && (
           <span
             className={cn(
-              "shrink-0 text-[13px] font-semibold",
-              percentage > barWidth
-                ? "text-foreground"
-                : "text-primary-foreground",
+              "shrink-0 text-[13px] font-semibold transition-colors duration-300",
+              barWidth > 85 ? "text-primary-foreground" : "text-foreground",
             )}>
             {displayPercentage}%
           </span>

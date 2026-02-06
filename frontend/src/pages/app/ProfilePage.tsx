@@ -451,6 +451,11 @@ export default function ProfilePage() {
                           key={poll.id}
                           poll={poll}
                           onUpdate={controller.handleSavedPollUpdate}
+                          onDelete={
+                            controller.isOwnProfile
+                              ? controller.handleDeleteSavedPoll
+                              : undefined
+                          }
                         />
                       ))}
                     </div>
