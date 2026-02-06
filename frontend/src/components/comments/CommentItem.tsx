@@ -80,7 +80,7 @@ export function CommentItem({
       <div className="flex gap-3">
         <Avatar className="h-9 w-9 shrink-0">
           <AvatarImage src={comment.author.profileImage} />
-          <AvatarFallback className="bg-white/5 text-white/80 font-medium">
+          <AvatarFallback className="bg-muted text-muted-foreground font-medium">
             {comment.author.username.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
@@ -120,18 +120,22 @@ export function CommentItem({
         }}>
         <DialogContent
           showClose={false}
-          className="max-w-md rounded-3xl border border-white/10 bg-[#0b1220] p-8 text-white shadow-2xl">
+          className="max-w-md rounded-3xl border border-border bg-popover p-8 text-popover-foreground shadow-dropdown">
           <DialogHeader className="items-center text-center space-y-4">
-            <div className="h-16 w-16 rounded-full bg-[#ef4444]/15 flex items-center justify-center">
-              <div className="h-10 w-10 rounded-xl bg-[#ef4444] flex items-center justify-center">
-                <Trash2 className="h-5 w-5 text-[#0b1220]" aria-hidden="true" />
+            <div className="h-16 w-16 rounded-full bg-destructive/15 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-xl bg-destructive flex items-center justify-center">
+                <Trash2
+                  className="h-5 w-5 text-destructive-foreground"
+                  aria-hidden="true"
+                />
               </div>
             </div>
             <DialogTitle className="text-[28px] font-bold tracking-tight">
               Delete Comment?
             </DialogTitle>
-            <DialogDescription className="text-center text-[14px] leading-relaxed text-[#94a3b8]">
-              Are you sure you want to delete this comment? This action cannot be undone and it will be removed from the conversation forever.
+            <DialogDescription className="text-center text-[14px] leading-relaxed text-muted-foreground">
+              Are you sure you want to delete this comment? This action cannot
+              be undone and it will be removed from the conversation forever.
             </DialogDescription>
           </DialogHeader>
 
@@ -139,7 +143,7 @@ export function CommentItem({
             <Button
               type="button"
               variant="secondary"
-              className="h-12 rounded-full px-10 bg-white/5 hover:bg-white/10 text-white"
+              className="h-12 rounded-full px-10 bg-secondary hover:bg-secondary/80 text-secondary-foreground"
               disabled={deletePending}
               onClick={() => setDeleteOpen(false)}>
               Cancel

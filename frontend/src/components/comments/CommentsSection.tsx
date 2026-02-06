@@ -57,21 +57,18 @@ function CommentSkeletonRow() {
   return (
     <div className="py-4">
       <div className="flex gap-3">
-        <Skeleton
-          variant="circular"
-          className="h-9 w-9 shrink-0 bg-white/5"
-        />
+        <Skeleton variant="circular" className="h-9 w-9 shrink-0 bg-skeleton" />
         <div className="flex-1 min-w-0 space-y-2">
           <div className="flex items-center justify-between gap-3">
-            <Skeleton variant="text" className="h-4 w-28 bg-white/5" />
-            <Skeleton variant="text" className="h-3 w-16 bg-white/5" />
+            <Skeleton variant="text" className="h-4 w-28 bg-skeleton" />
+            <Skeleton variant="text" className="h-3 w-16 bg-skeleton" />
           </div>
           <div className="space-y-2">
-            <Skeleton variant="text" className="h-4 w-full bg-white/5" />
-            <Skeleton variant="text" className="h-4 w-10/12 bg-white/5" />
+            <Skeleton variant="text" className="h-4 w-full bg-skeleton" />
+            <Skeleton variant="text" className="h-4 w-10/12 bg-skeleton" />
           </div>
           <div className="pt-1">
-            <Skeleton variant="text" className="h-4 w-20 bg-white/5" />
+            <Skeleton variant="text" className="h-4 w-20 bg-skeleton" />
           </div>
         </div>
       </div>
@@ -99,52 +96,56 @@ export function CommentsSection({
   const initialLoading = loading && comments.length === 0;
   const loadingMore = loading && comments.length > 0;
 
-  const normalizeIncomingComment = useCallback((incoming: unknown): Comment | null => {
-    if (!incoming || typeof incoming !== "object") return null;
-    const c = incoming as Record<string, unknown>;
-    const id = c._id;
-    const ct = c.contentType;
-    const cid = c.contentId;
-    const author = c.author;
-    const text = c.text;
-    if (typeof id !== "string") return null;
-    if (ct !== "post" && ct !== "story" && ct !== "poll") return null;
-    if (typeof cid !== "string") return null;
-    if (!author || typeof author !== "object") return null;
-    if (typeof text !== "string") return null;
+  const normalizeIncomingComment = useCallback(
+    (incoming: unknown): Comment | null => {
+      if (!incoming || typeof incoming !== "object") return null;
+      const c = incoming as Record<string, unknown>;
+      const id = c._id;
+      const ct = c.contentType;
+      const cid = c.contentId;
+      const author = c.author;
+      const text = c.text;
+      if (typeof id !== "string") return null;
+      if (ct !== "post" && ct !== "story" && ct !== "poll") return null;
+      if (typeof cid !== "string") return null;
+      if (!author || typeof author !== "object") return null;
+      if (typeof text !== "string") return null;
 
-    const a = author as Record<string, unknown>;
-    const createdAt = c.createdAt;
-    const updatedAt = c.updatedAt;
+      const a = author as Record<string, unknown>;
+      const createdAt = c.createdAt;
+      const updatedAt = c.updatedAt;
 
-    return {
-      _id: id,
-      contentType: ct,
-      contentId: cid,
-      author: {
-        clerkId: typeof a.clerkId === "string" ? a.clerkId : "",
-        username: typeof a.username === "string" ? a.username : "",
-        email: typeof a.email === "string" ? a.email : "",
-        profileImage:
-          typeof a.profileImage === "string" ? a.profileImage : undefined,
-      },
-      text,
-      reactionsCount: typeof c.reactionsCount === "number" ? c.reactionsCount : 0,
-      likesCount: typeof c.likesCount === "number" ? c.likesCount : 0,
-      createdAt:
-        typeof createdAt === "string"
-          ? createdAt
-          : createdAt instanceof Date
-            ? createdAt.toISOString()
-            : new Date().toISOString(),
-      updatedAt:
-        typeof updatedAt === "string"
-          ? updatedAt
-          : updatedAt instanceof Date
-            ? updatedAt.toISOString()
-            : new Date().toISOString(),
-    };
-  }, []);
+      return {
+        _id: id,
+        contentType: ct,
+        contentId: cid,
+        author: {
+          clerkId: typeof a.clerkId === "string" ? a.clerkId : "",
+          username: typeof a.username === "string" ? a.username : "",
+          email: typeof a.email === "string" ? a.email : "",
+          profileImage:
+            typeof a.profileImage === "string" ? a.profileImage : undefined,
+        },
+        text,
+        reactionsCount:
+          typeof c.reactionsCount === "number" ? c.reactionsCount : 0,
+        likesCount: typeof c.likesCount === "number" ? c.likesCount : 0,
+        createdAt:
+          typeof createdAt === "string"
+            ? createdAt
+            : createdAt instanceof Date
+              ? createdAt.toISOString()
+              : new Date().toISOString(),
+        updatedAt:
+          typeof updatedAt === "string"
+            ? updatedAt
+            : updatedAt instanceof Date
+              ? updatedAt.toISOString()
+              : new Date().toISOString(),
+      };
+    },
+    [],
+  );
 
   const removeCommentById = useCallback((commentId: string) => {
     setComments((prev) => {
@@ -204,7 +205,10 @@ export function CommentsSection({
     const socket = getSocket();
 
     const onAdded = (payload: CommentAddedPayload) => {
-      if (payload.contentType !== contentType || payload.contentId !== contentId) {
+      if (
+        payload.contentType !== contentType ||
+        payload.contentId !== contentId
+      ) {
         return;
       }
       const normalized = normalizeIncomingComment(payload.comment);
@@ -219,7 +223,10 @@ export function CommentsSection({
     };
 
     const onUpdated = (payload: CommentUpdatedPayload) => {
-      if (payload.contentType !== contentType || payload.contentId !== contentId) {
+      if (
+        payload.contentType !== contentType ||
+        payload.contentId !== contentId
+      ) {
         return;
       }
       const normalized = normalizeIncomingComment(payload.comment);
@@ -227,12 +234,15 @@ export function CommentsSection({
         prev.map((c) => {
           if (c._id !== payload.commentId) return c;
           return normalized ? { ...c, ...normalized } : c;
-        })
+        }),
       );
     };
 
     const onDeleted = (payload: CommentDeletedPayload) => {
-      if (payload.contentType !== contentType || payload.contentId !== contentId) {
+      if (
+        payload.contentType !== contentType ||
+        payload.contentId !== contentId
+      ) {
         return;
       }
 
@@ -264,9 +274,9 @@ export function CommentsSection({
   };
 
   return (
-    <div className="rounded-3xl bg-[#0b1220] border border-white/5 p-5">
+    <div className="rounded-3xl bg-card border border-border/40 p-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-[12px] font-semibold tracking-widest text-[#94a3b8] uppercase">
+        <h3 className="text-[12px] font-semibold tracking-widest text-muted-foreground uppercase">
           Comments ({displayTotal})
         </h3>
       </div>
@@ -282,7 +292,7 @@ export function CommentsSection({
 
       {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
 
-      <div className="mt-4 divide-y divide-white/5">
+      <div className="mt-4 divide-y divide-border/40">
         {initialLoading && (
           <>
             {Array.from({ length: 3 }).map((_, i) => (
@@ -304,14 +314,14 @@ export function CommentsSection({
 
         {!initialLoading && comments.length === 0 && !error && (
           <div className="py-10">
-            <div className="mx-auto max-w-md rounded-2xl border border-white/5 bg-[#0f172a]/40 p-6 text-center">
-              <div className="mx-auto h-12 w-12 rounded-full bg-[#2563EB]/10 flex items-center justify-center">
-                <MessageCircle className="h-5 w-5 text-[#2563EB]" />
+            <div className="mx-auto max-w-md rounded-2xl border border-border/40 bg-muted/30 p-6 text-center">
+              <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <MessageCircle className="h-5 w-5 text-primary" />
               </div>
-              <p className="mt-4 text-[14px] font-semibold text-white">
+              <p className="mt-4 text-[14px] font-semibold text-foreground">
                 No comments yet
               </p>
-              <p className="mt-1 text-[13px] text-[#94a3b8]">
+              <p className="mt-1 text-[13px] text-muted-foreground">
                 Be the first to share what you think.
               </p>
             </div>
@@ -333,7 +343,7 @@ export function CommentsSection({
               size="sm"
               onClick={() => void loadComments(false)}
               disabled={loading}
-              className="text-[#94a3b8] hover:text-white">
+              className="text-muted-foreground hover:text-foreground">
               {loading ? "Loading..." : "Load more comments"}
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>

@@ -66,10 +66,17 @@ export function StoryCard({
   const { user } = useAuthStore();
   const isOwner = user?.clerkId === story.author.clerkId;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const { bookmarked, bookmarkPending, handleToggleBookmark } = useStoryBookmark(story._id);
+  const { bookmarked, bookmarkPending, handleToggleBookmark } =
+    useStoryBookmark(story._id);
   const { userReaction, reactionPending, reactionCount, handleSelectReaction } =
-    useStoryReactions({ storyId: story._id, initialTotal: story.reactionsCount || 0 });
-  const handleCopyLink = useStoryShare({ storyId: story._id, title: story.title });
+    useStoryReactions({
+      storyId: story._id,
+      initialTotal: story.reactionsCount || 0,
+    });
+  const handleCopyLink = useStoryShare({
+    storyId: story._id,
+    title: story.title,
+  });
 
   const handleDelete = () => {
     if (!onDelete) return;
@@ -97,8 +104,8 @@ export function StoryCard({
         transition={{ duration: 0.3, ease: "easeOut" }}>
         <Card
           className={cn(
-            "w-full overflow-hidden border border-white/5 rounded-2xl bg-[#0f121a]",
-            className
+            "w-full overflow-hidden border border-border/40 rounded-2xl bg-card",
+            className,
           )}>
           {story.coverImage && (
             <Link to={`/app/stories/${story._id}`} className="block">
@@ -114,10 +121,10 @@ export function StoryCard({
 
           <CardContent className="px-6 pt-5 pb-4">
             <Link to={`/app/stories/${story._id}`} className="block">
-              <h3 className="text-xl font-semibold text-white leading-snug line-clamp-1 min-h-[1.75rem]">
+              <h3 className="text-xl font-semibold text-foreground leading-snug line-clamp-1 min-h-[1.75rem]">
                 {story.title}
               </h3>
-              <p className="mt-2 text-sm text-[#94a3b8] leading-relaxed line-clamp-1 min-h-[1.25rem]">
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-1 min-h-[1.25rem]">
                 {snippet}
               </p>
             </Link>
@@ -133,11 +140,11 @@ export function StoryCard({
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-sm font-medium text-white truncate">
+                  <span className="text-sm font-medium text-foreground truncate">
                     {story.author.username}
                   </span>
                   {story.readTime ? (
-                    <span className="text-xs text-[#94a3b8] whitespace-nowrap">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
                       · {story.readTime} min read
                     </span>
                   ) : null}
@@ -151,8 +158,8 @@ export function StoryCard({
                   pending={reactionPending}
                   onToggle={() => void handleSelectReaction("love")}
                   className={cn(
-                    "flex items-center gap-2 text-sm text-[#94a3b8] hover:text-pink-600 transition-colors",
-                    userReaction && "text-pink-600"
+                    "flex items-center gap-2 text-sm text-muted-foreground hover:text-pink-600 transition-colors",
+                    userReaction && "text-pink-600",
                   )}
                   iconClassName="h-4 w-4"
                   countClassName="text-sm font-medium"
@@ -161,22 +168,27 @@ export function StoryCard({
 
                 <Link
                   to={`/app/stories/${story._id}`}
-                  className="flex items-center gap-2 text-sm text-[#94a3b8] hover:text-blue-500 transition-colors">
-                  <CommentCountIcon count={story.commentsCount || 0} className="h-4 w-4" />
-                  <span className="font-medium">{story.commentsCount || 0}</span>
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-blue-500 transition-colors">
+                  <CommentCountIcon
+                    count={story.commentsCount || 0}
+                    className="h-4 w-4"
+                  />
+                  <span className="font-medium">
+                    {story.commentsCount || 0}
+                  </span>
                 </Link>
               </div>
             </div>
           </CardContent>
 
           <CardFooter className="px-6 pb-6 pt-2 flex items-center justify-between">
-            <span className="text-xs text-[#64748b]">{timestamp}</span>
+            <span className="text-xs text-muted-foreground">{timestamp}</span>
 
             <div className="flex items-center gap-4">
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className="text-[#94a3b8] hover:text-green-500 transition-colors">
+                className="text-muted-foreground hover:text-green-500 transition-colors">
                 <Share2 className="h-4 w-4" />
               </button>
 
@@ -188,10 +200,12 @@ export function StoryCard({
                   "p-2 rounded-xl transition-all",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                   bookmarked
-                    ? "text-[#f59e0b] bg-[#f59e0b]/10"
-                    : "text-[#94a3b8] hover:text-[#f59e0b] hover:bg-[#f59e0b]/5"
+                    ? "text-warning bg-warning/10"
+                    : "text-muted-foreground hover:text-warning hover:bg-warning/5",
                 )}>
-                <Bookmark className={cn("h-4 w-4", bookmarked && "fill-current")} />
+                <Bookmark
+                  className={cn("h-4 w-4", bookmarked && "fill-current")}
+                />
               </button>
             </div>
           </CardFooter>
@@ -215,7 +229,7 @@ export function StoryCard({
           className={cn(
             "w-full transition-shadow duration-300 overflow-hidden",
             "hover:shadow-lg",
-            className
+            className,
           )}>
           {!hideHeader && (
             <CardHeader className="pb-2 px-4 pt-3">
