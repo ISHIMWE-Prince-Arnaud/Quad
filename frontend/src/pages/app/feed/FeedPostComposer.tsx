@@ -16,7 +16,10 @@ export function FeedPostComposer({
   onCreatePost,
   disabled = false,
 }: {
-  onCreatePost: (payload: { text?: string; media: CreatePostData["media"] }) => Promise<void>;
+  onCreatePost: (payload: {
+    text?: string;
+    media: CreatePostData["media"];
+  }) => Promise<void>;
   disabled?: boolean;
 }) {
   const { user } = useAuthStore();
@@ -96,13 +99,12 @@ export function FeedPostComposer({
   return (
     <div
       className={cn(
-        "bg-[#0f121a] border border-white/5 rounded-[2rem] p-4 shadow-xl transition-all hover:border-white/10",
-        disabled && "opacity-60"
+        "bg-card border border-border/40 rounded-[2rem] p-4 shadow-card transition-all hover:border-border/60",
+        disabled && "opacity-60",
       )}
       onClick={() => {
         if (!disabled) setIsExpanded(true);
-      }}
-    >
+      }}>
       <input
         ref={fileInputRef}
         type="file"
@@ -116,9 +118,9 @@ export function FeedPostComposer({
       />
 
       <div className="flex gap-4">
-        <Avatar className="h-12 w-12 border-2 border-white/5">
+        <Avatar className="h-12 w-12 border-2 border-border/40">
           <AvatarImage src={user?.profileImage} />
-          <AvatarFallback className="bg-[#1e293b] text-white">
+          <AvatarFallback className="bg-secondary text-secondary-foreground">
             {user?.username?.[0]?.toUpperCase() || "U"}
           </AvatarFallback>
         </Avatar>
@@ -155,8 +157,8 @@ export function FeedPostComposer({
               active:outline-none
               active:ring-0
               active:ring-offset-0
-              text-white
-              placeholder-[#64748b]
+              text-foreground
+              placeholder:text-muted-foreground
               text-lg
               resize-none
               min-h-[48px]
@@ -183,17 +185,16 @@ export function FeedPostComposer({
             </div>
           )}
 
-          <div className="flex items-center justify-between pt-2 border-t border-white/5">
+          <div className="flex items-center justify-between pt-2 border-t border-border/40">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => {
                   openFilePicker("image/*");
                 }}
-                className="p-2 text-[#64748b] hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-xl transition-all"
                 aria-label="Add image"
-                title="Add image"
-              >
+                title="Add image">
                 <Image className="w-5 h-5" />
               </button>
               <button
@@ -201,10 +202,9 @@ export function FeedPostComposer({
                 onClick={() => {
                   openFilePicker("video/*");
                 }}
-                className="p-2 text-[#64748b] hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-xl transition-all"
                 aria-label="Add video"
-                title="Add video"
-              >
+                title="Add video">
                 <Video className="w-5 h-5" />
               </button>
             </div>
@@ -219,8 +219,7 @@ export function FeedPostComposer({
                   onClick={(e) => {
                     e.stopPropagation();
                     resetComposer();
-                  }}
-                >
+                  }}>
                   Cancel
                 </Button>
               )}
@@ -230,15 +229,14 @@ export function FeedPostComposer({
                 className={cn(
                   "rounded-full px-8 font-bold transition-all shadow-lg",
                   canSubmit
-                    ? "bg-[#2563eb] hover:bg-[#1d4ed8] text-white scale-100"
-                    : "bg-[#2563eb]/20 text-white/20 cursor-not-allowed"
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground scale-100"
+                    : "bg-primary/20 text-primary-foreground/20 cursor-not-allowed",
                 )}
                 disabled={!canSubmit || isSubmitting}
                 onClick={(e) => {
                   e.stopPropagation();
                   void submit();
-                }}
-              >
+                }}>
                 {isSubmitting ? (
                   <span className="inline-flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />

@@ -1,7 +1,12 @@
 import type { Control } from "react-hook-form";
 
 import { AutoExpandingTextarea } from "@/components/ui/auto-expanding-textarea";
-import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import type { CreatePostData } from "@/schemas/post.schema";
 
@@ -22,12 +27,14 @@ export function CreatePostTextField({
       name="text"
       render={({ field }) => (
         <FormItem>
-          <p className="text-sm font-semibold text-white">What's happening?</p>
+          <p className="text-sm font-semibold text-foreground">
+            What's happening?
+          </p>
           <FormControl>
-            <div className="relative rounded-2xl border border-white/5 bg-[#0f172a]/50">
+            <div className="relative rounded-2xl border border-border bg-muted/30">
               <AutoExpandingTextarea
                 placeholder="Share your thoughts..."
-                className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm text-white/90 placeholder:text-[#64748b] px-4 py-3 pr-24"
+                className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm text-foreground/90 placeholder:text-muted-foreground px-4 py-3 pr-24"
                 minHeight={120}
                 maxHeight={320}
                 disabled={isLoading}
@@ -35,8 +42,8 @@ export function CreatePostTextField({
               />
               <span
                 className={cn(
-                  "absolute bottom-2 right-3 text-xs text-[#94a3b8]",
-                  isOverLimit && "text-destructive font-medium"
+                  "absolute bottom-2 right-3 text-xs text-muted-foreground",
+                  isOverLimit && "text-destructive font-medium",
                 )}>
                 {charCount}/1000
               </span>

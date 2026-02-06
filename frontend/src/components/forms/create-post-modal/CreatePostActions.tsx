@@ -16,10 +16,12 @@ export function CreatePostActions({
   onCancel: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between pt-4 border-t border-white/5">
+    <div className="flex items-center justify-between pt-4 border-t border-border/40">
       <div className="text-sm text-muted-foreground">
         {!hasContent && isSubmitted && (
-          <span className="text-destructive">Post must have at least one media</span>
+          <span className="text-destructive">
+            Post must have at least one media
+          </span>
         )}
       </div>
       <div className="flex gap-2">
@@ -28,7 +30,7 @@ export function CreatePostActions({
           variant="ghost"
           onClick={onCancel}
           disabled={isLoading}
-          className="text-[#94a3b8] hover:text-white hover:bg-secondary">
+          className="text-muted-foreground hover:text-foreground hover:bg-accent">
           Cancel
         </Button>
         <Button

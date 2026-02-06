@@ -6,14 +6,9 @@ import {
   DialogContent,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Form,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useAuthStore } from "@/stores/authStore";
-import {
-  createPostSchema,
-  type CreatePostData,
-} from "@/schemas/post.schema";
+import { createPostSchema, type CreatePostData } from "@/schemas/post.schema";
 
 import { CreatePostActions } from "./create-post-modal/CreatePostActions";
 import { CreatePostModalHeader } from "./create-post-modal/CreatePostModalHeader";
@@ -97,7 +92,7 @@ export function CreatePostModal({
       }}>
       <DialogContent
         showClose={false}
-        className="max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/5 bg-[#0b1220] p-6">
+        className="max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl border border-border bg-popover p-6">
         <DialogDescription className="sr-only">
           Create a new post and attach at least one media.
         </DialogDescription>
@@ -126,18 +121,20 @@ export function CreatePostModal({
             {/* Media Upload Area */}
             <div className="space-y-2">
               <div>
-                <p className="text-sm font-semibold text-white">Add Media</p>
-                <p className="text-xs text-[#94a3b8]">
+                <p className="text-sm font-semibold text-foreground">
+                  Add Media
+                </p>
+                <p className="text-xs text-muted-foreground">
                   Upload up to 10 images or videos. JPG, PNG, GIF, MP4
                 </p>
               </div>
-            <MediaUploadDropzone
-              isDragging={isDragging}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onSelectFiles={handleFileSelect}
-            />
+              <MediaUploadDropzone
+                isDragging={isDragging}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onSelectFiles={handleFileSelect}
+              />
             </div>
 
             {/* Action Buttons */}
