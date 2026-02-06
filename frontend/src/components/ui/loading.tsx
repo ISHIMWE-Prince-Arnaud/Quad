@@ -112,7 +112,7 @@ export function SkeletonPost({
   const mediaClass = mediaVariant === "tall" ? "h-72" : "h-52";
 
   return (
-    <div className="p-6 bg-[#0f121a] border border-white/5 rounded-[2rem] space-y-4">
+    <div className="p-6 bg-card border border-border/40 rounded-[2rem] space-y-4">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -138,7 +138,7 @@ export function SkeletonPost({
       {showMedia && <SkeletonBlock className={cn(mediaClass, "rounded-2xl")} />}
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-3 border-t border-white/5">
+      <div className="flex items-center justify-between pt-3 border-t border-border/40">
         <div className="flex items-center gap-4">
           <SkeletonBlock className="h-8 w-16 rounded-xl" />
           <SkeletonBlock className="h-8 w-16 rounded-xl" />
@@ -337,7 +337,7 @@ function ProfileHeaderSkeleton({
             <SkeletonLine className="w-40 h-4" />
           </div>
 
-          <div className="mt-2 -mx-6 px-6 py-5 border-t border-white/5">
+          <div className="mt-2 -mx-6 px-6 py-5 border-t border-border/40">
             <div className="grid grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="text-center">

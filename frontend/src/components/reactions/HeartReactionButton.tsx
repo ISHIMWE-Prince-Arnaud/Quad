@@ -26,9 +26,7 @@ export function HeartReactionButton({
 }) {
   const isFilled = liked || Boolean(filled);
 
-  const baseIconClass = isFilled
-    ? "text-[#f43f5e]"
-    : "text-black dark:text-white";
+  const baseIconClass = isFilled ? "text-[#f43f5e]" : "text-foreground";
 
   return (
     <button
@@ -40,7 +38,7 @@ export function HeartReactionButton({
       className={cn(
         "relative inline-flex items-center gap-2 rounded-xl transition-all",
         "disabled:opacity-50 disabled:cursor-not-allowed",
-        className
+        className,
       )}>
       <span className="relative inline-flex items-center justify-center">
         <motion.span

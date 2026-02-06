@@ -254,7 +254,7 @@ export function PollCard({
                           {statusLines.primary}
                         </span>
                         {statusLines.secondary && (
-                          <span className="text-[10px] font-semibold tracking-wide text-white/70">
+                          <span className="text-[10px] font-semibold tracking-wide text-muted-foreground/70">
                             {statusLines.secondary}
                           </span>
                         )}
@@ -296,7 +296,7 @@ export function PollCard({
                             <div className="flex flex-col min-w-0 leading-tight">
                               <span>Edit poll</span>
                               {cannotEdit && (
-                                <span className="text-[10px] font-semibold tracking-wide text-white/40">
+                                <span className="text-[10px] font-semibold tracking-wide text-muted-foreground/40">
                                   Locked: {cannotEditReason}
                                 </span>
                               )}
@@ -348,7 +348,7 @@ export function PollCard({
                           {statusLines.primary}
                         </span>
                         {statusLines.secondary && (
-                          <span className="text-[10px] font-semibold tracking-wide text-white/70">
+                          <span className="text-[10px] font-semibold tracking-wide text-muted-foreground/70">
                             {statusLines.secondary}
                           </span>
                         )}
@@ -390,7 +390,7 @@ export function PollCard({
                             <div className="flex flex-col min-w-0 leading-tight">
                               <span>Edit poll</span>
                               {cannotEdit && (
-                                <span className="text-[10px] font-semibold tracking-wide text-white/40">
+                                <span className="text-[10px] font-semibold tracking-wide text-muted-foreground/40">
                                   Locked: {cannotEditReason}
                                 </span>
                               )}
@@ -420,7 +420,7 @@ export function PollCard({
             </div>
 
             <div className={cn("mt-4", hasAvatar ? "" : "mt-5")}>
-              <h3 className="text-[15px] font-bold text-white leading-snug">
+              <h3 className="text-[15px] font-bold text-foreground leading-snug">
                 {poll.question}
               </h3>
             </div>
@@ -430,7 +430,7 @@ export function PollCard({
                 <img
                   src={mediaUrl!}
                   alt=""
-                  className="w-full h-64 object-cover rounded-2xl border border-white/5"
+                  className="w-full h-64 object-cover rounded-2xl border border-border/40"
                 />
               </div>
             )}
@@ -459,8 +459,8 @@ export function PollCard({
               </div>
             )}
 
-            <div className="border-t border-white/5 pt-4 mt-4">
-              <div className="flex items-center justify-between text-[#94a3b8]">
+            <div className="border-t border-border/40 pt-4 mt-4">
+              <div className="flex items-center justify-between text-muted-foreground">
                 <div className="flex items-center gap-4">
                   <HeartReactionButton
                     liked={Boolean(userReaction)}
@@ -470,11 +470,11 @@ export function PollCard({
                     onToggle={() => void handleSelectReaction("love")}
                     ariaLabel={`React to poll. ${reactionCount} reactions`}
                     className={cn(actionBase, "hover:bg-white/5")}
-                    countClassName="text-xs font-bold text-[#64748b]"
+                    countClassName="text-xs font-bold text-muted-foreground"
                   />
 
                   {hasUserVoted && (
-                    <div className="flex items-center gap-2 text-[#94a3b8]">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <FaUsers className="h-4 w-4" />
                       <span className="text-[12px] font-medium leading-none">
                         {localPoll.totalVotes}
@@ -485,7 +485,7 @@ export function PollCard({
 
                 <div className="flex items-center gap-3">
                   {poll.settings.anonymousVoting && (
-                    <div className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-3 py-1.5 text-white text-[11px] font-bold tracking-wide">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-3 py-1.5 text-primary text-[11px] font-bold tracking-wide">
                       <EyeOff className="h-4 w-4" aria-hidden="true" />
                       <span>ANONYMOUS</span>
                     </div>
