@@ -433,7 +433,7 @@ export default function EditPollPage() {
         <div className="flex items-center justify-between">
           <button
             type="button"
-            className="inline-flex items-center gap-2 text-white/90 hover:text-white font-bold"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-bold"
             onClick={() => navigate("/app/polls")}>
             <ArrowLeft className="h-5 w-5" />
             <span className="text-base">Edit Poll</span>
@@ -443,7 +443,7 @@ export default function EditPollPage() {
             type="button"
             disabled={!canSubmit || isSubmitting}
             onClick={() => void handleSubmit()}
-            className="h-8 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-4">
+            className="h-8 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-4">
             {isSubmitting ? (
               <span className="inline-flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
