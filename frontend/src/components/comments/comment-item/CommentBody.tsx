@@ -25,7 +25,7 @@ export function CommentBody({
         <Textarea
           value={editText}
           onChange={(e) => onEditTextChange(e.target.value)}
-          className="min-h-[56px] rounded-xl border-white/10 bg-white/5 text-white placeholder:text-[#64748b] focus-visible:ring-1 focus-visible:ring-blue-500/60"
+          className="min-h-[56px] rounded-xl border-border/60 bg-muted/50 text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-1 focus-visible:ring-primary/30"
           maxLength={2000}
         />
         <div className="flex items-center justify-end gap-4">
@@ -33,7 +33,7 @@ export function CommentBody({
             type="button"
             variant="ghost"
             size="sm"
-            className="h-9 px-2 text-[#94a3b8] hover:text-white hover:bg-transparent"
+            className="h-9 px-4 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent"
             disabled={editPending}
             onClick={onCancel}>
             Cancel
@@ -41,11 +41,11 @@ export function CommentBody({
           <Button
             type="button"
             size="sm"
-            className="h-9 rounded-lg bg-blue-600 text-white hover:bg-blue-500"
+            className="h-9 px-6 rounded-full bg-primary text-primary-foreground hover:opacity-90"
             disabled={editPending}
             loading={editPending}
             onClick={onSave}>
-            Save changes
+            Save
           </Button>
         </div>
       </div>
@@ -53,7 +53,7 @@ export function CommentBody({
   }
 
   return (
-    <p className="mt-1 text-[13px] leading-relaxed text-[#94a3b8] whitespace-pre-wrap break-words">
+    <p className="mt-1 text-[13px] leading-relaxed text-foreground/90 whitespace-pre-wrap break-words">
       <MentionText text={bodyText} />
     </p>
   );

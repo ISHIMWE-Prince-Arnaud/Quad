@@ -46,7 +46,7 @@ export function PostCardHeader({
               @{post.author.username}
             </span>
             <span className="text-[#334155] text-[10px]">·</span>
-            <span className="text-[11px] font-medium text-[#64748b] whitespace-nowrap">
+            <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">
               {timeAgo(post.createdAt)}
             </span>
           </div>
@@ -57,6 +57,7 @@ export function PostCardHeader({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
+              type="button"
               variant="ghost"
               size="sm"
               className="h-9 w-9 p-0 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-2 focus-visible:ring-primary/40 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100"
@@ -69,7 +70,7 @@ export function PostCardHeader({
             className="min-w-[180px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-xl">
             <DropdownMenuItem
               onClick={onEdit}
-              className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+              className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-accent focus:bg-accent">
               <Pencil
                 className="h-4 w-4 text-muted-foreground"
                 aria-hidden="true"
@@ -77,7 +78,7 @@ export function PostCardHeader({
               Edit post
             </DropdownMenuItem>
 
-            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuSeparator className="bg-border/40" />
 
             <DropdownMenuItem
               className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"

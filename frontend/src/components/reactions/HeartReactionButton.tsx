@@ -36,7 +36,7 @@ export function HeartReactionButton({
       aria-pressed={liked}
       aria-label={ariaLabel}
       className={cn(
-        "relative inline-flex items-center gap-2 rounded-xl transition-all",
+        "relative inline-flex items-center gap-2 rounded-xl transition-all hover:bg-muted/50",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         className,
       )}>

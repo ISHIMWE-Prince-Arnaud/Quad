@@ -80,9 +80,9 @@ export function CommentComposer({
 
   return (
     <div className="flex items-start gap-4 p-4">
-      <Avatar className="h-10 w-10 shrink-0 border border-white/10">
+      <Avatar className="h-10 w-10 shrink-0 border border-border/40">
         <AvatarImage src={user?.profileImage} alt={user?.username} />
-        <AvatarFallback className="bg-slate-800 text-slate-200 font-medium">
+        <AvatarFallback className="bg-secondary text-secondary-foreground font-medium">
           {user?.username?.charAt(0).toUpperCase() || "U"}
         </AvatarFallback>
       </Avatar>
@@ -90,9 +90,9 @@ export function CommentComposer({
       <div className="flex-1">
         <div
           className={cn(
-            "relative rounded-2xl border bg-muted/70 transition-all duration-200",
+            "relative rounded-2xl border bg-muted/70 transition-all duration-200 focus-within:bg-muted",
             isFocused
-              ? "border-primary/50 bg-muted shadow-[0_0_0_4px_rgba(59,130,246,0.1)]"
+              ? "border-primary/50 shadow-[0_0_0_4px_rgba(59,130,246,0.1)]"
               : "border-border/40 hover:border-border/60",
           )}>
           <AutoExpandingTextarea
@@ -104,7 +104,7 @@ export function CommentComposer({
               if (!text) setIsFocused(false);
             }}
             placeholder={placeholder || "Write a comment..."}
-            className="min-h-[48px] w-full resize-none border-0 bg-transparent px-4 py-3 text-[14px] leading-relaxed text-slate-200 placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="min-h-[48px] w-full resize-none border-0 bg-transparent px-4 py-3 text-[14px] leading-relaxed text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
             maxLength={MAX_LENGTH}
             autoFocus={autoFocus}
             minHeight={48}
@@ -123,7 +123,7 @@ export function CommentComposer({
                         ? "text-red-500 font-bold"
                         : isNearLimit
                           ? "text-yellow-500"
-                          : "text-slate-500",
+                          : "text-muted-foreground",
                     )}>
                     {charCount} / {MAX_LENGTH}
                   </span>
@@ -136,10 +136,10 @@ export function CommentComposer({
                 onClick={() => void handleSubmit()}
                 disabled={pending || !text.trim() || isOverLimit}
                 className={cn(
-                  "h-8 rounded-full px-4 text-xs font-semibold transition-all",
+                  "h-8 rounded-full px-4 text-xs font-semibold transition-all shadow-sm",
                   text.trim()
-                    ? "bg-blue-600 text-white hover:bg-blue-500"
-                    : "bg-white/5 text-slate-500 hover:bg-white/10",
+                    ? "bg-primary text-primary-foreground hover:opacity-90"
+                    : "bg-muted text-muted-foreground/50",
                 )}>
                 {pending ? (
                   <span className="flex items-center gap-2">

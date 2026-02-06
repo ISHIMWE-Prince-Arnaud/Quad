@@ -26,18 +26,18 @@ export function CommentHeader({
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0 flex items-center gap-2">
-        <span className="truncate text-[13px] font-semibold text-[#e2e8f0]">
+        <span className="truncate text-[13px] font-bold text-foreground">
           {comment.author.username}
         </span>
         {isAuthor && (
-          <span className="rounded-full bg-blue-600/20 px-2 py-0.5 text-[10px] font-bold text-blue-400 uppercase tracking-wide">
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wide">
             Author
           </span>
         )}
       </div>
 
       <div className="shrink-0 flex items-center gap-2">
-        <span className="text-[11px] font-medium text-[#64748b]">
+        <span className="text-[11px] font-medium text-muted-foreground">
           {timeAgo(comment.createdAt)}
         </span>
 
@@ -48,7 +48,7 @@ export function CommentHeader({
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 rounded-full text-[#94a3b8] hover:text-white hover:bg-white/5"
+                className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent"
                 aria-label="Comment options">
                 <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
               </Button>
@@ -58,13 +58,13 @@ export function CommentHeader({
               className="min-w-[180px] rounded-xl border border-border bg-popover p-1 shadow-xl">
               <DropdownMenuItem
                 onClick={onEdit}
-                className="rounded-lg px-3 py-2 text-[13px] text-[#e2e8f0] focus:bg-white/5 focus:text-white">
+                className="rounded-lg px-3 py-2 text-[13px] text-foreground focus:bg-accent focus:text-accent-foreground">
                 <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
                 Edit comment
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={onRequestDelete}
-                className="rounded-lg px-3 py-2 text-[13px] text-[#ef4444] focus:bg-white/5 focus:text-[#ef4444]">
+                className="rounded-lg px-3 py-2 text-[13px] text-destructive focus:bg-destructive/10 focus:text-destructive">
                 <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
                 Delete comment
               </DropdownMenuItem>

@@ -19,9 +19,9 @@ export function CommentEngagementBar({
         pending={likePending}
         onToggle={onToggleLike}
         ariaLabel={`Like comment. ${likesCount} likes`}
-        className="px-2 py-1 hover:bg-white/5"
+        className="px-2 py-1 hover:bg-red-500/10 hover:text-red-500"
         iconClassName="h-4 w-4"
-        countClassName="text-xs font-semibold text-[#94a3b8]"
+        countClassName="text-xs font-semibold text-muted-foreground"
       />
     </div>
   );
