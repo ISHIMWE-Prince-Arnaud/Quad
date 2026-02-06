@@ -22,7 +22,7 @@ export function StoryEditorBubbleMenu({
   onInsertLink: () => void;
 }) {
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -65,8 +65,12 @@ export function StoryEditorBubbleMenu({
   return (
     <div
       className="fixed z-50"
-      style={{ top: coords.top, left: coords.left, transform: "translate(-50%, -100%)" }}>
-      <div className="flex items-center gap-1 rounded-full border border-white/10 bg-[#0f121a]/90 px-2 py-1 shadow-lg shadow-black/30">
+      style={{
+        top: coords.top,
+        left: coords.left,
+        transform: "translate(-50%, -100%)",
+      }}>
+      <div className="flex items-center gap-1 rounded-full border border-border bg-popover px-2 py-1 shadow-lg shadow-black/30">
         <Button
           type="button"
           variant="ghost"
@@ -76,8 +80,8 @@ export function StoryEditorBubbleMenu({
           className={cn(
             "h-8 w-8 p-0 rounded-full transition-all",
             editor.isActive("bold")
-              ? "bg-[#2563eb] text-white"
-              : "text-[#64748b] hover:text-white hover:bg-white/5"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
           )}>
           <Bold className="h-4 w-4" />
         </Button>
@@ -90,8 +94,8 @@ export function StoryEditorBubbleMenu({
           className={cn(
             "h-8 w-8 p-0 rounded-full transition-all",
             editor.isActive("italic")
-              ? "bg-[#2563eb] text-white"
-              : "text-[#64748b] hover:text-white hover:bg-white/5"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
           )}>
           <Italic className="h-4 w-4" />
         </Button>
@@ -104,8 +108,8 @@ export function StoryEditorBubbleMenu({
           className={cn(
             "h-8 w-8 p-0 rounded-full transition-all",
             editor.isActive("underline")
-              ? "bg-[#2563eb] text-white"
-              : "text-[#64748b] hover:text-white hover:bg-white/5"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
           )}>
           <UnderlineIcon className="h-4 w-4" />
         </Button>
@@ -118,13 +122,13 @@ export function StoryEditorBubbleMenu({
           className={cn(
             "h-8 w-8 p-0 rounded-full transition-all",
             editor.isActive("code")
-              ? "bg-[#2563eb] text-white"
-              : "text-[#64748b] hover:text-white hover:bg-white/5"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
           )}>
           <Code className="h-4 w-4" />
         </Button>
 
-        <div className="w-[1px] h-6 bg-white/5 mx-1 self-center" />
+        <div className="w-[1px] h-6 bg-border/40 mx-1 self-center" />
 
         <Button
           type="button"
@@ -135,13 +139,13 @@ export function StoryEditorBubbleMenu({
           className={cn(
             "h-8 w-8 p-0 rounded-full transition-all",
             editor.isActive("link")
-              ? "bg-[#2563eb] text-white"
-              : "text-[#64748b] hover:text-white hover:bg-white/5"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
           )}>
           <LinkIcon className="h-4 w-4" />
         </Button>
 
-        <div className="w-[1px] h-6 bg-white/5 mx-1 self-center" />
+        <div className="w-[1px] h-6 bg-border/40 mx-1 self-center" />
 
         <Button
           type="button"
@@ -152,8 +156,8 @@ export function StoryEditorBubbleMenu({
           className={cn(
             "h-8 w-8 p-0 rounded-full transition-all",
             editor.isActive({ textAlign: "left" })
-              ? "bg-[#2563eb] text-white"
-              : "text-[#64748b] hover:text-white hover:bg-white/5"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
           )}>
           <AlignLeft className="h-4 w-4" />
         </Button>
@@ -166,8 +170,8 @@ export function StoryEditorBubbleMenu({
           className={cn(
             "h-8 w-8 p-0 rounded-full transition-all",
             editor.isActive({ textAlign: "center" })
-              ? "bg-[#2563eb] text-white"
-              : "text-[#64748b] hover:text-white hover:bg-white/5"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
           )}>
           <AlignCenter className="h-4 w-4" />
         </Button>
@@ -180,8 +184,8 @@ export function StoryEditorBubbleMenu({
           className={cn(
             "h-8 w-8 p-0 rounded-full transition-all",
             editor.isActive({ textAlign: "right" })
-              ? "bg-[#2563eb] text-white"
-              : "text-[#64748b] hover:text-white hover:bg-white/5"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-accent",
           )}>
           <AlignRight className="h-4 w-4" />
         </Button>

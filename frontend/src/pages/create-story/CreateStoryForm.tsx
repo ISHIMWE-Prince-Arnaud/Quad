@@ -62,7 +62,7 @@ export function CreateStoryForm({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-extrabold text-white tracking-tight">
+        <h1 className="text-xl font-extrabold text-foreground tracking-tight">
           Create a New Story
         </h1>
         <div className="flex items-center gap-3">
@@ -70,7 +70,7 @@ export function CreateStoryForm({
             variant="secondary"
             disabled={submitting}
             onClick={onSaveDraft}
-            className="h-8 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 text-white font-semibold px-4">
+            className="h-8 rounded-full border border-border/40 bg-muted hover:bg-accent text-foreground font-semibold px-4">
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
             ) : (
@@ -81,7 +81,7 @@ export function CreateStoryForm({
           <Button
             disabled={!canSubmit || submitting}
             onClick={onPublish}
-            className="h-8 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold px-5">
+            className="h-8 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-5">
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
             ) : (
@@ -93,7 +93,7 @@ export function CreateStoryForm({
       </div>
 
       {!canSubmit && (
-        <p className="text-[11px] font-semibold text-[#64748b]">
+        <p className="text-[11px] font-semibold text-muted-foreground">
           Add a title and some content to enable publishing.
         </p>
       )}
@@ -111,8 +111,8 @@ export function CreateStoryForm({
           onChange={(e) => onTitleChange(e.target.value)}
           placeholder="Add your story title..."
           className={cn(
-            "w-full bg-transparent border-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-white placeholder-white/10 p-0",
-            validationErrors.title && "text-destructive"
+            "w-full bg-transparent border-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-foreground placeholder:text-muted-foreground/30 p-0",
+            validationErrors.title && "text-destructive",
           )}
         />
         {validationErrors.title && (
@@ -125,15 +125,18 @@ export function CreateStoryForm({
       <div className="space-y-2">
         <div
           className={cn(
-            "relative rounded-[2rem] border border-white/5 bg-gradient-to-b from-[#0b1020]/70 to-[#070a12]/80 shadow-xl overflow-hidden focus-within:border-[#2563eb]/40 focus-within:ring-2 focus-within:ring-[#2563eb]/20 transition-colors",
-            validationErrors.content && "border-destructive/60"
+            "relative rounded-[2rem] border border-border/40 bg-card shadow-xl overflow-hidden focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/20 transition-colors",
+            validationErrors.content && "border-destructive/60",
           )}>
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
             <StoryEditorToolbar editor={editor} />
           </div>
 
           <div className="p-4">
-            <StoryEditorBubbleMenu editor={editor} onInsertLink={onInsertLink} />
+            <StoryEditorBubbleMenu
+              editor={editor}
+              onInsertLink={onInsertLink}
+            />
             <StoryEditorSlashMenu
               editor={editor}
               onInsertLink={onInsertLink}
@@ -143,7 +146,7 @@ export function CreateStoryForm({
           </div>
 
           {autosaveLabel && (
-            <div className="absolute bottom-4 right-6 text-[10px] font-semibold text-[#64748b] flex items-center gap-2 select-none">
+            <div className="absolute bottom-4 right-6 text-[10px] font-semibold text-muted-foreground flex items-center gap-2 select-none">
               {autoSaving ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
               ) : (

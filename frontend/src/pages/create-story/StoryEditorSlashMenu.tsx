@@ -39,7 +39,12 @@ function getSlashQuery(editor: Editor): {
     return { isActive: false, query: "", rangeFrom: 0, rangeTo: 0 };
   }
 
-  const textBefore = $from.parent.textBetween(0, $from.parentOffset, "\n", "\n");
+  const textBefore = $from.parent.textBetween(
+    0,
+    $from.parentOffset,
+    "\n",
+    "\n",
+  );
   const match = textBefore.match(/(?:^|\s)\/([\w-]*)$/);
   if (!match) {
     return { isActive: false, query: "", rangeFrom: 0, rangeTo: 0 };
@@ -66,7 +71,7 @@ export function StoryEditorSlashMenu({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(
-    null
+    null,
   );
   const [range, setRange] = useState<{ from: number; to: number } | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -207,7 +212,7 @@ export function StoryEditorSlashMenu({
           ]
         : []),
     ],
-    [onInsertLink, onMention, isInTable, isInCallout, isInCodeBlock]
+    [onInsertLink, onMention, isInTable, isInCallout, isInCodeBlock],
   );
 
   const filtered = useMemo(() => {
@@ -302,11 +307,9 @@ export function StoryEditorSlashMenu({
   if (!editor || !open || !coords || filtered.length === 0) return null;
 
   return (
-    <div
-      className="fixed z-50"
-      style={{ top: coords.top, left: coords.left }}>
-      <div className="w-[260px] overflow-hidden rounded-2xl border border-white/10 bg-[#0f121a]/95 shadow-xl shadow-black/40">
-        <div className="px-3 py-2 text-[11px] font-semibold text-[#64748b] border-b border-white/5">
+    <div className="fixed z-50" style={{ top: coords.top, left: coords.left }}>
+      <div className="w-[260px] overflow-hidden rounded-2xl border border-border bg-popover shadow-xl shadow-black/40">
+        <div className="px-3 py-2 text-[11px] font-semibold text-muted-foreground border-b border-border/40">
           {tablePickerOpen ? "Insert table" : "Commands"}
         </div>
         {tablePickerOpen ? (
@@ -314,14 +317,14 @@ export function StoryEditorSlashMenu({
             <div className="flex items-center justify-between gap-3">
               <button
                 type="button"
-                className="text-xs font-semibold text-[#94a3b8] hover:text-white transition-colors"
+                className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
                 onMouseDown={(e) => {
                   e.preventDefault();
                   setTablePickerOpen(false);
                 }}>
                 Back
               </button>
-              <div className="text-xs font-semibold text-[#cbd5e1]">
+              <div className="text-xs font-semibold text-foreground">
                 {tableHover.rows}×{tableHover.cols}
               </div>
             </div>
@@ -331,7 +334,8 @@ export function StoryEditorSlashMenu({
                 Array.from({ length: TABLE_MAX }).map((__, c) => {
                   const rows = r + 1;
                   const cols = c + 1;
-                  const active = rows <= tableHover.rows && cols <= tableHover.cols;
+                  const active =
+                    rows <= tableHover.rows && cols <= tableHover.cols;
                   return (
                     <button
                       key={`${rows}-${cols}`}
@@ -339,8 +343,8 @@ export function StoryEditorSlashMenu({
                       className={cn(
                         "h-5 w-5 rounded-md border transition-colors",
                         active
-                          ? "bg-[#2563eb]/30 border-[#2563eb]/60"
-                          : "bg-white/5 border-white/10 hover:bg-white/10"
+                          ? "bg-primary/30 border-primary/60"
+                          : "bg-muted border-border hover:bg-muted/80",
                       )}
                       onMouseEnter={() => setTableHover({ rows, cols })}
                       onMouseDown={(e) => {
@@ -363,7 +367,7 @@ export function StoryEditorSlashMenu({
                       }}
                     />
                   );
-                })
+                }),
               )}
             </div>
 
@@ -372,8 +376,8 @@ export function StoryEditorSlashMenu({
               className={cn(
                 "mt-3 w-full rounded-xl border px-3 py-2 text-left text-xs font-semibold transition-colors",
                 tableWithHeaderRow
-                  ? "bg-white/5 border-white/10 text-white"
-                  : "bg-transparent border-white/10 text-[#94a3b8] hover:text-white hover:bg-white/5"
+                  ? "bg-muted border-border text-foreground"
+                  : "bg-transparent border-border text-muted-foreground hover:text-foreground hover:bg-muted",
               )}
               onMouseDown={(e) => {
                 e.preventDefault();
@@ -393,8 +397,8 @@ export function StoryEditorSlashMenu({
                   className={cn(
                     "w-full flex items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors",
                     idx === activeIndex
-                      ? "bg-white/5 text-white"
-                      : "text-[#cbd5e1] hover:bg-white/5"
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:bg-accent/50",
                   )}
                   onMouseEnter={() => setActiveIndex(idx)}
                   onMouseDown={(e) => {
@@ -411,8 +415,8 @@ export function StoryEditorSlashMenu({
                     item.run(editor);
                     setOpen(false);
                   }}>
-                  <span className="h-7 w-7 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
-                    <Icon className="h-4 w-4 text-[#94a3b8]" />
+                  <span className="h-7 w-7 rounded-xl bg-muted border border-border flex items-center justify-center">
+                    <Icon className="h-4 w-4 text-muted-foreground" />
                   </span>
                   <span className="font-semibold">{item.label}</span>
                 </button>

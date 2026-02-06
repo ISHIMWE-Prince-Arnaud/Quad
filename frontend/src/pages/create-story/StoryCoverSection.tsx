@@ -38,7 +38,7 @@ export function StoryCoverSection({
             "relative border border-dashed rounded-[2rem] px-6 py-10 text-center transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/40",
             uploadingCover
               ? "border-[#2563eb] bg-[#2563eb]/5"
-              : "border-white/10 bg-white/[0.01] hover:border-[#2563eb]/50"
+              : "border-white/10 bg-white/[0.01] hover:border-[#2563eb]/50",
           )}
           role="button"
           tabIndex={0}
@@ -64,23 +64,23 @@ export function StoryCoverSection({
           <div className="flex flex-col items-center gap-3">
             {uploadingCover ? (
               <>
-                <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
-                  <Loader2 className="h-5 w-5 animate-spin text-[#2563eb]" />
+                <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
-                <p className="text-sm font-semibold text-[#64748b]">
+                <p className="text-sm font-semibold text-muted-foreground">
                   Uploading cover image...
                 </p>
               </>
             ) : (
               <>
-                <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
-                  <ImageIcon className="h-5 w-5 text-[#2563eb]" />
+                <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <ImageIcon className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-sm font-semibold text-foreground">
                     Add a Cover Image
                   </p>
-                  <p className="text-[11px] font-medium text-[#64748b] mt-1">
+                  <p className="text-[11px] font-medium text-muted-foreground mt-1">
                     Drag & drop or click to upload (1200×500px)
                   </p>
                 </div>
@@ -102,9 +102,9 @@ export function StoryCoverSection({
 
           {uploadingCover && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-              <div className="flex items-center gap-3 rounded-full border border-white/10 bg-[#0f121a]/70 px-4 py-2">
-                <Loader2 className="h-4 w-4 animate-spin text-[#2563eb]" />
-                <span className="text-xs font-semibold text-white">
+              <div className="flex items-center gap-3 rounded-full border border-border/40 bg-card/70 px-4 py-2">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <span className="text-xs font-semibold text-foreground">
                   Uploading...
                 </span>
               </div>
