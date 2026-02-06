@@ -9,12 +9,18 @@ This directory contains comprehensive documentation for the Quad social media pl
 - **[Authentication](./auth/README.md)** - Clerk authentication integration
 - **[Real-time Features](./realtime/README.md)** - Socket.IO implementation
 - **[File Upload](./upload/README.md)** - Cloudinary media handling
+- **[Architecture](./ARCHITECTURE.md)** - Server bootstrap, middleware chain, routing
+- **[Rate Limiting](./RATE_LIMITING.md)** - Current rate limiter configuration and mount points
+- **[Observability](./OBSERVABILITY.md)** - Logging, request IDs, error tracking
 - **[Deployment](./deployment/README.md)** - Production deployment guide
 - **[Development](./development/README.md)** - Local development setup
 
 ### Related documentation
 
 - **[Shared Docs Hub](../../docs/README.md)** - Full-stack setup, architecture, deployment, and audits.
+- **[Shared Troubleshooting](../../docs/TROUBLESHOOTING.md)**
+- **[Shared Testing Guide](../../docs/TESTING.md)**
+- **[Shared Scripts Reference](../../docs/SCRIPTS.md)**
 - **[Frontend Docs Index](../../frontend/docs/README.md)** - Frontend technical reference and user guides.
 
 ## 🚀 Quick Start
