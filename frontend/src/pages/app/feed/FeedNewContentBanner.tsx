@@ -14,13 +14,15 @@ export function FeedNewContentBanner({
 
   return (
     <Card
-      className="shadow-sm bg-[#0f121a] border border-[#2563eb]/25 cursor-pointer hover:border-[#2563eb]/40 transition-all"
+      className="shadow-sm bg-card border border-primary/25 cursor-pointer hover:border-primary/40 transition-all"
       onClick={onRefresh}>
       <CardContent className="py-3 px-4 flex items-center justify-between">
-        <span className="text-sm font-semibold text-white">
+        <span className="text-sm font-semibold text-foreground">
           {newCount} new {newCount === 1 ? "update" : "updates"} in your feed
         </span>
-        <Button size="sm" className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white">
+        <Button
+          size="sm"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground">
           Refresh
         </Button>
       </CardContent>

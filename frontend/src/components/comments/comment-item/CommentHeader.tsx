@@ -55,7 +55,7 @@ export function CommentHeader({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="min-w-[180px] rounded-xl border border-white/10 bg-[#0b1220] p-1 shadow-xl">
+              className="min-w-[180px] rounded-xl border border-border bg-popover p-1 shadow-xl">
               <DropdownMenuItem
                 onClick={onEdit}
                 className="rounded-lg px-3 py-2 text-[13px] text-[#e2e8f0] focus:bg-white/5 focus:text-white">

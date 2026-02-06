@@ -30,7 +30,7 @@ function getErrorMessage(error: unknown): string {
 
 function CommentsSectionSkeleton() {
   return (
-    <div className="rounded-3xl bg-[#0b1220] border border-white/5 p-5">
+    <div className="rounded-3xl bg-card border border-border/40 p-5">
       <div className="flex items-center justify-between">
         <Skeleton variant="text" className="h-4 w-40 bg-white/5" />
       </div>
@@ -42,7 +42,7 @@ function CommentsSectionSkeleton() {
             className="h-8 w-8 shrink-0 bg-white/5"
           />
           <div className="flex-1">
-            <div className="flex items-center gap-3 rounded-2xl bg-[#0f172a]/70 border border-white/5 px-4 py-2">
+            <div className="flex items-center gap-3 rounded-2xl bg-muted/70 border border-border/40 px-4 py-2">
               <Skeleton variant="text" className="h-4 w-8/12 bg-white/5" />
               <Skeleton variant="text" className="h-4 w-12 bg-white/5" />
             </div>
@@ -103,7 +103,11 @@ export default function PostPage() {
           setError(response.message || "Failed to load post");
         }
       } catch (err: unknown) {
-        logError(err, { component: "PostPage", action: "fetchPost", metadata: { id } });
+        logError(err, {
+          component: "PostPage",
+          action: "fetchPost",
+          metadata: { id },
+        });
         setError(getErrorMessage(err));
       } finally {
         setLoading(false);

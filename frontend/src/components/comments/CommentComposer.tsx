@@ -57,7 +57,7 @@ export function CommentComposer({
       });
       if (!res.success)
         throw new Error(res.message || "Failed to post comment");
-      
+
       setText("");
       setIsFocused(false); // Optional: collapse focus state on send
       onCreated?.(res.data);
@@ -90,10 +90,10 @@ export function CommentComposer({
       <div className="flex-1">
         <div
           className={cn(
-            "relative rounded-2xl border bg-[#0f172a]/70 transition-all duration-200",
+            "relative rounded-2xl border bg-muted/70 transition-all duration-200",
             isFocused
-              ? "border-blue-500/50 bg-[#0f172a] shadow-[0_0_0_4px_rgba(59,130,246,0.1)]"
-              : "border-white/5 hover:border-white/10"
+              ? "border-primary/50 bg-muted shadow-[0_0_0_4px_rgba(59,130,246,0.1)]"
+              : "border-border/40 hover:border-border/60",
           )}>
           <AutoExpandingTextarea
             ref={textareaRef}
@@ -113,7 +113,7 @@ export function CommentComposer({
           />
 
           {(isFocused || text.length > 0) && (
-            <div className="flex items-center justify-between border-t border-white/5 px-3 py-2">
+            <div className="flex items-center justify-between border-t border-border/40 px-3 py-2">
               <div>
                 {text.length > 0 && (
                   <span
@@ -123,7 +123,7 @@ export function CommentComposer({
                         ? "text-red-500 font-bold"
                         : isNearLimit
                           ? "text-yellow-500"
-                          : "text-slate-500"
+                          : "text-slate-500",
                     )}>
                     {charCount} / {MAX_LENGTH}
                   </span>
@@ -139,7 +139,7 @@ export function CommentComposer({
                   "h-8 rounded-full px-4 text-xs font-semibold transition-all",
                   text.trim()
                     ? "bg-blue-600 text-white hover:bg-blue-500"
-                    : "bg-white/5 text-slate-500 hover:bg-white/10"
+                    : "bg-white/5 text-slate-500 hover:bg-white/10",
                 )}>
                 {pending ? (
                   <span className="flex items-center gap-2">
