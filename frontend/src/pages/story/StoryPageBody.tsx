@@ -76,7 +76,7 @@ export function StoryPageBody({
               liked={Boolean(userReaction)}
               count={totalReactions}
               onToggle={() => onSelectReaction("love")}
-              className="hover:bg-red-500/10 hover:text-red-500"
+              className="px-4 py-2 hover:bg-red-500/10 hover:text-red-500 transition-all duration-200"
               countClassName="text-sm font-bold"
               ariaLabel={`React to story. ${totalReactions} reactions`}
             />
