@@ -22,7 +22,7 @@ function getErrorMessage(error: unknown): string {
 
 function StoryCardSkeleton() {
   return (
-    <div className="w-full overflow-hidden border border-white/5 rounded-2xl bg-[#0f121a]">
+    <div className="w-full overflow-hidden border border-border/40 rounded-2xl bg-card">
       <Skeleton className="aspect-video w-full rounded-none bg-white/5" />
       <div className="px-6 pt-5 pb-4">
         <Skeleton variant="text" className="h-6 w-10/12 bg-white/5" />
@@ -135,8 +135,8 @@ export default function StoriesPage() {
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-lg font-semibold text-white">Stories</h1>
-            <p className="text-xs text-[#64748b]">
+            <h1 className="text-lg font-semibold text-foreground">Stories</h1>
+            <p className="text-xs text-muted-foreground">
               Explore latest happenings on campus
             </p>
           </div>
@@ -156,14 +156,14 @@ export default function StoriesPage() {
 
         {!loading && stories.length === 0 && (
           <div className="py-16">
-            <div className="mx-auto max-w-md rounded-3xl border border-white/10 bg-[#0b1220] p-8 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-[#94a3b8]">
+            <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card p-8 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
                 <BookOpen className="h-6 w-6" />
               </div>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-semibold text-foreground">
                 No stories yet
               </h2>
-              <p className="mt-2 text-sm text-[#94a3b8]">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Be the first to share what’s happening.
               </p>
             </div>

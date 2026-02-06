@@ -42,12 +42,12 @@ export function PollSettingsAndDuration({
   return (
     <div className="grid gap-6 sm:grid-cols-2">
       <div className="space-y-2">
-        <h3 className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
+        <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
           Anonymity
         </h3>
-        <div className="rounded-2xl bg-white/[0.02] border border-white/5 px-4 py-3">
-          <div className="h-11 w-full rounded-2xl border border-white/15 bg-[#0f121a] px-4 flex items-center justify-between">
-            <span className="text-sm font-bold text-white">
+        <div className="rounded-2xl bg-muted/10 border border-border/40 px-4 py-3">
+          <div className="h-11 w-full rounded-2xl border border-border bg-card px-4 flex items-center justify-between">
+            <span className="text-sm font-bold text-foreground">
               Vote Anonymously
             </span>
             <Switch
@@ -65,10 +65,10 @@ export function PollSettingsAndDuration({
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
+        <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
           Duration
         </h3>
-        <div className="rounded-2xl bg-white/[0.02] border border-white/5 px-4 py-3">
+        <div className="rounded-2xl bg-muted/10 border border-border/40 px-4 py-3">
           <Label htmlFor="poll-duration" className="sr-only">
             Duration
           </Label>
@@ -89,12 +89,12 @@ export function PollSettingsAndDuration({
               id="poll-duration"
               disabled={disabled}
               className={cn(
-                "h-11 w-full rounded-2xl border border-white/15 bg-[#0f121a] px-4 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]/25 focus:border-[#2563eb]/40 transition-all",
+                "h-11 w-full rounded-2xl border border-border bg-card px-4 text-sm font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition-all",
                 validationErrors.expiresAt && "border-destructive/50",
               )}>
               {duration ? durationLabel[duration] : "none"}
             </SelectTrigger>
-            <SelectContent className="mt-2 rounded-2xl border border-white/10 bg-[#0f121a] p-2 shadow-xl">
+            <SelectContent className="mt-2 rounded-2xl border border-border bg-popover p-2 shadow-xl">
               <SelectItem className="rounded-xl" value="none">
                 none
               </SelectItem>

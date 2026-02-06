@@ -31,7 +31,7 @@ export function StoryCardFooter({
   bookmarkPending?: boolean;
 }) {
   const actionBase =
-    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[#64748b] transition-all";
+    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground transition-all";
 
   return (
     <div className="px-4 pb-3 pt-2 flex items-center justify-between text-xs text-muted-foreground border-t">
@@ -44,7 +44,7 @@ export function StoryCardFooter({
           className={cn(
             actionBase,
             "hover:bg-white/5",
-            userReaction && "text-pink-600"
+            userReaction && "text-pink-600",
           )}
           iconClassName="h-3.5 w-3.5"
           countClassName="text-xs font-normal"
@@ -53,7 +53,7 @@ export function StoryCardFooter({
 
         <Link
           to={`/app/stories/${storyId}`}
-          className={cn(actionBase, "hover:bg-white/5 hover:text-[#3b82f6]")}>
+          className={cn(actionBase, "hover:bg-accent hover:text-primary")}>
           <CommentCountIcon count={commentsCount} className="h-3.5 w-3.5" />
           <span>{commentsCount}</span>
         </Link>
@@ -63,7 +63,7 @@ export function StoryCardFooter({
         <button
           type="button"
           onClick={onCopyLink}
-          className={cn(actionBase, "hover:bg-white/5 hover:text-[#10b981]")}>
+          className={cn(actionBase, "hover:bg-accent hover:text-success")}>
           <Share2 className="h-3.5 w-3.5" />
         </button>
 
@@ -75,10 +75,12 @@ export function StoryCardFooter({
             "p-2 rounded-xl transition-all",
             "disabled:opacity-50 disabled:cursor-not-allowed",
             bookmarked
-              ? "text-[#f59e0b] bg-[#f59e0b]/10"
-              : "text-[#64748b] hover:text-[#f59e0b] hover:bg-[#f59e0b]/5"
+              ? "text-warning bg-warning/10"
+              : "text-muted-foreground hover:text-warning hover:bg-warning/5",
           )}>
-          <Bookmark className={cn("h-3.5 w-3.5", bookmarked && "fill-current")} />
+          <Bookmark
+            className={cn("h-3.5 w-3.5", bookmarked && "fill-current")}
+          />
         </button>
       </div>
     </div>
