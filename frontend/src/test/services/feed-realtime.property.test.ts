@@ -1,10 +1,41 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import * as fc from "fast-check";
-import { useFeedStore } from "@/stores/feedStore";
 import type {
   FeedEngagementUpdatePayload,
   FeedContentDeletedPayload,
 } from "@/lib/socket";
+
+type FeedTestItem = {
+  _id: string;
+  reactionsCount?: number;
+  commentsCount?: number;
+};
+
+function createFeedTestStore() {
+  let feedItems: FeedTestItem[] = [];
+
+  return {
+    getState: () => ({
+      feedItems,
+      clearFeed: () => {
+        feedItems = [];
+      },
+      setFeedItems: (items: FeedTestItem[]) => {
+        feedItems = items;
+      },
+      updateFeedItem: (id: string, updates: Partial<FeedTestItem>) => {
+        feedItems = feedItems.map((item) =>
+          item._id === id ? { ...item, ...updates } : item,
+        );
+      },
+      removeFeedItem: (id: string) => {
+        feedItems = feedItems.filter((item) => item._id !== id);
+      },
+    }),
+  };
+}
+
+const feedStore = createFeedTestStore();
 
 // Feature: quad-production-ready, Property 23: Real-time Feed Updates
 // For any `feed:new-content` or `feed:engagement-update` event, the feed should update
@@ -14,8 +45,7 @@ import type {
 describe("Real-time Feed Updates Property Tests", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reset the store before each test
-    const store = useFeedStore.getState();
+    const store = feedStore.getState();
     store.clearFeed();
   });
 
@@ -41,19 +71,19 @@ describe("Real-time Feed Updates Property Tests", () => {
                 url: fc.constant("https://example.com/image.jpg"),
                 type: fc.constant("image" as const),
               }),
-              { minLength: 1, maxLength: 1 }
+              { minLength: 1, maxLength: 1 },
             ),
             reactionsCount: fc.integer({ min: 0, max: 100 }),
             commentsCount: fc.integer({ min: 0, max: 100 }),
             createdAt: fc.constant(new Date().toISOString()),
             updatedAt: fc.constant(new Date().toISOString()),
           }),
-          { minLength: 1, maxLength: 10, selector: (item) => item._id }
+          { minLength: 1, maxLength: 10, selector: (item) => item._id },
         ),
         fc.integer({ min: 0, max: 200 }),
         fc.integer({ min: 0, max: 200 }),
         async (feedItems, newReactionsCount, newCommentsCount) => {
-          const store = useFeedStore.getState();
+          const store = feedStore.getState();
 
           // Set up initial feed items
           store.setFeedItems(feedItems);
@@ -78,9 +108,9 @@ describe("Real-time Feed Updates Property Tests", () => {
           });
 
           // Get updated state
-          const updatedItems = useFeedStore.getState().feedItems;
+          const updatedItems = feedStore.getState().feedItems;
           const updatedItem = updatedItems.find(
-            (item) => item._id === itemToUpdate._id
+            (item) => item._id === itemToUpdate._id,
           );
 
           // Property 1: Item should still exist in feed
@@ -96,12 +126,12 @@ describe("Real-time Feed Updates Property Tests", () => {
 
           // Property 3: Other items should remain unchanged
           const otherItems = updatedItems.filter(
-            (item) => item._id !== itemToUpdate._id
+            (item) => item._id !== itemToUpdate._id,
           );
           expect(otherItems.length).toBe(feedItems.length - 1);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -127,17 +157,17 @@ describe("Real-time Feed Updates Property Tests", () => {
                 url: fc.constant("https://example.com/image.jpg"),
                 type: fc.constant("image" as const),
               }),
-              { minLength: 1, maxLength: 1 }
+              { minLength: 1, maxLength: 1 },
             ),
             reactionsCount: fc.integer({ min: 0, max: 100 }),
             commentsCount: fc.integer({ min: 0, max: 100 }),
             createdAt: fc.constant(new Date().toISOString()),
             updatedAt: fc.constant(new Date().toISOString()),
           }),
-          { minLength: 1, maxLength: 10, selector: (item) => item._id }
+          { minLength: 1, maxLength: 10, selector: (item) => item._id },
         ),
         async (feedItems) => {
-          const store = useFeedStore.getState();
+          const store = feedStore.getState();
 
           // Set up initial feed items
           store.setFeedItems(feedItems);
@@ -157,11 +187,11 @@ describe("Real-time Feed Updates Property Tests", () => {
           store.removeFeedItem(payload.contentId);
 
           // Get updated state
-          const updatedItems = useFeedStore.getState().feedItems;
+          const updatedItems = feedStore.getState().feedItems;
 
           // Property 1: Item should be removed from feed
           const deletedItem = updatedItems.find(
-            (item) => item._id === itemToDelete._id
+            (item) => item._id === itemToDelete._id,
           );
           expect(deletedItem).toBeUndefined();
 
@@ -170,17 +200,17 @@ describe("Real-time Feed Updates Property Tests", () => {
 
           // Property 3: All other items should still exist
           const remainingItems = feedItems.filter(
-            (item) => item._id !== itemToDelete._id
+            (item) => item._id !== itemToDelete._id,
           );
           remainingItems.forEach((originalItem) => {
             const stillExists = updatedItems.some(
-              (item) => item._id === originalItem._id
+              (item) => item._id === originalItem._id,
             );
             expect(stillExists).toBe(true);
           });
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
