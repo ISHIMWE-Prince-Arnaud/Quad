@@ -21,7 +21,14 @@ export function CoverImageSection({
     <div className="space-y-4">
       <Label>Cover Image</Label>
       <div className="relative">
-        <div className="relative h-32 sm:h-40 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 via-purple-500/20 to-pink-500/20">
+        <div
+          className="relative h-32 sm:h-40 rounded-lg overflow-hidden"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, #1d4ed8 0%, #3b82f6 55%, #2563eb 100%), radial-gradient(circle at 18px 18px, transparent 0 14px, rgba(255,255,255,0.14) 14px 15px, transparent 15px 36px)",
+            backgroundSize: "cover, 36px 36px",
+            backgroundPosition: "center, 0 0",
+          }}>
           {src && (
             <img
               src={src}
@@ -29,6 +36,8 @@ export function CoverImageSection({
               className="w-full h-full object-cover"
             />
           )}
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
 
           <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
             <Button
