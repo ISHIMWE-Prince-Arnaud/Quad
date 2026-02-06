@@ -30,7 +30,7 @@ export function PostCardFooter({
   onSelectReaction: (type: ReactionType) => void | Promise<void>;
 }) {
   const actionBase =
-    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-[#64748b] transition-all";
+    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground transition-all";
 
   return (
     <>
@@ -42,7 +42,7 @@ export function PostCardFooter({
           onToggle={() => void onSelectReaction("love")}
           ariaLabel={`React to post. ${reactionCount} reactions`}
           className={cn(actionBase, "hover:bg-white/5")}
-          countClassName="text-xs font-bold text-[#64748b]"
+          countClassName="text-xs font-bold text-muted-foreground"
         />
 
         <Link
@@ -73,7 +73,7 @@ export function PostCardFooter({
           "disabled:opacity-50 disabled:cursor-not-allowed",
           bookmarked
             ? "text-[#f59e0b] bg-[#f59e0b]/10"
-            : "text-[#64748b] hover:text-[#f59e0b] hover:bg-[#f59e0b]/5"
+            : "text-muted-foreground hover:text-warning hover:bg-warning/5",
         )}
         aria-label={bookmarked ? "Remove bookmark" : "Bookmark post"}
         title={bookmarked ? "Remove bookmark" : "Bookmark"}>

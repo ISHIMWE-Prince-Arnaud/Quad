@@ -31,18 +31,18 @@ export function PostCardHeader({
       <Link
         to={`/app/profile/${post.author.username}`}
         className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-        <Avatar className="h-10 w-10 border-2 border-white/5 shadow-inner">
+        <Avatar className="h-10 w-10 border-2 border-border/40 shadow-inner">
           <AvatarImage src={post.author.profileImage} />
-          <AvatarFallback className="bg-[#1e293b] text-white font-semibold">
+          <AvatarFallback className="bg-secondary text-secondary-foreground font-semibold">
             {displayName.charAt(0).toUpperCase() || "U"}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-white text-[15px] leading-tight truncate">
+          <p className="font-bold text-foreground text-[15px] leading-tight truncate">
             {displayName}
           </p>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="text-[11px] font-medium text-[#64748b]">
+            <span className="text-[11px] font-medium text-muted-foreground">
               @{post.author.username}
             </span>
             <span className="text-[#334155] text-[10px]">·</span>
@@ -59,18 +59,21 @@ export function PostCardHeader({
             <Button
               variant="ghost"
               size="sm"
-              className="h-9 w-9 p-0 shrink-0 rounded-full text-[#94a3b8] hover:text-white hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-primary/40 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100"
+              className="h-9 w-9 p-0 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-2 focus-visible:ring-primary/40 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100"
               aria-label="Post options">
               <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="min-w-[180px] rounded-xl border border-white/10 bg-[#0b1220] p-1 text-white shadow-xl">
+            className="min-w-[180px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-xl">
             <DropdownMenuItem
               onClick={onEdit}
               className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-              <Pencil className="h-4 w-4 text-[#94a3b8]" aria-hidden="true" />
+              <Pencil
+                className="h-4 w-4 text-muted-foreground"
+                aria-hidden="true"
+              />
               Edit post
             </DropdownMenuItem>
 

@@ -28,7 +28,7 @@ export function PollOptionBar({
   }, [option.percentage, totalVotes, votesCount]);
 
   const [displayPercentage, setDisplayPercentage] = useState(
-    showResults ? percentage : 0
+    showResults ? percentage : 0,
   );
 
   const [barWidth, setBarWidth] = useState(showResults ? percentage : 0);
@@ -99,23 +99,23 @@ export function PollOptionBar({
       disabled={disabled}
       className={cn(
         "relative h-11 w-full overflow-hidden rounded-full border text-left transition-all duration-200",
-        "border-white/10 bg-white/[0.03]",
-        !disabled && "hover:bg-white/[0.06]",
+        "border-border/40 bg-muted/10",
+        !disabled && "hover:bg-muted/20",
         disabled && "cursor-default",
         dimmed && "opacity-55",
-        selected && "ring-2 ring-[#2563eb]",
-        selected && !disabled && "scale-[1.01]"
+        selected && "ring-2 ring-primary",
+        selected && !disabled && "scale-[1.01]",
       )}>
       <div
         className={
           "absolute inset-y-0 left-0 rounded-full overflow-hidden transition-[width] duration-500 "
         }
         style={{ width: `${barWidth}%` }}>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#60a5fa] to-[#2563eb]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/60 to-primary" />
         <div
           className={cn(
-            "absolute inset-0 bg-gradient-to-r from-[#60a5fa] to-[#2563eb] transition-opacity duration-300",
-            selected ? "opacity-100" : "opacity-0"
+            "absolute inset-0 bg-gradient-to-r from-primary/60 to-primary transition-opacity duration-300",
+            selected ? "opacity-100" : "opacity-0",
           )}
         />
       </div>
@@ -124,14 +124,20 @@ export function PollOptionBar({
         <span
           className={cn(
             "min-w-0 truncate text-[13px] font-semibold",
-            selected ? "text-white" : "text-white",
-            disabled && selected && "text-white"
+            "text-foreground",
+            selected && "text-primary-foreground",
           )}>
           {option.text}
         </span>
 
         {showResults && (
-          <span className="shrink-0 text-[13px] font-semibold text-white/90">
+          <span
+            className={cn(
+              "shrink-0 text-[13px] font-semibold",
+              percentage > barWidth
+                ? "text-foreground"
+                : "text-primary-foreground",
+            )}>
             {displayPercentage}%
           </span>
         )}

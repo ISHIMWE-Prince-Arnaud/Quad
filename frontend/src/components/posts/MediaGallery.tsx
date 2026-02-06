@@ -60,7 +60,7 @@ function VideoPlayer({
   const hideTimerRef = useRef<number | null>(null);
   const settingsRef = useRef<HTMLDivElement | null>(null);
   const playerIdRef = useRef<string>(
-    `vp_${Date.now()}_${(globalVideoPlayerInstance += 1)}`
+    `vp_${Date.now()}_${(globalVideoPlayerInstance += 1)}`,
   );
   const bufferingTimerRef = useRef<number | null>(null);
 
@@ -144,7 +144,7 @@ function VideoPlayer({
       }
       showControls();
     },
-    [showControls]
+    [showControls],
   );
 
   const seekTo = useCallback(
@@ -155,7 +155,7 @@ function VideoPlayer({
       video.currentTime = nextTime;
       setCurrentTime(nextTime);
     },
-    [duration]
+    [duration],
   );
 
   const setSpeed = useCallback(
@@ -166,13 +166,15 @@ function VideoPlayer({
       setPlaybackRate(rate);
       showControls();
     },
-    [showControls]
+    [showControls],
   );
 
   const togglePiP = useCallback(async () => {
-    const video = videoRef.current as (HTMLVideoElement & {
-      requestPictureInPicture?: () => Promise<unknown>;
-    }) | null;
+    const video = videoRef.current as
+      | (HTMLVideoElement & {
+          requestPictureInPicture?: () => Promise<unknown>;
+        })
+      | null;
     if (!video) return;
 
     try {
@@ -295,7 +297,7 @@ function VideoPlayer({
       window.dispatchEvent(
         new CustomEvent(GLOBAL_VIDEO_PLAY_EVENT, {
           detail: { id: playerIdRef.current },
-        })
+        }),
       );
     };
 
@@ -412,7 +414,7 @@ function VideoPlayer({
       ref={containerRef}
       className={cn(
         "relative bg-black/90 overflow-hidden w-full h-full",
-        containerClassName
+        containerClassName,
       )}
       onMouseMove={showControls}
       onPointerDown={showControls}
@@ -477,7 +479,7 @@ function VideoPlayer({
       <div
         className={cn(
           "absolute inset-x-0 bottom-0 transition-opacity",
-          controlsVisible ? "opacity-100" : "opacity-0"
+          controlsVisible ? "opacity-100" : "opacity-0",
         )}
         onClick={(e) => e.stopPropagation()}>
         <div className="px-3 pb-3 pt-2 bg-gradient-to-t from-black/80 via-black/30 to-transparent">
@@ -564,7 +566,7 @@ function VideoPlayer({
                 </button>
 
                 {settingsOpen && (
-                  <div className="absolute bottom-full right-0 mb-2 w-56 rounded-xl bg-[#0f121a]/95 border border-white/10 shadow-2xl overflow-hidden">
+                  <div className="absolute bottom-full right-0 mb-2 w-56 rounded-xl bg-popover/95 border border-border shadow-2xl overflow-hidden">
                     <button
                       type="button"
                       onClick={() => {
@@ -665,7 +667,7 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
             "relative rounded-xl overflow-hidden",
             item.type === "video" &&
               cn("bg-black", getAspectClass(item.aspectRatio), "max-h-[500px]"),
-            className
+            className,
           )}>
           {item.type === "image" ? (
             <img
@@ -702,7 +704,7 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
         <div
           className={cn(
             "grid grid-cols-2 gap-2 rounded-xl overflow-hidden",
-            className
+            className,
           )}>
           {media.map((item, index) => (
             <div
@@ -745,7 +747,7 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
         <div
           className={cn(
             "grid grid-cols-2 gap-2 rounded-xl overflow-hidden",
-            className
+            className,
           )}>
           {media.slice(0, 2).map((item, index) => (
             <div
@@ -807,7 +809,7 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
       <div
         className={cn(
           "grid grid-cols-2 gap-2 rounded-xl overflow-hidden",
-          className
+          className,
         )}>
         {displayItems.map((item, index) => (
           <div
@@ -926,8 +928,7 @@ function MediaLightbox({
           <div
             className="relative z-10 w-full h-full flex items-center justify-center p-8"
             onMouseDown={(e) => e.stopPropagation()}>
-            <div
-              className="relative flex items-center justify-center w-full h-full max-w-[1100px] max-h-[85vh]">
+            <div className="relative flex items-center justify-center w-full h-full max-w-[1100px] max-h-[85vh]">
               {media.length > 1 && (
                 <>
                   <Button
