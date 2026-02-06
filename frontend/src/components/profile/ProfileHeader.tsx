@@ -259,13 +259,13 @@ export function ProfileHeader({
             </div>
 
             {/* Stats */}
-            <div className="mt-2 -mx-6 px-6 py-5 border-t border-white/5">
+            <div className="mt-2 -mx-6 px-6 py-5 border-t border-border/40">
               <div className="grid grid-cols-3">
                 <div className="text-center">
                   <div className="text-primary text-lg font-extrabold leading-none tabular-nums">
                     {formatStatNumber(user.reactionsReceived)}
                   </div>
-                  <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
+                  <div className="mt-2 text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
                     Reactions
                   </div>
                 </div>
@@ -277,7 +277,7 @@ export function ProfileHeader({
                   <div className="text-primary text-lg font-extrabold leading-none tabular-nums">
                     {formatStatNumber(followersCount)}
                   </div>
-                  <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
+                  <div className="mt-2 text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
                     Followers
                   </div>
                 </button>
@@ -289,7 +289,7 @@ export function ProfileHeader({
                   <div className="text-primary text-lg font-extrabold leading-none tabular-nums">
                     {formatStatNumber(followingCount)}
                   </div>
-                  <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
+                  <div className="mt-2 text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
                     Following
                   </div>
                 </button>

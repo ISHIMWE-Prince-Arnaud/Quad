@@ -202,13 +202,13 @@ export function ProfileHeaderCard({
             </div>
           </div>
 
-          <div className="mt-2 -mx-6 px-6 py-5 bg-[#0b1020]/60 border-t border-white/5">
+          <div className="mt-2 -mx-6 px-6 py-5 bg-muted/30 border-t border-border/40">
             <div className="grid grid-cols-3">
               <div className="text-center">
-                <div className="text-[#3b82f6] text-3xl font-extrabold leading-none tabular-nums">
+                <div className="text-primary text-3xl font-extrabold leading-none tabular-nums">
                   {formatStatNumber(user.reactionsReceived)}
                 </div>
-                <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
+                <div className="mt-2 text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
                   Reactions
                 </div>
               </div>
@@ -217,10 +217,10 @@ export function ProfileHeaderCard({
                 type="button"
                 onClick={onOpenFollowers}
                 className="text-center">
-                <div className="text-[#3b82f6] text-3xl font-extrabold leading-none tabular-nums">
+                <div className="text-primary text-3xl font-extrabold leading-none tabular-nums">
                   {formatStatNumber(user.followersCount)}
                 </div>
-                <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
+                <div className="mt-2 text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
                   Followers
                 </div>
               </button>
@@ -229,10 +229,10 @@ export function ProfileHeaderCard({
                 type="button"
                 onClick={onOpenFollowing}
                 className="text-center">
-                <div className="text-[#3b82f6] text-3xl font-extrabold leading-none tabular-nums">
+                <div className="text-primary text-3xl font-extrabold leading-none tabular-nums">
                   {formatStatNumber(user.followingCount)}
                 </div>
-                <div className="mt-2 text-[11px] font-bold tracking-widest text-[#64748b] uppercase">
+                <div className="mt-2 text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
                   Following
                 </div>
               </button>
