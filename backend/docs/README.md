@@ -12,6 +12,10 @@ This directory contains comprehensive documentation for the Quad social media pl
 - **[Architecture](./ARCHITECTURE.md)** - Server bootstrap, middleware chain, routing
 - **[Rate Limiting](./RATE_LIMITING.md)** - Current rate limiter configuration and mount points
 - **[Observability](./OBSERVABILITY.md)** - Logging, request IDs, error tracking
+- **[Domain Map](./DOMAIN_MAP.md)** - Routes → controllers → services → models
+- **[Realtime Spec](./REALTIME_SPEC.md)** - Socket.IO events, rooms, payloads
+- **[Uploads Pipeline](./UPLOADS_PIPELINE.md)** - Multer + Cloudinary implementation details
+- **[Auth & Webhooks](./WEBHOOKS_AND_AUTH.md)** - Clerk middleware + webhook processing
 - **[Deployment](./deployment/README.md)** - Production deployment guide
 - **[Development](./development/README.md)** - Local development setup
 
