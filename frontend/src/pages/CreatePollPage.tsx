@@ -3,11 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { UploadService } from "@/services/uploadService";
 import { PollService } from "@/services/pollService";
-import type {
-  Poll,
-  PollMedia,
-  CreatePollInput,
-} from "@/types/poll";
+import type { Poll, PollMedia, CreatePollInput } from "@/types/poll";
 import toast from "react-hot-toast";
 import { ZodError } from "zod";
 import type { ZodIssue } from "zod";
@@ -41,7 +37,9 @@ export default function CreatePollPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [uploadingQuestionMedia, setUploadingQuestionMedia] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
+    {},
+  );
 
   // Handlers
   const handleAddOption = () => {
@@ -58,7 +56,7 @@ export default function CreatePollPage() {
 
   const handleOptionChange = (id: string, text: string) => {
     setOptions((prev) =>
-      prev.map((opt) => (opt.id === id ? { ...opt, text } : opt))
+      prev.map((opt) => (opt.id === id ? { ...opt, text } : opt)),
     );
     if (validationErrors.options) {
       setValidationErrors((prev) => ({ ...prev, options: undefined }));
@@ -118,7 +116,7 @@ export default function CreatePollPage() {
                     ? 24 * 60 * 60 * 1000
                     : duration === "1w"
                       ? 7 * 24 * 60 * 60 * 1000
-                      : 30 * 24 * 60 * 60 * 1000)
+                      : 30 * 24 * 60 * 60 * 1000),
               ).toISOString(),
       };
 
@@ -142,7 +140,7 @@ export default function CreatePollPage() {
           });
           setValidationErrors(errors);
           toast.error(
-            errors.general || "Please fix validation errors before submitting"
+            errors.general || "Please fix validation errors before submitting",
           );
           return;
         }
@@ -195,9 +193,8 @@ export default function CreatePollPage() {
         <div className="flex items-center justify-between">
           <button
             type="button"
-            className="inline-flex items-center gap-2 text-white/90 hover:text-white font-bold"
-            onClick={() => navigate("/app/polls")}
-          >
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-bold"
+            onClick={() => navigate("/app/polls")}>
             <ArrowLeft className="h-5 w-5" />
             <span className="text-base">Create Poll</span>
           </button>
@@ -206,8 +203,7 @@ export default function CreatePollPage() {
             type="button"
             disabled={!canSubmit || submitting}
             onClick={() => void handleSubmit()}
-            className="h-8 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-4"
-          >
+            className="h-8 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-4">
             Post
           </Button>
         </div>

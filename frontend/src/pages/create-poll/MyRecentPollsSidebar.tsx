@@ -11,9 +11,9 @@ export function MyRecentPollsSidebar({
   onSelectPoll: () => void;
 }) {
   return (
-    <Card className="bg-[#0f121a] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
+    <Card className="bg-card border border-border/40 rounded-3xl overflow-hidden shadow-xl">
       <CardHeader className="p-6 pb-4">
-        <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+        <h2 className="text-sm font-bold text-foreground uppercase tracking-wider">
           My Recent Polls
         </h2>
       </CardHeader>
@@ -25,8 +25,8 @@ export function MyRecentPollsSidebar({
             ))}
           </div>
         ) : polls.length === 0 ? (
-          <div className="py-8 text-center border border-dashed border-white/5 rounded-2xl">
-            <p className="text-[11px] font-medium text-[#64748b]">
+          <div className="py-8 text-center border border-dashed border-border/40 rounded-2xl">
+            <p className="text-[11px] font-medium text-muted-foreground">
               No polls created yet
             </p>
           </div>
@@ -37,7 +37,7 @@ export function MyRecentPollsSidebar({
                 key={p.id}
                 type="button"
                 onClick={onSelectPoll}
-                className="block w-full text-left p-2 rounded-xl text-[13px] font-medium text-[#f1f5f9] hover:bg-white/5 hover:text-[#2563eb] transition-all truncate group">
+                className="block w-full text-left p-2 rounded-xl text-[13px] font-medium text-foreground hover:bg-accent hover:text-primary transition-all truncate group">
                 <span className="opacity-50 group-hover:opacity-100 transition-opacity">
                   #{" "}
                 </span>

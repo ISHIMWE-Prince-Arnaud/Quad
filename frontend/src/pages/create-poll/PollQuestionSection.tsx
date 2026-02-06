@@ -38,14 +38,14 @@ export function PollQuestionSection({
   return (
     <>
       <div className="space-y-4">
-        <h3 className="text-[11px] text-[#64748b] uppercase tracking-wider">
+        <h3 className="text-[11px] text-muted-foreground uppercase tracking-wider">
           Poll Question
         </h3>
 
         <div
           className={cn(
-            "rounded-2xl border border-white/5 bg-white/[0.02] px-4 py-3 focus-within:border-[#2563eb]/40 focus-within:ring-2 focus-within:ring-[#2563eb]/20 transition-colors",
-            validationErrors.question && "border-destructive/60"
+            "rounded-2xl border border-border/40 bg-muted/20 px-4 py-3 focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/20 transition-colors",
+            validationErrors.question && "border-destructive/60",
           )}>
           <textarea
             id="poll-question"
@@ -63,25 +63,29 @@ export function PollQuestionSection({
             maxLength={500}
             placeholder="What's on your mind?"
             className={cn(
-              "w-full bg-transparent border-none focus:ring-0 text-base font-semibold text-white placeholder-white/10 p-0 resize-none",
-              validationErrors.question && "text-destructive"
+              "w-full bg-transparent border-none focus:ring-0 text-base font-semibold text-foreground placeholder:text-muted-foreground/30 p-0 resize-none",
+              validationErrors.question && "text-destructive",
             )}
             aria-invalid={!!validationErrors.question}
           />
         </div>
 
-        <div className="flex justify-between items-center text-[10px] font-bold text-[#64748b] uppercase tracking-wide">
+        <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground uppercase tracking-wide">
           <span>{question.length}/500</span>
           {validationErrors.question ? (
-            <span className="text-destructive">{validationErrors.question}</span>
+            <span className="text-destructive">
+              {validationErrors.question}
+            </span>
           ) : trimmedQuestionLength > 0 && trimmedQuestionLength < 10 ? (
-            <span className="text-[#64748b]">Minimum 10 characters</span>
+            <span className="text-muted-foreground/60">
+              Minimum 10 characters
+            </span>
           ) : null}
         </div>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider">
+        <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
           Media
         </h3>
 
@@ -100,7 +104,7 @@ export function PollQuestionSection({
               "relative border border-dashed rounded-[2rem] px-6 py-10 text-center transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/40",
               uploadingQuestionMedia
                 ? "border-[#2563eb] bg-[#2563eb]/5"
-                : "border-white/10 bg-white/[0.01] hover:border-[#2563eb]/50"
+                : "border-white/10 bg-white/[0.01] hover:border-[#2563eb]/50",
             )}
             role="button"
             tabIndex={0}
@@ -139,10 +143,10 @@ export function PollQuestionSection({
                     <ImageIcon className="h-5 w-5 text-[#2563eb]" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-sm font-semibold text-foreground">
                       Add a photo (optional)
                     </p>
-                    <p className="text-[11px] font-medium text-[#64748b] mt-1">
+                    <p className="text-[11px] font-medium text-muted-foreground mt-1">
                       Drag & drop or click to upload
                     </p>
                   </div>
@@ -164,9 +168,9 @@ export function PollQuestionSection({
 
             {uploadingQuestionMedia && (
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                <div className="flex items-center gap-3 rounded-full border border-white/10 bg-[#0f121a]/70 px-4 py-2">
+                <div className="flex items-center gap-3 rounded-full border border-border/40 bg-card/70 px-4 py-2">
                   <Loader2 className="h-4 w-4 animate-spin text-[#2563eb]" />
-                  <span className="text-xs font-semibold text-white">
+                  <span className="text-xs font-semibold text-foreground">
                     Uploading...
                   </span>
                 </div>
@@ -181,7 +185,7 @@ export function PollQuestionSection({
                 variant="secondary"
                 size="sm"
                 disabled={uploadingQuestionMedia}
-                className="h-8 rounded-full border border-white/10 bg-white/10 hover:bg-white/15 text-white font-semibold px-4"
+                className="h-8 rounded-full border border-border/40 bg-muted/40 hover:bg-muted/60 text-foreground font-semibold px-4"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
