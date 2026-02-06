@@ -139,7 +139,6 @@ export default function StoryPage() {
           contentHtml={controller.story.content}
           authorUsername={controller.story.author.username}
           createdAt={controller.story.createdAt}
-          viewsCount={controller.story.viewsCount}
           readingTime={controller.readingTime}
           userReaction={controller.userReaction}
           totalReactions={controller.totalReactions}

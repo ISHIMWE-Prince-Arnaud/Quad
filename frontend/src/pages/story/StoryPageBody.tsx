@@ -13,7 +13,6 @@ export function StoryPageBody({
   contentHtml,
   authorUsername,
   createdAt,
-  viewsCount,
   readingTime,
   userReaction,
   totalReactions,
@@ -25,7 +24,6 @@ export function StoryPageBody({
   contentHtml: string;
   authorUsername: string;
   createdAt: string;
-  viewsCount?: number;
   readingTime: number;
   userReaction: ReactionType | null;
   totalReactions: number;
@@ -55,11 +53,6 @@ export function StoryPageBody({
             {readingTime > 0 && (
               <span className="text-xs font-medium text-muted-foreground">
                 · {readingTime} min read
-              </span>
-            )}
-            {typeof viewsCount === "number" && viewsCount > 0 && (
-              <span className="text-xs font-medium text-muted-foreground">
-                · {viewsCount} views
               </span>
             )}
             <span className="text-xs font-medium text-muted-foreground">

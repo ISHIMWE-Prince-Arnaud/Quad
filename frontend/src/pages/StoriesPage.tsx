@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
@@ -77,8 +77,19 @@ export default function StoriesPage() {
   const [hasMore, setHasMore] = useState(false);
   const [limit] = useState(10);
   const [skip, setSkip] = useState(0);
+  const [view, setView] = useState<"published" | "drafts">("published");
 
   const queryParams = useMemo(() => ({ limit, skip: 0 }), [limit]);
+
+  const fetchStories = useCallback(
+    async (params: { limit: number; skip: number }) => {
+      if (view === "drafts") {
+        return StoryService.getMine({ ...params, status: "draft" });
+      }
+      return StoryService.getAll(params);
+    },
+    [view],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -86,7 +97,7 @@ export default function StoriesPage() {
       try {
         setLoading(true);
         setError(null);
-        const res = await StoryService.getAll(queryParams);
+        const res = await fetchStories(queryParams);
         if (!cancelled && res.success) {
           setStories(res.data);
           setHasMore(res.pagination?.hasMore ?? false);
@@ -96,7 +107,7 @@ export default function StoriesPage() {
         logError(err, {
           component: "StoriesPage",
           action: "loadStories",
-          metadata: queryParams,
+          metadata: { ...queryParams, view },
         });
         if (!cancelled) setError(getErrorMessage(err));
       } finally {
@@ -106,12 +117,12 @@ export default function StoriesPage() {
     return () => {
       cancelled = true;
     };
-  }, [queryParams]);
+  }, [fetchStories, queryParams, view]);
 
   const handleLoadMore = async () => {
     try {
       const nextSkip = skip + limit;
-      const res = await StoryService.getAll({ limit, skip: nextSkip });
+      const res = await fetchStories({ limit, skip: nextSkip });
       if (res.success) {
         setStories((prev) => [...prev, ...res.data]);
         setSkip(nextSkip);
@@ -121,7 +132,7 @@ export default function StoriesPage() {
       logError(err, {
         component: "StoriesPage",
         action: "loadMoreStories",
-        metadata: { limit, skip },
+        metadata: { limit, skip, view },
       });
     }
   };
@@ -139,6 +150,23 @@ export default function StoriesPage() {
             <p className="text-xs text-muted-foreground">
               Explore latest happenings on campus
             </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant={view === "published" ? "default" : "secondary"}
+              onClick={() => setView("published")}
+              disabled={loading}>
+              Published
+            </Button>
+            <Button
+              type="button"
+              variant={view === "drafts" ? "default" : "secondary"}
+              onClick={() => setView("drafts")}
+              disabled={loading}>
+              My Drafts
+            </Button>
           </div>
         </div>
 
@@ -161,10 +189,12 @@ export default function StoriesPage() {
                 <BookOpen className="h-6 w-6" />
               </div>
               <h2 className="text-lg font-semibold text-foreground">
-                No stories yet
+                {view === "drafts" ? "No drafts yet" : "No stories yet"}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Be the first to share what’s happening.
+                {view === "drafts"
+                  ? "Draft stories you save will appear here."
+                  : "Be the first to share what’s happening."}
               </p>
             </div>
           </div>
