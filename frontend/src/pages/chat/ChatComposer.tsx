@@ -34,9 +34,9 @@ export function ChatComposer({
   };
 
   return (
-    <div className="py-4 px-6 border-t border-border">
-      <div className="flex items-end gap-3">
-        <div className="flex-1 min-w-0 flex items-end gap-2 rounded-[24px] bg-secondary/50 border border-transparent focus-within:border-primary/20 focus-within:bg-secondary/70 focus-within:shadow-sm px-4 py-3 transition-all duration-200">
+    <div className="py-4 px-6 bg-background/80 backdrop-blur-md border-t border-border/50 sticky bottom-0">
+      <div className="flex items-end gap-3 max-w-4xl mx-auto w-full">
+        <div className="flex-1 min-w-0 flex items-end gap-2 rounded-[1.5rem] bg-muted/50 border border-border/40 focus-within:border-primary/30 focus-within:bg-background focus-within:shadow-md px-4 py-2.5 transition-all duration-200">
           <textarea
             ref={textareaRef}
             value={text}
@@ -56,10 +56,10 @@ export function ChatComposer({
           onClick={onSend}
           disabled={sending || !text.trim()}
           className={cn(
-            "h-12 w-12 rounded-full shrink-0 shadow-md transition-all",
+            "h-11 w-11 rounded-full shrink-0 shadow-sm transition-all",
             sending || !text.trim()
-              ? "opacity-80"
-              : "hover:scale-105 active:scale-95 hover:shadow-lg",
+              ? "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
+              : "bg-primary text-primary-foreground hover:scale-105 active:scale-95 hover:shadow-primary/20 hover:shadow-lg",
           )}>
           {sending ? (
             <Loader2 className="h-5 w-5 animate-spin" />

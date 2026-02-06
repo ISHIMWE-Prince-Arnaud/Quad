@@ -67,67 +67,95 @@ const linkifyText = (text: string) => {
   });
 };
 
+function ChatMessageSkeletonItem({
+  isSelf,
+  startsNewGroup = true,
+  width = "w-48",
+}: {
+  isSelf: boolean;
+  startsNewGroup?: boolean;
+  width?: string;
+}) {
+  return (
+    <div className={cn("py-0", !startsNewGroup && "mt-1.5 animate-pulse")}>
+      <div
+        className={cn(
+          "flex items-start gap-3",
+          isSelf ? "justify-end" : "justify-start",
+        )}>
+        {!isSelf &&
+          (startsNewGroup ? (
+            <div className="h-8 w-8 rounded-full bg-muted/70 animate-pulse shrink-0 shadow-sm border border-border/40" />
+          ) : (
+            <div className="w-9 shrink-0" />
+          ))}
+
+        <div
+          className={cn(
+            "flex flex-col max-w-[75%] min-w-0",
+            isSelf ? "items-end" : "items-start",
+          )}>
+          {startsNewGroup && (
+            <div
+              className={cn(
+                "flex items-center gap-2 mb-2 w-full",
+                isSelf ? "justify-end" : "justify-start",
+              )}>
+              {!isSelf && (
+                <div className="h-3 w-20 rounded-full bg-muted/70 animate-pulse" />
+              )}
+              <div className="h-3 w-10 rounded-full bg-muted/40 animate-pulse" />
+              {isSelf && (
+                <div className="h-3 w-12 rounded-full bg-muted/70 animate-pulse" />
+              )}
+            </div>
+          )}
+
+          <div
+            className={cn(
+              "relative w-fit max-w-full rounded-2xl px-4 py-3 shadow-sm animate-pulse",
+              isSelf
+                ? "bg-primary/10 border border-primary/20"
+                : "bg-muted/80 border border-border/40",
+            )}>
+            <div className={cn("h-4 rounded bg-background/50", width)} />
+          </div>
+        </div>
+
+        {isSelf &&
+          (startsNewGroup ? (
+            <div className="h-8 w-8 rounded-full bg-muted/70 animate-pulse shrink-0 shadow-sm border border-border/40" />
+          ) : (
+            <div className="w-9 shrink-0" />
+          ))}
+      </div>
+    </div>
+  );
+}
+
 function ChatMessageListSkeleton() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 px-2">
       <div className="flex items-center justify-center py-3">
-        <div className="h-px flex-1 bg-border/60" />
-        <div className="mx-3 h-5 w-24 rounded-full bg-muted/70 animate-pulse" />
-        <div className="h-px flex-1 bg-border/60" />
+        <div className="h-px flex-1 bg-border/40" />
+        <div className="mx-3 h-5 w-24 rounded-full bg-muted/60 animate-pulse" />
+        <div className="h-px flex-1 bg-border/40" />
       </div>
 
-      <div className="py-0">
-        <div className="flex items-start gap-3 justify-start">
-          <div className="h-8 w-8 rounded-full bg-muted/70 animate-pulse shrink-0" />
-          <div className="flex flex-col max-w-[75%] min-w-0 items-start">
-            <div className="flex items-center justify-start gap-2 mb-2 w-full">
-              <div className="h-3 w-24 rounded-full bg-muted/70 animate-pulse" />
-              <div className="h-3 w-14 rounded-full bg-muted/70 animate-pulse" />
-            </div>
-            <div className="relative w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-muted animate-pulse">
-              <div className="h-4 w-56 max-w-[60vw] rounded bg-background/40" />
-              <div className="mt-2 h-4 w-40 max-w-[45vw] rounded bg-background/40" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="py-0 mt-1.5">
-        <div className="flex items-start gap-3 justify-start">
-          <div className="w-9 shrink-0" />
-          <div className="flex flex-col max-w-[75%] min-w-0 items-start">
-            <div className="relative w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-muted animate-pulse">
-              <div className="h-4 w-44 max-w-[55vw] rounded bg-background/40" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="py-0">
-        <div className="flex items-start gap-3 justify-end">
-          <div className="flex flex-col max-w-[75%] min-w-0 items-end">
-            <div className="flex items-center justify-end gap-2 mb-2 w-full">
-              <div className="h-3 w-16 rounded-full bg-muted/70 animate-pulse" />
-              <div className="h-3 w-10 rounded-full bg-muted/70 animate-pulse" />
-            </div>
-            <div className="relative w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-primary/20 animate-pulse">
-              <div className="h-4 w-52 max-w-[58vw] rounded bg-primary/20" />
-              <div className="mt-2 h-4 w-28 max-w-[36vw] rounded bg-primary/20" />
-            </div>
-          </div>
-          <div className="h-8 w-8 rounded-full bg-muted/70 animate-pulse shrink-0" />
-        </div>
-      </div>
-
-      <div className="py-0 mt-1.5">
-        <div className="flex items-start gap-3 justify-end">
-          <div className="flex flex-col max-w-[75%] min-w-0 items-end">
-            <div className="relative w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-primary/20 animate-pulse">
-              <div className="h-4 w-40 max-w-[52vw] rounded bg-primary/20" />
-            </div>
-          </div>
-          <div className="w-9 shrink-0" />
-        </div>
+      <div className="space-y-4">
+        <ChatMessageSkeletonItem isSelf={false} />
+        <ChatMessageSkeletonItem
+          isSelf={false}
+          startsNewGroup={false}
+          width="w-32"
+        />
+        <ChatMessageSkeletonItem isSelf={true} />
+        <ChatMessageSkeletonItem
+          isSelf={true}
+          startsNewGroup={false}
+          width="w-40"
+        />
+        <ChatMessageSkeletonItem isSelf={false} />
       </div>
     </div>
   );
@@ -302,10 +330,16 @@ export const ChatMessageList = memo(function ChatMessageList({
               const showHeader = startsNewGroup;
               const showActions = isSelf;
               const bubbleBase =
-                "relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm transition-all duration-200 group-hover:shadow-md";
+                "relative w-fit max-w-full break-words rounded-[1.25rem] px-4 py-2.5 shadow-sm transition-all duration-200 group-hover:shadow-md";
               const bubbleClass = isSelf
-                ? cn(bubbleBase, "bg-primary/50 text-primary-foreground")
-                : cn(bubbleBase, "bg-muted text-foreground hover:bg-muted/70");
+                ? cn(
+                    bubbleBase,
+                    "bg-primary text-primary-foreground shadow-primary/20 border border-primary/10",
+                  )
+                : cn(
+                    bubbleBase,
+                    "bg-card text-foreground border border-border/60 hover:bg-muted/30 dark:bg-muted dark:border-transparent",
+                  );
 
               const headerName = isSelf ? "You" : m.author.username;
               const headerTime = `${formatTimeOnly(new Date(m.createdAt))}${
@@ -332,13 +366,13 @@ export const ChatMessageList = memo(function ChatMessageList({
                     )}>
                     {!isSelf &&
                       (showAvatar ? (
-                        <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40">
+                        <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40 hover:scale-105 transition-transform duration-200">
                           <AvatarImage
                             src={m.author.profileImage}
                             alt={m.author.username}
                             className="object-cover"
                           />
-                          <AvatarFallback>
+                          <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
                             {m.author.username?.[0]?.toUpperCase() || "U"}
                           </AvatarFallback>
                         </Avatar>
@@ -367,7 +401,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                             {headerTime}
                           </span>
                           {isSelf && (
-                            <span className="text-sm font-semibold text-foreground">
+                            <span className="text-sm font-bold text-foreground">
                               {headerName}
                             </span>
                           )}
@@ -408,7 +442,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                             src={user?.profileImage}
                             alt={user?.username}
                           />
-                          <AvatarFallback>
+                          <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
                             {user?.username?.[0]?.toUpperCase() || "U"}
                           </AvatarFallback>
                         </Avatar>
