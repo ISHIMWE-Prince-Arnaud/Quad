@@ -227,10 +227,10 @@ export function FeedPostComposer({
               <Button
                 type="button"
                 className={cn(
-                  "rounded-full px-8 font-bold transition-all shadow-lg",
+                  "rounded-full px-8 font-bold transition-all shadow-lg active:scale-95",
                   canSubmit
-                    ? "bg-primary hover:bg-primary/90 text-primary-foreground scale-100"
-                    : "bg-primary/20 text-primary-foreground/20 cursor-not-allowed",
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground scale-100 shadow-primary/20"
+                    : "bg-muted text-muted-foreground/40 cursor-not-allowed shadow-none",
                 )}
                 disabled={!canSubmit || isSubmitting}
                 onClick={(e) => {

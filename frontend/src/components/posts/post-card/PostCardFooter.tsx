@@ -41,13 +41,13 @@ export function PostCardFooter({
           pending={reactionPending}
           onToggle={() => void onSelectReaction("love")}
           ariaLabel={`React to post. ${reactionCount} reactions`}
-          className={cn(actionBase, "hover:bg-white/5")}
+          className={cn(actionBase, "hover:bg-red-500/10 hover:text-red-500")}
           countClassName="text-xs font-bold text-muted-foreground"
         />
 
         <Link
           to={`/app/posts/${postId}`}
-          className={cn(actionBase, "hover:bg-white/5 hover:text-[#3b82f6]")}
+          className={cn(actionBase, "hover:bg-primary/10 hover:text-primary")}
           aria-label={`${commentsCount} comments`}
           title="Comments">
           <CommentCountIcon count={commentsCount} className="h-4 w-4" />
@@ -57,7 +57,7 @@ export function PostCardFooter({
         <button
           type="button"
           onClick={onCopyLink}
-          className={cn(actionBase, "hover:bg-white/5 hover:text-[#10b981]")}
+          className={cn(actionBase, "hover:bg-success/10 hover:text-success")}
           aria-label="Share post"
           title="Share">
           <Share2 className="h-4 w-4" />

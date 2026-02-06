@@ -77,15 +77,15 @@ export function Sidebar() {
                 "relative flex items-center gap-3 px-3 py-3 rounded-2xl text-sm font-semibold transition-all group",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar",
                 isActive
-                  ? "text-foreground bg-primary/10 border border-primary/20 shadow-sm before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:h-7 before:w-1 before:rounded-full before:bg-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground border border-transparent",
+                  ? "text-primary bg-primary/10 border-primary/20 shadow-sm before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-8 before:w-1 before:rounded-full before:bg-primary"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground border-transparent",
               )}>
               <span
                 className={cn(
                   "h-9 w-9 rounded-xl grid place-items-center transition-all",
                   isActive
-                    ? "bg-primary/15"
-                    : "bg-foreground/[0.03] group-hover:bg-foreground/[0.06]",
+                    ? "bg-primary/15 text-primary"
+                    : "bg-muted/50 group-hover:bg-accent group-hover:text-foreground",
                 )}>
                 <Icon
                   className={cn(
