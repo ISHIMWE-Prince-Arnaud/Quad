@@ -124,7 +124,7 @@ export function StoryCard({
               <h3 className="text-xl font-semibold text-foreground leading-snug line-clamp-1 min-h-[1.75rem]">
                 {story.title}
               </h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-1 min-h-[1.25rem]">
+              <p className="mt-2 text-sm text-foreground/70 dark:text-muted-foreground leading-relaxed line-clamp-2 min-h-[2.5rem]">
                 {snippet}
               </p>
             </Link>
@@ -158,24 +158,23 @@ export function StoryCard({
                   pending={reactionPending}
                   onToggle={() => void handleSelectReaction("love")}
                   className={cn(
-                    "flex items-center gap-2 text-sm text-muted-foreground hover:text-pink-600 transition-colors",
-                    userReaction && "text-pink-600",
+                    "flex items-center gap-2 text-sm text-muted-foreground transition-all duration-200",
+                    "hover:text-red-500 hover:bg-red-500/10 px-2 py-1 rounded-lg",
+                    userReaction && "text-red-500",
                   )}
                   iconClassName="h-4 w-4"
-                  countClassName="text-sm font-medium"
+                  countClassName="text-sm font-bold"
                   ariaLabel={`React to story. ${reactionCount} reactions`}
                 />
 
                 <Link
                   to={`/app/stories/${story._id}`}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-blue-500 transition-colors">
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 px-2 py-1 rounded-lg transition-all duration-200">
                   <CommentCountIcon
                     count={story.commentsCount || 0}
                     className="h-4 w-4"
                   />
-                  <span className="font-medium">
-                    {story.commentsCount || 0}
-                  </span>
+                  <span className="font-bold">{story.commentsCount || 0}</span>
                 </Link>
               </div>
             </div>
@@ -188,7 +187,7 @@ export function StoryCard({
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className="text-muted-foreground hover:text-green-500 transition-colors">
+                className="p-2 rounded-xl text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10 transition-all duration-200">
                 <Share2 className="h-4 w-4" />
               </button>
 
@@ -197,11 +196,11 @@ export function StoryCard({
                 onClick={handleToggleBookmark}
                 disabled={bookmarkPending}
                 className={cn(
-                  "p-2 rounded-xl transition-all",
+                  "p-2 rounded-xl transition-all duration-200",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                   bookmarked
-                    ? "text-warning bg-warning/10"
-                    : "text-muted-foreground hover:text-warning hover:bg-warning/5",
+                    ? "text-amber-500 bg-amber-500/10"
+                    : "text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10",
                 )}>
                 <Bookmark
                   className={cn("h-4 w-4", bookmarked && "fill-current")}

@@ -23,37 +23,37 @@ function getErrorMessage(error: unknown): string {
 function StoryCardSkeleton() {
   return (
     <div className="w-full overflow-hidden border border-border/40 rounded-2xl bg-card">
-      <Skeleton className="aspect-video w-full rounded-none bg-white/5" />
+      <Skeleton className="aspect-video w-full rounded-none bg-muted" />
       <div className="px-6 pt-5 pb-4">
-        <Skeleton variant="text" className="h-6 w-10/12 bg-white/5" />
+        <Skeleton variant="text" className="h-6 w-10/12 bg-muted" />
         <div className="mt-2">
-          <Skeleton variant="text" className="h-4 w-11/12 bg-white/5" />
+          <Skeleton variant="text" className="h-4 w-11/12 bg-muted" />
         </div>
 
         <div className="mt-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 min-w-0">
             <Skeleton
               variant="circular"
-              className="h-7 w-7 shrink-0 bg-white/5"
+              className="h-7 w-7 shrink-0 bg-muted"
             />
             <div className="flex items-center gap-2 min-w-0">
-              <Skeleton variant="text" className="h-4 w-24 bg-white/5" />
-              <Skeleton variant="text" className="h-3 w-16 bg-white/5" />
+              <Skeleton variant="text" className="h-4 w-24 bg-muted" />
+              <Skeleton variant="text" className="h-3 w-16 bg-muted" />
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <Skeleton className="h-5 w-14 rounded-lg bg-white/5" />
-            <Skeleton className="h-5 w-14 rounded-lg bg-white/5" />
+            <Skeleton className="h-5 w-14 rounded-lg bg-muted" />
+            <Skeleton className="h-5 w-14 rounded-lg bg-muted" />
           </div>
         </div>
       </div>
 
       <div className="px-6 pb-6 pt-2 flex items-center justify-between">
-        <Skeleton variant="text" className="h-3 w-20 bg-white/5" />
+        <Skeleton variant="text" className="h-3 w-20 bg-muted" />
         <div className="flex items-center gap-4">
-          <Skeleton className="h-8 w-8 rounded-xl bg-white/5" />
-          <Skeleton className="h-8 w-8 rounded-xl bg-white/5" />
+          <Skeleton className="h-8 w-8 rounded-xl bg-muted" />
+          <Skeleton className="h-8 w-8 rounded-xl bg-muted" />
         </div>
       </div>
     </div>

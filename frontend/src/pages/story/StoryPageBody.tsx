@@ -46,9 +46,9 @@ export function StoryPageBody({
         </div>
       )}
 
-      <Card className="bg-card border border-border/40 rounded-[1.5rem] overflow-hidden">
+      <Card className="bg-card border border-border/40 rounded-[1.5rem] overflow-hidden shadow-sm">
         <CardContent className="p-4 md:p-6">
-          <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
+          <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-border/40 bg-muted/20 px-4 py-3">
             <span className="text-sm font-semibold text-foreground">
               {authorUsername}
             </span>
@@ -62,20 +62,22 @@ export function StoryPageBody({
                 · {viewsCount} views
               </span>
             )}
-            <span className="text-xs font-medium text-[#94a3b8]">
+            <span className="text-xs font-medium text-muted-foreground">
               · {timeAgo(createdAt)}
             </span>
           </div>
 
-          <div className="prose prose-invert max-w-none">
+          <div className="prose dark:prose-invert max-w-none text-foreground/90 leading-relaxed">
             <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
           </div>
 
-          <div className="mt-8 flex items-center justify-between gap-3">
+          <div className="mt-8 flex items-center justify-between gap-3 border-t pt-4">
             <HeartReactionButton
               liked={Boolean(userReaction)}
               count={totalReactions}
               onToggle={() => onSelectReaction("love")}
+              className="hover:bg-red-500/10 hover:text-red-500"
+              countClassName="text-sm font-bold"
               ariaLabel={`React to story. ${totalReactions} reactions`}
             />
 
@@ -84,11 +86,11 @@ export function StoryPageBody({
               onClick={handleToggleBookmark}
               disabled={bookmarkPending}
               className={cn(
-                "p-2 rounded-xl transition-all",
+                "p-2.5 rounded-xl transition-all duration-200",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
                 bookmarked
-                  ? "text-warning bg-warning/10"
-                  : "text-muted-foreground hover:text-warning hover:bg-warning/5",
+                  ? "text-amber-500 bg-amber-500/10"
+                  : "text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10",
               )}
               aria-label={bookmarked ? "Remove bookmark" : "Bookmark story"}
               title={bookmarked ? "Remove bookmark" : "Bookmark"}>

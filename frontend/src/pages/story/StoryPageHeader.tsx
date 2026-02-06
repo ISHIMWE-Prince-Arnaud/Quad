@@ -57,7 +57,7 @@ export function StoryPageHeader({
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={onDelete}
-                className="rounded-lg px-3 py-2 text-[13px] text-[#ef4444] focus:bg-white/5 focus:text-[#ef4444]">
+                className="rounded-lg px-3 py-2 text-[13px] text-destructive focus:bg-destructive/10 focus:text-destructive">
                 <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
                 Delete story
               </DropdownMenuItem>

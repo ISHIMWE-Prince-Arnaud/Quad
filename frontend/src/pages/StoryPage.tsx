@@ -48,65 +48,53 @@ export default function StoryPage() {
           {backToStoriesButton}
 
           <div className="flex items-center justify-between gap-3">
-            <Skeleton variant="text" className="h-8 w-8/12 bg-white/5" />
+            <Skeleton variant="text" className="h-8 w-8/12 bg-muted" />
             <div className="flex items-center gap-2">
-              <Skeleton className="h-8 w-8 rounded-full bg-white/5" />
-              <Skeleton className="h-8 w-8 rounded-full bg-white/5" />
+              <Skeleton className="h-8 w-8 rounded-full bg-muted" />
+              <Skeleton className="h-8 w-8 rounded-full bg-muted" />
             </div>
           </div>
 
-          <Skeleton className="w-full h-[320px] rounded-lg bg-white/5" />
+          <Skeleton className="w-full h-[320px] rounded-lg bg-muted" />
 
           <div className="rounded-[1.5rem] border border-border/40 bg-card overflow-hidden">
             <div className="p-4 md:p-6">
-              <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
-                <Skeleton variant="text" className="h-4 w-24 bg-white/5" />
-                <Skeleton variant="text" className="h-3 w-20 bg-white/5" />
-                <Skeleton variant="text" className="h-3 w-16 bg-white/5" />
+              <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-border/40 bg-muted/20 px-4 py-3">
+                <Skeleton variant="text" className="h-4 w-24 bg-muted" />
+                <Skeleton variant="text" className="h-3 w-20 bg-muted" />
+                <Skeleton variant="text" className="h-3 w-16 bg-muted" />
               </div>
 
               <div className="space-y-3">
-                <Skeleton variant="text" className="h-4 w-full bg-white/5" />
-                <Skeleton variant="text" className="h-4 w-11/12 bg-white/5" />
-                <Skeleton variant="text" className="h-4 w-10/12 bg-white/5" />
-                <Skeleton variant="text" className="h-4 w-8/12 bg-white/5" />
+                <Skeleton variant="text" className="h-4 w-full bg-muted" />
+                <Skeleton variant="text" className="h-4 w-11/12 bg-muted" />
+                <Skeleton variant="text" className="h-4 w-10/12 bg-muted" />
+                <Skeleton variant="text" className="h-4 w-8/12 bg-muted" />
               </div>
 
               <div className="mt-8 flex items-center justify-between gap-3">
-                <Skeleton className="h-8 w-20 rounded-xl bg-white/5" />
-                <Skeleton className="h-8 w-10 rounded-xl bg-white/5" />
+                <Skeleton className="h-8 w-20 rounded-xl bg-muted" />
+                <Skeleton className="h-8 w-10 rounded-xl bg-muted" />
               </div>
             </div>
           </div>
 
           <div className="rounded-3xl bg-card border border-border/40 p-5">
-            <Skeleton variant="text" className="h-4 w-40 bg-white/5" />
+            <Skeleton variant="text" className="h-4 w-40 bg-muted" />
             <div className="mt-4 space-y-4">
               {Array.from({ length: 2 }).map((_, i) => (
                 <div key={i} className="flex gap-3">
                   <Skeleton
                     variant="circular"
-                    className="h-9 w-9 shrink-0 bg-white/5"
+                    className="h-9 w-9 shrink-0 bg-muted"
                   />
                   <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex items-center justify-between gap-3">
-                      <Skeleton
-                        variant="text"
-                        className="h-4 w-28 bg-white/5"
-                      />
-                      <Skeleton
-                        variant="text"
-                        className="h-3 w-16 bg-white/5"
-                      />
+                      <Skeleton variant="text" className="h-4 w-28 bg-muted" />
+                      <Skeleton variant="text" className="h-3 w-16 bg-muted" />
                     </div>
-                    <Skeleton
-                      variant="text"
-                      className="h-4 w-full bg-white/5"
-                    />
-                    <Skeleton
-                      variant="text"
-                      className="h-4 w-10/12 bg-white/5"
-                    />
+                    <Skeleton variant="text" className="h-4 w-full bg-muted" />
+                    <Skeleton variant="text" className="h-4 w-10/12 bg-muted" />
                   </div>
                 </div>
               ))}

@@ -58,9 +58,13 @@ export function StoryCardBody({
       {/* Title and excerpt */}
       <div className="px-4 pb-4 space-y-2">
         <Link to={`/app/stories/${storyId}`} className="block space-y-2">
-          <h3 className="font-semibold text-lg line-clamp-2 leading-tight">{title}</h3>
+          <h3 className="font-semibold text-lg line-clamp-2 leading-tight">
+            {title}
+          </h3>
           {snippet && (
-            <p className="text-sm text-muted-foreground line-clamp-2">{snippet}</p>
+            <p className="text-sm text-foreground/70 dark:text-muted-foreground line-clamp-2 leading-relaxed">
+              {snippet}
+            </p>
           )}
         </Link>
 
@@ -75,12 +79,16 @@ export function StoryCardBody({
                 {authorUsername.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
-            <span className="text-xs text-muted-foreground truncate">{authorUsername}</span>
+            <span className="text-xs text-muted-foreground truncate">
+              {authorUsername}
+            </span>
           </Link>
           {readTime && (
             <>
               <span className="text-xs text-muted-foreground">·</span>
-              <span className="text-xs text-muted-foreground">{readTime} min read</span>
+              <span className="text-xs text-muted-foreground">
+                {readTime} min read
+              </span>
             </>
           )}
         </div>
