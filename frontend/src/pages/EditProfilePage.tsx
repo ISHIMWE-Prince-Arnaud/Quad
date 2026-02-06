@@ -154,20 +154,20 @@ export default function EditProfilePage() {
       <header className="flex items-center gap-6">
         <button
           onClick={() => navigate(-1)}
-          className="h-12 w-12 flex items-center justify-center rounded-2xl bg-[#0f121a] border border-white/5 text-[#64748b] hover:text-white hover:border-white/20 transition-all shadow-xl">
+          className="h-12 w-12 flex items-center justify-center rounded-2xl bg-card border border-border/40 text-muted-foreground hover:text-foreground hover:border-border/60 transition-all shadow-xl">
           <ArrowLeft className="h-6 w-6" />
         </button>
         <div>
-          <h1 className="text-4xl font-black text-white tracking-tight">
+          <h1 className="text-4xl font-black text-foreground tracking-tight">
             Edit Profile
           </h1>
-          <p className="text-[#64748b] font-bold uppercase text-xs tracking-widest mt-1">
+          <p className="text-muted-foreground font-bold uppercase text-xs tracking-widest mt-1">
             Customize your presence
           </p>
         </div>
       </header>
 
-      <Card className="bg-[#0f121a] border border-white/5 rounded-[2rem] overflow-hidden shadow-2xl">
+      <Card className="bg-card border border-border/40 rounded-[2rem] overflow-hidden shadow-2xl">
         <CardContent className="p-8 sm:p-12 space-y-12">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-12">
             <CoverImageSection
