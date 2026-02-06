@@ -160,12 +160,12 @@ export function PollCard({
   })();
 
   const badgeClassName = isActive
-    ? "gap-1.5 border-emerald-500/25 bg-emerald-500/15 text-emerald-200 shadow-sm backdrop-blur-sm hover:bg-emerald-500/15 focus:ring-0 focus:ring-offset-0"
-    : "gap-1.5 border-gray-500/25 bg-gray-500/15 text-gray-200 shadow-sm backdrop-blur-sm hover:bg-gray-500/15 focus:ring-0 focus:ring-offset-0";
+    ? "gap-1.5 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 shadow-sm transition-all hover:bg-emerald-500/15 focus:ring-0 focus:ring-offset-0"
+    : "gap-1.5 border-border/60 bg-muted/50 text-muted-foreground shadow-sm transition-all hover:bg-muted/80 focus:ring-0 focus:ring-offset-0";
 
   const badgeDotClassName = isActive
-    ? "h-1.5 w-1.5 rounded-full bg-emerald-300"
-    : "h-1.5 w-1.5 rounded-full bg-gray-300";
+    ? "h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"
+    : "h-1.5 w-1.5 rounded-full bg-muted-foreground/50";
 
   const {
     localPoll,
@@ -207,7 +207,7 @@ export function PollCard({
   };
 
   const actionBase =
-    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground transition-all";
+    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground transition-all duration-200 hover:text-foreground";
 
   return (
     <>
@@ -469,14 +469,21 @@ export function PollCard({
                     pending={reactionPending}
                     onToggle={() => void handleSelectReaction("love")}
                     ariaLabel={`React to poll. ${reactionCount} reactions`}
-                    className={cn(actionBase, "hover:bg-white/5")}
+                    className={cn(
+                      actionBase,
+                      "hover:bg-red-500/10 hover:text-red-500",
+                    )}
                     countClassName="text-xs font-bold text-muted-foreground"
                   />
 
                   {hasUserVoted && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                    <div
+                      className={cn(
+                        actionBase,
+                        "cursor-default hover:bg-accent",
+                      )}>
                       <FaUsers className="h-4 w-4" />
-                      <span className="text-[12px] font-medium leading-none">
+                      <span className="text-[12px] font-bold tabular-nums">
                         {localPoll.totalVotes}
                       </span>
                     </div>
@@ -496,11 +503,11 @@ export function PollCard({
                     onClick={toggleBookmark}
                     disabled={bookmarkPending}
                     className={cn(
-                      "p-2 rounded-xl transition-all",
+                      "p-2.5 rounded-xl transition-all duration-200",
                       "disabled:opacity-50 disabled:cursor-not-allowed",
                       bookmarked
-                        ? "text-warning bg-warning/10"
-                        : "text-muted-foreground hover:text-warning hover:bg-warning/5",
+                        ? "text-amber-500 bg-amber-500/10"
+                        : "text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10",
                     )}
                     aria-label={
                       bookmarked ? "Remove bookmark" : "Bookmark poll"

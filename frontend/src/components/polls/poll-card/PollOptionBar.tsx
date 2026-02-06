@@ -98,17 +98,17 @@ export function PollOptionBar({
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
       className={cn(
-        "relative h-11 w-full overflow-hidden rounded-full border text-left transition-all duration-200",
-        "border-border/40 bg-muted/10",
-        !disabled && "hover:bg-muted/20",
+        "relative h-11 w-full overflow-hidden rounded-full border text-left transition-all duration-300",
+        "border-border/40 bg-muted/20 hover:border-primary/30",
+        !disabled && "hover:bg-muted/30",
         disabled && "cursor-default",
         dimmed && "opacity-55",
-        selected && "ring-2 ring-primary",
-        selected && !disabled && "scale-[1.01]",
+        selected && "ring-2 ring-primary ring-offset-background ring-offset-2",
+        selected && !disabled && "scale-[1.01] shadow-sm",
       )}>
       <div
         className={
-          "absolute inset-y-0 left-0 rounded-full overflow-hidden transition-[width] duration-500 "
+          "absolute inset-y-0 left-0 transition-[width] duration-700 ease-out"
         }
         style={{ width: `${barWidth}%` }}>
         <div className="absolute inset-0 bg-gradient-to-r from-primary/60 to-primary" />

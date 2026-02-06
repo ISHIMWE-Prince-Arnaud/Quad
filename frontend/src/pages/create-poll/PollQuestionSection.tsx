@@ -63,7 +63,7 @@ export function PollQuestionSection({
             maxLength={500}
             placeholder="What's on your mind?"
             className={cn(
-              "w-full bg-transparent border-none focus:ring-0 text-base font-semibold text-foreground placeholder:text-muted-foreground/30 p-0 resize-none",
+              "w-full bg-transparent border-none focus:ring-0 text-base font-semibold text-foreground placeholder:text-muted-foreground/60 p-0 resize-none",
               validationErrors.question && "text-destructive",
             )}
             aria-invalid={!!validationErrors.question}
@@ -101,10 +101,10 @@ export function PollQuestionSection({
         {!questionMedia && (
           <div
             className={cn(
-              "relative border border-dashed rounded-[2rem] px-6 py-10 text-center transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/40",
+              "relative border border-dashed rounded-[2rem] px-6 py-10 text-center transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
               uploadingQuestionMedia
-                ? "border-[#2563eb] bg-[#2563eb]/5"
-                : "border-white/10 bg-white/[0.01] hover:border-[#2563eb]/50",
+                ? "border-primary bg-primary/5"
+                : "border-border/60 bg-muted/20 hover:border-primary/50 hover:bg-muted/30",
             )}
             role="button"
             tabIndex={0}
@@ -130,8 +130,8 @@ export function PollQuestionSection({
             <div className="flex flex-col items-center gap-3">
               {uploadingQuestionMedia ? (
                 <>
-                  <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
-                    <Loader2 className="h-5 w-5 animate-spin text-[#2563eb]" />
+                  <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
                   </div>
                   <p className="text-sm font-semibold text-[#64748b]">
                     Uploading image...
@@ -139,8 +139,8 @@ export function PollQuestionSection({
                 </>
               ) : (
                 <>
-                  <div className="h-10 w-10 rounded-2xl bg-[#2563eb]/10 flex items-center justify-center">
-                    <ImageIcon className="h-5 w-5 text-[#2563eb]" />
+                  <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                    <ImageIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">
@@ -158,7 +158,7 @@ export function PollQuestionSection({
 
         {questionMedia && (
           <div
-            className="group relative overflow-hidden rounded-[2rem] border border-white/5 bg-white/[0.01]"
+            className="group relative overflow-hidden rounded-[2rem] border border-border/40 bg-muted/20"
             tabIndex={0}>
             <img
               src={questionMedia.url}
@@ -168,8 +168,8 @@ export function PollQuestionSection({
 
             {uploadingQuestionMedia && (
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                <div className="flex items-center gap-3 rounded-full border border-border/40 bg-card/70 px-4 py-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-[#2563eb]" />
+                <div className="flex items-center gap-3 rounded-full border border-border/40 bg-card/70 px-4 py-2 backdrop-blur-sm">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   <span className="text-xs font-semibold text-foreground">
                     Uploading...
                   </span>

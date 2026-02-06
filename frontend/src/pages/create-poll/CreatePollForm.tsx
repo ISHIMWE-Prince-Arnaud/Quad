@@ -73,7 +73,7 @@ export function CreatePollForm({
 }) {
   return (
     <div className="space-y-6">
-      <div className="rounded-[2rem] border border-white/5 bg-gradient-to-b from-[#0b1020]/70 to-[#070a12]/80 p-5 space-y-6">
+      <div className="rounded-[2rem] border border-border/40 bg-card p-5 space-y-6 shadow-sm">
         <PollQuestionSection
           question={question}
           setQuestion={setQuestion}

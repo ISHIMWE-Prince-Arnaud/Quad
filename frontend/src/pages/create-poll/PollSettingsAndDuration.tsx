@@ -45,8 +45,8 @@ export function PollSettingsAndDuration({
         <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
           Anonymity
         </h3>
-        <div className="rounded-2xl bg-muted/10 border border-border/40 px-4 py-3">
-          <div className="h-11 w-full rounded-2xl border border-border bg-card px-4 flex items-center justify-between">
+        <div className="rounded-2xl bg-muted/20 border border-border/40 px-4 py-3">
+          <div className="h-11 w-full rounded-2xl border border-border/40 bg-card px-4 flex items-center justify-between">
             <span className="text-sm font-bold text-foreground">
               Vote Anonymously
             </span>
@@ -68,7 +68,7 @@ export function PollSettingsAndDuration({
         <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
           Duration
         </h3>
-        <div className="rounded-2xl bg-muted/10 border border-border/40 px-4 py-3">
+        <div className="rounded-2xl bg-muted/20 border border-border/40 px-4 py-3">
           <Label htmlFor="poll-duration" className="sr-only">
             Duration
           </Label>
@@ -94,17 +94,25 @@ export function PollSettingsAndDuration({
               )}>
               {duration ? durationLabel[duration] : "none"}
             </SelectTrigger>
-            <SelectContent className="mt-2 rounded-2xl border border-border bg-popover p-2 shadow-xl">
-              <SelectItem className="rounded-xl" value="none">
+            <SelectContent className="mt-2 rounded-2xl border border-border/40 bg-popover p-2 shadow-xl backdrop-blur-xl">
+              <SelectItem
+                className="rounded-xl focus:bg-accent focus:text-accent-foreground"
+                value="none">
                 none
               </SelectItem>
-              <SelectItem className="rounded-xl" value="1d">
+              <SelectItem
+                className="rounded-xl focus:bg-accent focus:text-accent-foreground"
+                value="1d">
                 1 day
               </SelectItem>
-              <SelectItem className="rounded-xl" value="1w">
+              <SelectItem
+                className="rounded-xl focus:bg-accent focus:text-accent-foreground"
+                value="1w">
                 1 week
               </SelectItem>
-              <SelectItem className="rounded-xl" value="1m">
+              <SelectItem
+                className="rounded-xl focus:bg-accent focus:text-accent-foreground"
+                value="1m">
                 1 month
               </SelectItem>
             </SelectContent>

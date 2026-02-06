@@ -56,7 +56,7 @@ export function PollOptionsEditor({
                 }}
                 placeholder={`Option ${index + 1}`}
                 maxLength={200}
-                className="w-full bg-transparent border-none focus:ring-0 text-foreground placeholder:text-muted-foreground/30 p-0"
+                className="w-full bg-transparent border-none focus:ring-0 text-foreground placeholder:text-muted-foreground/60 p-0"
               />
             </div>
 
@@ -91,7 +91,7 @@ export function PollOptionsEditor({
         onClick={onAddOption}
         disabled={disabled || options.length >= 5}
         className={cn(
-          "w-full rounded-2xl border border-dashed border-white/10 bg-white/[0.01] px-4 py-3 text-center text-sm font-bold transition-all",
+          "w-full rounded-2xl border border-dashed border-border/60 bg-muted/20 px-4 py-3 text-center text-sm font-bold transition-all",
           disabled || options.length >= 5
             ? "text-muted-foreground cursor-not-allowed opacity-50"
             : "text-primary hover:border-primary/50 hover:bg-primary/5",
