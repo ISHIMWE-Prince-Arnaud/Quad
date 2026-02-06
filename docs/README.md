@@ -9,8 +9,11 @@ This is the documentation hub for the Quad monorepo.
 
 - **Getting Started (Local Development)**: [GETTING_STARTED.md](./GETTING_STARTED.md)
 - **Environment Variables**: [ENVIRONMENT_VARIABLES.md](./ENVIRONMENT_VARIABLES.md)
+- **Scripts (Monorepo)**: [SCRIPTS.md](./SCRIPTS.md)
+- **Testing Guide**: [TESTING.md](./TESTING.md)
 - **Deployment (Full Stack)**: [DEPLOYMENT.md](./DEPLOYMENT.md)
 - **Deployment Checklist**: [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)
+- **Troubleshooting**: [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
 
 ## Architecture & Codebase Map
 
