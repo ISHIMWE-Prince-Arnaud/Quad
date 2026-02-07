@@ -51,6 +51,7 @@ The frontend is a React + TypeScript SPA using React Router, Tailwind CSS, and Z
   - `src/pages/ChatPage.tsx`
   - Real-time messaging UI, integrated with Socket.IO and chat services.
   - Routes: `/app/chat` and `/app/chat/:conversationId`.
+  - Note: the current backend implementation is not conversation/thread based; chat behaves as a single global message timeline.
 
 - **Stories**
   - `src/pages/StoriesPage.tsx` – list of stories.

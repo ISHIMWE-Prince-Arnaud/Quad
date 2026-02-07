@@ -59,6 +59,8 @@ Routes:
 - `/app/chat/:conversationId` -> `ChatPage`
 - `/app/notifications` -> `NotificationsPage`
 
+Note: `:conversationId` is not currently used for server-side conversation/thread scoping; the backend chat implementation is global.
+
 ### Not found
 
 - `*` -> `NotFoundPage`

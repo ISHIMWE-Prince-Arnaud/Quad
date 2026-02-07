@@ -70,7 +70,7 @@ Once logged in, you’ll see three main areas:
 - **Viewing stories**
   - Navigate to **Stories** from the sidebar.
   - Browse through cards representing different stories.
-  - Click a story to open its full view; you can see images and text, plus view counts.
+  - Click a story to open its full view; you can see images and text.
 
 - **Creating stories**
   1. Go to **Create → Story** or a story-specific create button.
@@ -98,9 +98,9 @@ Once logged in, you’ll see three main areas:
   - Click **Messages** in the sidebar or visit `/app/chat`.
 
 - **Using chat**
-  - Select or start a conversation.
   - Send and receive messages in real time (powered by sockets).
-  - Navigate directly to a conversation by URL (`/app/chat/:conversationId`).
+  - The current implementation is a single global message timeline (not conversation/thread based).
+  - The route `/app/chat/:conversationId` exists as a URL variant, but it is not backed by server-side conversations.
 
 ### 2.5 Notifications
 

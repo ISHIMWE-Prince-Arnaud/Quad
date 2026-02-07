@@ -91,7 +91,8 @@ Protected (requires auth):
 - `/app/polls`
 - `/app/polls/:id/edit`
 - `/app/create/poll`
-- `/app/chat` and `/app/chat/:conversationId`
+- `/app/chat` (global chat timeline)
+- `/app/chat/:conversationId` (URL variant; not backed by server-side conversations)
 - `/app/notifications`
 
 ## Backend API domains (router-level)
