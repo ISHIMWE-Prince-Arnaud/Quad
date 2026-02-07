@@ -195,12 +195,31 @@ export function useFeedController({
   useEffect(() => {
     const socket = getSocket();
 
-    const handleNewContent = () => {
+    const handleNewContent = async () => {
+      if (!lastSeenId) return;
+
       const nearTop = window.scrollY < 120;
       if (nearTop && !loading) {
         void handleRefreshFeed();
-      } else {
-        setNewCount((c) => c + 1);
+        return;
+      }
+
+      try {
+        const response = await FeedService.getNewContentCount({
+          feedType,
+          tab,
+          since: lastSeenId,
+        });
+
+        if (response.success && typeof response.data?.count === "number") {
+          setNewCount(response.data.count);
+        }
+      } catch (err) {
+        logError(err, {
+          component: "FeedController",
+          action: "handleNewContent(socket)",
+          metadata: { feedType, tab, lastSeenId },
+        });
       }
     };
 
@@ -272,7 +291,7 @@ export function useFeedController({
       socket.off("feed:engagement-update", handleEngagementUpdate);
       socket.off("feed:content-deleted", handleContentDeleted);
     };
-  }, [handleRefreshFeed, loading]);
+  }, [feedType, handleRefreshFeed, lastSeenId, loading, tab]);
 
   const handleLoadMore = useCallback(async () => {
     if (!hasMore || !cursor || loadingMore) return;
