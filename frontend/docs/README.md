@@ -14,6 +14,7 @@ This folder contains frontend-only documentation.
 - **API client & endpoints**: [API_CLIENT.md](./API_CLIENT.md)
 - **State management**: [STATE.md](./STATE.md)
 - **Realtime (Socket.IO)**: [REALTIME.md](./REALTIME.md)
+- **Domain walkthroughs (frontend internal flow)**: [domains/README.md](./domains/README.md)
 
 ## Related (repo-wide)
 
