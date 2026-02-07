@@ -5,17 +5,20 @@ Interactive polls with voting, media support, and automatic expiration.
 ## 📊 Endpoints
 
 ### Create Poll
+
 **POST** `/api/polls`
 
 Create a new poll with 2-5 options.
 
 **Headers:**
+
 ```
 Authorization: Bearer <jwt_token>
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "question": "What's your favorite programming language?",
@@ -47,6 +50,7 @@ Content-Type: application/json
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -83,17 +87,20 @@ Content-Type: application/json
 ```
 
 ### Get All Polls
+
 **GET** `/api/polls`
 
 Retrieve paginated list of polls.
 
 **Query Parameters:**
+
 - `limit` (optional): Number of polls (default: 20, max: 50)
 - `offset` (optional): Number to skip (default: 0)
 - `status` (optional): `active` | `expired` | `closed` | `all` (default: all)
 - `sortBy` (optional): `newest` | `oldest` | `popular` | `ending_soon` (default: newest)
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -124,19 +131,23 @@ Retrieve paginated list of polls.
 ```
 
 ### Get User's Polls
-**GET** `/api/polls/my-polls`
+
+**GET** `/api/polls/me`
 
 Get polls created by the authenticated user.
 
 **Query Parameters:**
+
 - Same as get all polls
 
 ### Get Single Poll
-**GET** `/api/polls/:pollId`
+
+**GET** `/api/polls/:id`
 
 Get specific poll with full details.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -172,11 +183,13 @@ Get specific poll with full details.
 ```
 
 ### Vote on Poll
-**POST** `/api/polls/:pollId/vote`
+
+**POST** `/api/polls/:id/vote`
 
 Vote on a poll option.
 
 **Request Body:**
+
 ```json
 {
   "optionIds": ["64f8a1b2c3d4e5f6a7b8c9d2"]
@@ -184,6 +197,7 @@ Vote on a poll option.
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -195,25 +209,14 @@ Vote on a poll option.
 }
 ```
 
-### Remove Vote
-**DELETE** `/api/polls/:pollId/vote`
-
-Remove user's vote from poll.
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Vote removed successfully"
-}
-```
-
 ### Update Poll
-**PUT** `/api/polls/:pollId`
+
+**PUT** `/api/polls/:id`
 
 Update poll details (author only, before voting starts).
 
 **Request Body:**
+
 ```json
 {
   "question": "Updated question",
@@ -221,27 +224,16 @@ Update poll details (author only, before voting starts).
 }
 ```
 
-### Close Poll
-**POST** `/api/polls/:pollId/close`
-
-Manually close an active poll (author only).
-
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Poll closed successfully"
-}
-```
-
 ### Delete Poll
-**DELETE** `/api/polls/:pollId`
+
+**DELETE** `/api/polls/:id`
 
 Delete a poll (author only).
 
 ## 📋 Validation Rules
 
 ### Poll Creation
+
 - **question**: Required, 10-280 characters
 - **options**: Required array, 2-5 items
   - **text**: Required per option, 1-100 characters
@@ -251,34 +243,39 @@ Delete a poll (author only).
 - **expiresAt**: Optional future date (max 30 days)
 
 ### Voting
+
 - **optionIds**: Required array of valid option IDs
 - Must respect `allowMultiple` setting
 - Cannot vote on expired/closed polls
-- Cannot vote multiple times (unless removing vote first)
+- Cannot vote multiple times
 
 ## 🔧 Poll Features
 
 ### Media Support
+
 - **Question Media**: Images/videos for the poll question
 - **Option Media**: Visual options with images
 - **Multiple Formats**: Supports various media types
 
 ### Voting Options
+
 - **Single Choice**: Traditional poll behavior
 - **Multiple Choice**: Allow selecting multiple options
-- **Vote Changes**: Remove and re-vote capability
 
 ### Results Visibility
+
 - **Always**: Results visible without voting
 - **After Vote**: See results after voting
 - **After Close**: Results only when poll ends
 
 ### Automatic Expiration
+
 - **Cron Job**: Automatically closes expired polls
 - **Status Updates**: Changes status from active to expired
 - **Notifications**: Notifies author when poll expires
 
 ### Real-time Updates
+
 - **Live Voting**: Socket.IO updates for real-time results
 - **Vote Counts**: Instant vote count updates
 - **Status Changes**: Real-time status updates
@@ -286,6 +283,7 @@ Delete a poll (author only).
 ## ❌ Error Responses
 
 ### 400 - Bad Request
+
 ```json
 {
   "success": false,
@@ -294,6 +292,7 @@ Delete a poll (author only).
 ```
 
 ### 403 - Forbidden
+
 ```json
 {
   "success": false,
@@ -302,6 +301,7 @@ Delete a poll (author only).
 ```
 
 ### 404 - Not Found
+
 ```json
 {
   "success": false,
@@ -310,6 +310,7 @@ Delete a poll (author only).
 ```
 
 ### 409 - Conflict
+
 ```json
 {
   "success": false,
@@ -320,6 +321,7 @@ Delete a poll (author only).
 ## 💡 Usage Examples
 
 ### Create simple poll
+
 ```bash
 curl -X POST "http://localhost:4000/api/polls" \
   -H "Authorization: Bearer <jwt_token>" \
@@ -334,6 +336,7 @@ curl -X POST "http://localhost:4000/api/polls" \
 ```
 
 ### Vote on poll
+
 ```bash
 curl -X POST "http://localhost:4000/api/polls/64f8a1b2c3d4e5f6a7b8c9d0/vote" \
   -H "Authorization: Bearer <jwt_token>" \
@@ -344,6 +347,7 @@ curl -X POST "http://localhost:4000/api/polls/64f8a1b2c3d4e5f6a7b8c9d0/vote" \
 ```
 
 ### Get active polls
+
 ```bash
 curl -X GET "http://localhost:4000/api/polls?status=active&limit=10" \
   -H "Authorization: Bearer <jwt_token>"
