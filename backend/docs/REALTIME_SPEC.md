@@ -76,7 +76,8 @@ Defined in `backend/src/sockets/feed.socket.ts`.
     - `timestamp: string`
   - Emitted by:
     - `PollService.voteOnPoll()` (votes updates)
-    - reaction/comment services may emit similar updates (verify per-service)
+    - `ReactionService.toggleReaction()` / `ReactionService.deleteReaction()` (post + poll)
+    - `CommentService.createComment()` / `CommentService.deleteComment()` (post only)
 
 - **`feed:content-deleted`**
   - Payload:
@@ -153,17 +154,121 @@ Defined in `backend/src/sockets/chat.socket.ts`.
   - Server broadcasts to all other clients:
     - `chat:typing:stop` with `{ userId }`
 
+Chat message lifecycle events are emitted from `backend/src/services/chat.service.ts` (global):
+
+- **`chat:message:new`**
+  - Payload: formatted message (see `formatMessageResponse` in `backend/src/utils/chat.util.ts`)
+  - Emitted by: `ChatService.sendMessage()`
+
+- **`chat:message:edited`**
+  - Payload: formatted message
+  - Emitted by: `ChatService.editMessage()`
+
+- **`chat:message:deleted`**
+  - Payload: `id: string` (message id)
+  - Emitted by: `ChatService.deleteMessage()`
+
 ## Integration points in REST services
 
 Services emit realtime events directly:
 
-- `backend/src/services/post.service.ts`
-  - emits `newPost`, `updatePost`, `deletePost` (legacy/global events)
-  - emits feed events via `emitNewContent` / `emitContentDeleted`
+Services emit a mix of legacy/global events and `feed:*` events.
 
-- `backend/src/services/poll.service.ts`
-  - emits `newPoll`, `pollUpdated`, `pollDeleted`, `pollVoted`
-  - emits feed events via `emitNewContent` / `emitContentDeleted` / `emitEngagementUpdate`
+### Legacy/global events (emitted to all clients)
+
+These are `io.emit(...)` calls from services and are not room-scoped.
+
+#### Posts (`backend/src/services/post.service.ts`)
+
+- **`newPost`**
+  - Payload: `Post` document
+  - When: post created
+- **`updatePost`**
+  - Payload: updated `Post` document
+  - When: post updated
+- **`deletePost`**
+  - Payload: `id: string`
+  - When: post deleted
+
+#### Polls (`backend/src/services/poll.service.ts`)
+
+- **`newPoll`**
+  - Payload: `Poll` document
+  - When: poll created
+- **`pollUpdated`**
+  - Payload: formatted poll response
+  - When: poll updated
+- **`pollDeleted`**
+  - Payload: `id: string`
+  - When: poll deleted
+- **`pollVoted`**
+  - Payload:
+    - `pollId: string`
+    - `updatedVoteCounts: number[]`
+    - `totalVotes: number`
+  - When: a vote is recorded
+
+#### Stories (`backend/src/services/story.service.ts`)
+
+- **`newStory`**
+  - Payload: `Story` document
+  - When: story created/published or transitioned to published
+- **`storyUpdated`**
+  - Payload: `Story` document
+  - When: published story updated
+- **`storyDeleted`**
+  - Payload: `id: string`
+  - When: published story deleted
+
+#### Comments (`backend/src/services/comment.service.ts`)
+
+- **`commentAdded`**
+  - Payload: `{ contentType, contentId, comment }`
+  - When: comment created
+- **`commentUpdated`**
+  - Payload: `{ contentType, contentId, commentId, comment }`
+  - When: comment updated
+- **`commentDeleted`**
+  - Payload: `{ contentType, contentId, commentId }`
+  - When: comment deleted
+
+- **`commentLikeAdded`**
+  - Payload: `{ commentId, userId, likesCount }`
+  - When: comment like created
+- **`commentLikeRemoved`**
+  - Payload: `{ commentId, userId, likesCount }`
+  - When: comment like removed
+
+#### Reactions (`backend/src/services/reaction.service.ts`)
+
+- **`reactionAdded`**
+  - Payload: `{ contentType, contentId, userId, type, reaction, reactionCount }`
+  - When: reaction created
+- **`reactionUpdated`**
+  - Payload: `{ contentType, contentId, userId, type, reaction }`
+  - When: reaction type updated (currently only `love` exists)
+- **`reactionRemoved`**
+  - Payload: `{ contentType, contentId, userId, reactionCount }`
+  - When: reaction removed (toggle off) or deleted explicitly
+
+#### Follow (`backend/src/services/follow.service.ts`)
+
+- **`follow:new`**
+  - Payload: `{ userId, followingId }`
+  - When: follow created
+- **`follow:removed`**
+  - Payload: `{ userId, followingId }`
+  - When: follow removed
+
+### Feed events
+
+In addition to the legacy/global events above:
+
+- Posts and Polls emit:
+  - `feed:new-content`
+  - `feed:content-deleted`
+- Poll votes + some engagement updates emit:
+  - `feed:engagement-update`
 
 ## Known inconsistencies to be aware of
 
