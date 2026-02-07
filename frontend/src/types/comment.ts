@@ -7,7 +7,7 @@ export interface CommentAuthor {
 
 export interface Comment {
   _id: string;
-  contentType: "post" | "story" | "poll";
+  contentType: "post" | "story";
   contentId: string;
   author: CommentAuthor;
   text: string;

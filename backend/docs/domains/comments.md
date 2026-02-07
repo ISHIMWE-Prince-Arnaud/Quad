@@ -26,8 +26,8 @@ Key invariants:
     - Controller explicitly rejects `poll` with `404`.
 - `Comment.author` is an embedded snapshot (not a `ref`/populate relationship).
 - Cached counters:
-  - `Comment.reactionsCount` (updated by Reactions domain when reacting to comments)
-  - `Comment.likesCount` (updated by CommentLike toggles)
+  - `Comment.reactionsCount` (updated by Reactions domain when reacting to comments; reaction type is currently only `love` / heart)
+  - `Comment.likesCount` (updated by CommentLike toggles; this is a separate like/unlike feature, not a reaction type)
 - Indexes exist for:
   - `(contentType, contentId, createdAt)` (listing)
   - `(author.clerkId, createdAt)` (user history)

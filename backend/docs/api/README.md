@@ -34,7 +34,7 @@ Authorization: Bearer <jwt_token>
 ### Social Features
 
 - **[Comments](./comments.md)** - Comment on content
-- **[Reactions](./reactions.md)** - Like/react to content
+- **[Reactions](./reactions.md)** - React to content (currently only `love` / heart)
 - **[Feed](./feed.md)** - Following and For You feeds
 - **[Bookmarks](./bookmarks.md)** - Save/unsave content
 - **[Notifications](./notifications.md)** - Notifications

@@ -41,24 +41,17 @@ describe("Property 28: Reaction API Consistency", () => {
           "post",
           "story",
           "poll",
-          "comment"
+          "comment",
         ),
         // Generate random content ID (MongoDB ObjectId format - 24 hex characters)
         fc.string({ minLength: 24, maxLength: 24 }).map((s) =>
           s
             .split("")
             .map((c) => c.charCodeAt(0).toString(16).slice(-1))
-            .join("")
+            .join(""),
         ),
         // Generate random reaction type
-        fc.constantFrom<ReactionType>(
-          "like",
-          "love",
-          "laugh",
-          "wow",
-          "sad",
-          "angry"
-        ),
+        fc.constantFrom<ReactionType>("love"),
         async (contentType, contentId, reactionType) => {
           // Mock successful reaction toggle
           const mockReaction = {
@@ -84,7 +77,7 @@ describe("Property 28: Reaction API Consistency", () => {
           const result = await ReactionService.toggle(
             contentType,
             contentId,
-            reactionType
+            reactionType,
           );
 
           // Verify the endpoint was called with correct parameters
@@ -99,9 +92,9 @@ describe("Property 28: Reaction API Consistency", () => {
           expect(result.data?.contentType).toBe(contentType);
           expect(result.data?.contentId).toBe(contentId);
           expect(result.data?.type).toBe(reactionType);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -113,22 +106,20 @@ describe("Property 28: Reaction API Consistency", () => {
           "post",
           "story",
           "poll",
-          "comment"
+          "comment",
         ),
         // Generate random content ID
         fc.string({ minLength: 24, maxLength: 24 }).map((s) =>
           s
             .split("")
             .map((c) => c.charCodeAt(0).toString(16).slice(-1))
-            .join("")
+            .join(""),
         ),
         async (contentType, contentId) => {
           // Mock successful fetch
           const mockResponse = {
             reactions: [],
-            reactionCounts: [
-              { type: "love" as ReactionType, count: 8 },
-            ],
+            reactionCounts: [{ type: "love" as ReactionType, count: 8 }],
             userReaction: null,
             totalCount: 8,
           };
@@ -143,21 +134,21 @@ describe("Property 28: Reaction API Consistency", () => {
           // Call the service
           const result = await ReactionService.getByContent(
             contentType,
-            contentId
+            contentId,
           );
 
           // Verify the endpoint was called with correct parameters
           expect(endpoints.reactions.getByContent).toHaveBeenCalledWith(
             contentType,
-            contentId
+            contentId,
           );
 
           // Verify the result is successful
           expect(result.success).toBe(true);
           expect(result.data?.totalCount).toBe(8);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -169,14 +160,14 @@ describe("Property 28: Reaction API Consistency", () => {
           "post",
           "story",
           "poll",
-          "comment"
+          "comment",
         ),
         // Generate random content ID
         fc.string({ minLength: 24, maxLength: 24 }).map((s) =>
           s
             .split("")
             .map((c) => c.charCodeAt(0).toString(16).slice(-1))
-            .join("")
+            .join(""),
         ),
         async (contentType, contentId) => {
           // Mock successful removal
@@ -193,14 +184,14 @@ describe("Property 28: Reaction API Consistency", () => {
           // Verify the endpoint was called with correct parameters
           expect(endpoints.reactions.remove).toHaveBeenCalledWith(
             contentType,
-            contentId
+            contentId,
           );
 
           // Verify the result is successful
           expect(result.success).toBe(true);
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 
@@ -211,22 +202,15 @@ describe("Property 28: Reaction API Consistency", () => {
           "post",
           "story",
           "poll",
-          "comment"
+          "comment",
         ),
         fc.string({ minLength: 24, maxLength: 24 }).map((s) =>
           s
             .split("")
             .map((c) => c.charCodeAt(0).toString(16).slice(-1))
-            .join("")
+            .join(""),
         ),
-        fc.constantFrom<ReactionType>(
-          "like",
-          "love",
-          "laugh",
-          "wow",
-          "sad",
-          "angry"
-        ),
+        fc.constantFrom<ReactionType>("love"),
         async (contentType, contentId, reactionType) => {
           // Clear mocks for each property test run
           vi.clearAllMocks();
@@ -252,7 +236,7 @@ describe("Property 28: Reaction API Consistency", () => {
           const addResult = await ReactionService.toggle(
             contentType,
             contentId,
-            reactionType
+            reactionType,
           );
 
           expect(addResult.success).toBe(true);
@@ -270,7 +254,7 @@ describe("Property 28: Reaction API Consistency", () => {
           const removeResult = await ReactionService.toggle(
             contentType,
             contentId,
-            reactionType
+            reactionType,
           );
 
           expect(removeResult.success).toBe(true);
@@ -288,9 +272,9 @@ describe("Property 28: Reaction API Consistency", () => {
             contentId,
             type: reactionType,
           });
-        }
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
