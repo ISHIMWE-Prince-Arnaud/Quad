@@ -16,7 +16,6 @@ import {
   updatePoll,
   deletePoll,
   voteOnPoll,
-  removeVote,
 } from "../controllers/poll.controller.js";
 
 const router = Router();
@@ -122,14 +121,6 @@ router.post(
   validateSchema(pollIdSchema, "params"),
   validateSchema(voteOnPollSchema, "body"),
   voteOnPoll,
-);
-
-// Remove vote (author only)
-router.delete(
-  "/:id/vote",
-  requireApiAuth,
-  validateSchema(pollIdSchema, "params"),
-  removeVote,
 );
 
 export default router;

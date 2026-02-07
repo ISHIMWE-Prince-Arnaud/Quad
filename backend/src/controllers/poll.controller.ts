@@ -162,25 +162,3 @@ export const voteOnPoll = asyncHandler(async (req: Request, res: Response) => {
     data: result.formattedPoll,
   });
 });
-
-// =========================
-// REMOVE VOTE
-// =========================
-export const removeVote = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new AppError("Poll ID is required", 400);
-  }
-
-  const userId = req.auth?.userId;
-  if (!userId) {
-    throw new AppError("Unauthorized", 401);
-  }
-
-  await PollService.removeVote(userId, id);
-
-  return res.json({
-    success: true,
-    message: "Vote removed successfully",
-  });
-});

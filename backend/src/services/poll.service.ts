@@ -361,40 +361,4 @@ export class PollService {
 
     return { vote, formattedPoll };
   }
-
-  static async removeVote(userId: string, id: string) {
-    const poll = await Poll.findById(id);
-    if (!poll) {
-      throw new AppError("Poll not found", 404);
-    }
-
-    if (poll.author.clerkId !== userId) {
-      throw new AppError("Only the poll author can remove votes", 403);
-    }
-
-    const vote = await PollVote.findOne({ pollId: id, userId });
-    if (!vote) {
-      throw new AppError("No vote found", 404);
-    }
-
-    vote.optionIndices.forEach((index) => {
-      if (poll.options[index]) {
-        poll.options[index].votesCount -= 1;
-      }
-    });
-
-    poll.totalVotes -= 1;
-
-    await Promise.all([PollVote.findByIdAndDelete(vote._id), poll.save()]);
-
-    const io = getSocketIO();
-    emitEngagementUpdate(
-      io,
-      "poll",
-      id,
-      poll.reactionsCount,
-      undefined,
-      poll.totalVotes,
-    );
-  }
 }

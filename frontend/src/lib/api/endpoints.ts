@@ -47,7 +47,6 @@ export const endpoints = {
     update: (id: string, data: unknown) => api.put(`/polls/${id}`, data),
     delete: (id: string) => api.delete(`/polls/${id}`),
     vote: (id: string, data: unknown) => api.post(`/polls/${id}/vote`, data),
-    removeVote: (id: string) => api.delete(`/polls/${id}/vote`),
   },
 
   feed: {

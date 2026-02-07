@@ -92,14 +92,4 @@ export class PollService {
     const response = await endpoints.polls.vote(id, data);
     return response.data;
   }
-
-  /**
-   * Remove vote from a poll
-   * @param id - Poll ID
-   * @returns Updated poll without vote
-   */
-  static async removeVote(id: string): Promise<PollResponse> {
-    const response = await endpoints.polls.removeVote(id);
-    return response.data;
-  }
 }
