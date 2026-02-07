@@ -8,7 +8,7 @@
 - Model: `backend/src/models/User.model.ts`
 - Schema: `backend/src/schemas/profile.schema.ts`
 
-## Core invariants
+## Data model + invariants
 
 - Profiles are keyed by `User.clerkId` (authoritative identity).
 - Many domains embed user snapshots (post author, story author, poll author, comment author, chat author).
