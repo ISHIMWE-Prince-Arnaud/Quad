@@ -13,19 +13,28 @@ export function FeedNewContentBanner({
   if (newCount <= 0 || loading) return null;
 
   return (
-    <Card
-      className="shadow-sm bg-card border border-primary/25 cursor-pointer hover:border-primary/40 transition-all"
-      onClick={onRefresh}>
-      <CardContent className="py-3 px-4 flex items-center justify-between">
-        <span className="text-sm font-semibold text-foreground">
-          {newCount} new {newCount === 1 ? "update" : "updates"} in your feed
-        </span>
-        <Button
-          size="sm"
-          className="bg-primary hover:bg-primary/90 text-primary-foreground">
-          Refresh
-        </Button>
-      </CardContent>
-    </Card>
+    <div className="sticky top-3 z-20">
+      <Card
+        className="shadow-sm bg-background/70 backdrop-blur border border-primary/20 cursor-pointer hover:border-primary/35 transition-colors"
+        onClick={onRefresh}>
+        <CardContent className="py-2.5 px-3.5 flex items-center justify-between gap-3">
+          <div className="min-w-0 flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_0_3px_rgba(37,99,235,0.18)]" />
+            <span className="text-sm font-semibold text-foreground truncate">
+              {newCount} new {newCount === 1 ? "post" : "posts"}
+            </span>
+            <span className="text-xs text-muted-foreground hidden sm:inline">
+              Tap to load
+            </span>
+          </div>
+
+          <Button
+            size="sm"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 px-3">
+            Show
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

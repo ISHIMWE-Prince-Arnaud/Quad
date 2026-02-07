@@ -40,12 +40,9 @@ export function LogoWithText({ className, size = "lg" }: LogoProps) {
           className={cn(
             titleClass,
             "font-extrabold tracking-tight",
-            "bg-gradient-to-r from-[#2563eb] to-[#ff6b6b] bg-clip-text text-transparent",
+            "bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent",
           )}>
           Quad
-        </span>
-        <span className="text-[11px] text-muted-foreground font-semibold tracking-[0.12em]">
-          Connect, Share, Grow.
         </span>
       </div>
     </div>
