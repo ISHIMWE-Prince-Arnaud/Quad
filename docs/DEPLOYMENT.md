@@ -36,17 +36,17 @@ This guide covers deploying the Quad platform to production.
 
 ```bash
 # Backend API Configuration
-VITE_API_BASE_URL=https://api.yourproductiondomain.com/api
-VITE_SOCKET_URL=https://api.yourproductiondomain.com
+VITE_API_BASE_URL=https://<API_DOMAIN>/api
+VITE_SOCKET_URL=https://<API_DOMAIN>
 
 # Clerk Authentication
-VITE_CLERK_PUBLISHABLE_KEY=pk_live_your_production_key
+VITE_CLERK_PUBLISHABLE_KEY=pk_live_<CLERK_PUBLISHABLE_KEY>
 
 # Feature Flags
 VITE_ENABLE_NOTIFICATIONS=true
 
 # Error Tracking
-VITE_SENTRY_DSN=your_sentry_dsn
+VITE_SENTRY_DSN=<SENTRY_DSN>
 VITE_SENTRY_ENVIRONMENT=production
 ```
 
@@ -61,20 +61,20 @@ NODE_ENV=production
 MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/quad
 
 # Clerk Authentication
-CLERK_PUBLISHABLE_KEY=pk_live_your_production_key
-CLERK_SECRET_KEY=sk_live_your_production_secret
-CLERK_WEBHOOK_SECRET=whsec_your_webhook_secret
+CLERK_PUBLISHABLE_KEY=pk_live_<CLERK_PUBLISHABLE_KEY>
+CLERK_SECRET_KEY=sk_live_<CLERK_SECRET_KEY>
+CLERK_WEBHOOK_SECRET=whsec_<CLERK_WEBHOOK_SECRET>
 
 # Cloudinary
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+CLOUDINARY_CLOUD_NAME=<CLOUDINARY_CLOUD_NAME>
+CLOUDINARY_API_KEY=<CLOUDINARY_API_KEY>
+CLOUDINARY_API_SECRET=<CLOUDINARY_API_SECRET>
 
 # CORS
-FRONTEND_URL=https://yourproductiondomain.com
+FRONTEND_URL=https://<YOUR_FRONTEND_DOMAIN>
 
 # Error Tracking
-SENTRY_DSN=your_sentry_dsn
+SENTRY_DSN=<SENTRY_DSN>
 SENTRY_ENVIRONMENT=production
 ```
 
@@ -97,10 +97,10 @@ See [ENVIRONMENT_VARIABLES.md](./ENVIRONMENT_VARIABLES.md) for detailed document
 2. Create a production application
 3. Copy publishable key and secret key
 4. Configure redirect URLs:
-   - Sign-in URL: `https://yourproductiondomain.com/login`
-   - Sign-up URL: `https://yourproductiondomain.com/signup`
-   - After sign-in: `https://yourproductiondomain.com/app/feed`
-5. Set up webhook endpoint: `https://api.yourproductiondomain.com/api/webhooks/clerk`
+   - Sign-in URL: `https://<YOUR_FRONTEND_DOMAIN>/login`
+   - Sign-up URL: `https://<YOUR_FRONTEND_DOMAIN>/signup`
+   - After sign-in: `https://<YOUR_FRONTEND_DOMAIN>/app/feed`
+5. Set up webhook endpoint: `https://<API_DOMAIN>/api/webhooks/clerk`
 6. Copy webhook signing secret
 
 #### Cloudinary
@@ -230,14 +230,14 @@ Build output will be in `backend/dist/`
 2. **Create S3 Bucket**
 
    ```bash
-   aws s3 mb s3://your-bucket-name
-   aws s3 website s3://your-bucket-name --index-document index.html
+   aws s3 mb s3://<S3_BUCKET_NAME>
+   aws s3 website s3://<S3_BUCKET_NAME> --index-document index.html
    ```
 
 3. **Upload Build**
 
    ```bash
-   aws s3 sync dist/ s3://your-bucket-name --delete
+   aws s3 sync dist/ s3://<S3_BUCKET_NAME> --delete
    ```
 
 4. **Create CloudFront Distribution**
@@ -259,7 +259,7 @@ Build output will be in `backend/dist/`
 2. **Connect and Setup**
 
    ```bash
-   ssh ubuntu@your-ec2-ip
+   ssh ubuntu@<EC2_IP>
 
    # Install Node.js
    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
@@ -269,7 +269,7 @@ Build output will be in `backend/dist/`
    sudo npm install -g pm2
 
    # Clone repository
-   git clone https://github.com/yourusername/quad.git
+   git clone https://github.com/<GITHUB_ORG_OR_USER>/<REPO>.git
    cd quad/backend
 
    # Install dependencies
@@ -304,7 +304,7 @@ Build output will be in `backend/dist/`
    ```nginx
    server {
        listen 80;
-       server_name api.yourproductiondomain.com;
+       server_name <API_DOMAIN>;
 
        location / {
            proxy_pass http://localhost:4000;
@@ -326,7 +326,7 @@ Build output will be in `backend/dist/`
 6. **Configure SSL with Let's Encrypt**
    ```bash
    sudo apt-get install certbot python3-certbot-nginx
-   sudo certbot --nginx -d api.yourproductiondomain.com
+   sudo certbot --nginx -d <API_DOMAIN>
    ```
 
 ### Option 3: Docker Deployment
@@ -419,13 +419,13 @@ docker-compose up -d
 
 ```bash
 # Basic health check
-curl https://api.yourproductiondomain.com/health
+curl https://<API_DOMAIN>/health
 
 # Detailed health check
-curl https://api.yourproductiondomain.com/health/detailed
+curl https://<API_DOMAIN>/health/detailed
 
 # Frontend
-curl https://yourproductiondomain.com
+curl https://<YOUR_FRONTEND_DOMAIN>
 ```
 
 #### Test Key Features
@@ -441,9 +441,9 @@ curl https://yourproductiondomain.com
 Point your domain to your deployment:
 
 ```
-A     @                  your-server-ip
-A     api                your-api-server-ip
-CNAME www                yourproductiondomain.com
+A     @                  <SERVER_IP>
+A     api                <API_SERVER_IP>
+CNAME www                <YOUR_FRONTEND_DOMAIN>
 ```
 
 ### 3. Set Up SSL Certificates
@@ -451,7 +451,7 @@ CNAME www                yourproductiondomain.com
 Use Let's Encrypt for free SSL:
 
 ```bash
-sudo certbot --nginx -d yourproductiondomain.com -d www.yourproductiondomain.com
+sudo certbot --nginx -d <YOUR_FRONTEND_DOMAIN> -d www.<YOUR_FRONTEND_DOMAIN>
 ```
 
 ### 4. Configure CDN

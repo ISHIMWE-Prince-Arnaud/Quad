@@ -58,20 +58,20 @@ Create page rules for different content types:
 
 **Static Assets (High Cache)**
 
-- URL Pattern: `*.yourproductiondomain.com/assets/*`
+- URL Pattern: `*.<YOUR_FRONTEND_DOMAIN>/assets/*`
 - Cache Level: Cache Everything
 - Edge Cache TTL: 1 month
 - Browser Cache TTL: 1 year
 
 **API Endpoints (No Cache)**
 
-- URL Pattern: `api.yourproductiondomain.com/api/*`
+- URL Pattern: `<API_DOMAIN>/api/*`
 - Cache Level: Bypass
 - Disable Performance features
 
 **Frontend Pages (Smart Cache)**
 
-- URL Pattern: `*.yourproductiondomain.com/*`
+- URL Pattern: `*.<YOUR_FRONTEND_DOMAIN>/*`
 - Cache Level: Standard
 - Edge Cache TTL: 2 hours
 - Browser Cache TTL: 4 hours
@@ -185,7 +185,7 @@ curl -X POST "https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache" 
 curl -X POST "https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache" \
   -H "Authorization: Bearer {api_token}" \
   -H "Content-Type: application/json" \
-  --data '{"files":["https://yourproductiondomain.com/path/to/file"]}'
+  --data '{"files":["https://<YOUR_FRONTEND_DOMAIN>/path/to/file"]}'
 ```
 
 **Purge by Tag**
@@ -202,7 +202,7 @@ curl -X POST "https://api.cloudflare.com/client/v4/zones/{zone_id}/purge_cache" 
 ### Check Cache Headers
 
 ```bash
-curl -I https://yourproductiondomain.com/assets/main.js
+curl -I https://<YOUR_FRONTEND_DOMAIN>/assets/main.js
 ```
 
 Look for:

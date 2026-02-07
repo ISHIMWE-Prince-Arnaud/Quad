@@ -8,11 +8,11 @@ All frontend environment variables must be prefixed with `VITE_` to be exposed t
 
 ### Required Variables
 
-| Variable                     | Description                              | Example                                    |
-| ---------------------------- | ---------------------------------------- | ------------------------------------------ |
-| `VITE_API_BASE_URL`          | Backend API base URL                     | `https://api.yourproductiondomain.com/api` |
-| `VITE_SOCKET_URL`            | Socket.IO server URL                     | `https://api.yourproductiondomain.com`     |
-| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk publishable key for authentication | `pk_live_...` or `pk_test_...`             |
+| Variable                     | Description                              | Example                        |
+| ---------------------------- | ---------------------------------------- | ------------------------------ |
+| `VITE_API_BASE_URL`          | Backend API base URL                     | `https://<API_DOMAIN>/api`     |
+| `VITE_SOCKET_URL`            | Socket.IO server URL                     | `https://<API_DOMAIN>`         |
+| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk publishable key for authentication | `pk_live_...` or `pk_test_...` |
 
 ### Optional Variables
 
@@ -46,18 +46,18 @@ All frontend environment variables must be prefixed with `VITE_` to be exposed t
 | `CLERK_PUBLISHABLE_KEY` | Clerk publishable key          | `pk_live_...`                                      |
 | `CLERK_SECRET_KEY`      | Clerk secret key (server-side) | `sk_live_...`                                      |
 | `CLERK_WEBHOOK_SECRET`  | Clerk webhook signing secret   | `whsec_...`                                        |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name          | `your-cloud-name`                                  |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name          | `<CLOUDINARY_CLOUD_NAME>`                          |
 | `CLOUDINARY_API_KEY`    | Cloudinary API key             | `123456789012345`                                  |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret          | `abcdefghijklmnopqrstuvwxyz`                       |
 
 ### Optional Variables
 
-| Variable              | Description                             | Default | Example                            |
-| --------------------- | --------------------------------------- | ------- | ---------------------------------- |
-| `FRONTEND_URL`        | Frontend application URL (for CORS)     | `*`     | `https://yourproductiondomain.com` |
-| `SENTRY_DSN`          | Sentry error tracking DSN               | -       | `https://...@sentry.io/...`        |
-| `SENTRY_ENVIRONMENT`  | Sentry environment name                 | -       | `production`                       |
-| `SKIP_INDEX_CREATION` | Skip database index creation on startup | `false` | `true`                             |
+| Variable              | Description                             | Default | Example                          |
+| --------------------- | --------------------------------------- | ------- | -------------------------------- |
+| `FRONTEND_URL`        | Frontend application URL (for CORS)     | `*`     | `https://<YOUR_FRONTEND_DOMAIN>` |
+| `SENTRY_DSN`          | Sentry error tracking DSN               | -       | `https://...@sentry.io/...`      |
+| `SENTRY_ENVIRONMENT`  | Sentry environment name                 | -       | `production`                     |
+| `SKIP_INDEX_CREATION` | Skip database index creation on startup | `false` | `true`                           |
 
 ### Configuration Files
 
