@@ -2,7 +2,7 @@
 
 ## 📋 **Overview**
 
-Quad uses Clerk for authentication, providing secure user management with social logins, email verification, and session management. This document covers the complete authentication implementation.
+Quad uses Clerk for authentication, providing secure user management with Google login, email verification, and session management. This document covers the complete authentication implementation.
 
 ---
 
@@ -376,31 +376,6 @@ export const handleWebhook = async (req: Request, res: Response) => {
 ---
 
 ## 🛡️ **Security Features**
-
-### **Multi-Factor Authentication (MFA)**
-
-```typescript
-// Enable MFA for user
-export const enableMFA = async (req: Request, res: Response) => {
-  const { userId } = req.auth;
-
-  try {
-    await clerkClient.users.updateUser(userId, {
-      publicMetadata: { mfaEnabled: true },
-    });
-
-    return res.json({
-      success: true,
-      message: "MFA enabled successfully",
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Failed to enable MFA",
-    });
-  }
-};
-```
 
 ### **Rate Limiting by User**
 

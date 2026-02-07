@@ -50,8 +50,7 @@ This document provides a comprehensive security audit of the Quad social platfor
 
 - Industry-standard authentication
 - No password storage on our servers
-- Multi-factor authentication support
-- Social login support
+- Google login support
 - Secure session handling
 
 #### Protected Routes
@@ -163,7 +162,7 @@ api.interceptors.response.use(
       window.location.href = "/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 ```
 
@@ -188,7 +187,7 @@ const imageFileValidator = (maxSizeInMB: number = 10) => {
     .refine((file) => file.type.startsWith("image/"), "File must be an image")
     .refine(
       (file) => file.size <= maxSizeInMB * 1024 * 1024,
-      `Image size must be less than ${maxSizeInMB}MB`
+      `Image size must be less than ${maxSizeInMB}MB`,
     );
 };
 ```
@@ -343,7 +342,6 @@ if (error.response?.status === 429) {
 **Status**: ✅ PROTECTED
 
 - Clerk handles authentication
-- Multi-factor authentication available
 - Session management secure
 - No password storage
 
@@ -405,35 +403,30 @@ if (error.response?.status === 429) {
 ### ✅ Implemented
 
 1. **Authentication**
-
    - Third-party auth provider (Clerk)
    - JWT token-based authentication
    - Secure token storage
    - Automatic token refresh
 
 2. **Authorization**
-
    - Protected route guards
    - Role-based access control (backend)
    - User can only access own data
    - Centralized auth logic
 
 3. **Input Validation**
-
    - Zod schema validation
    - Type-safe inputs
    - Client-side validation
    - Server-side validation backup
 
 4. **Input Sanitization**
-
    - XSS prevention
    - Script tag removal
    - Event handler removal
    - Safe HTML rendering
 
 5. **API Security**
-
    - HTTPS enforcement
    - JWT authentication
    - CORS configuration
@@ -448,28 +441,24 @@ if (error.response?.status === 429) {
 ### ⚠️ Recommended Improvements
 
 1. **Security Monitoring**
-
    - Implement Sentry or similar
    - Real-time error tracking
    - Security event logging
    - Anomaly detection
 
 2. **Dependency Scanning**
-
    - Automated npm audit in CI/CD
    - Dependabot alerts
    - Regular security updates
    - Vulnerability scanning
 
 3. **Content Security Policy**
-
    - Implement CSP headers
    - Restrict script sources
    - Prevent inline scripts
    - Report violations
 
 4. **Security Headers**
-
    - X-Frame-Options
    - X-Content-Type-Options
    - Strict-Transport-Security
@@ -558,7 +547,6 @@ if (error.response?.status === 429) {
 **Status**: ⚠️ RECOMMENDATIONS
 
 1. **Missing Production Monitoring**
-
    - **Severity**: Low
    - **Impact**: Delayed detection of security issues
    - **Recommendation**: Implement Sentry or similar
