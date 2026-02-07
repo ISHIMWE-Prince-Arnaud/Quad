@@ -106,7 +106,6 @@ Authorization: Bearer <jwt_token>
 API endpoints are rate-limited to prevent abuse:
 
 - **Standard endpoints**: 100 requests per 15 minutes
-- **Search endpoints**: 50 requests per 15 minutes
 - **Upload endpoints**: 20 requests per 15 minutes
 
 ## 📱 Real-time Events
@@ -115,9 +114,11 @@ Socket.IO events for real-time features:
 
 ### Chat Events
 
-- `message:new` - New message received
-- `typing:start` - User started typing
-- `typing:stop` - User stopped typing
+- `chat:message:new` - New message received
+- `chat:message:edited` - Message edited
+- `chat:message:deleted` - Message deleted
+- `chat:typing:start` - User started typing
+- `chat:typing:stop` - User stopped typing
 
 ### Notification Events
 
@@ -126,8 +127,9 @@ Socket.IO events for real-time features:
 
 ### Feed Events
 
-- `feed:update` - New content in feed
-- `feed:reaction` - Content reaction update
+- `feed:new-content` - New content (post/poll) created
+- `feed:engagement-update` - Engagement counters changed
+- `feed:content-deleted` - Post/poll deleted
 
 ## 🔧 Development Tools
 

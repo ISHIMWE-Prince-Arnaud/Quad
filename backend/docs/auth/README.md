@@ -415,33 +415,6 @@ export const userRateLimit = rateLimit({
 
 ---
 
-## 🔍 **User Search & Discovery**
-
-### **User Search**
-
-```typescript
-export const searchUsers = async (req: Request, res: Response) => {
-  const { query } = req.query;
-  const { userId } = req.auth; // Current user for personalization
-
-  const users = await User.find({
-    $and: [
-      { clerkId: { $ne: userId } }, // Exclude self
-      {
-        $or: [
-          { username: new RegExp(query, "i") },
-          { displayName: new RegExp(query, "i") },
-        ],
-      },
-    ],
-  }).limit(20);
-
-  return res.json({ success: true, data: users });
-};
-```
-
----
-
 ## **Development & Testing**
 
 ### **Mock Authentication (Testing)**
