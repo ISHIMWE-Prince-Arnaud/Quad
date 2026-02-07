@@ -151,16 +151,16 @@ SKIP_INDEX_CREATION=false
 # ================================
 # AUTHENTICATION (Clerk - Development)
 # ================================
-CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxxxx
-CLERK_SECRET_KEY=sk_test_xxxxxxxxxx
-CLERK_WEBHOOK_SECRET=whsec_xxxxxxxxxx
+CLERK_PUBLISHABLE_KEY=pk_test_<CLERK_PUBLISHABLE_KEY>
+CLERK_SECRET_KEY=sk_test_<CLERK_SECRET_KEY>
+CLERK_WEBHOOK_SECRET=whsec_<CLERK_WEBHOOK_SECRET>
 
 # ================================
 # MEDIA STORAGE (Cloudinary - Development)
 # ================================
-CLOUDINARY_CLOUD_NAME=your-dev-cloud-name
+CLOUDINARY_CLOUD_NAME=<CLOUDINARY_CLOUD_NAME>
 CLOUDINARY_API_KEY=123456789012345
-CLOUDINARY_API_SECRET=your-dev-api-secret
+CLOUDINARY_API_SECRET=<CLOUDINARY_API_SECRET>
 
 # ================================
 # FRONTEND

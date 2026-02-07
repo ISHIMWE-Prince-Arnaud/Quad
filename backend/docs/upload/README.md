@@ -29,9 +29,9 @@ Frontend → Multer Middleware → Cloudinary API → CDN → Database URL Stora
 
 ```bash
 # Cloudinary Configuration
-CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_CLOUD_NAME=<CLOUDINARY_CLOUD_NAME>
 CLOUDINARY_API_KEY=123456789012345
-CLOUDINARY_API_SECRET=your-api-secret
+CLOUDINARY_API_SECRET=<CLOUDINARY_API_SECRET>
 
 # Upload Limits
 MAX_FILE_SIZE=10485760  # 10MB in bytes

@@ -29,12 +29,12 @@ Frontend → Clerk Widget → Clerk API → Backend Middleware → Protected Rou
 
 ```bash
 # Clerk Configuration
-CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxxxx
-CLERK_SECRET_KEY=sk_test_xxxxxxxxxx
-CLERK_WEBHOOK_SECRET=whsec_xxxxxxxxxx
+CLERK_PUBLISHABLE_KEY=pk_test_<CLERK_PUBLISHABLE_KEY>
+CLERK_SECRET_KEY=sk_test_<CLERK_SECRET_KEY>
+CLERK_WEBHOOK_SECRET=whsec_<CLERK_WEBHOOK_SECRET>
 
 # Frontend Integration
-CLERK_FRONTEND_API=your-clerk-frontend-api
+CLERK_FRONTEND_API=<CLERK_FRONTEND_API>
 ```
 
 ### **Clerk Setup** (`config/clerk.config.ts`)
@@ -195,7 +195,7 @@ function App() {
   const { isSignedIn, user } = useUser();
 
   return (
-    <ClerkProvider publishableKey={process.env.REACT_APP_CLERK_PUBLISHABLE_KEY}>
+    <ClerkProvider publishableKey={process.env.VITE_CLERK_PUBLISHABLE_KEY}>
       {isSignedIn ? (
         <div>
           <h1>Welcome, {user.firstName}!</h1>

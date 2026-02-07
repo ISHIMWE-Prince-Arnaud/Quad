@@ -8,19 +8,20 @@ This guide covers multiple deployment strategies for the Quad backend, from deve
 
 ## 🎯 **Deployment Options Quick Reference**
 
-| Method | Difficulty | Time | Best For | Cost |
-|--------|------------|------|----------|------|
-| **Railway** | ⭐ Easy | 5 min | MVP/Testing | $5-20/month |
-| **Heroku** | ⭐⭐ Easy | 10 min | Small Scale | $7-25/month |
-| **DigitalOcean App** | ⭐⭐ Medium | 15 min | Growing Apps | $12-50/month |
-| **Docker + VPS** | ⭐⭐⭐ Medium | 30 min | Full Control | $5-40/month |
-| **AWS/GCP** | ⭐⭐⭐⭐ Hard | 60 min | Enterprise | $20-200/month |
+| Method               | Difficulty    | Time   | Best For     | Cost          |
+| -------------------- | ------------- | ------ | ------------ | ------------- |
+| **Railway**          | ⭐ Easy       | 5 min  | MVP/Testing  | $5-20/month   |
+| **Heroku**           | ⭐⭐ Easy     | 10 min | Small Scale  | $7-25/month   |
+| **DigitalOcean App** | ⭐⭐ Medium   | 15 min | Growing Apps | $12-50/month  |
+| **Docker + VPS**     | ⭐⭐⭐ Medium | 30 min | Full Control | $5-40/month   |
+| **AWS/GCP**          | ⭐⭐⭐⭐ Hard | 60 min | Enterprise   | $20-200/month |
 
 ---
 
 ## 🚄 **Quick Deployment (Railway) - Recommended for Beginners**
 
 ### **Step 1: Prepare Your Project**
+
 ```bash
 # Ensure your project builds successfully
 npm run build
@@ -30,6 +31,7 @@ npm run dev
 ```
 
 ### **Step 2: Deploy to Railway**
+
 ```bash
 # Install Railway CLI
 npm install -g @railway/cli
@@ -45,7 +47,9 @@ railway up
 ```
 
 ### **Step 3: Configure Environment Variables**
+
 In Railway dashboard, add these environment variables:
+
 ```bash
 NODE_ENV=production
 PORT=3001
@@ -53,18 +57,19 @@ MONGODB_URI=mongodb://localhost:27017/quad-dev
 CLERK_PUBLISHABLE_KEY=pk_live_...
 CLERK_SECRET_KEY=sk_live_...
 CLERK_WEBHOOK_SECRET=whsec_...
-CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_CLOUD_NAME=<CLOUDINARY_CLOUD_NAME>
 CLOUDINARY_API_KEY=123456789
-CLOUDINARY_API_SECRET=your-secret
+CLOUDINARY_API_SECRET=<CLOUDINARY_API_SECRET>
 ```
 
 ### **Step 4: Test Deployment**
+
 ```bash
 # Check if your API is live
-curl https://your-app.railway.app/
+curl https://<YOUR_APP>.railway.app/
 
 # Test protected endpoint
-curl -H "Authorization: Bearer your-token" https://your-app.railway.app/api/users
+curl -H "Authorization: Bearer <JWT_TOKEN>" https://<YOUR_APP>.railway.app/api/users
 ```
 
 ---
@@ -72,6 +77,7 @@ curl -H "Authorization: Bearer your-token" https://your-app.railway.app/api/user
 ## 🟦 **Heroku Deployment**
 
 ### **Step 1: Install Heroku CLI**
+
 ```bash
 # Install Heroku CLI (varies by OS)
 # Windows: Download from heroku.com
@@ -80,6 +86,7 @@ curl -H "Authorization: Bearer your-token" https://your-app.railway.app/api/user
 ```
 
 ### **Step 2: Create Heroku App**
+
 ```bash
 # Login
 heroku login
@@ -92,24 +99,27 @@ heroku buildpacks:set heroku/nodejs
 ```
 
 ### **Step 3: Configure Environment Variables**
+
 ```bash
 # Set all required environment variables
 heroku config:set NODE_ENV=production
 heroku config:set MONGODB_URI="mongodb://localhost:27017/quad-dev"
 heroku config:set CLERK_SECRET_KEY="sk_live_..."
 heroku config:set CLERK_WEBHOOK_SECRET="whsec_..."
-heroku config:set CLOUDINARY_CLOUD_NAME="your-cloud-name"
+heroku config:set CLOUDINARY_CLOUD_NAME="<CLOUDINARY_CLOUD_NAME>"
 heroku config:set CLOUDINARY_API_KEY="123456789"
-heroku config:set CLOUDINARY_API_SECRET="your-secret"
+heroku config:set CLOUDINARY_API_SECRET="<CLOUDINARY_API_SECRET>"
 ```
 
 ### **Step 4: Create Procfile**
+
 ```bash
 # Create Procfile in project root
 echo "web: npm start" > Procfile
 ```
 
 ### **Step 5: Deploy**
+
 ```bash
 # Add heroku remote
 heroku git:remote -a your-quad-backend
@@ -126,47 +136,50 @@ heroku logs --tail
 ## 🌊 **DigitalOcean App Platform**
 
 ### **Step 1: Create App Spec File**
+
 Create `app.yaml` in your project root:
+
 ```yaml
 name: quad-backend
 services:
-- name: api
-  source_dir: /
-  github:
-    repo: your-username/quad-backend
-    branch: main
-  run_command: npm start
-  build_command: npm run build
-  environment_slug: node-js
-  instance_count: 1
-  instance_size_slug: basic-xxs
-  http_port: 3001
-  routes:
-  - path: /
-  envs:
-  - key: NODE_ENV
-    value: production
-  - key: MONGODB_URI
-    value: ${MONGODB_URI}
-    type: SECRET
-  - key: CLERK_SECRET_KEY
-    value: ${CLERK_SECRET_KEY}
-    type: SECRET
-  - key: CLERK_WEBHOOK_SECRET
-    value: ${CLERK_WEBHOOK_SECRET}
-    type: SECRET
-  - key: CLOUDINARY_CLOUD_NAME
-    value: ${CLOUDINARY_CLOUD_NAME}
-    type: SECRET
-  - key: CLOUDINARY_API_KEY
-    value: ${CLOUDINARY_API_KEY}
-    type: SECRET
-  - key: CLOUDINARY_API_SECRET
-    value: ${CLOUDINARY_API_SECRET}
-    type: SECRET
+  - name: api
+    source_dir: /
+    github:
+      repo: your-username/quad-backend
+      branch: main
+    run_command: npm start
+    build_command: npm run build
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 3001
+    routes:
+      - path: /
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        value: ${MONGODB_URI}
+        type: SECRET
+      - key: CLERK_SECRET_KEY
+        value: ${CLERK_SECRET_KEY}
+        type: SECRET
+      - key: CLERK_WEBHOOK_SECRET
+        value: ${CLERK_WEBHOOK_SECRET}
+        type: SECRET
+      - key: CLOUDINARY_CLOUD_NAME
+        value: ${CLOUDINARY_CLOUD_NAME}
+        type: SECRET
+      - key: CLOUDINARY_API_KEY
+        value: ${CLOUDINARY_API_KEY}
+        type: SECRET
+      - key: CLOUDINARY_API_SECRET
+        value: ${CLOUDINARY_API_SECRET}
+        type: SECRET
 ```
 
 ### **Step 2: Deploy via DigitalOcean Console**
+
 1. Login to DigitalOcean
 2. Go to Apps section
 3. Create New App
@@ -180,6 +193,7 @@ services:
 ## 🐳 **Docker Deployment**
 
 ### **Step 1: Create Dockerfile**
+
 ```dockerfile
 # Multi-stage build for optimization
 FROM node:18-alpine AS builder
@@ -225,9 +239,10 @@ CMD ["node", "dist/server.js"]
 ```
 
 ### **Step 2: Create Docker Compose File**
+
 ```yaml
 # docker-compose.prod.yml
-version: '3.8'
+version: "3.8"
 
 services:
   quad-backend:
@@ -265,6 +280,7 @@ services:
 ```
 
 ### **Step 3: Create Nginx Configuration**
+
 ```nginx
 # nginx.conf
 events {
@@ -281,13 +297,13 @@ http {
 
     server {
         listen 80;
-        server_name your-domain.com;
+        server_name <YOUR_DOMAIN>;
         return 301 https://$server_name$request_uri;
     }
 
     server {
         listen 443 ssl http2;
-        server_name your-domain.com;
+        server_name <YOUR_DOMAIN>;
 
         # SSL Configuration
         ssl_certificate /etc/ssl/certs/fullchain.pem;
@@ -305,7 +321,7 @@ http {
         # API routes
         location / {
             limit_req zone=api burst=20 nodelay;
-            
+
             proxy_pass http://backend;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
@@ -322,6 +338,7 @@ http {
 ```
 
 ### **Step 4: Deploy with Docker**
+
 ```bash
 # Build and start
 docker-compose -f docker-compose.prod.yml up -d
@@ -338,6 +355,7 @@ docker-compose -f docker-compose.prod.yml up -d --scale quad-backend=3
 ## 🏭 **VPS Deployment (Traditional)**
 
 ### **Step 1: Server Setup (Ubuntu 20.04+)**
+
 ```bash
 # Update system
 sudo apt update && sudo apt upgrade -y
@@ -357,6 +375,7 @@ sudo apt install certbot python3-certbot-nginx -y
 ```
 
 ### **Step 2: Deploy Application**
+
 ```bash
 # Clone repository
 git clone https://github.com/ISHIMWE-Prince-Arnaud/Quad.git
@@ -403,18 +422,19 @@ pm2 startup
 ```
 
 ### **Step 3: Configure Nginx**
+
 ```bash
 # Create Nginx configuration
 sudo cat > /etc/nginx/sites-available/quad-backend << 'EOF'
 server {
     listen 80;
-    server_name your-domain.com www.your-domain.com;
+    server_name <YOUR_DOMAIN> www.<YOUR_DOMAIN>;
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name your-domain.com www.your-domain.com;
+    server_name <YOUR_DOMAIN> www.<YOUR_DOMAIN>;
 
     # SSL will be configured by Certbot
 
@@ -450,10 +470,11 @@ sudo nginx -t
 sudo systemctl reload nginx
 
 # Get SSL certificate
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+sudo certbot --nginx -d <YOUR_DOMAIN> -d www.<YOUR_DOMAIN>
 ```
 
 ### **Step 4: Configure Firewall**
+
 ```bash
 # Configure UFW firewall
 sudo ufw default deny incoming
@@ -468,7 +489,9 @@ sudo ufw enable
 ## 🔧 **Environment Configuration**
 
 ### **Production Environment Variables**
+
 Create `.env.production`:
+
 ```bash
 # ================================
 # SERVER CONFIGURATION
@@ -485,21 +508,21 @@ SKIP_INDEX_CREATION=false
 # ================================
 # AUTHENTICATION (Clerk)
 # ================================
-CLERK_PUBLISHABLE_KEY=pk_live_xxxxxxxxxx
-CLERK_SECRET_KEY=sk_live_xxxxxxxxxx
-CLERK_WEBHOOK_SECRET=whsec_xxxxxxxxxx
+CLERK_PUBLISHABLE_KEY=pk_live_<CLERK_PUBLISHABLE_KEY>
+CLERK_SECRET_KEY=sk_live_<CLERK_SECRET_KEY>
+CLERK_WEBHOOK_SECRET=whsec_<CLERK_WEBHOOK_SECRET>
 
 # ================================
 # MEDIA STORAGE (Cloudinary)
 # ================================
-CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_CLOUD_NAME=<CLOUDINARY_CLOUD_NAME>
 CLOUDINARY_API_KEY=123456789012345
-CLOUDINARY_API_SECRET=your-api-secret
+CLOUDINARY_API_SECRET=<CLOUDINARY_API_SECRET>
 
 # ================================
 # FRONTEND
 # ================================
-FRONTEND_URL=https://your-frontend-domain.com
+FRONTEND_URL=https://<YOUR_FRONTEND_DOMAIN>
 ```
 
 ---
@@ -507,21 +530,24 @@ FRONTEND_URL=https://your-frontend-domain.com
 ## 📊 **Monitoring & Health Checks**
 
 ### **Health Check Endpoint**
+
 Add to your `server.ts`:
+
 ```typescript
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get("/health", (req, res) => {
   res.status(200).json({
-    status: 'OK',
+    status: "OK",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     memory: process.memoryUsage(),
-    environment: process.env.NODE_ENV
+    environment: process.env.NODE_ENV,
   });
 });
 ```
 
 ### **PM2 Monitoring**
+
 ```bash
 # Monitor applications
 pm2 status
@@ -536,18 +562,19 @@ pm2 reload quad-backend
 ```
 
 ### **Database Connection Monitoring**
+
 ```typescript
 // Add to your database connection
-mongoose.connection.on('connected', () => {
-  logger.info('MongoDB connected successfully');
+mongoose.connection.on("connected", () => {
+  logger.info("MongoDB connected successfully");
 });
 
-mongoose.connection.on('error', (err) => {
-  logger.error('MongoDB connection error', err);
+mongoose.connection.on("error", (err) => {
+  logger.error("MongoDB connection error", err);
 });
 
-mongoose.connection.on('disconnected', () => {
-  logger.warn('MongoDB disconnected');
+mongoose.connection.on("disconnected", () => {
+  logger.warn("MongoDB disconnected");
 });
 ```
 
@@ -556,7 +583,9 @@ mongoose.connection.on('disconnected', () => {
 ## 🔄 **Deployment Automation**
 
 ### **GitHub Actions CI/CD**
+
 Create `.github/workflows/deploy.yml`:
+
 ```yaml
 name: Deploy to Production
 
@@ -567,33 +596,34 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run tests
-      run: npm test
-    
-    - name: Build application
-      run: npm run build
-    
-    - name: Deploy to Railway
-      run: |
-        npm install -g @railway/cli
-        railway login --token ${{ secrets.RAILWAY_TOKEN }}
-        railway up
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build application
+        run: npm run build
+
+      - name: Deploy to Railway
+        run: |
+          npm install -g @railway/cli
+          railway login --token ${{ secrets.RAILWAY_TOKEN }}
+          railway up
 ```
 
 ### **Automated Backup Script**
+
 ```bash
 #!/bin/bash
 # backup.sh - Run daily via cron
@@ -618,6 +648,7 @@ find /backup -name "backup-*.tar.gz" -mtime +7 -delete
 ### **Common Issues**
 
 #### **Application Won't Start**
+
 ```bash
 # Check logs
 pm2 logs quad-backend
@@ -630,6 +661,7 @@ node -e "require('mongoose').connect(process.env.MONGODB_URI).then(() => console
 ```
 
 #### **High Memory Usage**
+
 ```bash
 # Check memory usage
 pm2 show quad-backend
@@ -639,6 +671,7 @@ pm2 restart quad-backend --max-memory-restart 1G
 ```
 
 #### **SSL Certificate Issues**
+
 ```bash
 # Check certificate status
 sudo certbot certificates
@@ -651,6 +684,7 @@ sudo certbot renew --force-renewal
 ```
 
 #### **Database Connection Issues**
+
 ```bash
 # Test MongoDB connection
 mongosh "$MONGODB_URI"
@@ -664,16 +698,19 @@ telnet your-cluster.mongodb.net 27017
 ## 📈 **Scaling Considerations**
 
 ### **Horizontal Scaling**
+
 - Use load balancer (nginx, HAProxy, AWS ALB)
 - Deploy multiple instances across regions
 - Implement session sharing with Redis
 
 ### **Database Scaling**
+
 - Enable MongoDB Atlas auto-scaling
 - Use read replicas for read-heavy workloads
 - Implement database sharding for massive datasets
 
 ### **Performance Monitoring**
+
 - Set up APM (New Relic, Datadog, or similar)
 - Monitor key metrics:
   - Response times
@@ -687,6 +724,7 @@ telnet your-cluster.mongodb.net 27017
 ## ✅ **Post-Deployment Checklist**
 
 ### **Immediate Verification (First 24 Hours)**
+
 - [ ] All API endpoints responding correctly
 - [ ] Database connections stable
 - [ ] Authentication working properly
@@ -696,6 +734,7 @@ telnet your-cluster.mongodb.net 27017
 - [ ] Monitoring and logging active
 
 ### **Week 1 Monitoring**
+
 - [ ] Performance metrics within acceptable ranges
 - [ ] Error rates below 1%
 - [ ] Database queries optimized
@@ -704,6 +743,7 @@ telnet your-cluster.mongodb.net 27017
 - [ ] Security headers implemented
 
 ### **Monthly Maintenance**
+
 - [ ] Security updates applied
 - [ ] Performance review completed
 - [ ] Backup restoration tested

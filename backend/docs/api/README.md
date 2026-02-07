@@ -6,7 +6,7 @@ Complete REST API documentation for Quad social media platform.
 
 ```
 Development: http://localhost:4000/api
-Production: https://your-domain.com/api
+Production: https://<YOUR_DOMAIN>/api
 ```
 
 ## 🔐 Authentication
