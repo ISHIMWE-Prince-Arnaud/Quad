@@ -189,14 +189,6 @@ export const router = createBrowserRouter([
             ),
           },
           {
-            path: "chat/:conversationId",
-            element: (
-              <LazyRoute>
-                <ChatPage />
-              </LazyRoute>
-            ),
-          },
-          {
             path: "notifications",
             element: (
               <LazyRoute>

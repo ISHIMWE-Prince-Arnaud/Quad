@@ -50,8 +50,8 @@ The frontend is a React + TypeScript SPA using React Router, Tailwind CSS, and Z
 - **Chat**
   - `src/pages/ChatPage.tsx`
   - Real-time messaging UI, integrated with Socket.IO and chat services.
-  - Routes: `/app/chat` and `/app/chat/:conversationId`.
-  - Note: the current backend implementation is not conversation/thread based; chat behaves as a single global message timeline.
+  - Route: `/app/chat`.
+  - Note: chat is a single global message timeline (no DMs/conversations).
 
 - **Stories**
   - `src/pages/StoriesPage.tsx` – list of stories.
@@ -133,9 +133,7 @@ Each service encapsulates a backend domain. Detailed route definitions live in *
   - Integrates with profile/follow controllers documented in backend API docs.
 
 - **`Chat` / messaging services** – e.g. `src/services/chatService.ts`
-  - Conversations and messages are coordinated via:
-    - REST endpoints for history.
-    - Socket.IO events for live updates (see `backend/docs/realtime/README.md`).
+  - Messages are coordinated via REST endpoints for history and Socket.IO events for live updates.
 
 > When adding new endpoints, extend `endpoints` in `lib/api.ts`, then wrap them in a dedicated service class. Keep components free of raw URL strings.
 

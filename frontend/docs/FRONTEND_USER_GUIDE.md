@@ -100,7 +100,6 @@ Once logged in, you’ll see three main areas:
 - **Using chat**
   - Send and receive messages in real time (powered by sockets).
   - The current implementation is a single global message timeline (not conversation/thread based).
-  - The route `/app/chat/:conversationId` exists as a URL variant, but it is not backed by server-side conversations.
 
 ### 2.5 Notifications
 

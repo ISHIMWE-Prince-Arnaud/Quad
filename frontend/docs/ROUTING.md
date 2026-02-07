@@ -56,10 +56,7 @@ Routes:
 - `/app/polls/:id/edit` -> `EditPollPage`
 - `/app/create/poll` -> `CreatePollPage`
 - `/app/chat` -> `ChatPage`
-- `/app/chat/:conversationId` -> `ChatPage`
 - `/app/notifications` -> `NotificationsPage`
-
-Note: `:conversationId` is not currently used for server-side conversation/thread scoping; the backend chat implementation is global.
 
 ### Not found
 
