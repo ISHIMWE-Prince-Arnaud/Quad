@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { UploadService } from "@/services/uploadService";
 import { PollService } from "@/services/pollService";
 import type { Poll, PollMedia, CreatePollInput } from "@/types/poll";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import { ZodError } from "zod";
 import type { ZodIssue } from "zod";
 import { createPollSchema } from "@/schemas/poll.schema";
@@ -66,20 +66,20 @@ export default function CreatePollPage() {
   const handleUploadQuestionMedia = async (file: File | null) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("Only images are allowed for polls");
+      showErrorToast("Images only");
       return;
     }
     try {
       setUploadingQuestionMedia(true);
       const res = await UploadService.uploadPollMedia(file);
       setQuestionMedia(mapFileToMedia(file, res.url));
-      toast.success("Question media attached");
+      showSuccessToast("Media attached");
     } catch (error) {
       logError(error, {
         component: "CreatePollPage",
         action: "uploadQuestionMedia",
       });
-      toast.error(getErrorMessage(error));
+      showErrorToast(getErrorMessage(error));
     } finally {
       setUploadingQuestionMedia(false);
     }
@@ -139,9 +139,7 @@ export default function CreatePollPage() {
             }
           });
           setValidationErrors(errors);
-          toast.error(
-            errors.general || "Please fix validation errors before submitting",
-          );
+          showErrorToast(errors.general || "Fix validation errors");
           return;
         }
         throw validationError;
@@ -149,11 +147,11 @@ export default function CreatePollPage() {
 
       const res = await PollService.create(payload);
       if (!res.success || !res.data) {
-        toast.error(res.message || "Failed to create poll");
+        showErrorToast(res.message || "Failed to create poll");
         return;
       }
 
-      toast.success("Poll created successfully!");
+      showSuccessToast("Poll created");
       const created = res.data as unknown as Record<string, unknown>;
       const createdId =
         (typeof created.id === "string" && created.id) ||
@@ -168,7 +166,7 @@ export default function CreatePollPage() {
       navigate("/app/polls", { state: { createdPoll: normalizedPoll } });
     } catch (error) {
       logError(error, { component: "CreatePollPage", action: "submitPoll" });
-      toast.error(getErrorMessage(error));
+      showErrorToast(getErrorMessage(error));
     } finally {
       setSubmitting(false);
     }

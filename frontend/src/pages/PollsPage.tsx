@@ -5,7 +5,7 @@ import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams } from "@/types/poll";
 import { SkeletonPollCard, LoadMoreButton } from "@/components/ui/loading";
 import { getSocket } from "@/lib/socket";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import type {
   FeedEngagementUpdatePayload,
   PollVotedPayload,
@@ -39,9 +39,9 @@ export default function PollsPage() {
 
       if (res.success) {
         setPolls((prev) => prev.filter((p) => p.id !== pollId));
-        toast.success("Poll deleted successfully");
+        showSuccessToast("Poll deleted");
       } else {
-        toast.error(res.message || "Failed to delete poll");
+        showErrorToast(res.message || "Failed to delete poll");
       }
     } catch (err) {
       logError(err, {
@@ -49,7 +49,7 @@ export default function PollsPage() {
         action: "deletePoll",
         metadata: { pollId },
       });
-      toast.error(getErrorMessage(err));
+      showErrorToast(getErrorMessage(err));
     }
   };
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { Button } from "@/components/ui/button";
 import { LoadingPage } from "@/components/ui/loading";
@@ -103,7 +103,7 @@ export default function EditPollPage() {
         if (cancelled) return;
 
         if ((res.data.totalVotes ?? 0) > 0) {
-          toast.error("You can't edit a poll after votes have been cast");
+          showErrorToast("Cannot edit poll with votes");
           setPoll(null);
           setError("You can't edit a poll after votes have been cast");
           return;
@@ -123,7 +123,7 @@ export default function EditPollPage() {
         );
         const isExpired = res.data.status === "expired" || isExpiredByTime;
         if (isExpired) {
-          toast.error("You can't edit an expired poll");
+          showErrorToast("Cannot edit expired poll");
           setPoll(null);
           setError("You can't edit an expired poll");
           return;
@@ -258,7 +258,7 @@ export default function EditPollPage() {
   const handleUploadQuestionMedia = async (file: File | null) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      toast.error("Only images are allowed for polls");
+      showErrorToast("Images only");
       return;
     }
 
@@ -266,13 +266,13 @@ export default function EditPollPage() {
       setUploadingQuestionMedia(true);
       const res = await UploadService.uploadPollMedia(file);
       setQuestionMedia(mapFileToMedia(file, res.url));
-      toast.success("Question media updated");
+      showSuccessToast("Media updated");
     } catch (err: unknown) {
       logError(err, {
         component: "EditPollPage",
         action: "uploadQuestionMedia",
       });
-      toast.error(getErrorMessage(err));
+      showErrorToast(getErrorMessage(err));
     } finally {
       setUploadingQuestionMedia(false);
     }
@@ -289,7 +289,7 @@ export default function EditPollPage() {
       setValidationErrors({
         question: "Question must be at least 10 characters",
       });
-      toast.error("Please fix validation errors before saving");
+      showErrorToast("Fix validation errors");
       return;
     }
 
@@ -303,7 +303,7 @@ export default function EditPollPage() {
         ...prev,
         options: "Poll must have at least 2 options",
       }));
-      toast.error("Please fix validation errors before saving");
+      showErrorToast("Fix validation errors");
       return;
     }
 
@@ -383,7 +383,7 @@ export default function EditPollPage() {
 
       invalidateCache(/\/polls/);
 
-      toast.success("Poll updated successfully!");
+      showSuccessToast("Poll updated");
       navigate("/app/polls", {
         state: res.data ? { updatedPoll: res.data } : undefined,
       });
@@ -393,7 +393,7 @@ export default function EditPollPage() {
         action: "updatePoll",
         metadata: { id },
       });
-      toast.error(getErrorMessage(err));
+      showErrorToast(getErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
