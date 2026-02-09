@@ -527,7 +527,7 @@ export function PollCard({
               </div>
             </div>
 
-            {isActive && !poll.canViewResults && (
+            {isActive && !localPoll.canViewResults && (
               <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-border/40 bg-muted/30 px-4 py-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
