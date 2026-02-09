@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { CommentComposer } from "@/components/comments/CommentComposer";
 import { CommentItem } from "@/components/comments/CommentItem";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading";
 import { CommentService } from "@/services/commentService";
 import type { Comment } from "@/types/comment";
 import { ChevronDown, MessageCircle } from "lucide-react";
@@ -22,26 +23,26 @@ function getErrorMessage(error: unknown): string {
 }
 
 type CommentAddedPayload = {
-  contentType: "post" | "story" | "poll";
+  contentType: "post" | "story";
   contentId: string;
   comment: unknown;
 };
 
 type CommentUpdatedPayload = {
-  contentType: "post" | "story" | "poll";
+  contentType: "post" | "story";
   contentId: string;
   commentId: string;
   comment: unknown;
 };
 
 type CommentDeletedPayload = {
-  contentType: "post" | "story" | "poll";
+  contentType: "post" | "story";
   contentId: string;
   commentId: string;
 };
 
 interface CommentsSectionProps {
-  contentType: "post" | "story" | "poll";
+  contentType: "post" | "story";
   contentId: string;
   contentAuthorClerkId?: string;
   initialPageSize?: number;
@@ -106,7 +107,7 @@ export function CommentsSection({
       const author = c.author;
       const text = c.text;
       if (typeof id !== "string") return null;
-      if (ct !== "post" && ct !== "story" && ct !== "poll") return null;
+      if (ct !== "post" && ct !== "story") return null;
       if (typeof cid !== "string") return null;
       if (!author || typeof author !== "object") return null;
       if (typeof text !== "string") return null;
@@ -344,7 +345,7 @@ export function CommentsSection({
               onClick={() => void loadComments(false)}
               disabled={loading}
               className="text-muted-foreground hover:text-foreground">
-              {loading ? "Loading..." : "Load more comments"}
+              {loading ? <LoadingButton /> : "Load more comments"}
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </div>

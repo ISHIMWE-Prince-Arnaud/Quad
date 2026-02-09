@@ -141,7 +141,7 @@ function ActiveChatsMini() {
 
   const statusLabel = useMemo(() => {
     if (!user) return "Signed out";
-    if (loading) return "Loading";
+    if (loading) return "";
     if (authors.length > 0) return "Active";
     return "No activity";
   }, [authors.length, loading, user]);

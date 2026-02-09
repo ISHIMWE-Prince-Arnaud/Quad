@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 export type { ContentItem } from "./profile-content-grid/types";
 import type { ContentItem } from "./profile-content-grid/types";
 import { ContentCard } from "./profile-content-grid/ContentCard";
+import { LoadingButton } from "@/components/ui/loading";
 
 interface ProfileContentGridProps {
   items: ContentItem[];
@@ -28,8 +29,10 @@ export function ProfileContentGrid({
   useEffect(() => {
     const updateColumns = () => {
       const width = window.innerWidth;
-      if (width >= 1280) setColumns(3); // xl
-      else if (width >= 768) setColumns(2); // md
+      if (width >= 1280)
+        setColumns(3); // xl
+      else if (width >= 768)
+        setColumns(2); // md
       else setColumns(1); // sm
     };
 
@@ -42,7 +45,7 @@ export function ProfileContentGrid({
   const distributeItems = (items: ContentItem[], columnCount: number) => {
     const columns: ContentItem[][] = Array.from(
       { length: columnCount },
-      () => []
+      () => [],
     );
 
     items.forEach((item, index) => {
@@ -71,7 +74,7 @@ export function ProfileContentGrid({
         root: null,
         rootMargin: "400px 0px",
         threshold: 0,
-      }
+      },
     );
 
     observer.observe(el);
@@ -112,7 +115,7 @@ export function ProfileContentGrid({
           "grid gap-4",
           columns === 1 && "grid-cols-1",
           columns === 2 && "grid-cols-2",
-          columns === 3 && "grid-cols-3"
+          columns === 3 && "grid-cols-3",
         )}>
         {itemColumns.map((column, columnIndex) => (
           <div key={columnIndex} className="space-y-4">
@@ -128,7 +131,7 @@ export function ProfileContentGrid({
         <div className="flex justify-center mt-8">
           <div ref={loadMoreRef} className="h-10 w-full" />
           <div className="text-sm text-muted-foreground">
-            {loading ? "Loading..." : ""}
+            {loading ? <LoadingButton /> : ""}
           </div>
         </div>
       )}

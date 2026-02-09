@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface LoadingSpinnerProps {
   className?: string;
@@ -27,27 +28,38 @@ export function LoadingSpinner({
   );
 }
 
+// Re-export basic blocks for backward compatibility if needed,
+// but prefer using Skeleton component directly for new code.
 export function SkeletonBlock({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "relative overflow-hidden rounded",
-        "bg-muted dark:bg-white/5",
-        "before:absolute before:inset-0 before:-translate-x-full",
-        "before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
-        "before:animate-shimmer",
-        className,
-      )}
-    />
-  );
+  return <Skeleton className={className} />;
 }
 
 export function LoadingPage() {
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="flex flex-col items-center gap-4">
-        <LoadingSpinner size="lg" />
-        <p className="text-sm text-muted-foreground">Loading...</p>
+    <div className="space-y-8 animate-pulse">
+      <div className="space-y-3">
+        <SkeletonLine className="w-48 h-8 rounded-md" />
+        <SkeletonLine className="w-64 h-4 rounded-md opacity-60" />
+      </div>
+
+      <div className="space-y-6">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div
+            key={i}
+            className="bg-card border border-border/40 rounded-[2rem] p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <SkeletonAvatar className="h-10 w-10" />
+              <div className="space-y-2">
+                <SkeletonLine className="w-32 h-4" />
+                <SkeletonLine className="w-24 h-3" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <SkeletonLine className="w-full h-4" />
+              <SkeletonLine className="w-11/12 h-4" />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -55,9 +67,17 @@ export function LoadingPage() {
 
 export function LoadingCard() {
   return (
-    <div className="p-6 border border-border rounded-lg bg-card">
-      <div className="flex items-center justify-center h-32">
-        <LoadingSpinner size="md" />
+    <div className="bg-card border border-border/40 rounded-[2rem] p-6 space-y-4 animate-pulse">
+      <div className="flex items-center gap-3">
+        <SkeletonAvatar className="h-10 w-10" />
+        <div className="space-y-2">
+          <SkeletonLine className="w-32 h-4" />
+          <SkeletonLine className="w-24 h-3" />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <SkeletonLine className="w-full h-4" />
+        <SkeletonLine className="w-11/12 h-4" />
       </div>
     </div>
   );
@@ -65,104 +85,351 @@ export function LoadingCard() {
 
 export function LoadingButton() {
   return (
-    <div className="flex items-center gap-2">
-      <LoadingSpinner size="sm" />
-      <span>Loading...</span>
+    <div className="flex items-center justify-center min-w-[20px]">
+      <LoadingSpinner size="sm" className="opacity-40" />
     </div>
   );
 }
 
-// Skeleton loader for content with shimmer effect
+// ----------------------------------------------------------------------
+// Specific Component Skeletons
+// ----------------------------------------------------------------------
+
 export function SkeletonLine({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "relative overflow-hidden rounded h-4",
-        "bg-muted dark:bg-white/5",
-        "before:absolute before:inset-0 before:-translate-x-full",
-        "before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
-        "before:animate-shimmer",
-        className,
-      )}
-    />
-  );
+  return <Skeleton className={cn("h-4", className)} />;
 }
 
 export function SkeletonAvatar({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "relative overflow-hidden rounded-full h-10 w-10",
-        "bg-muted dark:bg-white/5",
-        "before:absolute before:inset-0 before:-translate-x-full",
-        "before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
-        "before:animate-shimmer",
-        className,
-      )}
-    />
-  );
+  return <Skeleton className={cn("rounded-full h-10 w-10", className)} />;
 }
 
+// Matches PostCard.tsx
 export function SkeletonPost({
   mediaVariant = "wide",
 }: {
   mediaVariant?: "none" | "wide" | "tall";
 }) {
   const showMedia = mediaVariant !== "none";
-  const mediaClass = mediaVariant === "tall" ? "h-72" : "h-52";
+  const mediaClass = mediaVariant === "tall" ? "h-96" : "h-64";
 
   return (
-    <div className="p-6 bg-card border border-border/40 rounded-[2rem] space-y-4">
+    <div className="bg-card border border-border/40 rounded-[2rem] overflow-hidden">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <SkeletonAvatar />
-          <div className="flex-1 space-y-2">
-            <SkeletonLine className="w-32" />
+      <div className="p-6 pb-4 flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3 w-full">
+          <SkeletonAvatar className="h-10 w-10 border-2 border-border/10" />
+          <div className="flex-1 space-y-1.5 min-w-0">
+            <SkeletonLine className="w-32 h-4 rounded-md" />
             <div className="flex items-center gap-2">
-              <SkeletonLine className="w-20 h-3" />
-              <SkeletonLine className="w-12 h-3" />
+              <SkeletonLine className="w-20 h-3 rounded-md opacity-70" />
             </div>
           </div>
         </div>
-        <SkeletonBlock className="h-8 w-8 rounded-xl" />
+        <SkeletonBlock className="h-8 w-8 rounded-full opacity-50" />
       </div>
 
       {/* Content */}
-      <div className="space-y-2">
-        <SkeletonLine className="w-full" />
-        <SkeletonLine className="w-11/12" />
-        <SkeletonLine className="w-9/12" />
+      <div className="px-6 pb-6 space-y-4">
+        <div className="space-y-2">
+          <SkeletonLine className="w-full h-4 rounded-md" />
+          <SkeletonLine className="w-11/12 h-4 rounded-md" />
+          <SkeletonLine className="w-9/12 h-4 rounded-md" />
+        </div>
+
+        {showMedia && (
+          <SkeletonBlock className={cn("w-full rounded-2xl", mediaClass)} />
+        )}
       </div>
 
-      {showMedia && <SkeletonBlock className={cn(mediaClass, "rounded-2xl")} />}
-
-      {/* Actions */}
-      <div className="flex items-center justify-between pt-3 border-t border-border/40">
-        <div className="flex items-center gap-4">
-          <SkeletonBlock className="h-8 w-16 rounded-xl" />
-          <SkeletonBlock className="h-8 w-16 rounded-xl" />
-          <SkeletonBlock className="h-8 w-16 rounded-xl" />
+      {/* Footer */}
+      <div className="px-6 py-4 flex items-center gap-4 border-t border-border/40 bg-muted/30">
+        <div className="flex items-center gap-6">
+          <SkeletonBlock className="h-5 w-12 rounded-md opacity-60" />
+          <SkeletonBlock className="h-5 w-8 rounded-md opacity-60" />
+          <SkeletonBlock className="h-5 w-8 rounded-md opacity-60" />
         </div>
-        <SkeletonBlock className="h-8 w-10 rounded-xl" />
+        <div className="ml-auto">
+          <SkeletonBlock className="h-5 w-5 rounded-md opacity-60" />
+        </div>
       </div>
     </div>
   );
 }
 
-// Page loading states
+// Matches NotificationRow.tsx
+export function NotificationSkeleton() {
+  return (
+    <div className="flex gap-4 p-4 rounded-xl border border-border/40 bg-card">
+      <SkeletonAvatar className="h-10 w-10 shrink-0 border border-border/50" />
+      <div className="flex-1 min-w-0 flex flex-col justify-center space-y-2">
+        <div className="flex justify-between items-start gap-2">
+          <div className="space-y-2 w-full">
+            <SkeletonLine className="w-3/4 h-4 rounded-md" />
+            <SkeletonLine className="w-1/2 h-3 rounded-md opacity-70" />
+          </div>
+          <SkeletonLine className="w-10 h-3 rounded-md opacity-50 shrink-0" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Matches StoryCard.tsx (Grid)
+export function SkeletonStoryCard() {
+  return (
+    <div className="rounded-2xl border border-border/40 bg-card overflow-hidden h-full flex flex-col">
+      {/* Cover Image */}
+      <div className="aspect-video w-full relative">
+        <SkeletonBlock className="absolute inset-0 h-full w-full" />
+      </div>
+
+      <div className="px-6 pt-5 pb-4 flex-1 flex flex-col">
+        <div className="space-y-2.5 mb-auto">
+          <SkeletonLine className="h-5 w-11/12 rounded-md" />
+          <div className="space-y-1.5 pt-1">
+            <SkeletonLine className="h-3.5 w-full rounded-md opacity-70" />
+            <SkeletonLine className="h-3.5 w-2/3 rounded-md opacity-70" />
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-between gap-4">
+          {/* Author */}
+          <div className="flex items-center gap-2">
+            <SkeletonAvatar className="h-7 w-7" />
+            <div className="space-y-1">
+              <SkeletonLine className="w-20 h-3 rounded-md" />
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="flex items-center gap-3">
+            <SkeletonBlock className="h-4 w-8 rounded-md opacity-50" />
+            <SkeletonBlock className="h-4 w-8 rounded-md opacity-50" />
+          </div>
+        </div>
+      </div>
+
+      <div className="px-6 pb-6 pt-2 flex items-center justify-between">
+        <SkeletonLine className="w-16 h-3 rounded-md opacity-50" />
+        <div className="flex items-center gap-4">
+          <SkeletonBlock className="h-7 w-7 rounded-lg opacity-40" />
+          <SkeletonBlock className="h-7 w-7 rounded-lg opacity-40" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Matches PollCard.tsx
+export function SkeletonPollCard() {
+  return (
+    <div className="rounded-3xl border border-border/40 bg-card overflow-hidden shadow-card p-6 space-y-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3 w-full">
+          <SkeletonAvatar className="h-11 w-11 rounded-full border border-border/10" />
+          <div className="space-y-1.5 flex-1">
+            <SkeletonLine className="w-32 h-4 rounded-md" />
+            <SkeletonLine className="w-24 h-3 rounded-md opacity-70" />
+          </div>
+        </div>
+        <SkeletonBlock className="h-8 w-8 rounded-full opacity-50" />
+      </div>
+
+      <div className="space-y-2 pt-1">
+        <SkeletonLine className="w-full h-5 rounded-md" />
+        <SkeletonLine className="w-10/12 h-5 rounded-md" />
+      </div>
+
+      <div className="space-y-3 pt-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <SkeletonBlock key={i} className="h-12 w-full rounded-xl" />
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between pt-4 border-t border-border/40">
+        <div className="flex items-center gap-3">
+          <SkeletonBlock className="h-8 w-14 rounded-lg opacity-50" />
+          <SkeletonBlock className="h-8 w-14 rounded-lg opacity-50" />
+        </div>
+        <div className="flex items-center gap-3">
+          <SkeletonBlock className="h-8 w-16 rounded-full opacity-50" />
+          <SkeletonBlock className="h-8 w-8 rounded-xl opacity-50" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Matches ChatMessageList.tsx bubbles
+export function ChatMessageSkeleton({ isSelf }: { isSelf: boolean }) {
+  return (
+    <div
+      className={cn(
+        "py-0 mt-1.5 flex items-start gap-3",
+        isSelf ? "justify-end" : "justify-start",
+      )}>
+      {!isSelf && <SkeletonAvatar className="h-8 w-8 shrink-0" />}
+
+      <div
+        className={cn(
+          "flex flex-col max-w-[75%]",
+          isSelf ? "items-end" : "items-start",
+        )}>
+        <SkeletonBlock
+          className={cn(
+            "h-10 w-48 rounded-[1.25rem]",
+            isSelf ? "bg-primary/20" : "bg-muted",
+          )}
+        />
+      </div>
+
+      {isSelf && <SkeletonAvatar className="h-8 w-8 shrink-0" />}
+    </div>
+  );
+}
+
+// Matches CommentsSection
+export function CommentsSkeleton() {
+  return (
+    <div className="rounded-3xl bg-card border border-border/40 p-5">
+      <div className="flex items-center justify-between">
+        <SkeletonLine className="h-4 w-40 rounded-md opacity-50" />
+      </div>
+
+      <div className="mt-4">
+        <div className="flex items-start gap-3">
+          <SkeletonAvatar className="h-8 w-8 shrink-0" />
+          <div className="flex-1">
+            <div className="flex items-center gap-3 rounded-2xl bg-muted/70 border border-border/40 px-4 py-2">
+              <SkeletonLine className="h-4 w-8/12 bg-transparent" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 divide-y divide-border/20">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="py-4">
+            <div className="flex gap-3">
+              <SkeletonAvatar className="h-9 w-9 shrink-0" />
+              <div className="flex-1 min-w-0 space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <SkeletonLine className="h-4 w-28 rounded-md" />
+                  <SkeletonLine className="h-3 w-16 rounded-md opacity-50" />
+                </div>
+                <div className="space-y-2">
+                  <SkeletonLine className="w-full h-4 rounded-md" />
+                  <SkeletonLine className="w-10/12 h-4 rounded-md" />
+                </div>
+                <div className="pt-1">
+                  <SkeletonLine className="h-4 w-20 rounded-md opacity-50" />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function ChatListSkeleton() {
+  return (
+    <div className="space-y-6 px-4 py-6">
+      <ChatMessageSkeleton isSelf={false} />
+      <ChatMessageSkeleton isSelf={false} />
+      <ChatMessageSkeleton isSelf={true} />
+      <ChatMessageSkeleton isSelf={true} />
+      <ChatMessageSkeleton isSelf={false} />
+    </div>
+  );
+}
+
+// Matches StoryPage.tsx single view
+export function StoryPageSkeleton() {
+  return (
+    <div className="container mx-auto px-4 py-6">
+      <div className="mx-auto max-w-2xl space-y-6">
+        <div className="flex items-center gap-2">
+          <SkeletonBlock className="h-8 w-32 rounded-md" />
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <SkeletonLine className="h-8 w-3/4 rounded-md" />
+          <div className="flex items-center gap-2">
+            <SkeletonBlock className="h-9 w-9 rounded-full" />
+            <SkeletonBlock className="h-9 w-9 rounded-full" />
+          </div>
+        </div>
+
+        <SkeletonBlock className="w-full h-[360px] rounded-xl" />
+
+        <div className="rounded-[1.5rem] border border-border/40 bg-card overflow-hidden">
+          <div className="p-4 md:p-6 space-y-6">
+            {/* Metadata bar */}
+            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border/40 bg-muted/20 px-4 py-3">
+              <SkeletonLine className="w-24 h-4 rounded-md" />
+              <SkeletonLine className="w-20 h-3 rounded-md opacity-70" />
+              <SkeletonLine className="w-16 h-3 rounded-md opacity-70" />
+            </div>
+
+            {/* Content */}
+            <div className="space-y-3">
+              <SkeletonLine className="w-full h-4" />
+              <SkeletonLine className="w-full h-4" />
+              <SkeletonLine className="w-11/12 h-4" />
+              <SkeletonLine className="w-full h-4" />
+              <SkeletonLine className="w-4/5 h-4" />
+            </div>
+
+            {/* Reactions */}
+            <div className="pt-4 flex items-center justify-between">
+              <SkeletonBlock className="h-10 w-24 rounded-xl" />
+              <SkeletonBlock className="h-10 w-12 rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ----------------------------------------------------------------------
+// Page Skeletons
+// ----------------------------------------------------------------------
+
 export function FeedSkeleton() {
   return (
     <div className="space-y-6">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <SkeletonPost
-          key={i}
-          mediaVariant={i % 3 === 1 ? "none" : i % 4 === 0 ? "tall" : "wide"}
-        />
+      {Array.from({ length: 3 }).map((_, i) => (
+        <SkeletonPost key={i} mediaVariant={i % 2 === 0 ? "wide" : "none"} />
       ))}
     </div>
   );
 }
+
+export function StoriesGridSkeleton() {
+  return (
+    <div className="grid gap-6 md:grid-cols-2 items-start">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <SkeletonStoryCard key={i} />
+      ))}
+    </div>
+  );
+}
+
+export function PollsListSkeleton() {
+  return (
+    <div className="space-y-6">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <SkeletonPollCard key={i} />
+      ))}
+    </div>
+  );
+}
+
+// Keeping Profile skeletons as they were mostly fine, but reused components could be improved if needed.
+// For now, retaining the logic but ensuring they use the improved basic blocks.
 
 function ProfileTabsSkeleton({
   isOwnProfile = false,
@@ -201,82 +468,6 @@ function ProfileSubTabsSkeleton() {
   );
 }
 
-function SkeletonStoryCard() {
-  return (
-    <div className="rounded-2xl border border-border bg-card/40 p-4 space-y-4">
-      <SkeletonBlock className="h-40 w-full rounded-xl" />
-      <div className="space-y-2">
-        <SkeletonLine className="w-4/5 h-4" />
-        <SkeletonLine className="w-2/3 h-3" />
-      </div>
-      <div className="flex items-center justify-between pt-2">
-        <div className="flex items-center gap-2">
-          <SkeletonAvatar className="h-8 w-8" />
-          <SkeletonLine className="w-24 h-3" />
-        </div>
-        <SkeletonBlock className="h-8 w-20 rounded-full" />
-      </div>
-    </div>
-  );
-}
-
-function StoriesGridSkeleton() {
-  return (
-    <div className="grid gap-6 md:grid-cols-2 items-start">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <SkeletonStoryCard key={i} />
-      ))}
-    </div>
-  );
-}
-
-function SkeletonPollCard() {
-  return (
-    <div className="rounded-2xl border border-border bg-card/40 p-6 space-y-5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <SkeletonAvatar />
-          <div className="space-y-2">
-            <SkeletonLine className="w-40 h-4" />
-            <SkeletonLine className="w-24 h-3" />
-          </div>
-        </div>
-        <SkeletonBlock className="h-8 w-8 rounded-xl" />
-      </div>
-
-      <div className="space-y-2">
-        <SkeletonLine className="w-full h-5" />
-        <SkeletonLine className="w-10/12 h-5" />
-      </div>
-
-      <div className="space-y-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <SkeletonBlock key={i} className="h-12 w-full rounded-xl" />
-        ))}
-      </div>
-
-      <div className="flex items-center justify-between pt-2 border-t border-border/60">
-        <div className="flex items-center gap-3">
-          <SkeletonBlock className="h-8 w-16 rounded-full" />
-          <SkeletonBlock className="h-8 w-16 rounded-full" />
-          <SkeletonBlock className="h-8 w-16 rounded-full" />
-        </div>
-        <SkeletonBlock className="h-8 w-10 rounded-xl" />
-      </div>
-    </div>
-  );
-}
-
-function PollsListSkeleton() {
-  return (
-    <div className="space-y-6">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <SkeletonPollCard key={i} />
-      ))}
-    </div>
-  );
-}
-
 function ProfileHeaderSkeleton({
   isOwnProfile = false,
 }: {
@@ -284,14 +475,7 @@ function ProfileHeaderSkeleton({
 }) {
   return (
     <div className="relative overflow-hidden border-0 shadow-lg rounded-lg">
-      <div
-        className="relative h-48 sm:h-56 lg:h-64"
-        style={{
-          backgroundImage:
-            "linear-gradient(90deg, #1d4ed8 0%, #3b82f6 55%, #2563eb 100%), radial-gradient(circle at 18px 18px, transparent 0 14px, rgba(255,255,255,0.14) 14px 15px, transparent 15px 36px)",
-          backgroundSize: "cover, 36px 36px",
-          backgroundPosition: "center, 0 0",
-        }}>
+      <div className="relative h-48 sm:h-56 lg:h-64 bg-muted animate-pulse">
         {isOwnProfile && (
           <div className="absolute top-4 right-4">
             <SkeletonBlock className="h-9 w-28 rounded-full bg-black/20" />
@@ -311,18 +495,14 @@ function ProfileHeaderSkeleton({
 
             <div className="flex-1 min-w-0 pt-2 sm:pt-0 space-y-2">
               <SkeletonLine className="w-52 h-7" />
-              <SkeletonLine className="w-28 h-4" />
+              <SkeletonLine className="w-28 h-4 opacity-70" />
             </div>
           </div>
 
           <div className="flex gap-2 mt-4 sm:mt-0">
-            {isOwnProfile ? (
-              <SkeletonBlock className="h-10 w-28 rounded-full" />
-            ) : (
-              <>
-                <SkeletonBlock className="h-10 w-28 rounded-full" />
-                <SkeletonBlock className="h-10 w-10 rounded-full" />
-              </>
+            <SkeletonBlock className="h-10 w-28 rounded-full" />
+            {!isOwnProfile && (
+              <SkeletonBlock className="h-10 w-10 rounded-full" />
             )}
           </div>
         </div>
@@ -340,26 +520,9 @@ function ProfileHeaderSkeleton({
           <div className="mt-2 -mx-6 px-6 py-5 border-t border-border/40">
             <div className="grid grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="text-center">
-                  <SkeletonLine className="h-6 w-12 mx-auto" />
-                  <SkeletonLine className="h-3 w-20 mx-auto mt-2" />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <div
-              className={cn(
-                "grid gap-3",
-                isOwnProfile ? "grid-cols-4" : "grid-cols-3",
-              )}>
-              {Array.from({ length: isOwnProfile ? 4 : 3 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl border border-border/60 bg-card/40 px-4 py-4 text-center shadow-sm">
-                  <SkeletonLine className="h-6 w-12 mx-auto" />
-                  <SkeletonLine className="h-3 w-20 mx-auto mt-2" />
+                <div key={i} className="text-center space-y-2">
+                  <SkeletonLine className="h-5 w-12 mx-auto" />
+                  <SkeletonLine className="h-3 w-16 mx-auto opacity-70" />
                 </div>
               ))}
             </div>
@@ -429,6 +592,65 @@ export function ProfileBookmarksPollsTabSkeleton() {
     <div className="px-4 py-8 space-y-6">
       <ProfileSubTabsSkeleton />
       <PollsListSkeleton />
+    </div>
+  );
+}
+export function MainAppSkeleton() {
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Mobile Header Placeholder */}
+      <div className="lg:hidden px-4 py-4 border-b border-border/40">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <SkeletonBlock className="h-10 w-10 rounded-xl" />
+            <div className="space-y-2">
+              <SkeletonLine className="w-20 h-4" />
+              <SkeletonLine className="w-28 h-3 opacity-60" />
+            </div>
+          </div>
+          <SkeletonBlock className="h-9 w-9 rounded-xl opacity-50" />
+        </div>
+      </div>
+
+      <div className="flex">
+        {/* Sidebar Placeholder */}
+        <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
+          <div className="h-full px-4 py-8 space-y-8 border-r border-border/40 bg-sidebar/50 animate-pulse">
+            <div className="px-4 mb-4">
+              <SkeletonBlock className="h-10 w-32 rounded-lg opacity-80" />
+            </div>
+            <div className="space-y-4 px-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3 px-2">
+                  <SkeletonBlock className="h-9 w-9 rounded-xl opacity-60" />
+                  <SkeletonLine className={i % 2 === 0 ? "w-24" : "w-16"} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 lg:pl-64 xl:pr-80">
+          <div className="max-w-4xl mx-auto px-4 py-8">
+            <FeedSkeleton />
+          </div>
+        </div>
+
+        {/* Right Panel Placeholder */}
+        <div className="hidden xl:flex xl:w-80 xl:flex-col xl:fixed xl:right-0 xl:inset-y-0">
+          <div className="h-full px-6 py-8 space-y-8 border-l border-border/40 bg-sidebar/30 animate-pulse">
+            <div className="space-y-4">
+              <SkeletonLine className="w-32 h-4" />
+              <SkeletonBlock className="h-48 rounded-3xl opacity-60" />
+            </div>
+            <div className="space-y-4">
+              <SkeletonLine className="w-28 h-4 " />
+              <SkeletonBlock className="h-32 rounded-3xl opacity-60" />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
