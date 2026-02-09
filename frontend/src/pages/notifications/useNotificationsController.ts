@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { NavigateFunction } from "react-router-dom";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { NotificationService } from "@/services/notificationService";
 import {
@@ -156,7 +156,7 @@ export function useNotificationsController({
         if (!res.success) throw new Error(res.message);
       } catch {
         setNotifications(prev);
-        toast.error("Failed to mark as read");
+        showErrorToast("Failed to mark as read");
       }
     },
     [notifications],
@@ -175,10 +175,10 @@ export function useNotificationsController({
           notification.id,
         );
         if (!res.success) throw new Error(res.message);
-        toast.success("Notification deleted");
+        showSuccessToast("Notification deleted");
       } catch {
         setNotifications(prev);
-        toast.error("Failed to delete notification");
+        showErrorToast("Failed to delete notification");
       }
     },
     [notifications],
@@ -192,10 +192,10 @@ export function useNotificationsController({
 
       const res = await NotificationService.markAllAsRead();
       if (!res.success) throw new Error(res.message);
-      toast.success("All notifications marked as read");
+      showSuccessToast("All marked as read");
     } catch {
       setNotifications(prev);
-      toast.error("Failed to mark all as read");
+      showErrorToast("Failed to mark all as read");
     }
   }, [notifications]);
 
@@ -207,10 +207,10 @@ export function useNotificationsController({
 
       const res = await NotificationService.deleteAllRead();
       if (!res.success) throw new Error(res.message);
-      toast.success("Cleared read notifications");
+      showSuccessToast("Read notifications cleared");
     } catch {
       setNotifications(prev);
-      toast.error("Failed to clear read notifications");
+      showErrorToast("Failed to clear read");
     }
   }, [notifications]);
 
