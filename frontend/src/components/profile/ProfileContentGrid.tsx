@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export type { ContentItem } from "./profile-content-grid/types";
 import type { ContentItem } from "./profile-content-grid/types";
 import { ContentCard } from "./profile-content-grid/ContentCard";
-import { LoadingButton } from "@/components/ui/loading";
+import { InfiniteScrollLoader } from "@/components/ui/loading";
 
 interface ProfileContentGridProps {
   items: ContentItem[];
@@ -128,11 +128,12 @@ export function ProfileContentGrid({
 
       {/* Load More Button */}
       {hasMore && (
-        <div className="flex justify-center mt-8">
-          <div ref={loadMoreRef} className="h-10 w-full" />
-          <div className="text-sm text-muted-foreground">
-            {loading ? <LoadingButton /> : ""}
-          </div>
+        <div className="relative">
+          <div
+            ref={loadMoreRef}
+            className="absolute bottom-40 w-full h-10 pointer-events-none"
+          />
+          {loading && <InfiniteScrollLoader />}
         </div>
       )}
     </div>

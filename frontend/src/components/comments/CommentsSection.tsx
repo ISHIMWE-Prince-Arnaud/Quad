@@ -3,7 +3,6 @@ import { CommentComposer } from "@/components/comments/CommentComposer";
 import { CommentItem } from "@/components/comments/CommentItem";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { LoadingButton } from "@/components/ui/loading";
 import { CommentService } from "@/services/commentService";
 import type { Comment } from "@/types/comment";
 import { ChevronDown, MessageCircle } from "lucide-react";
@@ -343,10 +342,10 @@ export function CommentsSection({
               variant="ghost"
               size="sm"
               onClick={() => void loadComments(false)}
-              disabled={loading}
+              loading={loading}
               className="text-muted-foreground hover:text-foreground">
-              {loading ? <LoadingButton /> : "Load more comments"}
-              <ChevronDown className="ml-2 h-4 w-4" />
+              Load more comments
+              {!loading && <ChevronDown className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         )}
