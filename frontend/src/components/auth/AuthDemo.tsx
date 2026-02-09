@@ -1,38 +1,39 @@
-import { useState } from 'react'
-import { useTokenManager, useAuthenticatedRequest } from '@/lib/tokens'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { logError } from '@/lib/errorHandling'
+import { useState } from "react";
+import { useTokenManager, useAuthenticatedRequest } from "@/lib/tokens";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { logError } from "@/lib/errorHandling";
+import { LoadingButton } from "@/components/ui/loading";
 
 export function AuthDemo() {
-  const [token, setToken] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const { getAuthToken } = useTokenManager()
-  const { makeAuthenticatedRequest } = useAuthenticatedRequest()
+  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { getAuthToken } = useTokenManager();
+  const { makeAuthenticatedRequest } = useAuthenticatedRequest();
 
   const handleGetToken = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const authToken = await getAuthToken()
-      setToken(authToken)
+      const authToken = await getAuthToken();
+      setToken(authToken);
     } catch (error) {
-      logError(error, { component: 'AuthDemo', action: 'getToken' })
+      logError(error, { component: "AuthDemo", action: "getToken" });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleTestRequest = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await makeAuthenticatedRequest('/api/test')
-      void response
+      const response = await makeAuthenticatedRequest("/api/test");
+      void response;
     } catch (error) {
-      logError(error, { component: 'AuthDemo', action: 'testRequest' })
+      logError(error, { component: "AuthDemo", action: "testRequest" });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Card className="max-w-2xl">
@@ -41,22 +42,17 @@ export function AuthDemo() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
-          <Button 
-            onClick={handleGetToken}
-            disabled={loading}
-            variant="outline"
-          >
-            {loading ? 'Loading...' : 'Get Auth Token'}
+          <Button onClick={handleGetToken} disabled={loading} variant="outline">
+            {loading ? <LoadingButton /> : "Get Auth Token"}
           </Button>
-          <Button 
+          <Button
             onClick={handleTestRequest}
             disabled={loading}
-            variant="outline"
-          >
-            {loading ? 'Loading...' : 'Test API Request'}
+            variant="outline">
+            {loading ? <LoadingButton /> : "Test API Request"}
           </Button>
         </div>
-        
+
         {token && (
           <div className="p-4 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground mb-2">
@@ -69,5 +65,5 @@ export function AuthDemo() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
