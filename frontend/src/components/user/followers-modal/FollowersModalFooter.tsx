@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import type { UserCardData } from "@/components/user/UserCard";
-import { LoadingButton } from "@/components/ui/loading";
 
 export function FollowersModalFooter({
   isLoading,
@@ -32,9 +31,9 @@ export function FollowersModalFooter({
           variant="outline"
           size="sm"
           onClick={onLoadMore}
-          disabled={isLoadingMore}
+          loading={isLoadingMore}
           className="rounded-full border-border/70 hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30">
-          {isLoadingMore ? <LoadingButton /> : "Load more"}
+          Load more
         </Button>
       )}
     </div>

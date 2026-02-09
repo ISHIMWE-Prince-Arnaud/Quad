@@ -4,8 +4,7 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logError } from "@/lib/errorHandling";
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?:
     | "default"
     | "destructive"
@@ -32,7 +31,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const baseClasses = cn(
       "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95",
@@ -58,26 +57,34 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         "h-11 rounded-md px-8": size === "lg",
         "h-10 w-10 p-0": size === "icon",
       },
-      className
+      className,
     );
 
     const content = (
-      <>
-        {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-        {children}
-      </>
+      <span className="relative flex items-center justify-center gap-2">
+        {loading && <Loader2 className="h-4 w-4 animate-spin absolute" />}
+        <span
+          className={cn(
+            "flex items-center gap-2 transition-all duration-200",
+            loading ? "opacity-0 scale-95" : "opacity-100 scale-100",
+          )}>
+          {children}
+        </span>
+      </span>
     );
 
     if (asChild) {
       if (!React.isValidElement(children)) {
         if (import.meta.env.DEV) {
           logError(
-            new Error("Button with asChild expects a single React element child."),
+            new Error(
+              "Button with asChild expects a single React element child.",
+            ),
             {
               component: "Button",
               action: "asChildInvalidChild",
               metadata: { receivedType: typeof children },
-            }
+            },
           );
         }
         return (
@@ -106,10 +113,16 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           {React.cloneElement(
             childElement,
             undefined,
-            <>
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {originalChildren}
-            </>
+            <span className="relative flex items-center justify-center gap-2">
+              {loading && <Loader2 className="h-4 w-4 animate-spin absolute" />}
+              <span
+                className={cn(
+                  "flex items-center gap-2 transition-opacity duration-200",
+                  loading ? "opacity-0" : "opacity-100",
+                )}>
+                {originalChildren}
+              </span>
+            </span>,
           )}
         </Slot>
       );
@@ -124,7 +137,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {content}
       </button>
     );
-  }
+  },
 );
 Button.displayName = "Button";
 

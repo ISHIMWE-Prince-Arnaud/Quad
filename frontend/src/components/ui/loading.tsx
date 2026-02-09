@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "./button";
 
 interface LoadingSpinnerProps {
   className?: string;
@@ -85,8 +86,52 @@ export function LoadingCard() {
 
 export function LoadingButton() {
   return (
-    <div className="flex items-center justify-center min-w-[20px]">
-      <LoadingSpinner size="sm" className="opacity-40" />
+    <div className="flex items-center justify-center min-w-[24px]">
+      <LoadingSpinner size="sm" className="opacity-60" />
+    </div>
+  );
+}
+
+export function LoadMoreButton({
+  onClick,
+  loading,
+  label = "Load more",
+  className,
+}: {
+  onClick: () => void | Promise<void>;
+  loading: boolean;
+  label?: string;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex justify-center w-full py-8", className)}>
+      <Button
+        variant="outline"
+        size="lg"
+        onClick={onClick}
+        loading={loading}
+        className="rounded-full px-10 border-border/60 bg-background/50 backdrop-blur-sm hover:bg-accent/50 hover:border-primary/30 hover:text-primary transition-all duration-300 font-semibold shadow-sm group">
+        <span className="flex items-center gap-2">{label}</span>
+      </Button>
+    </div>
+  );
+}
+
+export function InfiniteScrollLoader({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center gap-4 py-12 w-full",
+        className,
+      )}>
+      <div className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-border/40 bg-muted/20 animate-pulse">
+        <div className="h-2 w-2 rounded-full bg-primary/40" />
+        <div className="h-2 w-2 rounded-full bg-primary/40 [animation-delay:150ms]" />
+        <div className="h-2 w-2 rounded-full bg-primary/40 [animation-delay:300ms]" />
+      </div>
+      <span className="text-xs font-medium text-muted-foreground/60 tracking-wider uppercase">
+        Loading more content
+      </span>
     </div>
   );
 }
