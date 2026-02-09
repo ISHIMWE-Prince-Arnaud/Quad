@@ -2,8 +2,7 @@ import type { RefObject } from "react";
 import type { Virtualizer } from "@tanstack/react-virtual";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { LoadingButton } from "@/components/ui/loading";
+import { LoadMoreButton } from "@/components/ui/loading";
 import { PostCard } from "@/components/posts/PostCard";
 import { OptimisticPostCard } from "@/components/posts/OptimisticPostCard";
 import { PollCard } from "@/components/polls/PollCard";
@@ -131,17 +130,7 @@ export function FeedList({
         </>
       )}
 
-      {hasMore && (
-        <div className="flex justify-center pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onLoadMore}
-            disabled={loadingMore}>
-            {loadingMore ? <LoadingButton /> : "Load more"}
-          </Button>
-        </div>
-      )}
+      {hasMore && <LoadMoreButton loading={loadingMore} onClick={onLoadMore} />}
     </>
   );
 }

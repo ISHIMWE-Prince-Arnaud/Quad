@@ -16,7 +16,7 @@ import {
   ProfilePollsTabSkeleton,
   ProfileSkeleton,
   ProfileStoriesTabSkeleton,
-  LoadingButton,
+  LoadMoreButton,
 } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
 import { useAuthStore } from "@/stores/authStore";
@@ -170,15 +170,10 @@ export default function ProfilePage() {
               ))}
 
               {controller.postsHasMore && (
-                <div className="flex justify-center pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => void controller.handleLoadMorePosts()}
-                    disabled={controller.postsLoading}>
-                    {controller.postsLoading ? <LoadingButton /> : "Load more"}
-                  </Button>
-                </div>
+                <LoadMoreButton
+                  loading={controller.postsLoading}
+                  onClick={() => void controller.handleLoadMorePosts()}
+                />
               )}
             </div>
           ) : controller.activeTab === "stories" ? (
@@ -220,19 +215,10 @@ export default function ProfilePage() {
                 </div>
 
                 {controller.storiesHasMore && (
-                  <div className="flex justify-center pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => void controller.handleLoadMoreStories()}
-                      disabled={controller.storiesLoading}>
-                      {controller.storiesLoading ? (
-                        <LoadingButton />
-                      ) : (
-                        "Load more"
-                      )}
-                    </Button>
-                  </div>
+                  <LoadMoreButton
+                    loading={controller.storiesLoading}
+                    onClick={() => void controller.handleLoadMoreStories()}
+                  />
                 )}
               </div>
             )
@@ -275,19 +261,10 @@ export default function ProfilePage() {
                 </div>
 
                 {controller.pollsHasMore && (
-                  <div className="flex justify-center pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => void controller.handleLoadMorePolls()}
-                      disabled={controller.pollsLoading}>
-                      {controller.pollsLoading ? (
-                        <LoadingButton />
-                      ) : (
-                        "Load more"
-                      )}
-                    </Button>
-                  </div>
+                  <LoadMoreButton
+                    loading={controller.pollsLoading}
+                    onClick={() => void controller.handleLoadMorePolls()}
+                  />
                 )}
               </div>
             )
@@ -373,21 +350,12 @@ export default function ProfilePage() {
                     ))}
 
                     {controller.savedPostsHasMore && (
-                      <div className="flex justify-center pt-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            void controller.handleLoadMoreSavedPosts()
-                          }
-                          disabled={controller.savedPostsLoading}>
-                          {controller.savedPostsLoading ? (
-                            <LoadingButton />
-                          ) : (
-                            "Load more"
-                          )}
-                        </Button>
-                      </div>
+                      <LoadMoreButton
+                        loading={controller.savedPostsLoading}
+                        onClick={() =>
+                          void controller.handleLoadMoreSavedPosts()
+                        }
+                      />
                     )}
                   </div>
                 ) : null}
@@ -421,21 +389,12 @@ export default function ProfilePage() {
                     </div>
 
                     {controller.savedStoriesHasMore && (
-                      <div className="flex justify-center pt-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            void controller.handleLoadMoreSavedStories()
-                          }
-                          disabled={controller.savedStoriesLoading}>
-                          {controller.savedStoriesLoading ? (
-                            <LoadingButton />
-                          ) : (
-                            "Load more"
-                          )}
-                        </Button>
-                      </div>
+                      <LoadMoreButton
+                        loading={controller.savedStoriesLoading}
+                        onClick={() =>
+                          void controller.handleLoadMoreSavedStories()
+                        }
+                      />
                     )}
                   </div>
                 ) : null}
@@ -474,21 +433,12 @@ export default function ProfilePage() {
                     </div>
 
                     {controller.savedPollsHasMore && (
-                      <div className="flex justify-center pt-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            void controller.handleLoadMoreSavedPolls()
-                          }
-                          disabled={controller.savedPollsLoading}>
-                          {controller.savedPollsLoading ? (
-                            <LoadingButton />
-                          ) : (
-                            "Load more"
-                          )}
-                        </Button>
-                      </div>
+                      <LoadMoreButton
+                        loading={controller.savedPollsLoading}
+                        onClick={() =>
+                          void controller.handleLoadMoreSavedPolls()
+                        }
+                      />
                     )}
                   </div>
                 ) : null}
