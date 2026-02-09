@@ -116,3 +116,29 @@ export interface IPollResults {
   userVote?: number[]; // Current user's vote (if any)
   canViewResults: boolean; // Based on settings and user's vote status
 }
+
+/**
+ * Poll API Response Shape
+ * Matches `formatPollResponse` output.
+ */
+export interface IPollResponse {
+  id: string;
+  author: IUser;
+  question: string;
+  questionMedia?: IPollMedia;
+  settings: IPollSettings;
+  status: PollStatus;
+  expiresAt?: Date;
+  totalVotes: number;
+  reactionsCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  options: Array<{
+    index: number;
+    text: string;
+    votesCount?: number;
+    percentage?: number;
+  }>;
+  userVote?: number[];
+  canViewResults: boolean;
+}

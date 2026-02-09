@@ -1,5 +1,6 @@
 import type { IPollDocument } from "../models/Poll.model.js";
 import type { IPollVoteDocument } from "../models/PollVote.model.js";
+import type { IPollResponse } from "../types/poll.types.js";
 
 /**
  * Check if a poll is expired
@@ -103,7 +104,7 @@ export const formatPollResponse = (
   poll: IPollDocument,
   userVote?: IPollVoteDocument,
   showResults: boolean = false,
-) => {
+): IPollResponse => {
   const settings = {
     ...poll.settings,
     anonymousVoting: poll.settings?.anonymousVoting ?? false,
@@ -112,18 +113,23 @@ export const formatPollResponse = (
   const statusRaw = poll.status as unknown as string;
   const status = statusRaw === "closed" ? "expired" : poll.status;
 
-  const response: Record<string, unknown> = {
-    id: poll._id,
-    author: poll.author,
+  const response: IPollResponse = {
+    id: String(poll._id),
+    author: poll.author as unknown as IPollResponse["author"],
     question: poll.question,
-    questionMedia: poll.questionMedia,
-    settings,
-    status,
-    expiresAt: poll.expiresAt,
+    ...(poll.questionMedia !== undefined
+      ? { questionMedia: poll.questionMedia }
+      : {}),
+    settings: settings as unknown as IPollResponse["settings"],
+    status: status as unknown as IPollResponse["status"],
+    ...(poll.expiresAt !== undefined ? { expiresAt: poll.expiresAt } : {}),
     totalVotes: poll.totalVotes,
     reactionsCount: poll.reactionsCount,
     createdAt: poll.createdAt,
     updatedAt: poll.updatedAt,
+    options: [],
+    ...(userVote ? { userVote: userVote.optionIndices } : {}),
+    canViewResults: showResults,
   };
 
   // Add options with or without vote counts
@@ -144,14 +150,6 @@ export const formatPollResponse = (
       text: opt.text,
     }));
   }
-
-  // Add user's vote if they voted
-  if (userVote) {
-    response.userVote = userVote.optionIndices;
-  }
-
-  // Add result visibility status
-  response.canViewResults = showResults;
 
   return response;
 };

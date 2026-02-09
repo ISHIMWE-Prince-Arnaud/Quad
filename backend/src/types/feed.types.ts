@@ -1,5 +1,5 @@
 import type { IPost } from "./post.types.js";
-import type { IPoll } from "./poll.types.js";
+import type { IPollResponse } from "./poll.types.js";
 
 /**
  * Feed Types
@@ -32,7 +32,7 @@ export type FeedItemType = "post" | "poll";
 export interface IFeedItem {
   _id: string;
   type: FeedItemType;
-  content: IPost | IPoll;
+  content: IPost | IPollResponse;
   score: number;
   priority: ContentPriority;
   createdAt: Date;

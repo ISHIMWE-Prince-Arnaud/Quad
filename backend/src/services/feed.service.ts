@@ -14,10 +14,13 @@ import {
   getUserFollowing,
   scoreAndRankContent,
 } from "../utils/feed.util.js";
+import { Poll } from "../models/Poll.model.js";
+import { PollVote } from "../models/PollVote.model.js";
 import { FEED_CONFIG } from "../config/feed.config.js";
 import { PostSource } from "./feed/PostSource.js";
 import { PollSource } from "./feed/PollSource.js";
 import type { FeedSource } from "./feed/FeedSource.interface.js";
+import { canViewResults, formatPollResponse } from "../utils/poll.util.js";
 
 // Initialize sources
 const postSource = new PostSource();
@@ -261,6 +264,44 @@ export class FeedService {
     }
 
     const resultItems = scoredItems.slice(0, limit);
+
+    // Hydrate poll items with viewer-specific fields (userVote/canViewResults).
+    // Feed sources intentionally return a public poll shape; however, the UI needs
+    // to know if the current user has already voted in order to lock voting and
+    // reveal results immediately.
+    const pollIds = resultItems
+      .filter((it) => it.type === "poll")
+      .map((it) => String(it._id))
+      .filter(Boolean);
+
+    if (pollIds.length > 0) {
+      const [pollDocs, voteDocs] = await Promise.all([
+        Poll.find({ _id: { $in: pollIds } }),
+        PollVote.find({ userId, pollId: { $in: pollIds } }),
+      ]);
+
+      const pollById = new Map(pollDocs.map((p) => [String(p._id), p]));
+      const voteByPollId = new Map(voteDocs.map((v) => [String(v.pollId), v]));
+
+      for (const item of resultItems) {
+        if (item.type !== "poll") continue;
+
+        const pollId = String(item._id);
+        const poll = pollById.get(pollId);
+        if (!poll) continue;
+
+        const userVote = voteByPollId.get(pollId);
+        const showResults = canViewResults(poll, Boolean(userVote));
+        item.content = formatPollResponse(poll, userVote, showResults);
+
+        // Keep engagement metrics aligned with hydrated content.
+        item.engagementMetrics = {
+          ...item.engagementMetrics,
+          votes: poll.totalVotes || 0,
+          reactions: poll.reactionsCount || 0,
+        };
+      }
+    }
     const nextCursor =
       resultItems.length > 0
         ? (resultItems[resultItems.length - 1]?._id as string)
