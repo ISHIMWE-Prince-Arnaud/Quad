@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 import { ReactionService } from "@/services/reactionService";
 import type { ReactionType } from "@/services/reactionService";
@@ -60,7 +60,7 @@ export function useCommentReactions({
       setUserReaction(prevType);
       setReactionCount(prevCount);
       const msg = e instanceof Error ? e.message : "Failed to update reaction";
-      toast.error(msg);
+      showErrorToast(msg);
     } finally {
       setReactionPending(false);
     }

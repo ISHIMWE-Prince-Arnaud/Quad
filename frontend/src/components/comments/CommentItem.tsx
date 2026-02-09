@@ -2,7 +2,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Comment } from "@/types/comment";
 import { CommentService } from "@/services/commentService";
 import { useAuthStore } from "@/stores/authStore";
-import toast from "react-hot-toast";
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 
@@ -20,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 interface CommentItemProps {
   comment: Comment;
@@ -69,7 +69,7 @@ export function CommentItem({
       onDeleted?.(comment._id);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to delete comment";
-      toast.error(msg);
+      showErrorToast(msg);
     } finally {
       setDeletePending(false);
     }

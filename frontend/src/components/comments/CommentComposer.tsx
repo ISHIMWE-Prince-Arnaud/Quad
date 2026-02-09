@@ -6,7 +6,7 @@ import { AutoExpandingTextarea } from "@/components/ui/auto-expanding-textarea";
 import { CommentService } from "@/services/commentService";
 import { useAuthStore } from "@/stores/authStore";
 import type { Comment } from "@/types/comment";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/errorHandling";
 import { SendHorizontal } from "lucide-react"; // Assumes lucide-react is installed
 import { cn } from "@/lib/utils";
 
@@ -61,10 +61,10 @@ export function CommentComposer({
       setText("");
       setIsFocused(false); // Optional: collapse focus state on send
       onCreated?.(res.data);
-      toast.success("Comment posted!");
+      showSuccessToast("Comment posted");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to post comment";
-      toast.error(msg);
+      showErrorToast(msg);
     } finally {
       setPending(false);
     }

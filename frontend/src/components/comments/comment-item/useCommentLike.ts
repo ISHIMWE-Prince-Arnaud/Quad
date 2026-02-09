@@ -1,5 +1,5 @@
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 import { CommentService } from "@/services/commentService";
 
@@ -34,7 +34,7 @@ export function useCommentLike({
       setLiked(prevLiked);
       setLikesCount(prevCount);
       const msg = e instanceof Error ? e.message : "Failed to update like on comment";
-      toast.error(msg);
+      showErrorToast(msg);
     } finally {
       setLikePending(false);
     }

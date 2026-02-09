@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
-
 import { CommentService } from "@/services/commentService";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 export function useCommentEdit({
   commentId,
@@ -61,7 +60,7 @@ export function useCommentEdit({
       setEditText(value);
       setIsEditing(true);
       const msg = e instanceof Error ? e.message : "Failed to update comment";
-      toast.error(msg);
+      showErrorToast(msg);
     } finally {
       setEditPending(false);
     }
