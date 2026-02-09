@@ -6,6 +6,8 @@ import { Post } from "../models/Post.model.js";
 import { Story } from "../models/Story.model.js";
 import { Poll } from "../models/Poll.model.js";
 import { PollVote } from "../models/PollVote.model.js";
+import type { IPollDocument } from "../models/Poll.model.js";
+import type { IPollVoteDocument } from "../models/PollVote.model.js";
 
 import type {
   PaginationQuerySchemaType,
@@ -330,7 +332,7 @@ export class ProfileService {
     const polls = result.data as unknown as Array<{ _id: unknown }>;
     const pollIds = polls.map((p) => String(p?._id ?? "")).filter(Boolean);
 
-    let voteByPollId = new Map<string, unknown>();
+    let voteByPollId = new Map<string, IPollVoteDocument>();
     if (currentUserId && pollIds.length > 0) {
       const votes = await PollVote.find({
         userId: currentUserId,
@@ -340,11 +342,11 @@ export class ProfileService {
     }
 
     const formatted = (result.data as unknown[]).map((pollDoc) => {
-      const poll = pollDoc as unknown as { _id: unknown };
+      const poll = pollDoc as IPollDocument;
       const pollId = String(poll._id ?? "");
-      const userVote = voteByPollId.get(pollId) as any;
-      const showResults = canViewResults(pollDoc as any, Boolean(userVote));
-      return formatPollResponse(pollDoc as any, userVote, showResults);
+      const userVote = voteByPollId.get(pollId);
+      const showResults = canViewResults(poll, Boolean(userVote));
+      return formatPollResponse(poll, userVote, showResults);
     });
 
     return {
