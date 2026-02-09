@@ -4,6 +4,7 @@ import { useThemeStore } from "@/stores/themeStore";
 import { getClerkAppearance } from "@/lib/clerkTheme";
 import { Button } from "@/components/ui/button";
 import { logError } from "@/lib/errorHandling";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 import {
   Card,
   CardContent,
@@ -26,6 +27,7 @@ export function UserMenu() {
       await signOut();
     } catch (error) {
       logError(error, { component: "UserMenu", action: "signOut" });
+      showErrorToast(error, "Failed to sign out");
     }
   };
 

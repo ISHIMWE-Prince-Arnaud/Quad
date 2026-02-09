@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import type { DragEvent } from "react";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { UploadService } from "@/services/uploadService";
 import type { MediaData } from "@/schemas/post.schema";
@@ -28,10 +28,11 @@ export function useCreatePostMedia() {
       if (!files || files.length === 0) return;
 
       const fileArray = Array.from(files);
-      const totalFiles = uploadedMedia.length + uploadingFiles.length + fileArray.length;
+      const totalFiles =
+        uploadedMedia.length + uploadingFiles.length + fileArray.length;
 
       if (totalFiles > 10) {
-        toast.error("You can only upload up to 10 files");
+        showErrorToast("You can only upload up to 10 files");
         return;
       }
 
@@ -39,7 +40,7 @@ export function useCreatePostMedia() {
       for (const file of fileArray) {
         const validation = UploadService.validateFile(file, "any");
         if (!validation.valid) {
-          toast.error(validation.error || "Invalid file");
+          showErrorToast(validation.error || "Invalid file");
         } else {
           validFiles.push(file);
         }
@@ -86,10 +87,12 @@ export function useCreatePostMedia() {
           };
 
           setUploadedMedia((prev) => [...prev, newMedia]);
-          setUploadingFiles((prev) => prev.filter((_, idx) => idx !== uploadingIndex));
+          setUploadingFiles((prev) =>
+            prev.filter((_, idx) => idx !== uploadingIndex),
+          );
 
           if (localPreview) URL.revokeObjectURL(localPreview);
-          toast.success("Media uploaded successfully");
+          showSuccessToast("Media uploaded successfully");
         } catch (error) {
           logError(error, {
             component: "useCreatePostMedia",
@@ -97,13 +100,15 @@ export function useCreatePostMedia() {
             metadata: { fileType: file.type, fileName: file.name },
           });
           setUploadingFiles((prev) =>
-            prev.map((uf, idx) => (idx === uploadingIndex ? { ...uf, error: "Upload failed" } : uf))
+            prev.map((uf, idx) =>
+              idx === uploadingIndex ? { ...uf, error: "Upload failed" } : uf,
+            ),
           );
-          toast.error("Failed to upload media");
+          showErrorToast("Failed to upload media");
         }
       }
     },
-    [uploadedMedia.length, uploadingFiles.length]
+    [uploadedMedia.length, uploadingFiles.length],
   );
 
   const removeMedia = useCallback((index: number) => {
@@ -126,7 +131,7 @@ export function useCreatePostMedia() {
       setIsDragging(false);
       void handleFileSelect(e.dataTransfer?.files || null);
     },
-    [handleFileSelect]
+    [handleFileSelect],
   );
 
   const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {

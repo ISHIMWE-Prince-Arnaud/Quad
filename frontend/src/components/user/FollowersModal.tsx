@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { UserCardData } from "@/components/user/UserCard";
 import { FollowService } from "@/services/followService";
 import type { ApiFollowUser } from "@/types/api";
-import { logError } from "@/lib/errorHandling";
+import { logError, showErrorToast } from "@/lib/errorHandling";
 import { useFollowStore } from "@/stores/followStore";
 
 import { FollowersModalBody } from "./followers-modal/FollowersModalBody";
@@ -168,6 +168,7 @@ export function FollowersModal({
         action: "followUser",
         metadata: { targetUserId },
       });
+      showErrorToast(error);
     }
   };
 
@@ -185,6 +186,7 @@ export function FollowersModal({
         action: "unfollowUser",
         metadata: { targetUserId },
       });
+      showErrorToast(error);
     }
   };
 

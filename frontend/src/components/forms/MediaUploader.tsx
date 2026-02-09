@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { UploadService } from "@/services/uploadService";
 import type { MediaData } from "@/schemas/post.schema";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import { cn } from "@/lib/utils";
 import { logError } from "@/lib/errorHandling";
 import PulsingLogoSpinner from "@/components/ui/PulsingLogoSpinner";
@@ -29,7 +29,7 @@ export function MediaUploader({
   initialMedia,
 }: MediaUploaderProps) {
   const [uploadedMedia, setUploadedMedia] = useState<MediaData[]>(
-    initialMedia ?? []
+    initialMedia ?? [],
   );
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -43,7 +43,7 @@ export function MediaUploader({
   // Detect aspect ratio from image dimensions
   const detectAspectRatio = (
     width: number,
-    height: number
+    height: number,
   ): "1:1" | "16:9" | "9:16" => {
     const ratio = width / height;
     if (Math.abs(ratio - 1) < 0.1) return "1:1";
@@ -61,7 +61,7 @@ export function MediaUploader({
         uploadedMedia.length + uploadingFiles.length + fileArray.length;
 
       if (totalFiles > maxFiles) {
-        toast.error(`You can only upload up to ${maxFiles} files`);
+        showErrorToast(`Max ${maxFiles} files allowed`);
         return;
       }
 
@@ -70,7 +70,7 @@ export function MediaUploader({
       for (const file of fileArray) {
         const validation = UploadService.validateFile(file, "any");
         if (!validation.valid) {
-          toast.error(validation.error || "Invalid file");
+          showErrorToast(validation.error || "Invalid file");
         } else {
           validFiles.push(file);
         }
@@ -118,10 +118,10 @@ export function MediaUploader({
 
           // Remove from uploading
           setUploadingFiles((prev) =>
-            prev.filter((_, idx) => idx !== uploadingIndex)
+            prev.filter((_, idx) => idx !== uploadingIndex),
           );
 
-          toast.success("Media uploaded successfully");
+          showSuccessToast("Media uploaded");
         } catch (error) {
           logError(error, {
             component: "MediaUploader",
@@ -130,14 +130,14 @@ export function MediaUploader({
           });
           setUploadingFiles((prev) =>
             prev.map((uf, idx) =>
-              idx === uploadingIndex ? { ...uf, error: "Upload failed" } : uf
-            )
+              idx === uploadingIndex ? { ...uf, error: "Upload failed" } : uf,
+            ),
           );
-          toast.error("Failed to upload media");
+          showErrorToast("Failed to upload media");
         }
       }
     },
-    [uploadedMedia.length, uploadingFiles.length, maxFiles]
+    [uploadedMedia.length, uploadingFiles.length, maxFiles],
   );
 
   const removeMedia = (index: number) => {
@@ -161,7 +161,7 @@ export function MediaUploader({
       setIsDragging(false);
       handleFileSelect(e.dataTransfer.files);
     },
-    [handleFileSelect]
+    [handleFileSelect],
   );
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -184,7 +184,7 @@ export function MediaUploader({
           "border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer",
           isDragging
             ? "border-primary bg-primary/5"
-            : "border-border hover:border-primary/50"
+            : "border-border hover:border-primary/50",
         )}
         onClick={() => fileInputRef.current?.click()}>
         <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
