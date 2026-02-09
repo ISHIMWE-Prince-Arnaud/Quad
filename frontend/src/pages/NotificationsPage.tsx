@@ -3,13 +3,12 @@ import {
   Card,
   CardHeader,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
 import { BellOff } from "lucide-react";
 
-import { NotificationSkeleton, LoadingButton } from "@/components/ui/loading";
+import { NotificationSkeleton, LoadMoreButton } from "@/components/ui/loading";
 import { NotificationRow } from "./notifications/NotificationRow";
 import { NotificationsHeader } from "./notifications/NotificationsHeader";
 import { useNotificationsController } from "./notifications/useNotificationsController";
@@ -97,20 +96,11 @@ export default function NotificationsPage() {
 
         {/* Footer - Only show if there's more content */}
         {controller.hasMore && controller.notifications.length > 0 && (
-          <CardFooter className="flex justify-center py-4 bg-muted/5">
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={controller.loading}
-              onClick={controller.handleLoadMore}
-              className="text-muted-foreground hover:text-foreground">
-              {controller.loading ? (
-                <LoadingButton />
-              ) : (
-                "Load older notifications"
-              )}
-            </Button>
-          </CardFooter>
+          <LoadMoreButton
+            loading={controller.loading}
+            onClick={controller.handleLoadMore}
+            label="Load older notifications"
+          />
         )}
       </Card>
     </ComponentErrorBoundary>

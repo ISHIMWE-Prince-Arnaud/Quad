@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LoadingPage, LoadingButton } from "@/components/ui/loading";
+import { LoadingPage } from "@/components/ui/loading";
 import { CreatePostForm } from "@/components/forms/CreatePostForm";
 import { PostService } from "@/services/postService";
 import type { CreatePostData } from "@/schemas/post.schema";

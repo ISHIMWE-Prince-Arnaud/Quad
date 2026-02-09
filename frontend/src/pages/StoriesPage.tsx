@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StoryCard } from "@/components/stories/StoryCard";
 import { logError } from "@/lib/errorHandling";
 import { BookOpen } from "lucide-react";
-import { LoadingButton } from "@/components/ui/loading";
+import { LoadMoreButton } from "@/components/ui/loading";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -213,11 +213,10 @@ export default function StoriesPage() {
         </div>
 
         {!loading && hasMore && (
-          <div className="mt-6 flex justify-center">
-            <Button onClick={() => void handleLoadMore()} disabled={loading}>
-              {loading ? <LoadingButton /> : "Load more"}
-            </Button>
-          </div>
+          <LoadMoreButton
+            loading={loading}
+            onClick={() => void handleLoadMore()}
+          />
         )}
       </div>
     </div>

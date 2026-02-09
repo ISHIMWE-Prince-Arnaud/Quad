@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams } from "@/types/poll";
-import { LoadingButton, SkeletonPollCard } from "@/components/ui/loading";
+import { SkeletonPollCard, LoadMoreButton } from "@/components/ui/loading";
 import { getSocket } from "@/lib/socket";
 import toast from "react-hot-toast";
 import type {
@@ -278,15 +277,10 @@ export default function PollsPage() {
       </div>
 
       {!loading && hasMore && (
-        <div className="flex justify-center pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleChangePage(page + 1)}
-            disabled={loading}>
-            {loading ? <LoadingButton /> : "Load more"}
-          </Button>
-        </div>
+        <LoadMoreButton
+          loading={loading}
+          onClick={() => handleChangePage(page + 1)}
+        />
       )}
     </div>
   );
