@@ -8,8 +8,7 @@ import toast from "react-hot-toast";
 import type { Post } from "@/types/post";
 import { CommentsSection } from "@/components/comments/CommentsSection";
 import { logError } from "@/lib/errorHandling";
-import { SkeletonPost } from "@/components/ui/loading";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonPost, CommentsSkeleton } from "@/components/ui/loading";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -26,57 +25,6 @@ function getErrorMessage(error: unknown): string {
   }
 
   return "Failed to load post";
-}
-
-function CommentsSectionSkeleton() {
-  return (
-    <div className="rounded-3xl bg-card border border-border/40 p-5">
-      <div className="flex items-center justify-between">
-        <Skeleton variant="text" className="h-4 w-40 bg-white/5" />
-      </div>
-
-      <div className="mt-4">
-        <div className="flex items-start gap-3">
-          <Skeleton
-            variant="circular"
-            className="h-8 w-8 shrink-0 bg-white/5"
-          />
-          <div className="flex-1">
-            <div className="flex items-center gap-3 rounded-2xl bg-muted/70 border border-border/40 px-4 py-2">
-              <Skeleton variant="text" className="h-4 w-8/12 bg-white/5" />
-              <Skeleton variant="text" className="h-4 w-12 bg-white/5" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 divide-y divide-white/5">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="py-4">
-            <div className="flex gap-3">
-              <Skeleton
-                variant="circular"
-                className="h-9 w-9 shrink-0 bg-white/5"
-              />
-              <div className="flex-1 min-w-0 space-y-2">
-                <div className="flex items-center justify-between gap-3">
-                  <Skeleton variant="text" className="h-4 w-28 bg-white/5" />
-                  <Skeleton variant="text" className="h-3 w-16 bg-white/5" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton variant="text" className="h-4 w-full bg-white/5" />
-                  <Skeleton variant="text" className="h-4 w-10/12 bg-white/5" />
-                </div>
-                <div className="pt-1">
-                  <Skeleton variant="text" className="h-4 w-20 bg-white/5" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 export default function PostPage() {
@@ -149,7 +97,7 @@ export default function PostPage() {
         </Button>
 
         <SkeletonPost />
-        <CommentsSectionSkeleton />
+        <CommentsSkeleton />
       </div>
     );
   }

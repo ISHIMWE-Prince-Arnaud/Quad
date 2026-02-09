@@ -16,6 +16,7 @@ import {
   ProfilePollsTabSkeleton,
   ProfileSkeleton,
   ProfileStoriesTabSkeleton,
+  LoadingButton,
 } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
 import { useAuthStore } from "@/stores/authStore";
@@ -175,7 +176,7 @@ export default function ProfilePage() {
                     size="sm"
                     onClick={() => void controller.handleLoadMorePosts()}
                     disabled={controller.postsLoading}>
-                    {controller.postsLoading ? "Loading..." : "Load more"}
+                    {controller.postsLoading ? <LoadingButton /> : "Load more"}
                   </Button>
                 </div>
               )}
@@ -225,7 +226,11 @@ export default function ProfilePage() {
                       size="sm"
                       onClick={() => void controller.handleLoadMoreStories()}
                       disabled={controller.storiesLoading}>
-                      {controller.storiesLoading ? "Loading..." : "Load more"}
+                      {controller.storiesLoading ? (
+                        <LoadingButton />
+                      ) : (
+                        "Load more"
+                      )}
                     </Button>
                   </div>
                 )}
@@ -276,7 +281,11 @@ export default function ProfilePage() {
                       size="sm"
                       onClick={() => void controller.handleLoadMorePolls()}
                       disabled={controller.pollsLoading}>
-                      {controller.pollsLoading ? "Loading..." : "Load more"}
+                      {controller.pollsLoading ? (
+                        <LoadingButton />
+                      ) : (
+                        "Load more"
+                      )}
                     </Button>
                   </div>
                 )}
@@ -372,9 +381,11 @@ export default function ProfilePage() {
                             void controller.handleLoadMoreSavedPosts()
                           }
                           disabled={controller.savedPostsLoading}>
-                          {controller.savedPostsLoading
-                            ? "Loading..."
-                            : "Load more"}
+                          {controller.savedPostsLoading ? (
+                            <LoadingButton />
+                          ) : (
+                            "Load more"
+                          )}
                         </Button>
                       </div>
                     )}
@@ -418,9 +429,11 @@ export default function ProfilePage() {
                             void controller.handleLoadMoreSavedStories()
                           }
                           disabled={controller.savedStoriesLoading}>
-                          {controller.savedStoriesLoading
-                            ? "Loading..."
-                            : "Load more"}
+                          {controller.savedStoriesLoading ? (
+                            <LoadingButton />
+                          ) : (
+                            "Load more"
+                          )}
                         </Button>
                       </div>
                     )}
@@ -469,9 +482,11 @@ export default function ProfilePage() {
                             void controller.handleLoadMoreSavedPolls()
                           }
                           disabled={controller.savedPollsLoading}>
-                          {controller.savedPollsLoading
-                            ? "Loading..."
-                            : "Load more"}
+                          {controller.savedPollsLoading ? (
+                            <LoadingButton />
+                          ) : (
+                            "Load more"
+                          )}
                         </Button>
                       </div>
                     )}

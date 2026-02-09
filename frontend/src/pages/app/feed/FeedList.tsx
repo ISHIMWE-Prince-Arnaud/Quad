@@ -3,6 +3,7 @@ import type { Virtualizer } from "@tanstack/react-virtual";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading";
 import { PostCard } from "@/components/posts/PostCard";
 import { OptimisticPostCard } from "@/components/posts/OptimisticPostCard";
 import { PollCard } from "@/components/polls/PollCard";
@@ -137,7 +138,7 @@ export function FeedList({
             size="sm"
             onClick={onLoadMore}
             disabled={loadingMore}>
-            {loadingMore ? "Loading..." : "Load more"}
+            {loadingMore ? <LoadingButton /> : "Load more"}
           </Button>
         </div>
       )}
