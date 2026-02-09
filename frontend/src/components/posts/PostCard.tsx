@@ -10,7 +10,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { cn, copyToClipboard, getDisplayName } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import type { Post } from "@/types/post";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import { motion } from "framer-motion";
 import { logError } from "@/lib/errorHandling";
 
@@ -67,9 +67,9 @@ export function PostCard({
     try {
       const ok = await copyToClipboard(url);
       if (ok) {
-        toast.success("Post link copied to clipboard");
+        showSuccessToast("Link copied");
       } else {
-        toast.error("Failed to copy link");
+        showErrorToast("Failed to copy link");
       }
     } catch (e) {
       logError(e, {
@@ -77,7 +77,7 @@ export function PostCard({
         action: "copyLink",
         metadata: { postId: post._id },
       });
-      toast.error("Failed to copy link");
+      showErrorToast("Failed to copy link");
     }
   };
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 import { ReactionService } from "@/services/reactionService";
 import type { ReactionType } from "@/services/reactionService";
@@ -8,7 +8,7 @@ export function usePostReactions(postId: string) {
   const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
   const [reactionPending, setReactionPending] = useState(false);
   const [reactionCount, setReactionCount] = useState<number | undefined>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export function usePostReactions(postId: string) {
       ) {
         msg = (err as { message: string }).message;
       }
-      toast.error(msg);
+      showErrorToast(msg);
     } finally {
       setReactionPending(false);
     }
