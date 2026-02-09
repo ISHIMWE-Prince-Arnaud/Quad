@@ -3,6 +3,7 @@ import type { RefObject } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ChatListSkeleton } from "@/components/ui/loading";
 import type { ChatMessage } from "@/types/chat";
 import { AlertTriangle, MessageSquare, Edit2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -66,100 +67,6 @@ const linkifyText = (text: string) => {
     );
   });
 };
-
-function ChatMessageSkeletonItem({
-  isSelf,
-  startsNewGroup = true,
-  width = "w-48",
-}: {
-  isSelf: boolean;
-  startsNewGroup?: boolean;
-  width?: string;
-}) {
-  return (
-    <div className={cn("py-0", !startsNewGroup && "mt-1.5 animate-pulse")}>
-      <div
-        className={cn(
-          "flex items-start gap-3",
-          isSelf ? "justify-end" : "justify-start",
-        )}>
-        {!isSelf &&
-          (startsNewGroup ? (
-            <div className="h-8 w-8 rounded-full bg-muted/70 animate-pulse shrink-0 shadow-sm border border-border/40" />
-          ) : (
-            <div className="w-9 shrink-0" />
-          ))}
-
-        <div
-          className={cn(
-            "flex flex-col max-w-[75%] min-w-0",
-            isSelf ? "items-end" : "items-start",
-          )}>
-          {startsNewGroup && (
-            <div
-              className={cn(
-                "flex items-center gap-2 mb-2 w-full",
-                isSelf ? "justify-end" : "justify-start",
-              )}>
-              {!isSelf && (
-                <div className="h-3 w-20 rounded-full bg-muted/70 animate-pulse" />
-              )}
-              <div className="h-3 w-10 rounded-full bg-muted/40 animate-pulse" />
-              {isSelf && (
-                <div className="h-3 w-12 rounded-full bg-muted/70 animate-pulse" />
-              )}
-            </div>
-          )}
-
-          <div
-            className={cn(
-              "relative w-fit max-w-full rounded-2xl px-4 py-3 shadow-sm animate-pulse",
-              isSelf
-                ? "bg-primary/10 border border-primary/20"
-                : "bg-muted/80 border border-border/40",
-            )}>
-            <div className={cn("h-4 rounded bg-background/50", width)} />
-          </div>
-        </div>
-
-        {isSelf &&
-          (startsNewGroup ? (
-            <div className="h-8 w-8 rounded-full bg-muted/70 animate-pulse shrink-0 shadow-sm border border-border/40" />
-          ) : (
-            <div className="w-9 shrink-0" />
-          ))}
-      </div>
-    </div>
-  );
-}
-
-function ChatMessageListSkeleton() {
-  return (
-    <div className="space-y-4 px-2">
-      <div className="flex items-center justify-center py-3">
-        <div className="h-px flex-1 bg-border/40" />
-        <div className="mx-3 h-5 w-24 rounded-full bg-muted/60 animate-pulse" />
-        <div className="h-px flex-1 bg-border/40" />
-      </div>
-
-      <div className="space-y-4">
-        <ChatMessageSkeletonItem isSelf={false} />
-        <ChatMessageSkeletonItem
-          isSelf={false}
-          startsNewGroup={false}
-          width="w-32"
-        />
-        <ChatMessageSkeletonItem isSelf={true} />
-        <ChatMessageSkeletonItem
-          isSelf={true}
-          startsNewGroup={false}
-          width="w-40"
-        />
-        <ChatMessageSkeletonItem isSelf={false} />
-      </div>
-    </div>
-  );
-}
 
 function ChatEmptyState() {
   return (
@@ -286,7 +193,7 @@ export const ChatMessageList = memo(function ChatMessageList({
       <div
         ref={listRef}
         className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide px-6 py-4">
-        {loading && <ChatMessageListSkeleton />}
+        {loading && <ChatListSkeleton />}
 
         {!loading && !pendingOutgoingText && messages.length === 0 && error && (
           <ChatErrorState onRetry={onRetry} />
@@ -300,14 +207,11 @@ export const ChatMessageList = memo(function ChatMessageList({
         {!loading && messages.length > 0 && (
           <div>
             {loadingOlder && (
-              <div className="flex items-center justify-center py-4">
-                <div className="flex items-center gap-1.5 rounded-full border border-border/60 bg-background/60 px-3 py-1">
-                  <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50 animate-pulse" />
-                  <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50 animate-pulse [animation-delay:120ms]" />
-                  <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50 animate-pulse [animation-delay:240ms]" />
-                  <span className="ml-1 text-xs font-medium text-muted-foreground">
-                    Loading older messages
-                  </span>
+              <div className="flex items-center justify-center py-6">
+                <div className="flex items-center gap-1.5 rounded-full border border-border/40 bg-muted/20 px-4 py-2 animate-pulse">
+                  <div className="h-2 w-2 rounded-full bg-muted-foreground/30" />
+                  <div className="h-2 w-2 rounded-full bg-muted-foreground/30 [animation-delay:150ms]" />
+                  <div className="h-2 w-2 rounded-full bg-muted-foreground/30 [animation-delay:300ms]" />
                 </div>
               </div>
             )}
@@ -481,9 +385,6 @@ export const ChatMessageList = memo(function ChatMessageList({
                         )}>
                         {showHeader && (
                           <div className="flex items-center justify-end gap-2 mb-2 w-full">
-                            <span className="text-xs text-muted-foreground/60 tabular-nums">
-                              Sending...
-                            </span>
                             <span className="text-sm font-semibold text-foreground">
                               You
                             </span>
