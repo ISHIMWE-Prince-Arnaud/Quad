@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
+import { LoadingPage } from "@/components/ui/loading";
 import { UploadService } from "@/services/uploadService";
 import { StoryService } from "@/services/storyService";
 import type { Story, StoryStatus, UpdateStoryInput } from "@/types/story";
@@ -196,11 +197,7 @@ export default function EditStoryPage() {
   };
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-3xl flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <LoadingPage />;
   }
 
   if (error || !story) {

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LoadingPage, LoadingButton } from "@/components/ui/loading";
 import { CreatePostForm } from "@/components/forms/CreatePostForm";
 import { PostService } from "@/services/postService";
 import type { CreatePostData } from "@/schemas/post.schema";
@@ -58,7 +59,11 @@ export default function EditPostPage() {
           setError(response.message || "Failed to load post");
         }
       } catch (err: unknown) {
-        logError(err, { component: "EditPostPage", action: "fetchPost", metadata: { id } });
+        logError(err, {
+          component: "EditPostPage",
+          action: "fetchPost",
+          metadata: { id },
+        });
         setError(getErrorMessage(err));
       } finally {
         setLoading(false);
@@ -82,7 +87,11 @@ export default function EditPostPage() {
         toast.error(response.message || "Failed to update post");
       }
     } catch (err: unknown) {
-      logError(err, { component: "EditPostPage", action: "updatePost", metadata: { id } });
+      logError(err, {
+        component: "EditPostPage",
+        action: "updatePost",
+        metadata: { id },
+      });
       toast.error(getErrorMessage(err));
     } finally {
       setIsSubmitting(false);
@@ -90,11 +99,7 @@ export default function EditPostPage() {
   };
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-3xl flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <LoadingPage />;
   }
 
   if (error || !post) {
