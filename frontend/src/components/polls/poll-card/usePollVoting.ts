@@ -1,20 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 import { PollService } from "@/services/pollService";
 import type { Poll } from "@/types/poll";
 import { logError } from "@/lib/errorHandling";
 import { getSocket } from "@/lib/socket";
 import type { PollVotedPayload } from "@/lib/socket";
+import { formatErrorMessage } from "@/lib/error-handling/formatters";
 
-export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void) {
+export function usePollVoting(
+  poll: Poll,
+  onUpdate?: (updatedPoll: Poll) => void,
+) {
   // Local poll state for optimistic updates
   const [localPoll, setLocalPoll] = useState<Poll>(poll);
   const [selectedIndices, setSelectedIndices] = useState<number[]>(
-    poll.userVote || []
+    poll.userVote || [],
   );
   const [voting, setVoting] = useState(false);
-  const [resultsVisible, setResultsVisible] = useState(Boolean(poll.canViewResults));
+  const [resultsVisible, setResultsVisible] = useState(
+    Boolean(poll.canViewResults),
+  );
 
   const selectedIndicesRef = useRef<number[]>(poll.userVote || []);
 
@@ -30,7 +36,8 @@ export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void
     // If the parent re-renders with a poll that doesn't include `userVote`
     // (common for socket-driven vote count updates), preserve the local vote
     // so the UI doesn't snap back to “not voted”.
-    const shouldPreserveLocalVote = incomingVote.length === 0 && localSelected.length > 0;
+    const shouldPreserveLocalVote =
+      incomingVote.length === 0 && localSelected.length > 0;
 
     setLocalPoll((prev) => {
       if (String(prev.id) !== String(poll.id)) return poll;
@@ -63,18 +70,23 @@ export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void
 
       setLocalPoll((prev) => {
         const totalVotes =
-          typeof payload.totalVotes === "number" ? payload.totalVotes : prev.totalVotes;
+          typeof payload.totalVotes === "number"
+            ? payload.totalVotes
+            : prev.totalVotes;
 
         const options = prev.options.map((opt, idx) => {
           const optionIndex = typeof opt.index === "number" ? opt.index : idx;
           const votesCountRaw = payload.updatedVoteCounts?.[optionIndex];
           const votesCount =
-            typeof votesCountRaw === "number" ? votesCountRaw : (opt.votesCount ?? 0);
+            typeof votesCountRaw === "number"
+              ? votesCountRaw
+              : (opt.votesCount ?? 0);
 
           return {
             ...opt,
             votesCount,
-            percentage: totalVotes > 0 ? Math.round((votesCount / totalVotes) * 100) : 0,
+            percentage:
+              totalVotes > 0 ? Math.round((votesCount / totalVotes) * 100) : 0,
           };
         });
 
@@ -138,7 +150,7 @@ export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void
       // Calculate new total
       const newTotal = newOptions.reduce(
         (sum, opt) => sum + (opt.votesCount ?? 0),
-        0
+        0,
       );
 
       // Calculate percentages
@@ -185,21 +197,55 @@ export function usePollVoting(poll: Poll, onUpdate?: (updatedPoll: Poll) => void
         action: "vote",
         metadata: { pollId: poll.id },
       });
-      // Revert optimistic update
-      setLocalPoll(poll);
-      setSelectedIndices(poll.userVote || []);
-      setResultsVisible(Boolean(poll.canViewResults));
 
-      let msg = "Failed to submit vote";
-      if (
-        err &&
-        typeof err === "object" &&
-        "message" in err &&
-        typeof (err as { message?: unknown }).message === "string"
-      ) {
-        msg = (err as { message: string }).message;
+      const msg = formatErrorMessage(err);
+      const alreadyVoted = msg.toLowerCase().includes("already voted");
+
+      // If backend says you already voted, hydrate the poll from the server so
+      // the UI immediately reflects the real state (results visible + vote locked).
+      if (alreadyVoted) {
+        try {
+          const fresh = await PollService.getById(poll.id);
+          if (fresh.success && fresh.data) {
+            setLocalPoll(fresh.data);
+            setSelectedIndices(fresh.data.userVote || []);
+            setResultsVisible(true);
+            onUpdate?.(fresh.data);
+            showErrorToast(msg);
+            return;
+          }
+        } catch (rehydrateErr) {
+          logError(rehydrateErr, {
+            component: "PollCardVoting",
+            action: "rehydrateAfterAlreadyVoted",
+            metadata: { pollId: poll.id },
+          });
+        }
       }
-      toast.error(msg);
+
+      // Revert optimistic update.
+      // Prefer reverting to the previous local poll if the incoming prop doesn't
+      // include userVote (common in feed/profile payloads).
+      setLocalPoll((prev) => {
+        const incomingHasVote = (poll.userVote || []).length > 0;
+        const prevHasVote = (prev.userVote || []).length > 0;
+        if (!incomingHasVote && prevHasVote) return prev;
+        return poll;
+      });
+
+      setSelectedIndices((prev) => {
+        const incoming = poll.userVote || [];
+        if (incoming.length === 0 && prev.length > 0) return prev;
+        return incoming;
+      });
+
+      setResultsVisible((prev) => {
+        const incomingHasResults = Boolean(poll.canViewResults);
+        if (!incomingHasResults && prev) return prev;
+        return incomingHasResults;
+      });
+
+      showErrorToast(msg || "Failed to submit vote");
     } finally {
       setVoting(false);
     }

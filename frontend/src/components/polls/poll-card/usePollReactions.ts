@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 import { getSocket } from "@/lib/socket";
 import type { FeedEngagementUpdatePayload } from "@/lib/socket";
@@ -100,7 +100,7 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
       ) {
         msg = (err as { message: string }).message;
       }
-      toast.error(msg);
+      showErrorToast(msg);
     } finally {
       setReactionPending(false);
     }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import toast from "react-hot-toast";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 import { FaUsers } from "react-icons/fa";
 
@@ -192,9 +192,9 @@ export function PollCard({
   const handleEdit = () => {
     if (cannotEdit) {
       if (cannotEditReason === "votes cast") {
-        toast.error("You can't edit a poll after votes have been cast");
+        showErrorToast("You can't edit a poll after votes have been cast");
       } else {
-        toast.error("You can't edit an expired poll");
+        showErrorToast("You can't edit an expired poll");
       }
       return;
     }

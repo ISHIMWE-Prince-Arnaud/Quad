@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { BookmarkService } from "@/services/bookmarkService";
 
@@ -34,10 +34,10 @@ export function usePollBookmark(pollId: string) {
 
       const next = await BookmarkService.toggle("poll", pollId);
       setBookmarked(next);
-      toast.success(next ? "Saved to bookmarks" : "Removed from bookmarks");
+      showSuccessToast(next ? "Saved" : "Removed");
     } catch {
       setBookmarked(prev);
-      toast.error("Failed to update bookmark");
+      showErrorToast("Failed to update bookmark");
     } finally {
       setBookmarkPending(false);
     }
