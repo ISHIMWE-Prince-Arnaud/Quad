@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { Button } from "@/components/ui/button";
 import { LoadingPage } from "@/components/ui/loading";
@@ -119,14 +119,14 @@ export default function EditStoryPage() {
       setUploadingCover(true);
       const res = await UploadService.uploadStoryMedia(file);
       setCoverImage(res.url);
-      toast.success("Cover image set");
+      showSuccessToast("Cover image set");
     } catch (err) {
       logError(err, {
         component: "EditStoryPage",
         action: "uploadCoverImage",
         metadata: { id },
       });
-      toast.error(getErrorMessage(err));
+      showErrorToast(getErrorMessage(err));
     } finally {
       setUploadingCover(false);
     }
@@ -155,7 +155,7 @@ export default function EditStoryPage() {
         }
       });
       setValidationErrors(errors);
-      toast.error("Please fix validation errors");
+      showErrorToast("Fix validation errors");
       return;
     }
 
@@ -176,11 +176,13 @@ export default function EditStoryPage() {
 
       const res = await StoryService.update(id, payload);
       if (!res.success) {
-        toast.error(res.message || "Failed to update story");
+        showErrorToast(res.message || "Failed to update story");
         return;
       }
 
-      toast.success(status === "published" ? "Story updated" : "Draft updated");
+      showSuccessToast(
+        status === "published" ? "Story updated" : "Draft updated",
+      );
       navigate(`/app/stories/${id}`, {
         state: { story: res.data, refreshKey: Date.now() },
       });
@@ -190,7 +192,7 @@ export default function EditStoryPage() {
         action: "updateStory",
         metadata: { id },
       });
-      toast.error(getErrorMessage(err));
+      showErrorToast(getErrorMessage(err));
     } finally {
       setSubmitting(false);
     }

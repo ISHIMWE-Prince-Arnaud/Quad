@@ -8,7 +8,7 @@ import { createStorySchema } from "@/schemas/story.schema";
 import { getErrorMessage } from "./create-story/getErrorMessage";
 import { CreateStoryForm } from "./create-story/CreateStoryForm";
 import { useStoryEditor } from "./create-story/useStoryEditor";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import { logError } from "@/lib/errorHandling";
 import { Button } from "@/components/ui/button";
 
@@ -64,7 +64,10 @@ export default function CreateStoryPage() {
           await StoryService.create(payload);
           setLastSaved(new Date());
         } catch (err) {
-          logError(err, { component: "CreateStoryPage", action: "autoSaveStory" });
+          logError(err, {
+            component: "CreateStoryPage",
+            action: "autoSaveStory",
+          });
         } finally {
           setAutoSaving(false);
         }
@@ -93,10 +96,13 @@ export default function CreateStoryPage() {
       setUploadingCover(true);
       const res = await UploadService.uploadStoryMedia(file);
       setCoverImage(res.url);
-      toast.success("Cover image set");
+      showSuccessToast("Cover image set");
     } catch (err) {
-      logError(err, { component: "CreateStoryPage", action: "uploadCoverImage" });
-      toast.error(getErrorMessage(err));
+      logError(err, {
+        component: "CreateStoryPage",
+        action: "uploadCoverImage",
+      });
+      showErrorToast(getErrorMessage(err));
     } finally {
       setUploadingCover(false);
     }
@@ -128,7 +134,7 @@ export default function CreateStoryPage() {
         }
       });
       setValidationErrors(errors);
-      toast.error("Please fix validation errors");
+      showErrorToast("Fix validation errors");
       return;
     }
 
@@ -142,10 +148,12 @@ export default function CreateStoryPage() {
       };
       const res = await StoryService.create(payload);
       if (!res.success) {
-        toast.error(res.message || "Failed to save story");
+        showErrorToast(res.message || "Failed to save story");
         return;
       }
-      toast.success(status === "published" ? "Story published" : "Draft saved");
+      showSuccessToast(
+        status === "published" ? "Story published" : "Draft saved",
+      );
 
       // Clear form
       setTitle("");
@@ -155,7 +163,7 @@ export default function CreateStoryPage() {
       setLastSaved(null);
     } catch (err) {
       logError(err, { component: "CreateStoryPage", action: "submitStory" });
-      toast.error(getErrorMessage(err));
+      showErrorToast(getErrorMessage(err));
     } finally {
       setSubmitting(false);
     }
@@ -169,8 +177,7 @@ export default function CreateStoryPage() {
             type="button"
             variant="ghost"
             size="sm"
-            onClick={() => navigate("/app/stories")}
-          >
+            onClick={() => navigate("/app/stories")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Stories
           </Button>
@@ -202,7 +209,7 @@ export default function CreateStoryPage() {
           onInsertLink={handleInsertLink}
           onMention={() => {
             const username = window.prompt(
-              "Enter username to mention (without @)"
+              "Enter username to mention (without @)",
             );
             if (username) {
               editor?.chain().focus().insertContent(`@${username} `).run();

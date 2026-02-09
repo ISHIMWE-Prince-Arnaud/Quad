@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import toast from "react-hot-toast";
 
 import { ReactionService, type ReactionType } from "@/services/reactionService";
 import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
 import { logError } from "@/lib/errorHandling";
 import { copyToClipboard } from "@/lib/utils";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { getErrorMessage } from "./getErrorMessage";
 
@@ -50,7 +50,11 @@ export function useStoryPageController({
           setStory(res.data);
         }
       } catch (err) {
-        logError(err, { component: "StoryPage", action: "loadStory", metadata: { id } });
+        logError(err, {
+          component: "StoryPage",
+          action: "loadStory",
+          metadata: { id },
+        });
         if (!cancelled) setError(getErrorMessage(err));
       } finally {
         if (!cancelled) setLoading(false);
@@ -95,9 +99,9 @@ export function useStoryPageController({
 
       const ok = await copyToClipboard(url);
       if (ok) {
-        toast.success("Story link copied to clipboard");
+        showSuccessToast("Link copied");
       } else {
-        toast.error("Failed to copy link");
+        showErrorToast("Failed to copy link");
       }
     } catch (err) {
       logError(err, {
@@ -105,7 +109,7 @@ export function useStoryPageController({
         action: "copyLink",
         metadata: { id, title: story?.title },
       });
-      toast.error("Failed to copy link");
+      showErrorToast("Failed to copy link");
     }
   }, [story?.title, id]);
 
@@ -115,14 +119,18 @@ export function useStoryPageController({
       setDeleting(true);
       const res = await StoryService.delete(id);
       if (res.success) {
-        toast.success("Story deleted successfully");
+        showSuccessToast("Story deleted");
         onNavigate("/app/stories");
       } else {
-        toast.error(res.message || "Failed to delete story");
+        showErrorToast(res.message || "Failed to delete story");
       }
     } catch (err) {
-      logError(err, { component: "StoryPage", action: "deleteStory", metadata: { id } });
-      toast.error(getErrorMessage(err));
+      logError(err, {
+        component: "StoryPage",
+        action: "deleteStory",
+        metadata: { id },
+      });
+      showErrorToast(getErrorMessage(err));
     } finally {
       setDeleting(false);
       setIsDeleteDialogOpen(false);
@@ -147,7 +155,8 @@ export function useStoryPageController({
 
       try {
         const res = await ReactionService.toggle("story", id, type);
-        if (!res.success) throw new Error(res.message || "Failed to update reaction");
+        if (!res.success)
+          throw new Error(res.message || "Failed to update reaction");
 
         if (typeof res.reactionCount === "number") {
           setTotalReactions(res.reactionCount);
@@ -163,12 +172,12 @@ export function useStoryPageController({
           action: "toggleReaction",
           metadata: { id, reactionType: type },
         });
-        toast.error("Failed to update reaction");
+        showErrorToast("Failed to update reaction");
         setUserReaction(prevType);
         setTotalReactions(prevTotal);
       }
     },
-    [id, totalReactions, userReaction]
+    [id, totalReactions, userReaction],
   );
 
   return {
