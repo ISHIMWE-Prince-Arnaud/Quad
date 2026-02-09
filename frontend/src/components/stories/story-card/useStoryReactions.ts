@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 import { ReactionService } from "@/services/reactionService";
 import type { ReactionType } from "@/services/reactionService";
@@ -53,7 +53,8 @@ export function useStoryReactions({
 
       try {
         const res = await ReactionService.toggle("story", storyId, type);
-        if (!res.success) throw new Error(res.message || "Failed to update reaction");
+        if (!res.success)
+          throw new Error(res.message || "Failed to update reaction");
 
         if (typeof res.reactionCount === "number") {
           setReactionCount(res.reactionCount);
@@ -77,12 +78,12 @@ export function useStoryReactions({
         ) {
           msg = (err as { message: string }).message;
         }
-        toast.error(msg);
+        showErrorToast(msg);
       } finally {
         setReactionPending(false);
       }
     },
-    [reactionCount, reactionPending, storyId, userReaction]
+    [reactionCount, reactionPending, storyId, userReaction],
   );
 
   return {
