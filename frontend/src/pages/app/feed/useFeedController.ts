@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { getSocket } from "@/lib/socket";
 import type {
   FeedContentDeletedPayload,
   FeedEngagementUpdatePayload,
+  PollVotedPayload,
 } from "@/lib/socket";
 import { FeedService } from "@/services/feedService";
 import { PollService } from "@/services/pollService";
@@ -253,12 +254,28 @@ export function useFeedController({
           }
 
           if (payload.contentType === "poll" && it.type === "poll") {
-            if (sameItem && typeof payload.votes === "number") {
+            if (sameItem) {
+              const poll = it.content as Poll;
+              const updatedPoll = { ...poll };
+
+              // Update total votes if provided
+              if (typeof payload.votes === "number") {
+                updatedPoll.totalVotes = payload.votes;
+              }
+
+              // Update reactions count if provided
+              if (typeof payload.reactionsCount === "number") {
+                updatedPoll.reactionsCount = payload.reactionsCount;
+              }
+
               return {
                 ...it,
+                content: updatedPoll,
                 engagementMetrics: {
                   ...it.engagementMetrics,
-                  votes: payload.votes,
+                  votes: payload.votes ?? it.engagementMetrics.votes,
+                  reactions:
+                    payload.reactionsCount ?? it.engagementMetrics.reactions,
                 },
               } as FeedItem;
             }
@@ -282,14 +299,67 @@ export function useFeedController({
       );
     };
 
+    const handlePollVoted = (payload: PollVotedPayload) => {
+      if (!payload?.pollId) return;
+
+      setItems((prevItems) =>
+        prevItems.map((item) => {
+          if (item.type === "poll") {
+            const poll = item.content as Poll;
+            if (String(poll.id) !== String(payload.pollId)) return item;
+
+            const totalVotes =
+              typeof payload.totalVotes === "number"
+                ? payload.totalVotes
+                : poll.totalVotes;
+
+            const options = poll.options.map((opt, idx) => {
+              const optionIndex =
+                typeof opt.index === "number" ? opt.index : idx;
+              const votesCountRaw = payload.updatedVoteCounts?.[optionIndex];
+              const votesCount =
+                typeof votesCountRaw === "number"
+                  ? votesCountRaw
+                  : (opt.votesCount ?? 0);
+
+              return {
+                ...opt,
+                votesCount,
+                percentage:
+                  totalVotes > 0
+                    ? Math.round((votesCount / totalVotes) * 100)
+                    : 0,
+              };
+            });
+
+            return {
+              ...item,
+              content: {
+                ...poll,
+                totalVotes,
+                options,
+              },
+              engagementMetrics: {
+                ...item.engagementMetrics,
+                votes: totalVotes,
+              },
+            } as FeedItem;
+          }
+          return item;
+        }),
+      );
+    };
+
     socket.on("feed:new-content", handleNewContent);
     socket.on("feed:engagement-update", handleEngagementUpdate);
     socket.on("feed:content-deleted", handleContentDeleted);
+    socket.on("pollVoted", handlePollVoted);
 
     return () => {
       socket.off("feed:new-content", handleNewContent);
       socket.off("feed:engagement-update", handleEngagementUpdate);
       socket.off("feed:content-deleted", handleContentDeleted);
+      socket.off("pollVoted", handlePollVoted);
     };
   }, [feedType, handleRefreshFeed, lastSeenId, loading, tab]);
 
@@ -306,7 +376,7 @@ export function useFeedController({
       });
 
       if (!response.success) {
-        toast.error(response.message || "Failed to load more content");
+        showErrorToast(response.message || "Failed to load more content");
         return;
       }
 
@@ -322,7 +392,7 @@ export function useFeedController({
         action: "loadMore",
         metadata: { feedType, tab, cursor },
       });
-      toast.error(getErrorMessage(err));
+      showErrorToast(getErrorMessage(err));
     } finally {
       setLoadingMore(false);
     }
@@ -348,9 +418,9 @@ export function useFeedController({
             return content._id !== postId;
           }),
         );
-        toast.success("Post deleted successfully");
+        showSuccessToast("Post deleted");
       } else {
-        toast.error(response.message || "Failed to delete post");
+        showErrorToast(response.message || "Failed to delete post");
       }
     } catch (err: unknown) {
       logError(err, {
@@ -358,7 +428,7 @@ export function useFeedController({
         action: "deletePost",
         metadata: { postId },
       });
-      toast.error(getErrorMessage(err));
+      showErrorToast(getErrorMessage(err));
     }
   }, []);
 
@@ -378,9 +448,9 @@ export function useFeedController({
             return String(contentId) !== String(pollId);
           }),
         );
-        toast.success("Poll deleted successfully");
+        showSuccessToast("Poll deleted");
       } else {
-        toast.error(response.message || "Failed to delete poll");
+        showErrorToast(response.message || "Failed to delete poll");
       }
     } catch (err: unknown) {
       logError(err, {
@@ -388,7 +458,7 @@ export function useFeedController({
         action: "deletePoll",
         metadata: { pollId },
       });
-      toast.error(getErrorMessage(err));
+      showErrorToast(getErrorMessage(err));
     }
   }, []);
 
@@ -397,7 +467,7 @@ export function useFeedController({
       const canShowPost = tab === "home" || tab === "posts";
 
       if (!Array.isArray(payload.media) || payload.media.length === 0) {
-        toast.error("Post must have at least one media");
+        showErrorToast("Post must have at least one media");
         return;
       }
 
@@ -484,7 +554,7 @@ export function useFeedController({
           );
         }
 
-        toast.success("Posted");
+        showSuccessToast("Posted");
       } catch (err: unknown) {
         logError(err, {
           component: "FeedController",
@@ -495,7 +565,7 @@ export function useFeedController({
         if (canShowPost) {
           setItems((prev) => prev.filter((it) => it._id !== optimisticId));
         }
-        toast.error(getErrorMessage(err));
+        showErrorToast(getErrorMessage(err));
       } finally {
         setCreatingPost(false);
       }

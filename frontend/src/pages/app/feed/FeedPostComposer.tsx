@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
 import { Image, Video, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import toast from "react-hot-toast";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 import { MediaPreviewGrid } from "@/components/forms/create-post-modal/MediaPreviewGrid";
 import { MediaUploadDropzone } from "@/components/forms/create-post-modal/MediaUploadDropzone";
@@ -73,14 +73,14 @@ export function FeedPostComposer({
     if (disabled || isSubmitting) return;
 
     if (!hasMedia) {
-      toast.error("Post must have at least one media");
+      showErrorToast("Post must have at least one media");
       setIsExpanded(true);
       inputRef.current?.focus();
       return;
     }
 
     if (uploadingFiles.length > 0) {
-      toast.error("Please wait for uploads to finish");
+      showErrorToast("Please wait for uploads to finish");
       return;
     }
 

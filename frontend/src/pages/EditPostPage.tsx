@@ -7,7 +7,7 @@ import { CreatePostForm } from "@/components/forms/CreatePostForm";
 import { PostService } from "@/services/postService";
 import type { CreatePostData } from "@/schemas/post.schema";
 import type { Post } from "@/types/post";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import { logError } from "@/lib/errorHandling";
 
 function getErrorMessage(error: unknown): string {
@@ -81,10 +81,10 @@ export default function EditPostPage() {
       const response = await PostService.updatePost(id, data);
 
       if (response.success) {
-        toast.success("Post updated successfully!");
+        showSuccessToast("Post updated");
         navigate(`/app/posts/${id}`);
       } else {
-        toast.error(response.message || "Failed to update post");
+        showErrorToast(response.message || "Failed to update post");
       }
     } catch (err: unknown) {
       logError(err, {
@@ -92,7 +92,7 @@ export default function EditPostPage() {
         action: "updatePost",
         metadata: { id },
       });
-      toast.error(getErrorMessage(err));
+      showErrorToast(getErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }

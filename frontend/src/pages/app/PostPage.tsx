@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/posts/PostCard";
 import { PostService } from "@/services/postService";
-import toast from "react-hot-toast";
+import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import type { Post } from "@/types/post";
 import { CommentsSection } from "@/components/comments/CommentsSection";
 import { logError } from "@/lib/errorHandling";
@@ -69,10 +69,10 @@ export default function PostPage() {
     try {
       const response = await PostService.deletePost(deletedPostId);
       if (response.success) {
-        toast.success("Post deleted successfully");
+        showSuccessToast("Post deleted");
         navigate("/app/feed");
       } else {
-        toast.error(response.message || "Failed to delete post");
+        showErrorToast(response.message || "Failed to delete post");
       }
     } catch (err: unknown) {
       logError(err, {
@@ -80,7 +80,7 @@ export default function PostPage() {
         action: "deletePost",
         metadata: { postId: deletedPostId },
       });
-      toast.error(getErrorMessage(err));
+      showErrorToast(err);
     }
   };
 
