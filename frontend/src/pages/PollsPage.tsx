@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams } from "@/types/poll";
-import { SkeletonPost } from "@/components/ui/loading";
+import { LoadingButton, SkeletonPollCard } from "@/components/ui/loading";
 import { getSocket } from "@/lib/socket";
 import toast from "react-hot-toast";
 import type {
@@ -253,7 +253,7 @@ export default function PollsPage() {
       {loading && polls.length === 0 && (
         <div className="space-y-4 py-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <SkeletonPost key={i} />
+            <SkeletonPollCard key={i} />
           ))}
         </div>
       )}
@@ -282,8 +282,9 @@ export default function PollsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleChangePage(page + 1)}>
-            Load more
+            onClick={() => handleChangePage(page + 1)}
+            disabled={loading}>
+            {loading ? <LoadingButton /> : "Load more"}
           </Button>
         </div>
       )}
