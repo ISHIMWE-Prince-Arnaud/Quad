@@ -14,8 +14,12 @@ import type { ApiProfile } from "@/types/api";
 import type { Poll } from "@/types/poll";
 import type { Post } from "@/types/post";
 import type { Story } from "@/types/story";
-import { logError } from "@/lib/errorHandling";
-import toast from "react-hot-toast";
+import { logError, showErrorToast, showSuccessToast } from "@/lib/errorHandling";
+import { getSocket } from "@/lib/socket";
+import type {
+  FeedEngagementUpdatePayload,
+  PollVotedPayload,
+} from "@/lib/socket";
 
 type AuthUser = {
   clerkId: string;
@@ -841,7 +845,7 @@ export function useProfilePageController({
       const res = await PostService.deletePost(postId);
 
       if (!res?.success) {
-        toast.error(res?.message || "Failed to delete post");
+        showErrorToast(res?.message || "Failed to delete post");
         return;
       }
 
@@ -855,14 +859,14 @@ export function useProfilePageController({
           : prev,
       );
 
-      toast.success("Post deleted successfully");
+      showSuccessToast("Post deleted");
     } catch (e) {
       logError(e, {
         component: "ProfilePage",
         action: "deletePost",
         metadata: { postId },
       });
-      toast.error("Failed to delete post");
+      showErrorToast("Failed to delete post");
     }
   }, []);
 
@@ -883,7 +887,7 @@ export function useProfilePageController({
       const res = await PollService.delete(pollId);
 
       if (!res?.success) {
-        toast.error(res?.message || "Failed to delete poll");
+        showErrorToast(res?.message || "Failed to delete poll");
         return;
       }
 
@@ -897,14 +901,14 @@ export function useProfilePageController({
           : prev,
       );
 
-      toast.success("Poll deleted successfully");
+      showSuccessToast("Poll deleted");
     } catch (e) {
       logError(e, {
         component: "ProfilePage",
         action: "deleteSavedPoll",
         metadata: { pollId },
       });
-      toast.error("Failed to delete poll");
+      showErrorToast("Failed to delete poll");
     }
   }, []);
 
@@ -913,7 +917,7 @@ export function useProfilePageController({
       const res = await PollService.delete(pollId);
 
       if (!res?.success) {
-        toast.error(res?.message || "Failed to delete poll");
+        showErrorToast(res?.message || "Failed to delete poll");
         return;
       }
 
@@ -927,14 +931,14 @@ export function useProfilePageController({
           : prev,
       );
 
-      toast.success("Poll deleted successfully");
+      showSuccessToast("Poll deleted");
     } catch (e) {
       logError(e, {
         component: "ProfilePage",
         action: "deletePoll",
         metadata: { pollId },
       });
-      toast.error("Failed to delete poll");
+      showErrorToast("Failed to delete poll");
     }
   }, []);
 
@@ -943,7 +947,7 @@ export function useProfilePageController({
       const res = await StoryService.delete(storyId);
 
       if (!res?.success) {
-        toast.error(res?.message || "Failed to delete story");
+        showErrorToast(res?.message || "Failed to delete story");
         return;
       }
 
@@ -957,14 +961,14 @@ export function useProfilePageController({
           : prev,
       );
 
-      toast.success("Story deleted successfully");
+      showSuccessToast("Story deleted");
     } catch (e) {
       logError(e, {
         component: "ProfilePage",
         action: "deleteStory",
         metadata: { storyId },
       });
-      toast.error("Failed to delete story");
+      showErrorToast("Failed to delete story");
     }
   }, []);
 
@@ -1028,6 +1032,110 @@ export function useProfilePageController({
     },
     [currentUser, isOwnProfile, navigate, setAuthUser, username],
   );
+
+  // Set up Socket.IO listeners for real-time poll updates
+  useEffect(() => {
+    const socket = getSocket();
+
+    const handleEngagementUpdate = (payload: FeedEngagementUpdatePayload) => {
+      if (payload.contentType === "poll") {
+        // Update polls in the main polls tab
+        setPolls((prevPolls) =>
+          prevPolls.map((poll) => {
+            if (poll.id === payload.contentId) {
+              return {
+                ...poll,
+                totalVotes: payload.votes ?? poll.totalVotes,
+                reactionsCount: payload.reactionsCount ?? poll.reactionsCount,
+              };
+            }
+            return poll;
+          }),
+        );
+
+        // Update saved polls if they're visible
+        setSavedPolls((prevPolls) =>
+          prevPolls.map((poll) => {
+            if (poll.id === payload.contentId) {
+              return {
+                ...poll,
+                totalVotes: payload.votes ?? poll.totalVotes,
+                reactionsCount: payload.reactionsCount ?? poll.reactionsCount,
+              };
+            }
+            return poll;
+          }),
+        );
+      }
+    };
+
+    const handlePollVoted = (payload: PollVotedPayload) => {
+      if (!payload?.pollId) return;
+
+      const updatePollVotes = (polls: Poll[]) =>
+        polls.map((poll) => {
+          if (String(poll.id) !== String(payload.pollId)) return poll;
+
+          const totalVotes =
+            typeof payload.totalVotes === "number"
+              ? payload.totalVotes
+              : poll.totalVotes;
+
+          const options = poll.options.map((opt, idx) => {
+            const optionIndex = typeof opt.index === "number" ? opt.index : idx;
+            const votesCountRaw = payload.updatedVoteCounts?.[optionIndex];
+            const votesCount =
+              typeof votesCountRaw === "number"
+                ? votesCountRaw
+                : (opt.votesCount ?? 0);
+
+            return {
+              ...opt,
+              votesCount,
+              percentage:
+                totalVotes > 0
+                  ? Math.round((votesCount / totalVotes) * 100)
+                  : 0,
+            };
+          });
+
+          return {
+            ...poll,
+            totalVotes,
+            options,
+          };
+        });
+
+      // Update both main polls and saved polls
+      setPolls(updatePollVotes);
+      setSavedPolls(updatePollVotes);
+    };
+
+    const handlePollExpired = (pollId: string) => {
+      const updatePollStatus = (polls: Poll[]) =>
+        polls.map((poll) => {
+          if (poll.id !== pollId) return poll;
+          return {
+            ...poll,
+            status: "expired" as const,
+          };
+        });
+
+      // Update both main polls and saved polls
+      setPolls(updatePollStatus);
+      setSavedPolls(updatePollStatus);
+    };
+
+    socket.on("feed:engagement-update", handleEngagementUpdate);
+    socket.on("pollVoted", handlePollVoted);
+    socket.on("pollExpired", handlePollExpired);
+
+    return () => {
+      socket.off("feed:engagement-update", handleEngagementUpdate);
+      socket.off("pollVoted", handlePollVoted);
+      socket.off("pollExpired", handlePollExpired);
+    };
+  }, []);
 
   return {
     activeTab,
