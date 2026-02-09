@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
-import toast from "react-hot-toast";
 
 import { ChatService } from "@/services/chatService";
 import type { ChatMessage } from "@/types/chat";
 import { logError } from "@/lib/errorHandling";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 export function useChatComposer({
   emitTypingStart,
@@ -51,13 +51,13 @@ export function useChatComposer({
       } else {
         setText(preparedText);
         onSendError?.(preparedText);
-        toast.error(res.message || "Failed to send");
+        showErrorToast(res.message || "Failed to send");
       }
     } catch (err) {
       logError(err, { component: "ChatComposer", action: "sendMessage" });
       setText(preparedText);
       onSendError?.(preparedText);
-      toast.error("Failed to send message");
+      showErrorToast("Failed to send message");
     } finally {
       setSending(false);
     }

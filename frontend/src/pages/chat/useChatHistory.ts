@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import toast from "react-hot-toast";
 
 import { ChatService } from "@/services/chatService";
 import type { ChatMessage } from "@/types/chat";
 import { logError } from "@/lib/errorHandling";
+import { showErrorToast } from "@/lib/error-handling/toasts";
 
 export function useChatHistory({
   onInitialLoaded,
@@ -43,7 +43,7 @@ export function useChatHistory({
           setHasMoreOlder(res.pagination?.hasMore ?? false);
         } else {
           setInitialLoadError("Failed to load chat");
-          toast.error("Failed to load chat");
+          showErrorToast("Failed to load chat");
         }
       } catch (err) {
         logError(err, {
@@ -51,7 +51,7 @@ export function useChatHistory({
           action: "loadInitialMessages",
         });
         if (!cancelled) setInitialLoadError("Failed to load chat");
-        toast.error("Failed to load chat");
+        showErrorToast("Failed to load chat");
       } finally {
         if (!cancelled) setLoading(false);
         if (!cancelled) onInitialLoaded?.();
@@ -89,7 +89,7 @@ export function useChatHistory({
         action: "loadOlderMessages",
         metadata: { oldestMessageId },
       });
-      toast.error("Failed to load older messages");
+      showErrorToast("Failed to load older messages");
     } finally {
       setLoadingOlder(false);
     }
