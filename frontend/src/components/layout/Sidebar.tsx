@@ -55,7 +55,7 @@ export function Sidebar() {
       {/* 1. Logo - Improved branding */}
       <div className="px-8 pt-8 pb-10">
         <Link to="/app/feed" aria-label="Go to Home">
-          <LogoWithText className="hover:opacity-90 transition" />
+          <LogoWithText size="md" className="hover:opacity-90 transition" />
         </Link>
       </div>
 

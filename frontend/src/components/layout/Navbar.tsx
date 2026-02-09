@@ -11,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Logo } from "@/components/ui/Logo";
+import { LogoWithText } from "@/components/ui/Logo";
 import { UserAvatar } from "@/components/auth/UserMenu";
 import { ThemeSelector } from "@/components/theme/ThemeSelector";
 import { cn } from "@/lib/utils";
@@ -85,9 +85,8 @@ export function Navbar() {
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
         <div className="flex items-center justify-between h-16 px-4">
           {/* Left: Logo */}
-          <Link to="/app/feed" className="flex items-center gap-2">
-            <Logo size="sm" />
-            <span className="text-lg font-bold text-foreground">Quad</span>
+          <Link to="/app/feed" className="flex items-center gap-2 group">
+            <LogoWithText size="sm" />
           </Link>
 
           {/* Right: Actions */}
