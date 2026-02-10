@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { AuthorSnapshotSchema } from "./schemas/author.schema.js";
 import type { IUser } from "../types/user.types.js";
 import type { PollStatus } from "../types/poll.types.js";
 import type { IMedia } from "../types/post.types.js";
@@ -52,7 +53,7 @@ const PollSchema = new Schema<IPollDocument>(
   {
     // Author (embedded user snapshot)
     author: {
-      type: Object,
+      type: AuthorSnapshotSchema,
       required: true,
     },
 

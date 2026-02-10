@@ -5,7 +5,7 @@ import { Follow } from "../models/Follow.model.js";
 import { DatabaseService } from "../services/database.service.js";
 import { logger } from "./logger.util.js";
 import type { IPost } from "../types/post.types.js";
-import type { IPoll } from "../types/poll.types.js";
+import type { IPollResponse } from "../types/poll.types.js";
 import type {
   FeedItemType,
   ContentTab,
@@ -298,7 +298,7 @@ export const scoreAndRankContent = async (
     return {
       _id: String(item._id),
       type: item.type,
-      content: item.content as IPost | IPoll,
+      content: item.content as IPost | IPollResponse,
       score,
       priority: isFollowing
         ? ("following" as ContentPriority)

@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { AuthorSnapshotSchema } from "./schemas/author.schema.js";
 import type { IUser } from "../types/user.types.js";
 import type { IMedia } from "../types/post.types.js";
 
@@ -17,7 +18,7 @@ export interface IPostDocument extends Document {
 const PostSchema = new Schema<IPostDocument>(
   {
     userId: { type: String, required: true }, // Clerk ID for efficient queries
-    author: { type: Object, required: true }, // store user info snapshot
+    author: { type: AuthorSnapshotSchema, required: true }, // store user info snapshot
     text: { type: String },
     media: [
       {
@@ -27,10 +28,10 @@ const PostSchema = new Schema<IPostDocument>(
       },
     ],
     // Note: reactions moved to separate Reaction collection
-    reactionsCount: { type: Number, default: 0 },  // Cached count
-    commentsCount: { type: Number, default: 0 },   // Cached count
+    reactionsCount: { type: Number, default: 0 }, // Cached count
+    commentsCount: { type: Number, default: 0 }, // Cached count
   },
-  { timestamps: true, minimize: false }
+  { timestamps: true, minimize: false },
 );
 
 // ===========================
@@ -49,7 +50,12 @@ PostSchema.index({ userId: 1, createdAt: -1 });
 PostSchema.index({ createdAt: -1, reactionsCount: -1, commentsCount: -1 });
 
 // Feed query with user filter
-PostSchema.index({ userId: 1, createdAt: -1, reactionsCount: -1, commentsCount: -1 });
+PostSchema.index({
+  userId: 1,
+  createdAt: -1,
+  reactionsCount: -1,
+  commentsCount: -1,
+});
 
 // Text search index for post content
 

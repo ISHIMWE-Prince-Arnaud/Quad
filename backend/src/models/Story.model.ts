@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { AuthorSnapshotSchema } from "./schemas/author.schema.js";
 import type { IUser } from "../types/user.types.js";
 import type { StoryStatus } from "../types/story.types.js";
 
@@ -26,7 +27,7 @@ export interface IStoryDocument extends Document {
 const StorySchema = new Schema<IStoryDocument>(
   {
     userId: { type: String, required: true }, // Clerk ID for efficient queries
-    author: { type: Object, required: true }, // User snapshot (embedded)
+    author: { type: AuthorSnapshotSchema, required: true }, // User snapshot (embedded)
 
     // Content fields
     title: {
