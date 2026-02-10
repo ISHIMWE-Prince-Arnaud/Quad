@@ -19,7 +19,9 @@ export function SocketManager() {
             setSocket(socket);
           }
         } catch (error) {
-          console.error("Failed to get token for socket connection", error);
+          if (import.meta.env.DEV) {
+            console.error("Failed to get token for socket connection", error);
+          }
         }
       } else {
         disconnectSocket();

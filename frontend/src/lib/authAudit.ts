@@ -227,8 +227,6 @@ export function logAuthEvent(
   details?: Record<string, unknown>,
 ): void {
   if (import.meta.env.DEV) {
-    if (import.meta.env.DEV) {
-      console.log(`[Auth Audit] ${event}`, details || "");
-    }
+    console.log(`[Auth Audit] ${event}`, details || "");
   }
 }

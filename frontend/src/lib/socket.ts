@@ -25,24 +25,34 @@ export function connectSocket(token: string): Socket {
     auth: { token }, // Send Clerk token for authentication
     autoConnect: true,
     reconnection: true,
-    reconnectionAttempts: 5,
+    reconnectionAttempts: 20, // More attempts for better reliability
     reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000, // Caps the exponential backoff
+    randomizationFactor: 0.5,
   });
 
   socket.on("connect", () => {
-    console.log("Socket connected:", socket?.id);
+    if (import.meta.env.DEV) {
+      console.log("Socket connected:", socket?.id);
+    }
   });
 
   socket.on("connect_error", (err) => {
-    console.error("Socket connection error:", err.message);
+    if (import.meta.env.DEV) {
+      console.error("Socket connection error:", err.message);
+    }
   });
 
   socket.on("disconnect", (reason) => {
-    console.log("Socket disconnected:", reason);
+    if (import.meta.env.DEV) {
+      console.log("Socket disconnected:", reason);
+    }
   });
 
   socket.on("reconnect", (attemptNumber) => {
-    console.log("Socket reconnected after", attemptNumber, "attempts");
+    if (import.meta.env.DEV) {
+      console.log("Socket reconnected after", attemptNumber, "attempts");
+    }
   });
 
   return socket;
