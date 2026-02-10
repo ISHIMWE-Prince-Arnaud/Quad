@@ -4,6 +4,7 @@
  */
 
 import type { Request, Response, NextFunction } from "express";
+import crypto from "crypto";
 import { env } from "../config/env.config.js";
 
 /**
@@ -169,14 +170,21 @@ export function conditionalCache(productionOptions: Partial<CacheOptions>) {
  * ETag support middleware
  * Generates ETag based on response body
  */
+/**
+ * ETag support middleware
+ * Generates ETag based on response body
+ */
 export function etag(_req: Request, res: Response, next: NextFunction) {
   const originalSend = res.send;
 
   res.send = function (body: unknown): Response {
     if (body && typeof body === "object") {
-      const etag = `"${Buffer.from(JSON.stringify(body))
-        .toString("base64")
-        .substring(0, 27)}"`;
+      // Generate MD5 hash of the body
+      const hash = crypto
+        .createHash("md5")
+        .update(JSON.stringify(body))
+        .digest("hex");
+      const etag = `"${hash}"`;
       res.setHeader("ETag", etag);
     }
     return originalSend.call(this, body);

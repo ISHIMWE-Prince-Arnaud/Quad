@@ -175,9 +175,35 @@ router.post(
         }
 
         case "user.deleted": {
-          await User.findOneAndDelete({ clerkId: evt.data.id });
-          logger.info("User deleted via Clerk webhook", {
-            clerkId: evt.data.id,
+          const userId = evt.data.id;
+
+          // Cascade delete all user data
+          // We use dynamic imports or assume models are available
+          const { Post } = await import("../models/Post.model.js");
+          const { Story } = await import("../models/Story.model.js");
+          const { Poll } = await import("../models/Poll.model.js");
+          const { PollVote } = await import("../models/PollVote.model.js");
+          const { Reaction } = await import("../models/Reaction.model.js");
+          const { ChatMessage } =
+            await import("../models/ChatMessage.model.js");
+          const { Notification } =
+            await import("../models/Notification.model.js");
+
+          // Run these in parallel for speed
+          await Promise.all([
+            User.findOneAndDelete({ clerkId: userId }),
+            Post.deleteMany({ "author.clerkId": userId }),
+            Story.deleteMany({ "author.clerkId": userId }),
+            Poll.deleteMany({ "author.clerkId": userId }),
+            PollVote.deleteMany({ userId }),
+            Reaction.deleteMany({ userId }),
+            ChatMessage.deleteMany({ "author.clerkId": userId }),
+            Notification.deleteMany({ userId }), // Notifications received by user
+            Notification.deleteMany({ actorId: userId }), // Notifications triggered by user
+          ]);
+
+          logger.info("User and related data deleted via Clerk webhook", {
+            clerkId: userId,
           });
           break;
         }

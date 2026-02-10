@@ -18,9 +18,9 @@ import { clerkClient } from "@clerk/express";
 export const uploadPostMedia = async (req: Request, res: Response) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "No file uploaded" 
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
       });
     }
 
@@ -256,16 +256,13 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
         await User.findOneAndUpdate(
           { clerkId },
           { $set: { profileImage: result.url } },
-          { new: true }
+          { new: true },
         );
 
         // Optionally sync to Clerk as well so avatars stay consistent
-        await clerkClient.users.updateUser(
-          clerkId,
-          ({ imageUrl: result.url } as unknown) as Parameters<
-            typeof clerkClient.users.updateUser
-          >[1]
-        );
+        await clerkClient.users.updateUser(clerkId, {
+          imageUrl: result.url,
+        } as unknown as Parameters<typeof clerkClient.users.updateUser>[1]);
       } catch (persistError) {
         logger.error("Failed to persist profile image URL", persistError);
       }
@@ -341,7 +338,7 @@ export const uploadCoverImage = async (req: Request, res: Response) => {
         await User.findOneAndUpdate(
           { clerkId },
           { $set: { coverImage: result.url } },
-          { new: true }
+          { new: true },
         );
       } catch (persistError) {
         logger.error("Failed to persist cover image URL", persistError);
@@ -372,6 +369,14 @@ export const uploadCoverImage = async (req: Request, res: Response) => {
 // =========================
 export const deleteFile = async (req: Request, res: Response) => {
   try {
+    const userId = req.auth?.userId;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
     const { url } = req.body;
 
     if (!url) {
@@ -388,6 +393,15 @@ export const deleteFile = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: "Invalid Cloudinary URL",
+      });
+    }
+
+    // Ownership check: verify the authenticated user owns this file
+    const ownsFile = await verifyFileOwnership(userId, url);
+    if (!ownsFile) {
+      return res.status(403).json({
+        success: false,
+        message: "You do not have permission to delete this file",
       });
     }
 
@@ -418,3 +432,47 @@ export const deleteFile = async (req: Request, res: Response) => {
     });
   }
 };
+
+/**
+ * Check if the user owns the file at the given URL.
+ * Searches across Post media, Story media, Poll media, and User profile/cover images.
+ */
+async function verifyFileOwnership(
+  userId: string,
+  url: string,
+): Promise<boolean> {
+  const { Post } = await import("../models/Post.model.js");
+  const { Story } = await import("../models/Story.model.js");
+  const { Poll } = await import("../models/Poll.model.js");
+  const { User } = await import("../models/User.model.js");
+
+  // Check user profile/cover images
+  const user = await User.findOne({
+    clerkId: userId,
+    $or: [{ profileImage: url }, { coverImage: url }],
+  });
+  if (user) return true;
+
+  // Check posts
+  const post = await Post.findOne({
+    "author.clerkId": userId,
+    "media.url": url,
+  });
+  if (post) return true;
+
+  // Check stories
+  const story = await Story.findOne({
+    "author.clerkId": userId,
+    $or: [{ coverImage: url }, { content: { $regex: url } }],
+  });
+  if (story) return true;
+
+  // Check polls
+  const poll = await Poll.findOne({
+    "author.clerkId": userId,
+    "questionMedia.url": url,
+  });
+  if (poll) return true;
+
+  return false;
+}

@@ -8,7 +8,7 @@ const storage = multer.memoryStorage();
 const fileFilter = (
   req: Request,
   file: Express.Multer.File,
-  cb: multer.FileFilterCallback
+  cb: multer.FileFilterCallback,
 ) => {
   // Allowed mime types
   const allowedImageTypes = [
@@ -35,8 +35,8 @@ const fileFilter = (
   } else {
     cb(
       new Error(
-        `Invalid file type. Allowed: images (JPEG, PNG, WebP, GIF, HEIC) and videos (MP4, MOV, AVI, MKV, WebM)`
-      )
+        `Invalid file type. Allowed: images (JPEG, PNG, WebP, GIF, HEIC) and videos (MP4, MOV, AVI, MKV, WebM)`,
+      ),
     );
   }
 };
@@ -46,7 +46,7 @@ export const uploadSingle = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 1024 * 1024 * 1024, // 1GB max
+    fileSize: 50 * 1024 * 1024, // 50MB max (memory-buffered)
   },
 }).single("file");
 
@@ -55,7 +55,7 @@ export const uploadMultiple = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 1024 * 1024 * 1024, // 1GB per file
+    fileSize: 50 * 1024 * 1024, // 50MB per file (memory-buffered)
     files: 10, // Max 10 files
   },
 }).array("files", 10);
@@ -76,7 +76,9 @@ export const uploadImage = multer({
     if (allowedImageTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error("Only image files are allowed (JPEG, PNG, WebP, GIF, HEIC)"));
+      cb(
+        new Error("Only image files are allowed (JPEG, PNG, WebP, GIF, HEIC)"),
+      );
     }
   },
   limits: {
@@ -103,7 +105,7 @@ export const uploadVideo = multer({
     }
   },
   limits: {
-    fileSize: 1024 * 1024 * 1024, // 1GB for videos
+    fileSize: 100 * 1024 * 1024, // 100MB for videos (memory-buffered)
   },
 }).single("video");
 

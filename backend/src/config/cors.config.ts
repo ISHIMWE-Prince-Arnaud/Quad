@@ -14,7 +14,7 @@ export function getAllowedOrigins(): string[] {
   if (env.NODE_ENV === "production") {
     if (!env.FRONTEND_URL) {
       logger.warn(
-        "FRONTEND_URL not set in production. CORS will block all requests!"
+        "FRONTEND_URL not set in production. CORS will block all requests!",
       );
       return [];
     }
@@ -38,7 +38,7 @@ export function getAllowedOrigins(): string[] {
 export const corsOptions: CorsOptions = {
   origin: (
     origin: string | undefined,
-    callback: (err: Error | null, allow?: boolean) => void
+    callback: (err: Error | null, allow?: boolean) => void,
   ) => {
     // Allow requests with no origin (mobile apps, Postman, curl, etc.)
     if (!origin) {
@@ -95,9 +95,9 @@ export function getSocketCorsOptions() {
     };
   }
 
-  // Development: Allow all origins
+  // Development: Allow specific local origins (origin: "*" is forbidden with credentials: true)
   return {
-    origin: "*",
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST"],
   };
@@ -116,7 +116,7 @@ export function logCorsConfig(): void {
       allowedOrigins.length > 0
         ? allowedOrigins.join(", ")
         : "NONE (will block all requests!)"
-    }`
+    }`,
   );
   logger.info(`  Credentials: enabled`);
 
