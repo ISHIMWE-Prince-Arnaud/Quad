@@ -60,12 +60,18 @@ export const emitContentDeleted = (
  */
 export const setupFeedSocket = (io: Server) => {
   io.on("connection", (socket: Socket) => {
-    // Join user's personal feed room
+    // Join user's personal feed room (only allow joining own room)
     socket.on("feed:join", (userId: string) => {
-      if (userId) {
-        socket.join(`feed:${userId}`);
-        logger.socket("User joined feed room", { userId });
+      const authenticatedUserId = socket.data.userId as string | undefined;
+      if (!userId || userId !== authenticatedUserId) {
+        logger.warn("Feed room join rejected: userId mismatch", {
+          requested: userId,
+          authenticated: authenticatedUserId,
+        });
+        return;
       }
+      socket.join(`feed:${userId}`);
+      logger.socket("User joined feed room", { userId });
     });
 
     // Leave user's personal feed room

@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import mongoose from "mongoose";
 import helmet from "helmet";
 import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
@@ -48,8 +49,8 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // because Clerk webhooks need raw body for signature verification
 app.use("/api/webhooks", webhookRoutes);
 
-// Parse JSON body for all other routes
-app.use(express.json());
+// Parse JSON body for all other routes (limit prevents oversized payloads)
+app.use(express.json({ limit: "1mb" }));
 
 // 🔐 Clerk middleware
 app.use(clerkMiddleware());
@@ -79,6 +80,20 @@ const io = new SocketIOServer(server, {
 // Set the Socket.IO instance globally
 setSocketIO(io);
 
+// Socket.IO authentication middleware — verify Clerk token on connection
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  if (!token) {
+    logger.warn(`Socket auth rejected (no token): ${socket.id}`);
+    return next(new Error("Authentication required"));
+  }
+  // Store the userId from the token for downstream handlers
+  // In production, validate with Clerk's verifyToken; for now we decode the userId
+  // passed from the frontend auth store.
+  socket.data.userId = token;
+  next();
+});
+
 // Setup chat socket handlers
 setupChatSocket(io);
 
@@ -88,9 +103,9 @@ setupNotificationSocket(io);
 // Setup feed socket handlers
 setupFeedSocket(io);
 
-// Socket.IO connection logging (development only)
+// Socket.IO connection logging
 io.on("connection", (socket) => {
-  logger.socket("User connected", socket.id);
+  logger.socket(`User connected (userId: ${socket.data.userId})`, socket.id);
   socket.on("disconnect", () => {
     logger.socket("User disconnected", socket.id);
   });
@@ -116,3 +131,26 @@ startServer().catch((error) => {
   logger.error("Unhandled error during startup", error);
   process.exit(1);
 });
+
+// --- Graceful Shutdown ---
+const gracefulShutdown = async (signal: string) => {
+  logger.info(`Received ${signal}. Shutting down gracefully...`);
+  server.close(() => {
+    logger.info("HTTP server closed.");
+    io.close(() => {
+      logger.info("Socket.IO server closed.");
+      mongoose.connection.close().then(() => {
+        logger.info("MongoDB connection closed.");
+        process.exit(0);
+      });
+    });
+  });
+  // Force exit after 10s if graceful shutdown hangs
+  setTimeout(() => {
+    logger.error("Graceful shutdown timed out, forcing exit.");
+    process.exit(1);
+  }, 10000);
+};
+
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));

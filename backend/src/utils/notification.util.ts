@@ -6,6 +6,7 @@ import type {
   INotificationWithActor,
 } from "../types/notification.types.js";
 import { getSocketIO } from "../config/socket.config.js";
+import { getNotificationRoom } from "../sockets/notification.socket.js";
 
 export type NotificationUnreadCountPayload = { unreadCount: number };
 export type NotificationIdPayload = { id: string };
@@ -64,13 +65,13 @@ export const createNotification = async (
 
     // Emit real-time notification
     getSocketIO()
-      .to(data.userId)
+      .to(getNotificationRoom(data.userId))
       .emit("notification:new", notificationWithActor);
 
     // Emit authoritative unread count to keep all connected clients in sync
     const unreadCount = await getUnreadCount(data.userId);
     getSocketIO()
-      .to(data.userId)
+      .to(getNotificationRoom(data.userId))
       .emit("notification:unread_count", {
         unreadCount,
       } satisfies NotificationUnreadCountPayload);
@@ -86,7 +87,7 @@ export const emitUnreadCount = async (userId: string): Promise<void> => {
   try {
     const unreadCount = await getUnreadCount(userId);
     getSocketIO()
-      .to(userId)
+      .to(getNotificationRoom(userId))
       .emit("notification:unread_count", {
         unreadCount,
       } satisfies NotificationUnreadCountPayload);
@@ -101,7 +102,7 @@ export const emitNotificationRead = async (
 ): Promise<void> => {
   try {
     getSocketIO()
-      .to(userId)
+      .to(getNotificationRoom(userId))
       .emit("notification:read", { id } satisfies NotificationIdPayload);
     await emitUnreadCount(userId);
   } catch (error) {
@@ -113,7 +114,7 @@ export const emitNotificationsReadAll = async (
   userId: string,
 ): Promise<void> => {
   try {
-    getSocketIO().to(userId).emit("notification:read_all");
+    getSocketIO().to(getNotificationRoom(userId)).emit("notification:read_all");
     await emitUnreadCount(userId);
   } catch (error) {
     logger.error("Error emitting notifications read all", error);
@@ -126,7 +127,7 @@ export const emitNotificationDeleted = async (
 ): Promise<void> => {
   try {
     getSocketIO()
-      .to(userId)
+      .to(getNotificationRoom(userId))
       .emit("notification:deleted", { id } satisfies NotificationIdPayload);
     await emitUnreadCount(userId);
   } catch (error) {
@@ -138,7 +139,9 @@ export const emitNotificationsClearedRead = async (
   userId: string,
 ): Promise<void> => {
   try {
-    getSocketIO().to(userId).emit("notification:clear_read");
+    getSocketIO()
+      .to(getNotificationRoom(userId))
+      .emit("notification:clear_read");
     await emitUnreadCount(userId);
   } catch (error) {
     logger.error("Error emitting notifications cleared read", error);
