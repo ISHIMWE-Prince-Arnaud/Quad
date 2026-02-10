@@ -101,25 +101,4 @@ describe("Chat API", () => {
 
     expect(remove.status).toBe(404);
   });
-
-  it("marks as read", async () => {
-    const app = createTestApp();
-    const userId = "chat_user_6";
-    await ensureUser(app, userId);
-
-    const sendRes = await request(app)
-      .post("/api/chat/messages")
-      .set(getAuthHeaders(userId))
-      .send({ text: "Hello" });
-
-    const messageId = sendRes.body?.data?.id as string;
-
-    const res = await request(app)
-      .post("/api/chat/read")
-      .set(getAuthHeaders(userId))
-      .send({ lastReadMessageId: messageId });
-
-    expect(res.status).toBe(200);
-    expect(res.body?.success).toBe(true);
-  });
 });

@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { AuthorSnapshotSchema } from "./schemas/author.schema.js";
 import type { IUser } from "../types/user.types.js";
 
 /**
@@ -18,7 +19,7 @@ const ChatMessageSchema = new Schema<IChatMessageDocument>(
   {
     // Author (embedded user snapshot)
     author: {
-      type: Object,
+      type: AuthorSnapshotSchema,
       required: true,
     },
 
@@ -47,7 +48,7 @@ const ChatMessageSchema = new Schema<IChatMessageDocument>(
   },
   {
     timestamps: true, // Adds createdAt & updatedAt
-  }
+  },
 );
 
 // ===========================
@@ -77,5 +78,5 @@ ChatMessageSchema.pre("save", function (next) {
 
 export const ChatMessage = mongoose.model<IChatMessageDocument>(
   "ChatMessage",
-  ChatMessageSchema
+  ChatMessageSchema,
 );

@@ -70,7 +70,7 @@ export class ChatService {
       }
     }
 
-    getSocketIO().emit("chat:message:new", formattedMessage);
+    getSocketIO().to("chat:global").emit("chat:message:new", formattedMessage);
 
     return formattedMessage;
   }
@@ -151,7 +151,9 @@ export class ChatService {
       await message.save();
 
       const formattedMessage = formatMessageResponse(message);
-      getSocketIO().emit("chat:message:edited", formattedMessage);
+      getSocketIO()
+        .to("chat:global")
+        .emit("chat:message:edited", formattedMessage);
 
       return {
         message: "Message edited successfully",
@@ -177,18 +179,6 @@ export class ChatService {
 
     await ChatMessage.findByIdAndDelete(id);
 
-    getSocketIO().emit("chat:message:deleted", id);
-  }
-
-  static async markAsRead(userId: string, lastReadMessageId: string) {
-    const message = await ChatMessage.findById(lastReadMessageId);
-    if (!message) {
-      throw new AppError("Message not found", 404);
-    }
-
-    return {
-      lastReadMessageId,
-      readAt: new Date(),
-    };
+    getSocketIO().to("chat:global").emit("chat:message:deleted", id);
   }
 }

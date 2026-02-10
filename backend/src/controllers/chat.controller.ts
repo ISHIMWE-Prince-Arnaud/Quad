@@ -69,39 +69,22 @@ export const editMessage = asyncHandler(async (req: Request, res: Response) => {
 // =========================
 // DELETE MESSAGE
 // =========================
-export const deleteMessage = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const userId = req.auth?.userId;
-  if (!userId) {
-    throw new AppError("Unauthorized", 401);
-  }
-  if (!id) {
-    throw new AppError("Message ID is required", 400);
-  }
+export const deleteMessage = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.auth?.userId;
+    if (!userId) {
+      throw new AppError("Unauthorized", 401);
+    }
+    if (!id) {
+      throw new AppError("Message ID is required", 400);
+    }
 
-  await ChatService.deleteMessage(userId, id);
+    await ChatService.deleteMessage(userId, id);
 
-  return res.json({
-    success: true,
-    message: "Message deleted successfully",
-  });
-});
-
-// =========================
-// MARK AS READ
-// =========================
-export const markAsRead = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.auth?.userId;
-  if (!userId) {
-    throw new AppError("Unauthorized", 401);
-  }
-
-  const { lastReadMessageId } = req.body as { lastReadMessageId: string };
-  const data = await ChatService.markAsRead(userId, lastReadMessageId);
-
-  return res.json({
-    success: true,
-    message: "Messages marked as read",
-    data,
-  });
-});
+    return res.json({
+      success: true,
+      message: "Message deleted successfully",
+    });
+  },
+);
