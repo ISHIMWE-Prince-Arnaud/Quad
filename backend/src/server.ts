@@ -92,7 +92,12 @@ io.use(async (socket, next) => {
   try {
     // 🔐 Verify Clerk token (session token)
     // The frontend sends the Clerk session token (obtained via getToken())
-    const session = await (clerkClient as any).verifyToken(token);
+    type ClerkTokenVerifier = {
+      verifyToken: (token: string) => Promise<{ sub: string }>;
+    };
+    const session = await (
+      clerkClient as unknown as ClerkTokenVerifier
+    ).verifyToken(token);
 
     // Store the clerkId (sub) from the verified session for downstream handlers
     socket.data.userId = session.sub;
