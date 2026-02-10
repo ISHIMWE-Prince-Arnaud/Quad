@@ -1,4 +1,4 @@
-import { Model, Document } from "mongoose";
+import type { Model } from "mongoose";
 import type { FilterQuery, PopulateOptions, SortOrder } from "mongoose";
 
 export interface PaginationOptions {
@@ -23,10 +23,10 @@ export interface PaginatedResult<T> {
 /**
  * Generic utility for paginated Mongoose queries
  */
-export async function getPaginatedData<T extends Document>(
+export async function getPaginatedData<T>(
   model: Model<T>,
   query: FilterQuery<T>,
-  options: PaginationOptions
+  options: PaginationOptions,
 ): Promise<PaginatedResult<T>> {
   const { page, limit, sort = { createdAt: -1 }, select, populate } = options;
   const skip = (page - 1) * limit;
@@ -46,14 +46,14 @@ export async function getPaginatedData<T extends Document>(
   }
 
   const [data, total] = await Promise.all([
-    baseQuery.skip(skip).limit(limit).lean(),
+    baseQuery.skip(skip).limit(limit).lean<T[]>(),
     model.countDocuments(query),
   ]);
 
   const pages = Math.ceil(total / limit);
 
   return {
-    data: data as T[],
+    data,
     pagination: {
       page,
       limit,

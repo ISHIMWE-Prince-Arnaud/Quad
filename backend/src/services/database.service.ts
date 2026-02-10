@@ -291,14 +291,14 @@ export class DatabaseService {
    * Batch update operations
    */
   static async batchUpdate(
-    Model: mongoose.Model<unknown>,
+    Model: mongoose.Model<mongoose.Document>,
     updates: Array<{
-      filter: mongoose.FilterQuery<unknown>;
-      update: mongoose.UpdateQuery<unknown>;
+      filter: mongoose.FilterQuery<mongoose.Document>;
+      update: mongoose.UpdateQuery<mongoose.Document>;
     }>,
   ): Promise<boolean> {
     try {
-      const bulkOps: Array<mongoose.AnyBulkWriteOperation<unknown>> =
+      const bulkOps: Array<mongoose.AnyBulkWriteOperation<mongoose.Document>> =
         updates.map(({ filter, update }) => ({
           updateOne: {
             filter,

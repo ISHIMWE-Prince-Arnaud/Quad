@@ -47,7 +47,8 @@ export const getMessages = asyncHandler(async (req: Request, res: Response) => {
 // EDIT MESSAGE
 // =========================
 export const editMessage = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const idParam = req.params.id;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   const userId = req.auth?.userId;
   if (!userId) {
     throw new AppError("Unauthorized", 401);
@@ -71,7 +72,8 @@ export const editMessage = asyncHandler(async (req: Request, res: Response) => {
 // =========================
 export const deleteMessage = asyncHandler(
   async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const idParam = req.params.id;
+    const id = Array.isArray(idParam) ? idParam[0] : idParam;
     const userId = req.auth?.userId;
     if (!userId) {
       throw new AppError("Unauthorized", 401);

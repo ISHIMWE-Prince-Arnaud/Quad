@@ -48,7 +48,8 @@ export const getAllPolls = asyncHandler(async (req: Request, res: Response) => {
 // GET POLL BY ID
 // =========================
 export const getPollById = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const idParam = req.params.id;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   if (!id) {
     throw new AppError("Poll ID is required", 400);
   }
@@ -96,7 +97,8 @@ export const getMyPolls = asyncHandler(async (req: Request, res: Response) => {
 // UPDATE POLL
 // =========================
 export const updatePoll = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const idParam = req.params.id;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   if (!id) {
     throw new AppError("Poll ID is required", 400);
   }
@@ -120,7 +122,8 @@ export const updatePoll = asyncHandler(async (req: Request, res: Response) => {
 // DELETE POLL
 // =========================
 export const deletePoll = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const idParam = req.params.id;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   if (!id) {
     throw new AppError("Poll ID is required", 400);
   }
@@ -142,7 +145,8 @@ export const deletePoll = asyncHandler(async (req: Request, res: Response) => {
 // VOTE ON POLL
 // =========================
 export const voteOnPoll = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const idParam = req.params.id;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   if (!id) {
     throw new AppError("Poll ID is required", 400);
   }

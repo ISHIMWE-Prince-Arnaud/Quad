@@ -38,7 +38,7 @@ export const getAllPosts = asyncHandler(async (req: Request, res: Response) => {
       `Invalid query parameters: ${validation.error.issues
         .map((e: { message: string }) => e.message)
         .join(", ")}`,
-      400
+      400,
     );
   }
 
@@ -57,7 +57,8 @@ export const getAllPosts = asyncHandler(async (req: Request, res: Response) => {
 // GET POST
 // =========================
 export const getPost = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const idParam = req.params.id;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   if (!id) {
     throw new AppError("Post ID is required", 400);
   }
@@ -70,7 +71,8 @@ export const getPost = asyncHandler(async (req: Request, res: Response) => {
 // UPDATE POST
 // =========================
 export const updatePost = asyncHandler(async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const idParam = req.params.id;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   if (!id) {
     throw new AppError("Post ID is required", 400);
   }
@@ -94,7 +96,8 @@ export const updatePost = asyncHandler(async (req: Request, res: Response) => {
 // DELETE POST
 // =========================
 export const deletePost = asyncHandler(async (req: Request, res: Response) => {
-  const id = req.params.id;
+  const idParam = req.params.id;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   if (!id) {
     throw new AppError("Post ID is required", 400);
   }
