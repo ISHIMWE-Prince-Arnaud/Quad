@@ -1,4 +1,3 @@
-import "../types/global.d.ts";
 import type { Request, Response } from "express";
 import type {
   FeedQuerySchemaType,
@@ -11,53 +10,59 @@ import { FeedService } from "../services/feed.service.js";
 // =========================
 // GET FOLLOWING FEED
 // =========================
-export const getFollowingFeed = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.auth?.userId;
-  if (!userId) {
-    throw new AppError("Unauthorized", 401);
-  }
+export const getFollowingFeed = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.auth?.userId;
+    if (!userId) {
+      throw new AppError("Unauthorized", 401);
+    }
 
-  const query = req.query as unknown as FeedQuerySchemaType;
-  const response = await FeedService.getFollowingFeed(userId, query);
+    const query = req.query as unknown as FeedQuerySchemaType;
+    const response = await FeedService.getFollowingFeed(userId, query);
 
-  return res.json({
-    success: true,
-    data: response,
-  });
-});
+    return res.json({
+      success: true,
+      data: response,
+    });
+  },
+);
 
 // =========================
 // GET FOR YOU FEED
 // =========================
-export const getForYouFeed = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.auth?.userId;
-  if (!userId) {
-    throw new AppError("Unauthorized", 401);
-  }
+export const getForYouFeed = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.auth?.userId;
+    if (!userId) {
+      throw new AppError("Unauthorized", 401);
+    }
 
-  const query = req.query as unknown as FeedQuerySchemaType;
-  const response = await FeedService.getForYouFeed(userId, query);
+    const query = req.query as unknown as FeedQuerySchemaType;
+    const response = await FeedService.getForYouFeed(userId, query);
 
-  return res.json({
-    success: true,
-    data: response,
-  });
-});
+    return res.json({
+      success: true,
+      data: response,
+    });
+  },
+);
 
 // =========================
 // GET NEW CONTENT COUNT
 // =========================
-export const getNewContentCount = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.auth?.userId;
-  if (!userId) {
-    throw new AppError("Unauthorized", 401);
-  }
+export const getNewContentCount = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.auth?.userId;
+    if (!userId) {
+      throw new AppError("Unauthorized", 401);
+    }
 
-  const query = req.query as unknown as NewCountQuerySchemaType;
-  const data = await FeedService.getNewContentCount(userId, query);
+    const query = req.query as unknown as NewCountQuerySchemaType;
+    const data = await FeedService.getNewContentCount(userId, query);
 
-  return res.json({
-    success: true,
-    data,
-  });
-});
+    return res.json({
+      success: true,
+      data,
+    });
+  },
+);

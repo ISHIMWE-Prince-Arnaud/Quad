@@ -1,4 +1,3 @@
-import "../types/global.d.ts";
 import type { Request, Response } from "express";
 import type {
   CreatePollSchemaType,

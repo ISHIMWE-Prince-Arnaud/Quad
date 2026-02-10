@@ -1,4 +1,3 @@
-import "../types/global.d.ts";
 import type { Request, Response } from "express";
 import {
   type CreateStorySchemaType,
@@ -32,18 +31,20 @@ export const createStory = asyncHandler(async (req: Request, res: Response) => {
 // =========================
 // GET ALL STORIES
 // =========================
-export const getAllStories = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.auth?.userId;
-  const query = getStoriesQuerySchema.parse(req.query);
+export const getAllStories = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.auth?.userId;
+    const query = getStoriesQuerySchema.parse(req.query);
 
-  const result = await StoryService.getAllStories(userId, query);
+    const result = await StoryService.getAllStories(userId, query);
 
-  return res.status(200).json({
-    success: true,
-    data: result.stories,
-    pagination: result.pagination,
-  });
-});
+    return res.status(200).json({
+      success: true,
+      data: result.stories,
+      pagination: result.pagination,
+    });
+  },
+);
 
 // =========================
 // GET SINGLE STORY
@@ -100,23 +101,33 @@ export const deleteStory = asyncHandler(async (req: Request, res: Response) => {
 // =========================
 // GET USER'S STORIES (including drafts)
 // =========================
-export const getMyStories = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.auth?.userId;
-  if (!userId) {
-    throw new AppError("Unauthorized", 401);
-  }
+export const getMyStories = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.auth?.userId;
+    if (!userId) {
+      throw new AppError("Unauthorized", 401);
+    }
 
-  const { limit = "20", skip = "0", status } = req.query as {
-    limit?: string;
-    skip?: string;
-    status?: string;
-  };
+    const {
+      limit = "20",
+      skip = "0",
+      status,
+    } = req.query as {
+      limit?: string;
+      skip?: string;
+      status?: string;
+    };
 
-  const result = await StoryService.getMyStories(userId, { limit, skip, ...(status ? { status } : {}) });
+    const result = await StoryService.getMyStories(userId, {
+      limit,
+      skip,
+      ...(status ? { status } : {}),
+    });
 
-  return res.status(200).json({
-    success: true,
-    data: result.stories,
-    pagination: result.pagination,
-  });
-});
+    return res.status(200).json({
+      success: true,
+      data: result.stories,
+      pagination: result.pagination,
+    });
+  },
+);

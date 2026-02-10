@@ -1,4 +1,3 @@
-import "../types/global.d.ts";
 import type { Request, Response } from "express";
 import type { GetNotificationsQuerySchemaType } from "../schemas/notification.schema.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
