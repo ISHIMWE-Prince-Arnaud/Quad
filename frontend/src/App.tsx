@@ -1,8 +1,14 @@
-import { RouterProvider } from 'react-router-dom'
-import { router } from './routes'
+import { RouterProvider } from "react-router-dom";
+import { SocketManager } from "./components/SocketManager";
+import { router } from "./routes";
 
 function App() {
-  return <RouterProvider router={router} />
+  return (
+    <>
+      <SocketManager />
+      <RouterProvider router={router} />
+    </>
+  );
 }
 
-export default App
+export default App;

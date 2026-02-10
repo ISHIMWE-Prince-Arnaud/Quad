@@ -1,20 +1,56 @@
 import { io, Socket } from "socket.io-client";
 import type { ApiNotification } from "@/types/api";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
-// Backend Socket.IO server is at the API origin without the /api suffix
-const SOCKET_URL = API_BASE_URL.replace(/\/_?api\/?$/, "");
+const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL ||
+  (import.meta.env.VITE_API_BASE_URL
+    ? import.meta.env.VITE_API_BASE_URL.replace(/\/_?api\/?$/, "")
+    : "http://localhost:4000");
 
 let socket: Socket | null = null;
 
+export function connectSocket(token: string): Socket {
+  if (socket?.connected) {
+    return socket;
+  }
+
+  // Disconnect existing socket if any (e.g. reconnecting with new token)
+  if (socket) {
+    socket.disconnect();
+  }
+
+  socket = io(SOCKET_URL, {
+    transports: ["websocket", "polling"],
+    withCredentials: true,
+    auth: { token }, // Send Clerk token for authentication
+    autoConnect: true,
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+  });
+
+  socket.on("connect", () => {
+    console.log("Socket connected:", socket?.id);
+  });
+
+  socket.on("connect_error", (err) => {
+    console.error("Socket connection error:", err.message);
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log("Socket disconnected:", reason);
+  });
+
+  socket.on("reconnect", (attemptNumber) => {
+    console.log("Socket reconnected after", attemptNumber, "attempts");
+  });
+
+  return socket;
+}
+
 export function getSocket(): Socket {
   if (!socket) {
-    socket = io(SOCKET_URL, {
-      transports: ["websocket", "polling"],
-      withCredentials: true,
-      autoConnect: true,
-    });
+    throw new Error("Socket not initialized. Call connectSocket(token) first.");
   }
   return socket;
 }

@@ -5,12 +5,12 @@ import { useAuthSync } from "../hooks/useAuthSync";
 import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import {
-  getSocket,
   type NotificationPayload,
   type NotificationUnreadCountPayload,
 } from "@/lib/socket";
 import { useNotificationStore } from "@/stores/notificationStore";
 import { useFollowStore, type FollowEventPayload } from "@/stores/followStore";
+import { useSocketStore } from "@/stores/socketStore";
 
 export function RootLayout() {
   // Sync auth state with Clerk
@@ -22,6 +22,8 @@ export function RootLayout() {
   const applyFollowRemovedEvent = useFollowStore(
     (s) => s.applyFollowRemovedEvent,
   );
+  // Get socket from store - this will update when initialized
+  const socket = useSocketStore((state) => state.socket);
 
   // Initialize theme system
   const { initializeTheme, applyTheme } = useThemeStore();
@@ -33,10 +35,10 @@ export function RootLayout() {
 
   // Socket feed + notifications join/leave and listeners
   useEffect(() => {
-    const socket = getSocket();
     const userId = user?.clerkId;
 
-    if (isLoading || !userId) {
+    // Use socket from store. If null, we simply wait.
+    if (isLoading || !userId || !socket) {
       return;
     }
 
@@ -93,6 +95,7 @@ export function RootLayout() {
   }, [
     isLoading,
     user?.clerkId,
+    socket, // Add socket dependency so effect re-runs when socket connects
     fetchUnreadCount,
     setUnreadCount,
     applyFollowNewEvent,
