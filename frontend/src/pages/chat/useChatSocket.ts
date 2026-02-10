@@ -31,20 +31,17 @@ export function useChatSocket({
 }) {
   const socket = useSocketStore((state) => state.socket);
 
-  const [connection, setConnection] = useState<ConnectionStatus>(
-    socket?.connected ? "connected" : "connecting",
-  );
+  const [connection, setConnection] = useState<ConnectionStatus>(() => {
+    if (!socket) return "disconnected";
+    return socket.connected ? "connected" : "connecting";
+  });
 
   const [typingUsers, setTypingUsers] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!socket) {
-      setConnection("disconnected");
       return;
     }
-
-    // Update connection status immediately if socket available
-    setConnection(socket.connected ? "connected" : "connecting");
 
     const onConnect = () => setConnection("connected");
     const onDisconnect = () => setConnection("disconnected");
@@ -142,7 +139,7 @@ export function useChatSocket({
   };
 
   return {
-    connection,
+    connection: socket ? connection : "disconnected",
     typingUsers,
     emitTypingStart,
     emitTypingStop,

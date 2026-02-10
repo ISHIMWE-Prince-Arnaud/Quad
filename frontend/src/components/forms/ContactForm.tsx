@@ -1,9 +1,9 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -12,50 +12,50 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+} from "@/components/ui/form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Form schema
 const contactSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
-  subject: z.string().min(5, 'Subject must be at least 5 characters'),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
-})
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  subject: z.string().min(5, "Subject must be at least 5 characters"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});
 
-type ContactFormData = z.infer<typeof contactSchema>
+type ContactFormData = z.infer<typeof contactSchema>;
 
 interface ContactFormProps {
-  onSubmit?: (data: ContactFormData) => void
-  isLoading?: boolean
+  onSubmit?: (data: ContactFormData) => void;
+  isLoading?: boolean;
 }
 
 export function ContactForm({ onSubmit, isLoading = false }: ContactFormProps) {
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
     },
-  })
+  });
 
   const handleSubmit = (data: ContactFormData) => {
-    console.log('Contact form submitted:', data)
-    onSubmit?.(data)
-  }
+    onSubmit?.(data);
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-sm">
       <CardHeader className="pb-4">
         <CardTitle>Contact Us</CardTitle>
       </CardHeader>
-      
+
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -77,7 +77,11 @@ export function ContactForm({ onSubmit, isLoading = false }: ContactFormProps) {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="your@email.com" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="your@email.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -120,27 +124,21 @@ export function ContactForm({ onSubmit, isLoading = false }: ContactFormProps) {
             />
 
             <div className="flex gap-2 pt-4">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => form.reset()}
                 disabled={isLoading}
-                className="flex-1"
-              >
+                className="flex-1">
                 Reset
               </Button>
-              <Button 
-                type="submit" 
-                disabled={isLoading}
-                className="flex-1"
-              >
-                {isLoading ? 'Sending...' : 'Send Message'}
+              <Button type="submit" disabled={isLoading} className="flex-1">
+                {isLoading ? "Sending..." : "Send Message"}
               </Button>
             </div>
-
           </form>
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }
