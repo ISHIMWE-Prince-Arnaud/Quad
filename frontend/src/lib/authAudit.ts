@@ -106,7 +106,7 @@ export function useAuthAudit(): AuthAuditResult {
       if (tokenInLocalStorage && !tokenStorageSecure) {
         issues.push("Tokens stored in localStorage over insecure connection");
         recommendations.push(
-          "Use HTTPS or consider alternative storage methods"
+          "Use HTTPS or consider alternative storage methods",
         );
       }
 
@@ -120,7 +120,7 @@ export function useAuthAudit(): AuthAuditResult {
       if (isSignedIn && !hasToken) {
         issues.push("User is signed in but no token available");
         recommendations.push(
-          "Check Clerk configuration and token refresh logic"
+          "Check Clerk configuration and token refresh logic",
         );
       }
 
@@ -195,7 +195,7 @@ export function clearAuthData(): void {
  * Ensure token is refreshed before expiry
  */
 export async function ensureFreshToken(
-  getToken: () => Promise<string | null>
+  getToken: () => Promise<string | null>,
 ): Promise<string | null> {
   try {
     const token = await getToken();
@@ -224,9 +224,11 @@ export async function ensureFreshToken(
  */
 export function logAuthEvent(
   event: string,
-  details?: Record<string, unknown>
+  details?: Record<string, unknown>,
 ): void {
   if (import.meta.env.DEV) {
-    console.log(`[Auth Audit] ${event}`, details || "");
+    if (import.meta.env.DEV) {
+      console.log(`[Auth Audit] ${event}`, details || "");
+    }
   }
 }

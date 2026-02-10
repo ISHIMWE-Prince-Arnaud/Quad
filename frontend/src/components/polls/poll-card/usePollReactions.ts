@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { showErrorToast } from "@/lib/error-handling/toasts";
 
-import { getSocket } from "@/lib/socket";
+import { useSocketStore } from "@/stores/socketStore";
 import type { FeedEngagementUpdatePayload } from "@/lib/socket";
 import { ReactionService } from "@/services/reactionService";
 import type { ReactionType } from "@/services/reactionService";
@@ -10,6 +10,7 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
   const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
   const [reactionPending, setReactionPending] = useState(false);
   const [reactionCount, setReactionCount] = useState<number>(initialTotalCount);
+  const socket = useSocketStore((state) => state.socket);
 
   const prevPollIdRef = useRef(pollId);
 
@@ -45,7 +46,7 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
   }, [pollId]);
 
   useEffect(() => {
-    const socket = getSocket();
+    if (!socket) return;
 
     const handleEngagementUpdate = (payload: FeedEngagementUpdatePayload) => {
       if (payload.contentType !== "poll") return;
@@ -60,7 +61,7 @@ export function usePollReactions(pollId: string, initialTotalCount = 0) {
     return () => {
       socket.off("feed:engagement-update", handleEngagementUpdate);
     };
-  }, [pollId, reactionPending]);
+  }, [pollId, reactionPending, socket]);
 
   const handleSelectReaction = async (type: ReactionType) => {
     if (reactionPending) return;

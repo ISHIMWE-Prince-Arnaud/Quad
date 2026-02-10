@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CommentService } from "@/services/commentService";
 import type { Comment } from "@/types/comment";
 import { ChevronDown, MessageCircle } from "lucide-react";
-import { getSocket } from "@/lib/socket";
+import { useSocketStore } from "@/stores/socketStore";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -82,6 +82,7 @@ export function CommentsSection({
   contentAuthorClerkId,
   initialPageSize = 20,
 }: CommentsSectionProps) {
+  const socket = useSocketStore((state) => state.socket);
   const [comments, setComments] = useState<Comment[]>([]);
   const [cursor, setCursor] = useState<CommentsCursor>({
     skip: 0,
@@ -202,7 +203,7 @@ export function CommentsSection({
   }, [contentType, contentId, initialPageSize]);
 
   useEffect(() => {
-    const socket = getSocket();
+    if (!socket) return;
 
     const onAdded = (payload: CommentAddedPayload) => {
       if (
@@ -258,7 +259,13 @@ export function CommentsSection({
       socket.off("commentUpdated", onUpdated);
       socket.off("commentDeleted", onDeleted);
     };
-  }, [contentType, contentId, normalizeIncomingComment, removeCommentById]);
+  }, [
+    contentType,
+    contentId,
+    normalizeIncomingComment,
+    removeCommentById,
+    socket,
+  ]);
 
   const handleCommentCreated = (comment: Comment) => {
     setComments((prev) => {

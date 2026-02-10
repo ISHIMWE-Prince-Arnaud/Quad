@@ -59,8 +59,6 @@ export function useProfileHeaderController({
     profileImageUrl?: string | null;
     coverImageUrl?: string | null;
   }) => {
-    console.log("Saving profile data:", data);
-
     // Persist changes via backend API
     const updatedProfile = await ProfileService.updateProfile(user.username, {
       firstName: data.firstName,

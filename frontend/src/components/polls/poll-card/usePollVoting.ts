@@ -4,7 +4,7 @@ import { showErrorToast } from "@/lib/error-handling/toasts";
 import { PollService } from "@/services/pollService";
 import type { Poll } from "@/types/poll";
 import { logError } from "@/lib/errorHandling";
-import { getSocket } from "@/lib/socket";
+import { useSocketStore } from "@/stores/socketStore";
 import type { PollVotedPayload } from "@/lib/socket";
 import { formatErrorMessage } from "@/lib/error-handling/formatters";
 
@@ -21,6 +21,7 @@ export function usePollVoting(
   const [resultsVisible, setResultsVisible] = useState(
     Boolean(poll.canViewResults),
   );
+  const socket = useSocketStore((state) => state.socket);
 
   const selectedIndicesRef = useRef<number[]>(poll.userVote || []);
 
@@ -62,7 +63,7 @@ export function usePollVoting(
 
   // Real-time vote updates (other users voting)
   useEffect(() => {
-    const socket = getSocket();
+    if (!socket) return;
 
     const handlePollVoted = (payload: PollVotedPayload) => {
       if (!payload?.pollId) return;
@@ -103,7 +104,7 @@ export function usePollVoting(
     return () => {
       socket.off("pollVoted", handlePollVoted);
     };
-  }, [poll.id]);
+  }, [poll.id, socket]);
 
   // Check if poll can be voted on
   const canVote = useMemo(() => {
