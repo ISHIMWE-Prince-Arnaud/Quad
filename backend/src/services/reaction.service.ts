@@ -5,7 +5,6 @@ import { getSocketIO } from "../config/socket.config.js";
 import { emitEngagementUpdate } from "../sockets/feed.socket.js";
 import {
   verifyReactableContent,
-  updateContentReactionsCount,
   setContentReactionsCount,
 } from "../utils/content.util.js";
 import {
@@ -79,7 +78,8 @@ export class ReactionService {
       if (existingReaction.type === type) {
         await Reaction.deleteOne({ _id: existingReaction._id });
 
-        await updateContentReactionsCount(contentType, contentId, -1);
+        // Race condition fix: Remove incremental update & rely on absolute count
+        // await updateContentReactionsCount(contentType, contentId, -1);
 
         const reactionCount = await Reaction.countDocuments({
           contentType,
@@ -154,7 +154,8 @@ export class ReactionService {
       type,
     });
 
-    await updateContentReactionsCount(contentType, contentId, 1);
+    // Race condition fix: Remove incremental update & rely on absolute count
+    // await updateContentReactionsCount(contentType, contentId, 1);
 
     const reactionCount = await Reaction.countDocuments({
       contentType,
@@ -286,7 +287,8 @@ export class ReactionService {
       throw new AppError("Reaction not found", 404);
     }
 
-    await updateContentReactionsCount(contentType, contentId, -1);
+    // Race condition fix: Remove incremental update & rely on absolute count
+    // await updateContentReactionsCount(contentType, contentId, -1);
 
     const reactionCount = await Reaction.countDocuments({
       contentType,
