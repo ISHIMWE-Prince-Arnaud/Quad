@@ -12,6 +12,7 @@ import { logger } from "../utils/logger.util.js";
 import type { IUserDocument } from "../models/User.model.js";
 import type mongoose from "mongoose";
 import type { Document } from "mongoose";
+import type { AnyBulkWriteOperation, Filter, UpdateFilter } from "mongodb";
 import type { LeanDocument } from "../types/mongoose.types.js";
 
 export class DatabaseService {
@@ -293,12 +294,12 @@ export class DatabaseService {
   static async batchUpdate(
     Model: mongoose.Model<mongoose.Document>,
     updates: Array<{
-      filter: mongoose.FilterQuery<mongoose.Document>;
-      update: mongoose.UpdateQuery<mongoose.Document>;
+      filter: Filter<Record<string, unknown>>;
+      update: UpdateFilter<Record<string, unknown>>;
     }>,
   ): Promise<boolean> {
     try {
-      const bulkOps: Array<mongoose.AnyBulkWriteOperation<mongoose.Document>> =
+      const bulkOps: Array<AnyBulkWriteOperation<Record<string, unknown>>> =
         updates.map(({ filter, update }) => ({
           updateOne: {
             filter,
@@ -307,7 +308,7 @@ export class DatabaseService {
           },
         }));
 
-      await Model.bulkWrite(bulkOps);
+      await Model.collection.bulkWrite(bulkOps);
       return true;
     } catch (error) {
       logger.error("Failed to perform batch update", error);
