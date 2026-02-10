@@ -181,9 +181,9 @@ describe("Property 56: Protected Route Authentication Check", () => {
           // Render with loading state (isLoaded = false)
           renderWithProviders(protectedPath, isSignedIn, false);
 
-          // Should show loading indicator
-          const loadingTexts = screen.queryAllByText("Authenticating...");
-          expect(loadingTexts.length).toBeGreaterThan(0);
+          // Should show loading indicator (MainAppSkeleton)
+          const skeleton = document.querySelector(".animate-pulse");
+          expect(skeleton).toBeInTheDocument();
 
           // Should NOT show protected content or login page yet
           expect(

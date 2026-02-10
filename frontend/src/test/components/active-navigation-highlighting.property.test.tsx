@@ -86,11 +86,8 @@ describe("Active Navigation Highlighting Property Tests", () => {
           }
           const activeLinkEl: HTMLAnchorElement = activeLink;
           const activeLinkClasses = activeLinkEl.className ?? "";
-          expect(activeLinkClasses).toContain("bg-[#2563eb]");
-          expect(
-            activeLinkClasses.includes("text-primary-foreground") ||
-              activeLinkClasses.includes("text-white"),
-          ).toBe(true);
+          expect(activeLinkClasses).toContain("bg-primary/10");
+          expect(activeLinkClasses).toContain("text-primary");
 
           // Property 2: Active link should have aria-current attribute
           expect(activeLinkEl.getAttribute("aria-current")).toBe("page");
@@ -98,11 +95,8 @@ describe("Active Navigation Highlighting Property Tests", () => {
           // Property 3: Inactive links should NOT have primary background
           navLinks.forEach((link) => {
             if (link.getAttribute("href") !== activePath) {
-              expect(link.className).not.toContain("bg-[#2563eb]");
-              expect(
-                link.className.includes("text-[#94a3b8]") ||
-                  link.className.includes("text-muted-foreground"),
-              ).toBe(true);
+              expect(link.className).not.toContain("bg-primary/10");
+              expect(link.className).toContain("text-muted-foreground");
             }
           });
         },
@@ -167,18 +161,10 @@ describe("Active Navigation Highlighting Property Tests", () => {
           const icon = activeLinkEl.querySelector<SVGElement>("svg");
           expect(icon).not.toBeNull();
 
-          // The icon should either have text-primary-foreground class directly
-          // or inherit it from the parent link which has text-primary-foreground
+          // The icon should have text-primary class
           const iconClasses = icon?.getAttribute("class") || "";
-          const linkClasses = activeLinkEl.getAttribute("class") || "";
 
-          const hasCorrectColor =
-            iconClasses.includes("text-primary-foreground") ||
-            iconClasses.includes("text-white") ||
-            linkClasses.includes("text-primary-foreground") ||
-            linkClasses.includes("text-white");
-
-          expect(hasCorrectColor).toBe(true);
+          expect(iconClasses).toContain("text-primary");
         },
       ),
       { numRuns: 10 },
@@ -298,7 +284,7 @@ describe("Active Navigation Highlighting Property Tests", () => {
             throw new Error("Active navigation link not found");
           }
           const activeLink1El: HTMLAnchorElement = activeLink1;
-          expect(activeLink1El.className).toContain("bg-[#2563eb]");
+          expect(activeLink1El.className).toContain("bg-primary/10");
 
           cleanup();
 
@@ -324,7 +310,7 @@ describe("Active Navigation Highlighting Property Tests", () => {
             throw new Error("Active navigation link not found");
           }
           const activeLink2El: HTMLAnchorElement = activeLink2;
-          expect(activeLink2El.className).toContain("bg-[#2563eb]");
+          expect(activeLink2El.className).toContain("bg-primary/10");
 
           // Property: Different paths should highlight different links
           if (firstPath !== secondPath) {

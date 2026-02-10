@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import {
   LoadingSpinner,
   LoadingPage,
@@ -43,16 +43,15 @@ describe("Loading Components", () => {
   });
 
   describe("LoadingPage", () => {
-    it("should render loading page with text", () => {
-      render(<LoadingPage />);
-      expect(screen.getByText(/loading/i)).toBeInTheDocument();
-    });
-
-    it("should render spinner", () => {
+    it("should render skeleton structure", () => {
       const { container } = render(<LoadingPage />);
-      const spinner = container.querySelector("svg");
-      expect(spinner).toBeInTheDocument();
-      expect(spinner).toHaveClass("animate-spin");
+      const skeletonContainer = container.firstElementChild;
+      expect(skeletonContainer).toBeInTheDocument();
+      expect(skeletonContainer).toHaveClass("animate-pulse");
+
+      // Should have skeleton lines/blocks
+      const skeletons = container.querySelectorAll(".bg-muted");
+      expect(skeletons.length).toBeGreaterThan(0);
     });
   });
 
@@ -62,23 +61,19 @@ describe("Loading Components", () => {
       expect(container.querySelector(".border")).toBeInTheDocument();
     });
 
-    it("should contain spinner", () => {
+    it("should contain skeleton elements", () => {
       const { container } = render(<LoadingCard />);
-      const spinner = container.querySelector("svg");
-      expect(spinner).toBeInTheDocument();
+      const skeletons = container.querySelectorAll(".bg-muted");
+      expect(skeletons.length).toBeGreaterThan(0);
     });
   });
 
   describe("LoadingButton", () => {
-    it("should render loading button with text", () => {
-      render(<LoadingButton />);
-      expect(screen.getByText(/loading/i)).toBeInTheDocument();
-    });
-
     it("should contain spinner", () => {
       const { container } = render(<LoadingButton />);
       const spinner = container.querySelector("svg");
       expect(spinner).toBeInTheDocument();
+      expect(spinner).toHaveClass("animate-spin");
     });
   });
 
@@ -130,7 +125,7 @@ describe("Loading Components", () => {
     it("should render multiple skeleton posts", () => {
       const { container } = render(<FeedSkeleton />);
       const posts = container.querySelectorAll(".border");
-      expect(posts.length).toBe(5);
+      expect(posts.length).toBe(3);
     });
   });
 
