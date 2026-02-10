@@ -288,16 +288,6 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
 };
 
 // =========================
-// UPLOAD CHAT MEDIA (Image or Video)
-// =========================
-export const uploadChatMedia = async (req: Request, res: Response) => {
-  return res.status(410).json({
-    success: false,
-    message: "Chat media uploads are disabled",
-  });
-};
-
-// =========================
 // UPLOAD COVER IMAGE (Image Only)
 // =========================
 export const uploadCoverImage = async (req: Request, res: Response) => {
