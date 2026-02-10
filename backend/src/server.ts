@@ -21,7 +21,7 @@ import { setupFeedSocket } from "./sockets/feed.socket.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import healthRoutes from "./routes/health.routes.js";
 import apiRouter from "./routes/index.js";
-import { clerkMiddleware } from "@clerk/express";
+import { clerkMiddleware, clerkClient } from "@clerk/express";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger.config.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
@@ -81,17 +81,28 @@ const io = new SocketIOServer(server, {
 setSocketIO(io);
 
 // Socket.IO authentication middleware — verify Clerk token on connection
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   const token = socket.handshake.auth?.token;
+
   if (!token) {
     logger.warn(`Socket auth rejected (no token): ${socket.id}`);
     return next(new Error("Authentication required"));
   }
-  // Store the userId from the token for downstream handlers
-  // In production, validate with Clerk's verifyToken; for now we decode the userId
-  // passed from the frontend auth store.
-  socket.data.userId = token;
-  next();
+
+  try {
+    // 🔐 Verify Clerk token (session token)
+    // The frontend sends the Clerk session token (obtained via getToken())
+    const session = await (clerkClient as any).verifyToken(token);
+
+    // Store the clerkId (sub) from the verified session for downstream handlers
+    socket.data.userId = session.sub;
+
+    logger.debug(`Socket authenticated for user: ${session.sub}`);
+    next();
+  } catch (error) {
+    logger.error(`Socket auth failed (invalid token): ${socket.id}`, error);
+    next(new Error("Invalid authentication token"));
+  }
 });
 
 // Setup chat socket handlers

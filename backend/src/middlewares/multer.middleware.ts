@@ -105,7 +105,7 @@ export const uploadVideo = multer({
     }
   },
   limits: {
-    fileSize: 100 * 1024 * 1024, // 100MB for videos (memory-buffered)
+    fileSize: 50 * 1024 * 1024, // 50MB for videos (memory-buffered)
   },
 }).single("video");
 

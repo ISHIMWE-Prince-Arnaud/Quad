@@ -170,18 +170,14 @@ export function conditionalCache(productionOptions: Partial<CacheOptions>) {
  * ETag support middleware
  * Generates ETag based on response body
  */
-/**
- * ETag support middleware
- * Generates ETag based on response body
- */
 export function etag(_req: Request, res: Response, next: NextFunction) {
   const originalSend = res.send;
 
   res.send = function (body: unknown): Response {
     if (body && typeof body === "object") {
-      // Generate MD5 hash of the body
+      // Generate SHA-256 hash of the body
       const hash = crypto
-        .createHash("md5")
+        .createHash("sha256")
         .update(JSON.stringify(body))
         .digest("hex");
       const etag = `"${hash}"`;
