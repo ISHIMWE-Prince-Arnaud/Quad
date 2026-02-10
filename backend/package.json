@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "quad-api",
   "version": "1.0.0",
   "type": "module",
   "scripts": {

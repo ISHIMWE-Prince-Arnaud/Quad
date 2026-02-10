@@ -16,7 +16,8 @@ export default defineConfig(({ mode }) => {
         manifest: {
           name: "Quad",
           short_name: "Quad",
-          description: "Student Social Entertainment Platform",
+          description:
+            "The next-generation campus social platform. Express yourself with stories, polls, and real-time chat.",
           theme_color: "#ffffff",
           icons: [
             {
