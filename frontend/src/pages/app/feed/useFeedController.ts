@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
-import { getSocket } from "@/lib/socket";
+import { useSocketStore } from "@/stores/socketStore";
 import type {
   FeedContentDeletedPayload,
   FeedEngagementUpdatePayload,
@@ -41,6 +41,7 @@ export function useFeedController({
   const [lastSeenId, setLastSeenId] = useState<string | null>(null);
   const [creatingPost, setCreatingPost] = useState(false);
   const [mixPatternIndex, setMixPatternIndex] = useState(0);
+  const socket = useSocketStore((state) => state.socket);
 
   const normalizeItems = useCallback(
     (rawItems: FeedItem[], startIndex: number) => {
@@ -194,7 +195,7 @@ export function useFeedController({
   }, [feedType, tab, lastSeenId]);
 
   useEffect(() => {
-    const socket = getSocket();
+    if (!socket) return;
 
     const handleNewContent = async () => {
       if (!lastSeenId) return;
@@ -361,7 +362,7 @@ export function useFeedController({
       socket.off("feed:content-deleted", handleContentDeleted);
       socket.off("pollVoted", handlePollVoted);
     };
-  }, [feedType, handleRefreshFeed, lastSeenId, loading, tab]);
+  }, [feedType, handleRefreshFeed, lastSeenId, loading, tab, socket]);
 
   const handleLoadMore = useCallback(async () => {
     if (!hasMore || !cursor || loadingMore) return;

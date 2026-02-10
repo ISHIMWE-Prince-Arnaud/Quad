@@ -14,8 +14,12 @@ import type { ApiProfile } from "@/types/api";
 import type { Poll } from "@/types/poll";
 import type { Post } from "@/types/post";
 import type { Story } from "@/types/story";
-import { logError, showErrorToast, showSuccessToast } from "@/lib/errorHandling";
-import { getSocket } from "@/lib/socket";
+import {
+  logError,
+  showErrorToast,
+  showSuccessToast,
+} from "@/lib/errorHandling";
+import { useSocketStore } from "@/stores/socketStore";
 import type {
   FeedEngagementUpdatePayload,
   PollVotedPayload,
@@ -49,6 +53,7 @@ export function useProfilePageController({
   authLoading,
   setAuthUser,
 }: UseProfilePageControllerArgs) {
+  const socket = useSocketStore((state) => state.socket);
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [savedTab, setSavedTab] = useState<SavedTab>("posts");
   const [user, setUser] = useState<ApiProfile | null>(null);
@@ -1035,7 +1040,7 @@ export function useProfilePageController({
 
   // Set up Socket.IO listeners for real-time poll updates
   useEffect(() => {
-    const socket = getSocket();
+    if (!socket) return;
 
     const handleEngagementUpdate = (payload: FeedEngagementUpdatePayload) => {
       if (payload.contentType === "poll") {
@@ -1135,7 +1140,7 @@ export function useProfilePageController({
       socket.off("pollVoted", handlePollVoted);
       socket.off("pollExpired", handlePollExpired);
     };
-  }, []);
+  }, [socket]);
 
   return {
     activeTab,

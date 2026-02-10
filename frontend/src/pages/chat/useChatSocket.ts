@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 import type { ChatMessage } from "@/types/chat";
-import { getSocket } from "@/lib/socket";
 import type {
   ChatMessagePayload,
   ChatTypingStartPayload,
@@ -10,6 +9,7 @@ import type {
 } from "@/lib/socket";
 
 import type { ConnectionStatus } from "./types";
+import { useSocketStore } from "@/stores/socketStore";
 
 type MinimalUser = {
   clerkId: string;
@@ -29,14 +29,22 @@ export function useChatSocket({
   setMessages: Dispatch<SetStateAction<ChatMessage[]>>;
   onIncomingMessage?: () => void;
 }) {
-  const [connection, setConnection] = useState<ConnectionStatus>(() => {
-    const socket = getSocket();
-    return socket.connected ? "connected" : "connecting";
-  });
+  const socket = useSocketStore((state) => state.socket);
+
+  const [connection, setConnection] = useState<ConnectionStatus>(
+    socket?.connected ? "connected" : "connecting",
+  );
+
   const [typingUsers, setTypingUsers] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    const socket = getSocket();
+    if (!socket) {
+      setConnection("disconnected");
+      return;
+    }
+
+    // Update connection status immediately if socket available
+    setConnection(socket.connected ? "connected" : "connecting");
 
     const onConnect = () => setConnection("connected");
     const onDisconnect = () => setConnection("disconnected");
@@ -59,8 +67,8 @@ export function useChatSocket({
     const onEdited = (payload: ChatMessagePayload) => {
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === payload.id ? (payload as unknown as ChatMessage) : m
-        )
+          m.id === payload.id ? (payload as unknown as ChatMessage) : m,
+        ),
       );
     };
 
@@ -111,11 +119,17 @@ export function useChatSocket({
       socket.off("chat:typing:start", onTypingStart);
       socket.off("chat:typing:stop", onTypingStop);
     };
-  }, [user?.clerkId, nearBottom, scrollToBottom, setMessages, onIncomingMessage]);
+  }, [
+    socket,
+    user?.clerkId,
+    nearBottom,
+    scrollToBottom,
+    setMessages,
+    onIncomingMessage,
+  ]);
 
   const emitTypingStart = () => {
-    const socket = getSocket();
-    if (!user) return;
+    if (!user || !socket) return;
     socket.emit("chat:typing:start", {
       userId: user.clerkId,
       username: user.username,
@@ -123,8 +137,7 @@ export function useChatSocket({
   };
 
   const emitTypingStop = () => {
-    const socket = getSocket();
-    if (!user) return;
+    if (!user || !socket) return;
     socket.emit("chat:typing:stop", { userId: user.clerkId });
   };
 

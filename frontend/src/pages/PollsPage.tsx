@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams } from "@/types/poll";
 import { SkeletonPollCard, LoadMoreButton } from "@/components/ui/loading";
-import { getSocket } from "@/lib/socket";
+import { useSocketStore } from "@/stores/socketStore";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import type {
   FeedEngagementUpdatePayload,
@@ -21,6 +21,7 @@ export default function PollsPage() {
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const socket = useSocketStore((state) => state.socket);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -152,7 +153,7 @@ export default function PollsPage() {
 
   // Set up Socket.IO listeners for real-time poll updates
   useEffect(() => {
-    const socket = getSocket();
+    if (!socket) return;
 
     const handleEngagementUpdate = (payload: FeedEngagementUpdatePayload) => {
       if (payload.contentType === "poll") {
@@ -233,7 +234,7 @@ export default function PollsPage() {
       socket.off("pollVoted", handlePollVoted);
       socket.off("pollExpired", handlePollExpired);
     };
-  }, []);
+  }, [socket]);
 
   const handleChangePage = (next: number) => {
     setPage(next);

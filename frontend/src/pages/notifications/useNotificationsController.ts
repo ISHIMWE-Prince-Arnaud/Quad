@@ -5,10 +5,10 @@ import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { NotificationService } from "@/services/notificationService";
 import {
-  getSocket,
   type NotificationIdPayload,
   type NotificationPayload,
 } from "@/lib/socket";
+import { useSocketStore } from "@/stores/socketStore";
 import type { ApiNotification } from "@/types/api";
 
 export type FilterTab = "all" | "unread";
@@ -20,6 +20,7 @@ export function useNotificationsController({
   navigate: NavigateFunction;
   limit?: number;
 }) {
+  const socket = useSocketStore((state) => state.socket);
   const [notifications, setNotifications] = useState<ApiNotification[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -78,7 +79,7 @@ export function useNotificationsController({
 
   // Real-time updates (new/read/delete/bulk) via Socket.IO
   useEffect(() => {
-    const socket = getSocket();
+    if (!socket) return;
 
     const handleNotificationNew = (payload: NotificationPayload) => {
       setNotifications((curr) => {
@@ -125,7 +126,7 @@ export function useNotificationsController({
       socket.off("notification:read_all", handleReadAll);
       socket.off("notification:clear_read", handleClearRead);
     };
-  }, [filter]);
+  }, [filter, socket]);
 
   const unreadLocalCount = useMemo(() => {
     return notifications.filter((n) => !n.isRead).length;
