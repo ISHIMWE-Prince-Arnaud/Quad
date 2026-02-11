@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { useAuth, useSignIn } from "@clerk/clerk-react";
+import { Eye, EyeOff } from "lucide-react";
 import {
   getIntendedDestination,
   peekIntendedDestination,
@@ -21,6 +22,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [touched, setTouched] = useState({
+    identifier: false,
+    password: false,
+  });
 
   const oauthRedirectComplete = useMemo(() => {
     const destination = peekIntendedDestination();
@@ -35,11 +41,27 @@ export default function LoginPage() {
     }
   }, [isLoaded, isSignedIn, navigate]);
 
+  const identifierError =
+    touched.identifier && identifier.trim().length === 0
+      ? "Enter your email or username"
+      : undefined;
+
+  const passwordError =
+    touched.password && password.length === 0
+      ? "Enter your password"
+      : undefined;
+
+  const canSubmit =
+    identifier.trim().length > 0 && password.length > 0 && !submitting;
+
   const handlePasswordSignIn = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
 
     if (!isSignInLoaded || !signIn) return;
+
+    setTouched({ identifier: true, password: true });
+    if (identifier.trim().length === 0 || password.length === 0) return;
 
     setSubmitting(true);
     try {
@@ -141,23 +163,47 @@ export default function LoginPage() {
                 onChange={(e) => setIdentifier(e.target.value)}
                 autoComplete="username"
                 disabled={submitting}
+                error={identifierError}
+                onBlur={() => setTouched((t) => ({ ...t, identifier: true }))}
               />
               <Input
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 disabled={submitting}
+                error={passwordError}
+                onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                rightElement={
+                  <button
+                    type="button"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    disabled={submitting}>
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                }
               />
               <Button
                 type="submit"
                 className="w-full"
                 loading={submitting}
-                disabled={submitting}>
+                disabled={!canSubmit}>
                 Continue
               </Button>
             </form>
+
+            <div className="text-center text-xs text-muted-foreground">
+              Use your email or username to sign in.
+            </div>
 
             <div className="text-center text-sm text-muted-foreground">
               Don’t have an account?{" "}

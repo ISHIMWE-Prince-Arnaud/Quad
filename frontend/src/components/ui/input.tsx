@@ -2,11 +2,11 @@ import * as React from "react";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   label?: string;
   showCharacterCount?: boolean;
+  rightElement?: React.ReactNode;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -17,15 +17,16 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       error,
       label,
       showCharacterCount = false,
+      rightElement,
       maxLength,
       value,
       defaultValue,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [internalValue, setInternalValue] = React.useState(
-      value || defaultValue || ""
+      value || defaultValue || "",
     );
     const currentValue = value !== undefined ? value : internalValue;
     const characterCount =
@@ -46,8 +47,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             className={cn(
               "flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-50",
+              rightElement && "pr-10",
               error && "border-destructive focus-visible:ring-destructive",
-              className
+              className,
             )}
             ref={ref}
             maxLength={maxLength}
@@ -58,6 +60,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             aria-describedby={error ? "input-error" : undefined}
             {...props}
           />
+
+          {rightElement && (
+            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+              {rightElement}
+            </div>
+          )}
         </div>
         {error && (
           <div
@@ -74,7 +82,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
       </div>
     );
-  }
+  },
 );
 Input.displayName = "Input";
 

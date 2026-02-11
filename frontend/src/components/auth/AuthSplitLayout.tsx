@@ -204,15 +204,15 @@ export function AuthSplitLayout({ variant, children }: AuthSplitLayoutProps) {
           }}
         />
 
-        <div className="mx-auto flex min-h-screen max-w-6xl items-stretch px-4 py-10 lg:px-8">
-          <div className="grid w-full grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12">
+        <div className="mx-auto flex min-h-screen max-w-6xl items-stretch px-4 py-10 lg:px-8 lg:py-14">
+          <div className="grid w-full grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-14">
             <div className="flex flex-col justify-center">
               <LeftPanelCopy variant={variant} />
               <LiveAccentMocks />
             </div>
 
             <div className="flex flex-col justify-center">
-              <div className="mx-auto w-full max-w-md rounded-2xl border border-border bg-card/80 p-6 shadow-2xl backdrop-blur sm:p-8">
+              <div className="mx-auto w-full max-w-md rounded-2xl border border-border/80 bg-card/70 p-6 shadow-2xl backdrop-blur sm:p-8">
                 {children}
               </div>
             </div>
