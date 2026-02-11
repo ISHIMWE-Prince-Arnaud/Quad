@@ -15,14 +15,15 @@ function LiveAccentMocks() {
         className="absolute -left-2 top-2 h-40 w-64 rounded-2xl border border-border/60 bg-card/60 p-4 shadow-2xl backdrop-blur"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
+        transition={{ duration: 0.5 }}>
         <div className="flex items-center justify-between">
           <div className="text-sm font-semibold text-foreground">Live Poll</div>
           <div className="text-xs text-muted-foreground">Updating</div>
         </div>
         <div className="mt-3 space-y-2">
-          <div className="text-sm text-muted-foreground">Which feature should ship next?</div>
+          <div className="text-sm text-muted-foreground">
+            Which feature should ship next?
+          </div>
           <div className="space-y-2">
             <div>
               <div className="flex items-center justify-between text-xs">
@@ -31,8 +32,7 @@ function LiveAccentMocks() {
                   className="text-foreground"
                   initial={{ opacity: 0.85 }}
                   animate={{ opacity: [0.85, 1, 0.85] }}
-                  transition={{ duration: 2.2, repeat: Infinity }}
-                >
+                  transition={{ duration: 2.2, repeat: Infinity }}>
                   54%
                 </motion.span>
               </div>
@@ -41,7 +41,11 @@ function LiveAccentMocks() {
                   className="h-2 rounded-full bg-primary"
                   initial={{ width: "48%" }}
                   animate={{ width: ["48%", "54%", "52%", "54%"] }}
-                  transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+                  transition={{
+                    duration: 3.4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
                 />
               </div>
             </div>
@@ -62,26 +66,25 @@ function LiveAccentMocks() {
         className="absolute right-0 top-16 h-36 w-72 rounded-2xl border border-border/60 bg-card/60 p-4 shadow-2xl backdrop-blur"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.05 }}
-      >
+        transition={{ duration: 0.6, delay: 0.05 }}>
         <div className="flex items-center justify-between">
           <div className="text-sm font-semibold text-foreground">Chat</div>
           <motion.div
             className="text-xs text-muted-foreground"
             initial={{ opacity: 0.8 }}
             animate={{ opacity: [0.8, 1, 0.8] }}
-            transition={{ duration: 1.8, repeat: Infinity }}
-          >
+            transition={{ duration: 1.8, repeat: Infinity }}>
             3 typing…
           </motion.div>
         </div>
         <div className="mt-3 space-y-2">
-          <div className="w-fit rounded-full bg-muted px-3 py-1 text-xs text-foreground">Did you see the vote spike?</div>
+          <div className="w-fit rounded-full bg-muted px-3 py-1 text-xs text-foreground">
+            Did you see the vote spike?
+          </div>
           <motion.div
             className="ml-auto w-fit rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground"
             animate={{ y: [0, -2, 0] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-          >
+            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}>
             Yep. It’s moving fast.
           </motion.div>
         </div>
@@ -91,14 +94,15 @@ function LiveAccentMocks() {
         className="absolute left-10 top-52 h-28 w-80 rounded-2xl border border-border/60 bg-card/60 p-4 shadow-2xl backdrop-blur"
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-      >
+        transition={{ duration: 0.6, delay: 0.1 }}>
         <div className="flex items-center justify-between">
           <div className="text-sm font-semibold text-foreground">Story</div>
           <div className="text-xs text-muted-foreground">Now</div>
         </div>
         <div className="mt-3">
-          <div className="text-sm text-muted-foreground">A thread turned into a story — with images and highlights.</div>
+          <div className="text-sm text-muted-foreground">
+            A thread turned into a story — with images and highlights.
+          </div>
           <div className="mt-3 flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-primary" />
             <div className="h-2 w-2 rounded-full bg-secondary" />
@@ -133,7 +137,8 @@ function LeftPanelCopy({ variant }: { variant: AuthVariant }) {
           Welcome back to Quad.
         </h1>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground lg:text-lg">
-          Conversations are happening. Polls are updating. Stories are unfolding in real time.
+          Conversations are happening. Polls are updating. Stories are unfolding
+          in real time.
         </p>
         <div className="mt-8 space-y-3 text-sm text-foreground/90">
           <div className="flex items-center gap-3">
@@ -149,7 +154,9 @@ function LeftPanelCopy({ variant }: { variant: AuthVariant }) {
             <span>Rich stories</span>
           </div>
         </div>
-        <div className="mt-10 text-sm text-muted-foreground">Your world. Happening now.</div>
+        <div className="mt-10 text-sm text-muted-foreground">
+          Your world. Happening now.
+        </div>
       </>
     );
   }
@@ -160,7 +167,8 @@ function LeftPanelCopy({ variant }: { variant: AuthVariant }) {
         Where conversations move in real time.
       </h1>
       <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground lg:text-lg">
-        Quad combines posts, live polls, stories, and chat — all in one interactive space.
+        Quad combines posts, live polls, stories, and chat — all in one
+        interactive space.
       </p>
       <div className="mt-8 space-y-3 text-sm text-foreground/90">
         <div className="flex items-center gap-3">
@@ -206,9 +214,6 @@ export function AuthSplitLayout({ variant, children }: AuthSplitLayoutProps) {
             <div className="flex flex-col justify-center">
               <div className="mx-auto w-full max-w-md rounded-2xl border border-border bg-card/80 p-6 shadow-2xl backdrop-blur sm:p-8">
                 {children}
-              </div>
-              <div className="mt-6 text-center text-xs text-muted-foreground">
-                By continuing, you agree to Quad’s terms and privacy policy.
               </div>
             </div>
           </div>

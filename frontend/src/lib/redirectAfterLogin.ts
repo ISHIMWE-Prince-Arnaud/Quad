@@ -32,6 +32,11 @@ export function getIntendedDestination(): string {
   return saved || DEFAULT_REDIRECT;
 }
 
+export function peekIntendedDestination(): string {
+  const saved = sessionStorage.getItem(REDIRECT_KEY);
+  return saved || DEFAULT_REDIRECT;
+}
+
 /**
  * Clear the saved redirect destination
  */

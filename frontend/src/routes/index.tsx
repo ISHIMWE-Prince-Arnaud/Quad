@@ -10,6 +10,7 @@ import { IndexRedirect } from "./IndexRedirect";
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const SignUpPage = lazy(() => import("@/pages/auth/SignUpPage"));
+const SsoCallbackPage = lazy(() => import("@/pages/auth/SsoCallbackPage"));
 const FeedPage = lazy(() => import("@/pages/app/FeedPage"));
 const ProfilePage = lazy(() => import("@/pages/app/ProfilePage"));
 const EditProfilePage = lazy(() => import("@/pages/EditProfilePage"));
@@ -54,6 +55,14 @@ export const router = createBrowserRouter([
             element: (
               <LazyRoute>
                 <SignUpPage />
+              </LazyRoute>
+            ),
+          },
+          {
+            path: "sso-callback",
+            element: (
+              <LazyRoute>
+                <SsoCallbackPage />
               </LazyRoute>
             ),
           },
