@@ -5,9 +5,9 @@ import { RootLayout } from "@/layouts/RootLayout";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { MainLayout } from "@/layouts/MainLayout";
 import { LazyRoute } from "./LazyRoute";
+import { IndexRedirect } from "./IndexRedirect";
 
 // Lazy load pages for code splitting
-const HomePage = lazy(() => import("@/pages/HomePage"));
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const SignUpPage = lazy(() => import("@/pages/auth/SignUpPage"));
 const FeedPage = lazy(() => import("@/pages/app/FeedPage"));
@@ -39,11 +39,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <LazyRoute>
-                <HomePage />
-              </LazyRoute>
-            ),
+            element: <IndexRedirect />,
           },
           {
             path: "login/*",
