@@ -80,7 +80,7 @@ export function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
               </div>
 
               {/* Carousel Component Wrapper with horizontal space inside container */}
-              <div className="w-full h-full relative z-10 px-10 xl:px-16 py-10">
+              <div className="w-full h-full relative z-10 px-10 xl:px-16 py-4">
                 <LeftPanelCarousel />
               </div>
 

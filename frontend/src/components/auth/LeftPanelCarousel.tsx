@@ -96,9 +96,9 @@ export function LeftPanelCarousel() {
       className="relative h-full w-full overflow-hidden flex flex-col items-center"
       style={{
         maskImage:
-          "linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)",
+          "linear-gradient(to bottom, transparent, black 8%, black 92%, transparent)",
         WebkitMaskImage:
-          "linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)",
+          "linear-gradient(to bottom, transparent, black 8%, black 92%, transparent)",
       }}>
       <motion.div className="flex flex-col gap-[5vh] w-full" style={{ y }}>
         {DISPLAY_CARDS.map((card, index) => (
@@ -136,7 +136,8 @@ function CarouselItem({
   const scale = useTransform(y, (latestY) => {
     const currentCenter = itemCenter + latestY;
     const distanceFromCenter = Math.abs(viewportCenter - currentCenter);
-    const maxDist = containerHeight * 0.4;
+    // Increased maxDist so it doesn't scale down too fast
+    const maxDist = containerHeight * 0.6;
     const factor = Math.min(distanceFromCenter / maxDist, 1);
     return 1 - factor * 0.15;
   });
@@ -144,15 +145,17 @@ function CarouselItem({
   const opacity = useTransform(y, (latestY) => {
     const currentCenter = itemCenter + latestY;
     const distanceFromCenter = Math.abs(viewportCenter - currentCenter);
-    const maxDist = containerHeight * 0.5;
+    // Increased maxDist for smoother fade
+    const maxDist = containerHeight * 0.7;
     const factor = Math.min(distanceFromCenter / maxDist, 1);
-    return 1 - factor * 0.7;
+    // Increased minimum opacity from 0.3 to 0.4
+    return 1 - factor * 0.6;
   });
 
   const filter = useTransform(y, (latestY) => {
     const currentCenter = itemCenter + latestY;
     const distanceFromCenter = Math.abs(viewportCenter - currentCenter);
-    const maxDist = containerHeight * 0.4;
+    const maxDist = containerHeight * 0.5;
     const factor = Math.min(distanceFromCenter / maxDist, 1);
     const blur = factor * 4;
     return `blur(${blur}px)`;
@@ -161,7 +164,7 @@ function CarouselItem({
   const shadow = useTransform(y, (latestY) => {
     const currentCenter = itemCenter + latestY;
     const distanceFromCenter = Math.abs(viewportCenter - currentCenter);
-    const maxDist = containerHeight * 0.2;
+    const maxDist = containerHeight * 0.25;
     const factor = 1 - Math.min(distanceFromCenter / maxDist, 1);
     return `0 ${20 * factor}px ${40 * factor}px -10px hsla(var(--primary) / ${0.2 * factor})`;
   });
