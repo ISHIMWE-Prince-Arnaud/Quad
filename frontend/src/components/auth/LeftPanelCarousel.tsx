@@ -37,7 +37,7 @@ export function LeftPanelCarousel() {
 
   // Constants for spacing - will be computed when containerHeight > 0
   const itemHeight = containerHeight * 0.5;
-  const gap = containerHeight * 0.05;
+  const gap = containerHeight * 0.02;
   const itemSpacing = itemHeight + gap;
   const centerOffset = (containerHeight - itemHeight) / 2;
 
@@ -50,7 +50,7 @@ export function LeftPanelCarousel() {
         // Ensure starting position is correct on load
         const initialItemHeight = h * 0.5;
         const initialCenterOffset = (h - initialItemHeight) / 2;
-        const initialItemSpacing = initialItemHeight + h * 0.05;
+        const initialItemSpacing = initialItemHeight + h * 0.02;
 
         // Set y to center the current activeIndex
         y.set(initialCenterOffset - activeIndex * initialItemSpacing);
@@ -100,7 +100,7 @@ export function LeftPanelCarousel() {
         WebkitMaskImage:
           "linear-gradient(to bottom, transparent, black 8%, black 92%, transparent)",
       }}>
-      <motion.div className="flex flex-col gap-[5vh] w-full" style={{ y }}>
+      <motion.div className="flex flex-col gap-[2vh] w-full" style={{ y }}>
         {DISPLAY_CARDS.map((card, index) => (
           <CarouselItem
             key={`${card.id}-${index}`}
@@ -127,7 +127,7 @@ function CarouselItem({
   containerHeight: number;
 }) {
   const itemHeight = containerHeight * 0.5;
-  const gap = containerHeight * 0.05;
+  const gap = containerHeight * 0.02;
   const itemSpacing = itemHeight + gap;
   const itemCenter = index * itemSpacing + itemHeight / 2;
   const viewportCenter = containerHeight / 2;
