@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
+import { LeftPanelCarousel } from "./LeftPanelCarousel";
 
 type AuthVariant = "login" | "signup";
 
@@ -8,124 +9,113 @@ type AuthSplitLayoutProps = {
   children: ReactNode;
 };
 
-function LiveAccentMocks() {
-  return (
-    <div className="relative mt-10 hidden w-full max-w-xl md:block">
-      <motion.div
-        className="absolute -left-2 top-2 h-40 w-64 rounded-2xl border border-border/40 bg-card/40 p-4 shadow-xl backdrop-blur"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}>
-        <div className="h-4 w-24 rounded bg-muted/60" />
-        <div className="mt-4 space-y-3">
-          <div className="h-3 w-full rounded bg-muted/40" />
-          <div className="h-3 w-3/4 rounded bg-muted/40" />
-          <div className="mt-4 flex gap-2">
-            <div className="h-8 w-8 rounded-full bg-primary/20" />
-            <div className="h-8 w-24 rounded-full bg-secondary/20" />
-          </div>
-        </div>
-      </motion.div>
-
-      <motion.div
-        className="absolute right-0 top-16 h-36 w-72 rounded-2xl border border-border/40 bg-card/40 p-4 shadow-xl backdrop-blur"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.05 }}>
-        <div className="flex items-center justify-between gap-4">
-          <div className="h-4 w-16 rounded bg-muted/60" />
-          <div className="h-3 w-12 rounded bg-muted/40" />
-        </div>
-        <div className="mt-4 space-y-3">
-          <div className="h-6 w-32 rounded-full bg-muted/40" />
-          <div className="ml-auto h-6 w-24 rounded-full bg-primary/20" />
-        </div>
-      </motion.div>
-
-      <motion.div
-        className="absolute left-10 top-52 h-28 w-80 rounded-2xl border border-border/40 bg-card/40 p-4 shadow-xl backdrop-blur"
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}>
-        <div className="h-4 w-20 rounded bg-muted/60" />
-        <div className="mt-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-muted/40" />
-          <div className="space-y-2">
-            <div className="h-3 w-40 rounded bg-muted/40" />
-            <div className="h-3 w-24 rounded bg-muted/40" />
-          </div>
-        </div>
-      </motion.div>
-
-      <motion.div
-        className="pointer-events-none absolute -inset-6 -z-10 rounded-[2.5rem]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        style={{
-          background:
-            "radial-gradient(900px 380px at 20% 10%, hsl(var(--primary) / 0.10), transparent 60%), radial-gradient(900px 380px at 80% 30%, hsl(var(--secondary) / 0.08), transparent 60%)",
-        }}
-      />
-    </div>
-  );
-}
-
-function LeftPanelCopy() {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        <div className="h-10 w-3/4 rounded-lg bg-foreground/10 lg:h-12" />
-        <div className="h-10 w-1/2 rounded-lg bg-foreground/10 lg:h-12" />
-      </div>
-
-      <div className="space-y-4 pt-4">
-        <div className="h-4 w-full rounded bg-muted/60" />
-        <div className="h-4 w-5/6 rounded bg-muted/60" />
-        <div className="h-4 w-4/6 rounded bg-muted/60" />
-      </div>
-
-      <div className="mt-8 space-y-4 pt-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center gap-3">
-            <div className="h-6 w-6 rounded-full bg-muted/60" />
-            <div className="h-4 w-32 rounded bg-muted/40" />
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-10 h-4 w-40 rounded bg-muted/40" />
-    </div>
-  );
-}
-
 export function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
   return (
-    <div className="min-h-screen w-full bg-background lg:h-screen lg:overflow-hidden">
-      <div className="relative min-h-screen w-full lg:h-full">
+    <div className="min-h-screen w-full bg-background lg:h-screen lg:overflow-hidden font-sans">
+      <div className="relative min-h-screen w-full lg:h-full flex overflow-hidden">
+        {/* Animated Background Gradients */}
         <motion.div
           className="pointer-events-none absolute inset-0 -z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          style={{
-            background:
-              "radial-gradient(1200px 520px at 85% 20%, hsl(var(--primary) / 0.22), transparent 60%), radial-gradient(1100px 520px at 20% 40%, hsl(var(--secondary) / 0.18), transparent 60%)",
-          }}
-        />
+          transition={{ duration: 1 }}>
+          {/* Top Right Glow */}
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.15, 0.25, 0.15],
+              x: [0, 20, 0],
+              y: [0, -20, 0],
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+            className="absolute -top-[10%] -right-[10%] w-[60%] h-[60%] rounded-full blur-[120px]"
+            style={{
+              background:
+                "radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)",
+            }}
+          />
+          {/* Bottom Left Glow */}
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.2, 0.1],
+              x: [0, -30, 0],
+              y: [0, 30, 0],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute -bottom-[20%] -left-[10%] w-[70%] h-[70%] rounded-full blur-[150px]"
+            style={{
+              background:
+                "radial-gradient(circle, hsl(var(--secondary)) 0%, transparent 70%)",
+            }}
+          />
+        </motion.div>
 
-        <div className="mx-auto flex min-h-screen max-w-6xl items-center px-4 py-10 lg:h-full lg:min-h-0 lg:px-8 lg:py-0">
-          <div className="grid w-full grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
-            <div className="flex flex-col justify-center">
-              <div className="mx-auto w-full max-w-md rounded-2xl border border-border/80 bg-card/70 p-6 shadow-2xl backdrop-blur sm:p-8">
+        <div className="flex w-full min-h-screen">
+          {/* Left Panel: Infinite Carousel (Visible on Large Screens) */}
+          <div className="hidden lg:flex lg:w-1/2 h-screen p-8 items-center justify-center">
+            {/* The Rounded Container from the Image */}
+            <div className="w-full h-full relative rounded-[3rem] overflow-hidden shadow-2xl border border-white/5 flex flex-col items-center justify-center">
+              
+              {/* Vibrant Mesh Gradient Background Specific to Quad */}
+              <div className="absolute inset-0 -z-10 bg-[#0d0d12]">
+                {/* Moving Blobs for Mesh Effect - Vibrant Indigo/Violet/Cyan */}
+                <motion.div 
+                  animate={{ 
+                    x: [0, 80, -40, 0],
+                    y: [0, -60, 40, 0],
+                    scale: [1, 1.4, 1.2, 1],
+                  }}
+                  transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -top-[10%] -left-[10%] w-full h-full rounded-full opacity-40 blur-[120px]"
+                  style={{ background: "radial-gradient(circle, #6366f1 0%, transparent 70%)" }}
+                />
+                <motion.div 
+                  animate={{ 
+                    x: [0, -100, 60, 0],
+                    y: [0, 80, -40, 0],
+                    scale: [1.2, 1, 1.3, 1.2],
+                  }}
+                  transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                  className="absolute bottom-[-20%] -right-[10%] w-full h-full rounded-full opacity-30 blur-[130px]"
+                  style={{ background: "radial-gradient(circle, #a855f7 0%, transparent 70%)" }}
+                />
+                <motion.div 
+                  animate={{ 
+                    x: [0, 40, -60, 0],
+                    y: [100, -20, 60, 100],
+                    scale: [1, 1.2, 1.1, 1],
+                  }}
+                  transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                  className="absolute top-[30%] left-[20%] w-[80%] h-[80%] rounded-full opacity-20 blur-[100px]"
+                  style={{ background: "radial-gradient(circle, #0ea5e9 0%, transparent 70%)" }}
+                />
+                
+                {/* Noise texture overlay */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+              </div>
+
+              {/* Carousel Component Wrapper with Horizontal Padding */}
+              <div className="w-full h-full relative z-10 px-12 xl:px-20 py-10">
+                <LeftPanelCarousel />
+              </div>
+
+              {/* Glassy Overlay for edge fade */}
+              <div className="pointer-events-none absolute inset-0 z-20 shadow-[inset_0_0_150px_rgba(0,0,0,0.2)]" />
+            </div>
+          </div>
+
+          {/* Right Panel: Content (Login/Signup Form) */}
+          <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="w-full max-w-md mx-auto">
+              <div className="rounded-2xl border border-border/80 bg-card/70 p-6 shadow-2xl backdrop-blur sm:p-8">
                 {children}
               </div>
-            </div>
-
-            <div className="hidden animate-pulse flex-col justify-center lg:flex">
-              <LeftPanelCopy />
-              <LiveAccentMocks />
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
