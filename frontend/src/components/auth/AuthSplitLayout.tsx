@@ -17,7 +17,7 @@ export function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
           {/* Left Panel: Infinite Carousel (Visible on Large Screens) */}
           <div className="hidden lg:flex lg:w-1/2 h-screen p-4 lg:p-6 lg:pr-3 items-center justify-center">
             {/* The Container with surrounding ring */}
-            <div className="w-full h-full relative overflow-hidden flex flex-col items-center justify-center border border-border/50 rounded-sm">
+            <div className="w-full h-full relative overflow-hidden flex flex-col items-center justify-center border-2 border-border/50 rounded-sm">
               {/* Carousel Component Wrapper with horizontal space inside container */}
               <div className="w-full h-full relative z-10 px-10 xl:px-16 py-4">
                 <LeftPanelCarousel />

@@ -136,30 +136,23 @@ function CarouselItem({
   const scale = useTransform(y, (latestY) => {
     const currentCenter = itemCenter + latestY;
     const distanceFromCenter = Math.abs(viewportCenter - currentCenter);
-    // Increased maxDist so it doesn't scale down too fast
-    const maxDist = containerHeight * 0.6;
+    // Very subtle scaling
+    const maxDist = containerHeight * 0.8;
     const factor = Math.min(distanceFromCenter / maxDist, 1);
-    return 1 - factor * 0.15;
+    return 1 - factor * 0.1;
   });
 
   const opacity = useTransform(y, (latestY) => {
     const currentCenter = itemCenter + latestY;
     const distanceFromCenter = Math.abs(viewportCenter - currentCenter);
-    // Increased maxDist for smoother fade
-    const maxDist = containerHeight * 0.7;
+    const maxDist = containerHeight * 0.8;
     const factor = Math.min(distanceFromCenter / maxDist, 1);
-    // Increased minimum opacity from 0.3 to 0.4
-    return 1 - factor * 0.6;
+    // High minimum opacity to keep all cards visible
+    return 1 - factor * 0.3;
   });
 
-  const filter = useTransform(y, (latestY) => {
-    const currentCenter = itemCenter + latestY;
-    const distanceFromCenter = Math.abs(viewportCenter - currentCenter);
-    const maxDist = containerHeight * 0.5;
-    const factor = Math.min(distanceFromCenter / maxDist, 1);
-    const blur = factor * 4;
-    return `blur(${blur}px)`;
-  });
+  // Removed dynamic blur to keep cards sharp
+  const filter = "blur(0px)";
 
   const shadow = useTransform(y, (latestY) => {
     const currentCenter = itemCenter + latestY;
@@ -175,7 +168,7 @@ function CarouselItem({
         height: itemHeight,
         scale,
         opacity,
-        filter,
+        filter: filter as any,
         boxShadow: shadow,
       }}
       className="w-full shrink-0 flex items-center justify-center rounded-[2rem] overflow-hidden">
