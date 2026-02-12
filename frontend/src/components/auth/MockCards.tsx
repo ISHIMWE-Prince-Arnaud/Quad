@@ -43,7 +43,7 @@ export const MockPostCard = () => (
         Just launched the new Quad beta! The infinite carousel is looking
         absolutely stunning. 🚀 #webdev #uiux
       </p>
-      <div className="aspect-[16/9] w-full bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl border border-border/40 flex items-center justify-center">
+      <div className="aspect-[16/9] w-full bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl border border-border/40 flex items-center justify-center">
         <div className="text-[10px] font-bold text-primary/40 uppercase tracking-widest">
           Post Preview
         </div>
@@ -72,10 +72,10 @@ export const MockPollCard = () => (
     <CardContent className="p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
-            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="h-8 w-8 rounded-full bg-success/10 flex items-center justify-center">
+            <div className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
           </div>
-          <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+          <span className="text-[11px] font-bold text-success uppercase tracking-wider">
             ACTIVE POLL
           </span>
         </div>
@@ -132,7 +132,7 @@ export const MockPollCard = () => (
 // --- Mock Story Card ---
 export const MockStoryCard = () => (
   <Card className="w-full bg-card border-border/40 rounded-2xl overflow-hidden shadow-sm">
-    <div className="aspect-video w-full bg-gradient-to-tr from-secondary/30 to-primary/30 relative">
+    <div className="aspect-video w-full bg-gradient-to-tr from-secondary to-primary/40 relative">
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em]">
           Story Cover
@@ -154,7 +154,7 @@ export const MockStoryCard = () => (
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Avatar className="h-6 w-6">
-            <AvatarFallback className="text-[8px] bg-secondary/20 text-secondary-foreground font-bold">
+            <AvatarFallback className="text-[8px] bg-secondary text-secondary-foreground font-bold">
               AI
             </AvatarFallback>
           </Avatar>
@@ -179,7 +179,7 @@ export const MockStoryCard = () => (
 
 // --- Mock Chat Card ---
 export const MockChatCard = () => (
-  <Card className="w-full bg-card border-border/40 rounded-3xl overflow-hidden shadow-sm p-5 space-y-4">
+  <Card className="w-full bg-card border-border/40 rounded-3xl overflow-hidden shadow-sm p-4 lg:p-5 space-y-4">
     <div className="flex items-center gap-2 mb-2">
       <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
       <span className="text-[10px] font-bold text-primary uppercase tracking-widest">
@@ -208,7 +208,7 @@ export const MockChatCard = () => (
 
     <div className="flex items-start gap-3 flex-row-reverse">
       <Avatar className="h-8 w-8 shrink-0 border border-border/40">
-        <AvatarFallback className="bg-secondary/10 text-secondary-foreground text-[10px] font-bold">
+        <AvatarFallback className="bg-secondary text-secondary-foreground text-[10px] font-bold">
           ME
         </AvatarFallback>
       </Avatar>
@@ -220,7 +220,7 @@ export const MockChatCard = () => (
           <span className="text-[11px] font-bold">You</span>
         </div>
         <div className="bg-primary text-primary-foreground px-3 py-2 rounded-2xl rounded-tr-none shadow-sm">
-          <p className="text-[12px] leading-relaxed">
+          <p className="text-[12px] leading-relaxed font-medium">
             Glad you like it! Many more features coming soon. 🚀
           </p>
         </div>
@@ -257,8 +257,8 @@ export const MockNotificationCard = () => (
     </div>
 
     <div className="flex items-center gap-3 bg-muted/40 p-2 rounded-xl border border-border/40">
-      <div className="h-8 w-8 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
-        <Heart className="h-4 w-4 text-orange-500" />
+      <div className="h-8 w-8 rounded-lg bg-warning/10 flex items-center justify-center shrink-0">
+        <Heart className="h-4 w-4 text-warning" />
       </div>
       <div className="min-w-0">
         <p className="text-[12px] leading-snug">
@@ -275,7 +275,7 @@ export const MockNotificationCard = () => (
 // --- Mock Profile Card ---
 export const MockProfileCard = () => (
   <Card className="w-full bg-card border-border/40 rounded-[2rem] overflow-hidden shadow-sm">
-    <div className="h-16 w-full bg-gradient-to-r from-primary to-secondary opacity-80" />
+    <div className="h-16 w-full bg-gradient-to-r from-primary to-primary/40 opacity-80" />
     <div className="px-6 -mt-8 flex flex-col items-center text-center">
       <Avatar className="h-20 w-20 border-4 border-background shadow-xl">
         <AvatarFallback className="text-xl bg-primary/10 text-primary font-black">
