@@ -24,13 +24,14 @@ const CARDS = [
   { id: "profile", component: <MockProfileCard /> },
 ];
 
-// Duplicate just one extra card (the first one) to allow the "scroll up" loop
-const DISPLAY_CARDS = [...CARDS, CARDS[0]];
+// Duplicate first and last to allow seamless wrapping without a visible jump
+const DISPLAY_CARDS = [CARDS[CARDS.length - 1], ...CARDS, CARDS[0]];
 
 export function LeftPanelCarousel() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
-  const [activeIndex, setActiveIndex] = useState(0);
+  // Start on the first real card (index 1) since index 0 is the duplicated last card
+  const [activeIndex, setActiveIndex] = useState(1);
 
   // Use a motion value for controlled animation
   const y = useMotionValue(0);
@@ -60,7 +61,7 @@ export function LeftPanelCarousel() {
     updateSize();
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
-  }, []);
+  }, [activeIndex, y]);
 
   useEffect(() => {
     if (containerHeight === 0) return;
@@ -75,14 +76,15 @@ export function LeftPanelCarousel() {
         duration: 1.5,
         ease: [0.32, 0.72, 0, 1], // Smooth snappy ease
         onComplete: () => {
-          if (nextIndex >= CARDS.length) {
-            // We've reached the duplicated first card at the end
-            // Instantly snap back to the start position for index 0
-            y.set(centerOffset);
-            setActiveIndex(0);
-          } else {
-            setActiveIndex(nextIndex);
+          if (nextIndex === DISPLAY_CARDS.length - 1) {
+            // We've reached the duplicated first card at the end.
+            // Snap to the *real* first card position (index 1), which is visually identical.
+            y.set(centerOffset - 1 * itemSpacing);
+            setActiveIndex(1);
+            return;
           }
+
+          setActiveIndex(nextIndex);
         },
       });
     }, 10000); // 10 seconds of static view
@@ -152,7 +154,7 @@ function CarouselItem({
   });
 
   // Removed dynamic blur to keep cards sharp
-  const filter = "blur(0px)";
+  const filter: string = "blur(0px)";
 
   const shadow = useTransform(y, (latestY) => {
     const currentCenter = itemCenter + latestY;
@@ -168,7 +170,7 @@ function CarouselItem({
         height: itemHeight,
         scale,
         opacity,
-        filter: filter as any,
+        filter,
         boxShadow: shadow,
       }}
       className="w-full shrink-0 flex items-center justify-center rounded-[2rem] overflow-hidden">

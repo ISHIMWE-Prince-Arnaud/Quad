@@ -18,6 +18,8 @@ export function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
           <div className="hidden lg:flex lg:w-1/2 h-screen p-4 lg:p-6 lg:pr-3 items-center justify-center">
             {/* The Container with surrounding ring */}
             <div className="w-full h-full relative overflow-hidden flex flex-col items-center justify-center border-2 border-border/50 rounded-sm">
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-background" />
+              <div className="pointer-events-none absolute inset-0 opacity-70 [background:radial-gradient(1200px_circle_at_20%_20%,hsl(var(--primary)/0.14),transparent_55%),radial-gradient(900px_circle_at_80%_70%,hsl(var(--secondary)/0.12),transparent_60%)]" />
               {/* Carousel Component Wrapper with horizontal space inside container */}
               <div className="w-full h-full relative z-10 px-10 xl:px-16 py-4">
                 <LeftPanelCarousel />
