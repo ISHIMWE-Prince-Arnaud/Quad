@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   motion,
   useMotionValue,
@@ -24,62 +24,135 @@ const CARDS = [
   { id: "profile", component: <MockProfileCard /> },
 ];
 
-// Duplicate first and last to allow seamless wrapping without a visible jump
+// Duplicate first and last to allow seamless infinite wrapping
 const DISPLAY_CARDS = [CARDS[CARDS.length - 1], ...CARDS, CARDS[0]];
+
+/** Consistent gap between cards (px) */
+const GAP = 16;
+
+/** Seconds each card rests at center before advancing */
+const DWELL_SECONDS = 5;
+
+/** Duration of each scroll transition (seconds) */
+const TRANSITION_DURATION = 1;
 
 export function LeftPanelCarousel() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerHeight, setContainerHeight] = useState(0);
-  // Start on the first real card (index 1) since index 0 is the duplicated last card
-  const [activeIndex, setActiveIndex] = useState(1);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const activeIndexRef = useRef(1); // keep a ref to avoid stale closures
 
-  // Use a motion value for controlled animation
+  const [containerHeight, setContainerHeight] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(1);
+  const [cardCenters, setCardCenters] = useState<number[]>([]);
+  const [ready, setReady] = useState(false);
+
   const y = useMotionValue(0);
 
-  // Constants for spacing - will be computed when containerHeight > 0
-  const itemHeight = containerHeight * 0.5;
-  const gap = containerHeight * 0.02;
-  const itemSpacing = itemHeight + gap;
-  const centerOffset = (containerHeight - itemHeight) / 2;
-
+  // Keep ref in sync with state
   useEffect(() => {
-    const updateSize = () => {
-      if (containerRef.current) {
-        const h = containerRef.current.offsetHeight;
-        setContainerHeight(h);
+    activeIndexRef.current = activeIndex;
+  }, [activeIndex]);
 
-        // Ensure starting position is correct on load
-        const initialItemHeight = h * 0.5;
-        const initialCenterOffset = (h - initialItemHeight) / 2;
-        const initialItemSpacing = initialItemHeight + h * 0.02;
+  /**
+   * Walk the card refs and compute the Y-center of each card using their
+   * natural (intrinsic) rendered heights. This allows cards of completely
+   * different sizes to coexist in the carousel.
+   */
+  const measure = useCallback((): number[] => {
+    const centers: number[] = [];
+    let cumY = 0;
 
-        // Set y to center the current activeIndex
-        y.set(initialCenterOffset - activeIndex * initialItemSpacing);
-      }
+    for (let i = 0; i < DISPLAY_CARDS.length; i++) {
+      const el = cardRefs.current[i];
+      const cardH = el ? el.offsetHeight : 200; // fallback
+      centers.push(cumY + cardH / 2);
+      cumY += cardH + GAP;
+    }
+
+    return centers;
+  }, []);
+
+  // --- Initial measurement after first paint --------------------------------
+  useEffect(() => {
+    // Small delay to allow images / layout to settle
+    const timeout = setTimeout(() => {
+      if (!containerRef.current) return;
+      const h = containerRef.current.offsetHeight;
+      setContainerHeight(h);
+
+      const centers = measure();
+      setCardCenters(centers);
+
+      // Center the first real card (index 1)
+      y.set(h / 2 - centers[1]);
+      setReady(true);
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [measure, y]);
+
+  // --- Resize handling -------------------------------------------------------
+  useEffect(() => {
+    const onResize = () => {
+      if (!containerRef.current) return;
+      const h = containerRef.current.offsetHeight;
+      setContainerHeight(h);
+
+      const centers = measure();
+      setCardCenters(centers);
+
+      // Re-center whichever card is currently active
+      y.set(h / 2 - centers[activeIndexRef.current]);
     };
 
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
-  }, [activeIndex, y]);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [measure, y]);
 
+  // --- Re-measure when a card's intrinsic size changes (e.g. image load) -----
   useEffect(() => {
-    if (containerHeight === 0) return;
+    if (!ready) return;
 
-    // Timer for the 10-second static wait
+    const observer = new ResizeObserver(() => {
+      const centers = measure();
+      setCardCenters(centers);
+
+      // Maintain centering of the currently active card
+      if (containerRef.current) {
+        const h = containerRef.current.offsetHeight;
+        y.set(h / 2 - centers[activeIndexRef.current]);
+      }
+    });
+
+    cardRefs.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [ready, measure, y]);
+
+  // --- Auto-advance timer ----------------------------------------------------
+  useEffect(() => {
+    if (!ready || containerHeight === 0) return;
+
     const timer = setTimeout(() => {
-      const nextIndex = activeIndex + 1;
-      const targetY = centerOffset - nextIndex * itemSpacing;
+      // Fresh measurement right before animating
+      const centers = measure();
+      setCardCenters(centers);
 
-      // Animate the transition (takes 1.5 seconds)
+      const nextIndex = activeIndex + 1;
+      const viewportCenter = containerHeight / 2;
+      const targetY = viewportCenter - centers[nextIndex];
+
       animate(y, targetY, {
-        duration: 1.5,
-        ease: [0.32, 0.72, 0, 1], // Smooth snappy ease
+        duration: TRANSITION_DURATION,
+        ease: [0.32, 0.72, 0, 1],
         onComplete: () => {
           if (nextIndex === DISPLAY_CARDS.length - 1) {
-            // We've reached the duplicated first card at the end.
-            // Snap to the *real* first card position (index 1), which is visually identical.
-            y.set(centerOffset - 1 * itemSpacing);
+            // Reached the duplicated first card – silently snap to real first
+            const freshCenters = measure();
+            setCardCenters(freshCenters);
+            y.set(viewportCenter - freshCenters[1]);
             setActiveIndex(1);
             return;
           }
@@ -87,28 +160,38 @@ export function LeftPanelCarousel() {
           setActiveIndex(nextIndex);
         },
       });
-    }, 10000); // 10 seconds of static view
+    }, DWELL_SECONDS * 1000);
 
     return () => clearTimeout(timer);
-  }, [containerHeight, activeIndex, itemSpacing, centerOffset, y]);
+  }, [ready, containerHeight, activeIndex, measure, y]);
 
   return (
     <div
       ref={containerRef}
-      className="relative h-full w-full overflow-hidden flex flex-col items-center"
+      className="relative h-full w-full overflow-hidden flex flex-col items-center pointer-events-none select-none"
       style={{
         maskImage:
           "linear-gradient(to bottom, transparent, black 8%, black 92%, transparent)",
         WebkitMaskImage:
           "linear-gradient(to bottom, transparent, black 8%, black 92%, transparent)",
       }}>
-      <motion.div className="flex flex-col gap-[2vh] w-full" style={{ y }}>
+      <motion.div
+        className="flex flex-col w-full"
+        style={{
+          y,
+          gap: `${GAP}px`,
+          opacity: ready ? 1 : 0,
+          transition: "opacity 0.4s ease",
+        }}>
         {DISPLAY_CARDS.map((card, index) => (
           <CarouselItem
             key={`${card.id}-${index}`}
-            index={index}
+            ref={(el: HTMLDivElement | null) => {
+              cardRefs.current[index] = el;
+            }}
             y={y}
-            containerHeight={containerHeight}>
+            containerHeight={containerHeight}
+            cardCenterY={cardCenters[index] ?? 0}>
             {card.component}
           </CarouselItem>
         ))}
@@ -117,47 +200,41 @@ export function LeftPanelCarousel() {
   );
 }
 
-function CarouselItem({
-  children,
-  index,
-  y,
-  containerHeight,
-}: {
-  children: React.ReactNode;
-  index: number;
-  y: MotionValue<number>;
-  containerHeight: number;
-}) {
-  const itemHeight = containerHeight * 0.5;
-  const gap = containerHeight * 0.02;
-  const itemSpacing = itemHeight + gap;
-  const itemCenter = index * itemSpacing + itemHeight / 2;
+// ---------------------------------------------------------------------------
+// Carousel Item – applies visual transforms without constraining height
+// ---------------------------------------------------------------------------
+const CarouselItem = React.forwardRef<
+  HTMLDivElement,
+  {
+    children: React.ReactNode;
+    y: MotionValue<number>;
+    containerHeight: number;
+    cardCenterY: number;
+  }
+>(({ children, y, containerHeight, cardCenterY }, ref) => {
   const viewportCenter = containerHeight / 2;
 
-  // Transform values based on distance from center
+  // --- Scale: center card = 1, edges slightly smaller ---
   const scale = useTransform(y, (latestY) => {
-    const currentCenter = itemCenter + latestY;
+    const currentCenter = cardCenterY + latestY;
     const distanceFromCenter = Math.abs(viewportCenter - currentCenter);
-    // Very subtle scaling
-    const maxDist = containerHeight * 0.8;
+    const maxDist = containerHeight * 0.6;
     const factor = Math.min(distanceFromCenter / maxDist, 1);
-    return 1 - factor * 0.1;
+    return 1 - factor * 0.08;
   });
 
+  // --- Opacity: center = full, edges fade ---
   const opacity = useTransform(y, (latestY) => {
-    const currentCenter = itemCenter + latestY;
+    const currentCenter = cardCenterY + latestY;
     const distanceFromCenter = Math.abs(viewportCenter - currentCenter);
-    const maxDist = containerHeight * 0.8;
+    const maxDist = containerHeight * 0.6;
     const factor = Math.min(distanceFromCenter / maxDist, 1);
-    // High minimum opacity to keep all cards visible
-    return 1 - factor * 0.3;
+    return 1 - factor * 0.35;
   });
 
-  // Removed dynamic blur to keep cards sharp
-  const filter: string = "blur(0px)";
-
+  // --- Shadow: strongest at center ---
   const shadow = useTransform(y, (latestY) => {
-    const currentCenter = itemCenter + latestY;
+    const currentCenter = cardCenterY + latestY;
     const distanceFromCenter = Math.abs(viewportCenter - currentCenter);
     const maxDist = containerHeight * 0.25;
     const factor = 1 - Math.min(distanceFromCenter / maxDist, 1);
@@ -166,15 +243,16 @@ function CarouselItem({
 
   return (
     <motion.div
+      ref={ref}
       style={{
-        height: itemHeight,
         scale,
         opacity,
-        filter,
         boxShadow: shadow,
       }}
-      className="w-full shrink-0 flex items-center justify-center rounded-[2rem] overflow-hidden">
+      className="w-full shrink-0 rounded-[2rem] overflow-hidden">
       {children}
     </motion.div>
   );
-}
+});
+
+CarouselItem.displayName = "CarouselItem";
