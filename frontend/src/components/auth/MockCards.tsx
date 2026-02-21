@@ -1,5 +1,4 @@
 import { NotificationRow } from "@/pages/notifications/NotificationRow";
-import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Send,
@@ -9,10 +8,10 @@ import {
   Bookmark,
   Users,
   EyeOff,
+  Camera,
+  Calendar,
 } from "lucide-react";
 import type { ApiNotification } from "@/types/api";
-
-const ISO_250D_AGO = "2025-06-08T12:00:00.000Z";
 
 // --- Product-identical cards for auth preview (reuse in-app components) ---
 export const MockPostCard = () => {
@@ -444,30 +443,125 @@ export const MockNotificationCard = () => {
 
 // --- Mock Profile Card ---
 export const MockProfileCard = () => {
-  const user = {
-    clerkId: "auth-preview-user",
-    username: "QuadHQ",
-    displayName: "Quad Official",
-    profileImage: undefined,
-    bio: "Empowering student communities through structured collaboration and expression.",
-    followersCount: 1200,
-    followingCount: 420,
-    postsCount: 84,
-    createdAt: ISO_250D_AGO,
-  };
-
   return (
-    <ProfileHeader
-      user={user as never}
-      isOwnProfile
-      isFollowing={false}
-      activeTab="posts"
-      onTabChange={() => {}}
-      tabCounts={{ posts: 84, stories: 12, polls: 6 } as never}
-      onFollow={() => {}}
-      onUnfollow={() => {}}
-      onEditProfile={() => {}}
-      onUserUpdate={() => {}}
-    />
+    <div className="w-full rounded-[28px] bg-card border border-border/40 overflow-hidden shadow-sm transition-colors text-left pb-6">
+      {/* Cover Image Area */}
+      <div className="w-full h-[140px] bg-blue-600 relative sm:h-[160px]">
+        {/* Mock background cover image - or solid blue as requested */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-blue-700 to-blue-500 opacity-90" />
+
+        <button className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/20 hover:bg-black/30 backdrop-blur-md text-white border border-white/20 transition-colors cursor-pointer z-10">
+          <Camera size={14} className="stroke-[2.5]" />
+          <span className="text-[12px] font-bold">Edit Cover</span>
+        </button>
+      </div>
+
+      <div className="px-6 text-left">
+        {/* Avatar and Info Row */}
+        <div className="flex items-end justify-between -mt-10 relative z-10 mb-5">
+          <div className="flex items-end gap-3.5">
+            <div className="relative shrink-0">
+              <Avatar className="h-[88px] w-[88px] border-4 border-card shadow-sm bg-muted relative z-20">
+                <AvatarImage
+                  className="object-cover"
+                  src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=800&auto=format&fit=crop"
+                  alt="@alex_design"
+                />
+                <AvatarFallback className="text-xl font-bold bg-primary/10 text-primary">
+                  AD
+                </AvatarFallback>
+              </Avatar>
+              <button className="absolute bottom-1 right-0 rounded-full bg-card shadow-sm flex items-center justify-center translate-x-1.5 translate-y-1.5 z-30 border-[3px] border-card">
+                <div className="bg-muted rounded-full p-1.5 hover:bg-muted/80 transition-colors">
+                  <Camera size={13} className="text-foreground stroke-[2.5]" />
+                </div>
+              </button>
+            </div>
+
+            <div className="flex flex-col pb-0.5 min-w-0">
+              <h2 className="text-[22px] font-extrabold text-foreground truncate leading-snug">
+                Alex Designer
+              </h2>
+              <span className="text-sm font-semibold text-muted-foreground/80 truncate">
+                @alex_design
+              </span>
+            </div>
+          </div>
+
+          <div className="pb-1 shrink-0">
+            <button className="px-5 py-1.5 rounded-full border-[1.5px] border-border/60 text-[13px] font-bold text-foreground bg-transparent hover:bg-muted/30 transition-colors">
+              Edit Profile
+            </button>
+          </div>
+        </div>
+
+        {/* Joined Date */}
+        <div className="flex items-center justify-start gap-2 text-muted-foreground/90 font-semibold text-sm mb-6">
+          <Calendar size={15} className="stroke-[2.5]" />
+          <span>Joined March 2025</span>
+        </div>
+
+        {/* Separator Divider */}
+        <div className="h-px bg-border/40 w-full mb-6" />
+
+        {/* Stats Section */}
+        <div className="grid grid-cols-3 gap-4 text-center mb-6">
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-xl font-extrabold text-blue-500">124</span>
+            <span className="text-[10px] font-bold text-muted-foreground/80 tracking-[0.1em] uppercase">
+              Reactions
+            </span>
+          </div>
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-xl font-extrabold text-blue-500">890</span>
+            <span className="text-[10px] font-bold text-muted-foreground/80 tracking-[0.1em] uppercase">
+              Followers
+            </span>
+          </div>
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-xl font-extrabold text-blue-500">345</span>
+            <span className="text-[10px] font-bold text-muted-foreground/80 tracking-[0.1em] uppercase">
+              Following
+            </span>
+          </div>
+        </div>
+
+        {/* Content Tabs Section */}
+        <div className="grid grid-cols-4 gap-2.5">
+          <div className="flex flex-col items-center justify-center py-3 rounded-[18px] border-2 border-primary bg-primary/5 cursor-pointer">
+            <span className="text-lg font-bold text-primary leading-none mb-1">
+              12
+            </span>
+            <span className="text-[9px] font-bold text-primary tracking-wider uppercase">
+              Posts
+            </span>
+          </div>
+          <div className="flex flex-col items-center justify-center py-3 rounded-[18px] border border-border/50 bg-transparent cursor-pointer hover:bg-muted/30 transition-colors">
+            <span className="text-lg font-bold text-foreground leading-none mb-1">
+              4
+            </span>
+            <span className="text-[9px] font-bold text-muted-foreground/80 tracking-wider uppercase">
+              Stories
+            </span>
+          </div>
+          <div className="flex flex-col items-center justify-center py-3 rounded-[18px] border border-border/50 bg-transparent cursor-pointer hover:bg-muted/30 transition-colors">
+            <span className="text-lg font-bold text-foreground leading-none mb-1">
+              2
+            </span>
+            <span className="text-[9px] font-bold text-muted-foreground/80 tracking-wider uppercase">
+              Polls
+            </span>
+          </div>
+          <div className="flex flex-col items-center justify-center py-3 rounded-[18px] border border-border/50 bg-transparent cursor-pointer hover:bg-muted/30 transition-colors">
+            <span className="text-lg font-bold text-foreground leading-none mb-1">
+              18
+            </span>
+            <span className="text-[9px] font-bold text-muted-foreground/80 tracking-wider uppercase">
+              Bookmarks
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
