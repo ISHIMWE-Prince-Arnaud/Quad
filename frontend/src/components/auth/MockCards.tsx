@@ -1,4 +1,3 @@
-import { PollCard } from "@/components/polls/PollCard";
 import { StoryCard } from "@/components/stories/StoryCard";
 import { NotificationRow } from "@/pages/notifications/NotificationRow";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
@@ -10,12 +9,12 @@ import {
   MessageCircle,
   Share2,
   Bookmark,
+  Users,
+  EyeOff,
 } from "lucide-react";
-import type { Poll } from "@/types/poll";
 import type { Story } from "@/types/story";
 import type { ApiNotification } from "@/types/api";
 
-const ISO_1H_AGO = "2026-02-13T14:00:00.000Z";
 const ISO_5H_AGO = "2026-02-13T10:00:00.000Z";
 const ISO_2M_AGO = "2026-02-13T14:58:00.000Z";
 const ISO_250D_AGO = "2025-06-08T12:00:00.000Z";
@@ -90,38 +89,106 @@ export const MockPostCard = () => {
 
 // --- Mock Poll Card ---
 export const MockPollCard = () => {
-  const poll: Poll = {
-    id: "auth-preview-poll",
-    author: {
-      _id: "auth-preview-user",
-      clerkId: "auth-preview-user",
-      username: "johndoe",
-      email: "johndoe@quad.test",
-      profileImage: undefined,
-      bio: "Product / UI",
-      joinedAt: ISO_250D_AGO,
-      updatedAt: ISO_1H_AGO,
-      createdAt: ISO_250D_AGO,
-    },
-    question: "Which Quad feature should we polish next?",
-    options: [
-      { index: 0, text: "Feed", votesCount: 540, percentage: 45 },
-      { index: 1, text: "Chat", votesCount: 360, percentage: 30 },
-      { index: 2, text: "Stories", votesCount: 300, percentage: 25 },
-    ],
-    settings: {
-      anonymousVoting: false,
-    },
-    totalVotes: 1200,
-    reactionsCount: 84,
-    userVote: [0],
-    canViewResults: true,
-    status: "active",
-    createdAt: ISO_1H_AGO,
-    updatedAt: ISO_1H_AGO,
-  };
+  return (
+    <div className="w-full rounded-3xl bg-card border border-border/40 overflow-hidden shadow-sm p-5 transition-colors">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-11 w-11 shrink-0 border border-border/40 shadow-sm bg-muted/20">
+          <AvatarImage
+            className="object-cover"
+            src="https://images.unsplash.com/photo-1529068755536-a5ade0dcb4e8?q=80&w=581&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="@princearnaud"
+          />
+          <AvatarFallback className="bg-primary/10 text-primary font-bold">
+            PA
+          </AvatarFallback>
+        </Avatar>
+          <div className="flex flex-col">
+            <span className="text-lg font-extrabold text-foreground leading-none tracking-tight">
+              princearnaud
+            </span>
+            <div className="text-xs text-muted-foreground mt-1 font-medium">
+              2 hours ago
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+          <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          Expires in 24 hours
+        </div>
+      </div>
 
-  return <PollCard poll={poll} />;
+      {/* Question */}
+      <div className="mb-4">
+        <h3 className="text-lg sm:text-lg font-extrabold text-foreground leading-snug tracking-tight">
+          Which Quad feature should we polish next?
+        </h3>
+      </div>
+
+      {/* Options */}
+      <div className="flex flex-col gap-3 mb-5">
+        {/* Voted Option (Feed - 45%) */}
+        <div className="relative flex h-[52px] w-full items-center justify-between rounded-full bg-muted/30 px-5 text-sm font-extrabold border-2 border-primary overflow-hidden">
+          <div
+            className="absolute left-0 top-0 h-full bg-primary"
+            style={{ width: "45%" }}
+          />
+          <div className="relative z-10 flex w-full justify-between items-center text-primary-foreground dark:text-foreground">
+            <span>Feed</span>
+            <span>45%</span>
+          </div>
+        </div>
+
+        {/* Unvoted Option (Chat - 30%) */}
+        <div className="relative flex h-[52px] w-full items-center justify-between rounded-full bg-muted/30 px-5 text-sm font-extrabold overflow-hidden">
+          <div
+            className="absolute left-0 top-0 h-full bg-primary/80 dark:bg-primary/40"
+            style={{ width: "30%" }}
+          />
+          <div className="relative z-10 flex w-full justify-between items-center text-primary-foreground dark:text-foreground">
+            <span>Chat</span>
+            <span>30%</span>
+          </div>
+        </div>
+
+        {/* Unvoted Option (Stories - 25%) */}
+        <div className="relative flex h-[52px] w-full items-center justify-between rounded-full bg-muted/30 px-5 text-sm font-extrabold overflow-hidden">
+          <div
+            className="absolute left-0 top-0 h-full bg-primary/80 dark:bg-primary/40"
+            style={{ width: "25%" }}
+          />
+          <div className="relative z-10 flex w-full justify-between items-center text-primary-foreground dark:text-foreground">
+            <span>Stories</span>
+            <span>25%</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
+            <Heart size={20} className="fill-current" />
+            <span>84</span>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground font-bold text-sm cursor-pointer hover:text-foreground transition-colors">
+            <Users size={20} className="fill-current" />
+            <span>1200</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold">
+            <EyeOff size={16} />
+            ANONYMOUS
+          </div>
+          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
+            <Bookmark size={20} className="fill-current" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 // --- Mock Story Card ---
