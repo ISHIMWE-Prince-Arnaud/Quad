@@ -2,7 +2,6 @@ import { NotificationRow } from "@/pages/notifications/NotificationRow";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  MessageSquare,
   Send,
   Heart,
   MessageCircle,
@@ -266,102 +265,108 @@ export const MockStoryCard = () => {
 };
 
 // --- Mock Chat Card ---
-// Self-contained mini conversation that mirrors the production ChatMessageList UI.
+// Self-contained mini conversation that mirrors the production ChatMessageList UI structure.
 export const MockChatCard = () => {
   return (
     <div className="w-full rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm">
-      {/* Header */}
-      <div className="flex items-center gap-2 px-5 py-3 border-b border-border/40 bg-muted/30">
-        <div className="h-7 w-7 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-          <MessageSquare className="h-3.5 w-3.5 text-primary/80" />
+      {/* Date Separator Header */}
+      <div className="flex items-center justify-center py-4 border-b border-border/40 bg-muted/20">
+        <div className="text-sm font-semibold text-muted-foreground/70 bg-background/50 border border-border/50 px-4 py-1 rounded-full">
+          Today
         </div>
-        <span className="text-sm font-semibold text-foreground">
-          General Chat
-        </span>
-        <span className="ml-auto text-xs text-muted-foreground">3 online</span>
       </div>
 
       {/* Messages area */}
-      <div className="px-5 py-4 space-y-1">
-        {/* Day separator */}
-        <div className="flex items-center justify-center py-2">
-          <div className="h-px flex-1 bg-border/60" />
-          <div className="mx-3 text-xs font-medium text-muted-foreground/70 bg-background/70 border border-border/50 px-3 py-1 rounded-full tabular-nums">
-            Today
-          </div>
-          <div className="h-px flex-1 bg-border/60" />
-        </div>
-
-        {/* Received message – sarah */}
-        <div className="flex items-start gap-3 justify-start">
-          <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40">
+      <div className="px-5 py-6 space-y-6">
+        {/* Received messages - sarah */}
+        <div className="flex items-end gap-3 justify-start">
+          <Avatar className="h-10 w-10 shrink-0 shadow-sm border border-border/40 bg-muted mb-1">
+            <AvatarImage
+              className="object-cover"
+              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop"
+              alt="@sarah"
+            />
             <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-              S
+              SR
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col max-w-[75%] min-w-0 items-start">
-            <div className="flex items-center justify-start gap-2 mb-2 w-full">
-              <span className="text-sm font-semibold text-foreground">
-                sarah
-              </span>
-              <span className="text-xs text-muted-foreground/60 tabular-nums">
+            <div className="flex items-center gap-2 mb-1.5 ml-2">
+              <span className="text-sm font-bold text-foreground">sarah</span>
+              <span className="text-xs font-semibold text-muted-foreground/60">
                 2:08 PM
               </span>
             </div>
-            <div className="relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm bg-card text-foreground border border-border/60 dark:bg-muted dark:border-transparent">
-              <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+            <div className="relative w-fit max-w-full break-words rounded-3xl rounded-tl-lg px-5 py-3 shadow-sm bg-muted text-foreground border border-transparent">
+              <div className="text-[15px] font-medium leading-relaxed whitespace-pre-wrap break-words">
                 The new UI is insane! 🚀
               </div>
             </div>
           </div>
         </div>
 
-        {/* Received follow-up – sarah (no avatar, grouping) */}
-        <div className="mt-1.5">
-          <div className="flex items-start gap-3 justify-start">
-            <div className="w-9 shrink-0" />
-            <div className="flex flex-col max-w-[75%] min-w-0 items-start">
-              <div className="relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm bg-card text-foreground border border-border/60 dark:bg-muted dark:border-transparent">
-                <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                  Clean, fast, and it just flows
-                </div>
+        {/* Received message - eddy */}
+        <div className="flex items-end gap-3 justify-start">
+          <Avatar className="h-10 w-10 shrink-0 shadow-sm border border-border/40 bg-muted mb-1">
+            <AvatarImage
+              className="object-cover"
+              src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&auto=format&fit=crop"
+              alt="@eddy"
+            />
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+              ED
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col max-w-[75%] min-w-0 items-start">
+            <div className="flex items-center gap-2 mb-1.5 ml-2">
+              <span className="text-sm font-bold text-foreground">eddy</span>
+              <span className="text-xs font-semibold text-muted-foreground/60">
+                2:09 PM
+              </span>
+            </div>
+            <div className="relative w-fit max-w-full break-words rounded-3xl rounded-tl-lg px-5 py-3 shadow-sm bg-muted text-foreground border border-transparent">
+              <div className="text-[15px] font-medium leading-relaxed whitespace-pre-wrap break-words">
+                Clean, fast, and it just flows
               </div>
             </div>
           </div>
         </div>
 
-        {/* Sent message – you */}
-        <div className="mt-4">
-          <div className="flex items-start gap-3 justify-end">
-            <div className="flex flex-col max-w-[75%] min-w-0 items-end">
-              <div className="flex items-center justify-end gap-2 mb-2 w-full">
-                <span className="text-xs text-muted-foreground/60 tabular-nums">
-                  2:13 PM
-                </span>
-                <span className="text-sm font-bold text-foreground">You</span>
-              </div>
-              <div className="relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm bg-primary text-primary-foreground shadow-primary/20 border border-primary/10">
-                <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                  Appreciate it! Shipping more polish soon 🎨
-                </div>
+        {/* Sent message - You */}
+        <div className="flex items-end gap-3 justify-end">
+          <div className="flex flex-col max-w-[75%] min-w-0 items-end">
+            <div className="flex items-center gap-2 mb-1.5 mr-2">
+              <span className="text-xs font-semibold text-muted-foreground/60">
+                2:13 PM
+              </span>
+              <span className="text-sm font-bold text-foreground">You</span>
+            </div>
+            <div className="relative w-fit max-w-full break-words rounded-3xl rounded-tr-lg px-5 py-3 shadow-sm bg-primary text-primary-foreground">
+              <div className="text-[15px] font-medium leading-relaxed whitespace-pre-wrap break-words">
+                Appreciate it! Shipping more polish soon 🎨
               </div>
             </div>
-            <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40">
-              <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                Y
-              </AvatarFallback>
-            </Avatar>
           </div>
+          <Avatar className="h-10 w-10 shrink-0 shadow-sm border border-border/40 bg-muted mb-1">
+            <AvatarImage
+              className="object-cover"
+              src="https://images.unsplash.com/photo-1529068755536-a5ade0dcb4e8?w=800&auto=format&fit=crop"
+              alt="You"
+            />
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+              PA
+            </AvatarFallback>
+          </Avatar>
         </div>
       </div>
 
       {/* Composer bar */}
-      <div className="flex items-center gap-2 px-4 py-3 border-t border-border/40 bg-muted/20">
-        <div className="flex-1 rounded-xl bg-background border border-border/60 px-4 py-2 text-sm text-muted-foreground/50">
-          Type a message…
+      <div className="flex items-center gap-3 px-6 py-4 border-t border-border/40 bg-card">
+        <div className="flex-1 rounded-full bg-transparent border border-border/60 px-5 py-3 text-sm font-semibold text-muted-foreground/50 hover:bg-muted/10 transition-colors">
+          Type a message...
         </div>
-        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-          <Send className="h-3.5 w-3.5 text-primary/60" />
+        <div className="h-10 w-10 rounded-full flex items-center justify-center cursor-pointer hover:bg-muted/30 transition-colors">
+          <Send className="h-5 w-5 text-muted-foreground/60" />
         </div>
       </div>
     </div>
