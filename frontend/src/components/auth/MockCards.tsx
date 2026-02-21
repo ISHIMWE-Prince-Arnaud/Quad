@@ -95,15 +95,15 @@ export const MockPollCard = () => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-11 w-11 shrink-0 border border-border/40 shadow-sm bg-muted/20">
-          <AvatarImage
-            className="object-cover"
-            src="https://images.unsplash.com/photo-1529068755536-a5ade0dcb4e8?q=80&w=581&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="@princearnaud"
-          />
-          <AvatarFallback className="bg-primary/10 text-primary font-bold">
-            PA
-          </AvatarFallback>
-        </Avatar>
+            <AvatarImage
+              className="object-cover"
+              src="https://images.unsplash.com/photo-1529068755536-a5ade0dcb4e8?q=80&w=581&auto=format&fit=crop"
+              alt="@princearnaud"
+            />
+            <AvatarFallback className="bg-primary/10 text-primary font-bold">
+              PA
+            </AvatarFallback>
+          </Avatar>
           <div className="flex flex-col">
             <span className="text-lg font-extrabold text-foreground leading-none tracking-tight">
               princearnaud
@@ -129,38 +129,38 @@ export const MockPollCard = () => {
       {/* Options */}
       <div className="flex flex-col gap-3 mb-5">
         {/* Voted Option (Feed - 45%) */}
-        <div className="relative flex h-[52px] w-full items-center justify-between rounded-full bg-muted/30 px-5 text-sm font-extrabold border-2 border-primary overflow-hidden">
+        <div className="relative flex h-[52px] w-full items-center justify-between rounded-full bg-muted/30 text-sm font-extrabold border-2 border-primary overflow-hidden">
           <div
             className="absolute left-0 top-0 h-full bg-primary"
             style={{ width: "45%" }}
           />
-          <div className="relative z-10 flex w-full justify-between items-center text-primary-foreground dark:text-foreground">
-            <span>Feed</span>
-            <span>45%</span>
+          <div className="relative z-10 flex w-full justify-between items-center px-5">
+            <span className="text-white">Feed</span>
+            <span className="text-foreground dark:text-white">45%</span>
           </div>
         </div>
 
         {/* Unvoted Option (Chat - 30%) */}
-        <div className="relative flex h-[52px] w-full items-center justify-between rounded-full bg-muted/30 px-5 text-sm font-extrabold overflow-hidden">
+        <div className="relative flex h-[52px] w-full items-center justify-between rounded-full bg-muted/30 text-sm font-extrabold overflow-hidden">
           <div
             className="absolute left-0 top-0 h-full bg-primary/80 dark:bg-primary/40"
             style={{ width: "30%" }}
           />
-          <div className="relative z-10 flex w-full justify-between items-center text-primary-foreground dark:text-foreground">
-            <span>Chat</span>
-            <span>30%</span>
+          <div className="relative z-10 flex w-full justify-between items-center px-5">
+            <span className="text-white">Chat</span>
+            <span className="text-foreground dark:text-white">30%</span>
           </div>
         </div>
 
         {/* Unvoted Option (Stories - 25%) */}
-        <div className="relative flex h-[52px] w-full items-center justify-between rounded-full bg-muted/30 px-5 text-sm font-extrabold overflow-hidden">
+        <div className="relative flex h-[52px] w-full items-center justify-between rounded-full bg-muted/30 text-sm font-extrabold overflow-hidden">
           <div
             className="absolute left-0 top-0 h-full bg-primary/80 dark:bg-primary/40"
             style={{ width: "25%" }}
           />
-          <div className="relative z-10 flex w-full justify-between items-center text-primary-foreground dark:text-foreground">
-            <span>Stories</span>
-            <span>25%</span>
+          <div className="relative z-10 flex w-full justify-between items-center px-5">
+            <span className="text-white">Stories</span>
+            <span className="text-foreground dark:text-white">25%</span>
           </div>
         </div>
       </div>
