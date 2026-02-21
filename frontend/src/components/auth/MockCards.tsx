@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import type { ApiNotification } from "@/types/api";
 
-const ISO_2M_AGO = "2026-02-13T14:58:00.000Z";
 const ISO_250D_AGO = "2025-06-08T12:00:00.000Z";
 
 // --- Product-identical cards for auth preview (reuse in-app components) ---
@@ -375,31 +374,70 @@ export const MockChatCard = () => {
 
 // --- Mock Notification Card ---
 export const MockNotificationCard = () => {
-  const notification: ApiNotification = {
-    id: "auth-preview-notification",
-    userId: "auth-preview-user",
-    type: "follow",
-    message: "followed you",
-    isRead: false,
-    createdAt: ISO_2M_AGO,
-    actor: {
-      clerkId: "auth-preview-actor-2",
-      username: "alex_king",
-      displayName: "Alex King",
-      profileImage: undefined,
+  const now = new Date();
+
+  const notifications: ApiNotification[] = [
+    {
+      id: "auth-preview-notif-1",
+      userId: "auth-preview-user",
+      type: "reaction",
+      message: "reacted to your post",
+      isRead: false,
+      createdAt: now.toISOString(),
+      actor: {
+        clerkId: "auth-actor-1",
+        username: "alex_king",
+        displayName: "Alex King",
+        profileImage:
+          "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=800&auto=format&fit=crop",
+      },
+      contentType: "post",
     },
-    contentType: "user",
-    contentId: "alex_king",
-  };
+    {
+      id: "auth-preview-notif-2",
+      userId: "auth-preview-user",
+      type: "follow",
+      message: "started following you",
+      isRead: false,
+      createdAt: new Date(now.getTime() - 60 * 1000).toISOString(),
+      actor: {
+        clerkId: "auth-actor-2",
+        username: "sarah_w",
+        displayName: "Sarah W",
+        profileImage:
+          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop",
+      },
+      contentType: "user",
+    },
+    {
+      id: "auth-preview-notif-3",
+      userId: "auth-preview-user",
+      type: "comment",
+      message: "commented on your story",
+      isRead: false,
+      createdAt: new Date(now.getTime() - 7 * 60 * 1000).toISOString(),
+      actor: {
+        clerkId: "auth-actor-3",
+        username: "eddy",
+        displayName: "Eddy",
+        profileImage:
+          "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&auto=format&fit=crop",
+      },
+      contentType: "story",
+    },
+  ];
 
   return (
-    <div className="w-full">
-      <NotificationRow
-        notification={notification}
-        onNavigate={() => {}}
-        onMarkAsRead={() => {}}
-        onDelete={() => {}}
-      />
+    <div className="w-full flex flex-col gap-3">
+      {notifications.map((notification) => (
+        <NotificationRow
+          key={notification.id}
+          notification={notification}
+          onNavigate={() => {}}
+          onMarkAsRead={() => {}}
+          onDelete={() => {}}
+        />
+      ))}
     </div>
   );
 };
