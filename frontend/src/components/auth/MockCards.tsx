@@ -1,4 +1,3 @@
-import { StoryCard } from "@/components/stories/StoryCard";
 import { NotificationRow } from "@/pages/notifications/NotificationRow";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,10 +11,8 @@ import {
   Users,
   EyeOff,
 } from "lucide-react";
-import type { Story } from "@/types/story";
 import type { ApiNotification } from "@/types/api";
 
-const ISO_5H_AGO = "2026-02-13T10:00:00.000Z";
 const ISO_2M_AGO = "2026-02-13T14:58:00.000Z";
 const ISO_250D_AGO = "2025-06-08T12:00:00.000Z";
 
@@ -193,28 +190,79 @@ export const MockPollCard = () => {
 
 // --- Mock Story Card ---
 export const MockStoryCard = () => {
-  const story: Story = {
-    _id: "auth-preview-story",
-    author: {
-      clerkId: "auth-preview-user",
-      username: "alice_dev",
-      email: "alice@quad.test",
-      profileImage: undefined,
-    },
-    title: "Redefining digital connection",
-    content:
-      "<p>Quad keeps things fast, calm, and structured — so your community can actually move.</p>",
-    coverImage:
-      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80",
-    status: "published",
-    readTime: 5,
-    reactionsCount: 54,
-    commentsCount: 12,
-    createdAt: ISO_5H_AGO,
-    updatedAt: ISO_5H_AGO,
-  };
+  return (
+    <div className="w-full rounded-3xl bg-card border border-border/40 overflow-hidden shadow-sm transition-colors">
+      {/* Full-width cover image */}
+      <div className="w-full h-56 bg-muted relative">
+        <img
+          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80"
+          alt="Story cover"
+          className="w-full h-full object-cover"
+        />
+      </div>
 
-  return <StoryCard story={story} />;
+      <div className="p-5 sm:p-6">
+        {/* Title */}
+        <h3 className="text-2xl font-extrabold text-foreground leading-tight tracking-tight mb-3">
+          Redefining digital connection
+        </h3>
+
+        {/* Excerpt */}
+        <p className="text-base font-semibold text-muted-foreground/90 leading-snug mb-6 line-clamp-2">
+          Quad keeps things fast, calm, and structured — so your community can
+          actually move.
+        </p>
+
+        {/* Engagement Row */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2.5">
+            <Avatar className="h-7 w-7 shrink-0 shadow-sm border border-border/40 bg-muted/20">
+              <AvatarImage
+                className="object-cover"
+                src="https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?q=80&w=876&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                alt="@alice_dev"
+              />
+              <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                AD
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex items-center text-sm font-bold text-foreground">
+              <span className="truncate max-w-24">alice_dev</span>
+              <span className="text-muted-foreground ml-1.5 font-medium">
+                · 5 min read
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
+              <Heart size={18} className="fill-current" />
+              <span>54</span>
+            </div>
+            <div className="flex items-center gap-2 text-blue-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
+              <MessageCircle size={18} className="fill-current" />
+              <span>12</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Row */}
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-sm font-bold text-muted-foreground/80">
+            5 hours ago
+          </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+              <Share2 size={20} />
+            </div>
+            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
+              <Bookmark size={20} className="fill-current" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 // --- Mock Chat Card ---
