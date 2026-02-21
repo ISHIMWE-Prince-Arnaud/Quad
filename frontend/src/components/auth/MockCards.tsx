@@ -1,16 +1,20 @@
-import { PostCard } from "@/components/posts/PostCard";
 import { PollCard } from "@/components/polls/PollCard";
 import { StoryCard } from "@/components/stories/StoryCard";
 import { NotificationRow } from "@/pages/notifications/NotificationRow";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageSquare, Send } from "lucide-react";
-import type { Post } from "@/types/post";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  MessageSquare,
+  Send,
+  Heart,
+  MessageCircle,
+  Share2,
+  Bookmark,
+} from "lucide-react";
 import type { Poll } from "@/types/poll";
 import type { Story } from "@/types/story";
 import type { ApiNotification } from "@/types/api";
 
-const ISO_2H_AGO = "2026-02-13T13:00:00.000Z";
 const ISO_1H_AGO = "2026-02-13T14:00:00.000Z";
 const ISO_5H_AGO = "2026-02-13T10:00:00.000Z";
 const ISO_2M_AGO = "2026-02-13T14:58:00.000Z";
@@ -18,30 +22,70 @@ const ISO_250D_AGO = "2025-06-08T12:00:00.000Z";
 
 // --- Product-identical cards for auth preview (reuse in-app components) ---
 export const MockPostCard = () => {
-  const post: Post = {
-    _id: "auth-preview-post",
-    userId: "auth-preview-user",
-    author: {
-      clerkId: "auth-preview-user",
-      username: "johndoe",
-      email: "johndoe@quad.test",
-      profileImage: undefined,
-    },
-    text: "Just shipped a small UI upgrade. Tag someone who cares about clean UX: @alice_dev",
-    media: [
-      {
-        url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1600&q=80",
-        type: "image",
-        aspectRatio: "16:9",
-      },
-    ],
-    reactionsCount: 128,
-    commentsCount: 24,
-    createdAt: ISO_2H_AGO,
-    updatedAt: ISO_2H_AGO,
-  };
+  return (
+    <div className="w-full rounded-3xl bg-card border border-border/40 overflow-hidden shadow-sm p-5 transition-colors">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-4">
+        <Avatar className="h-11 w-11 shrink-0 border border-border/40 shadow-sm bg-muted/20">
+          <AvatarImage
+            className="object-cover"
+            src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=150&q=80"
+            alt="@johndoe"
+          />
+          <AvatarFallback className="bg-primary/10 text-primary font-bold">
+            JD
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col">
+          <span className="text-lg font-extrabold text-foreground leading-none tracking-tight">
+            johndoe
+          </span>
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1 font-medium">
+            <span className="text-primary">@johndoe</span>
+            <span className="opacity-50">·</span>
+            <span>2 hours ago</span>
+          </div>
+        </div>
+      </div>
 
-  return <PostCard post={post} />;
+      {/* Content */}
+      <div className="mb-4">
+        <p className="text-base sm:text-lg font-extrabold text-foreground leading-snug tracking-tight">
+          Just shipped a small UI upgrade. Tag someone who cares about clean UX:
+          @alice_dev 🔥
+        </p>
+      </div>
+
+      {/* Media */}
+      <div className="mb-5 rounded-2xl overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1600&q=80"
+          alt="Post media"
+          className="w-full h-auto max-h-80 object-cover rounded-2xl"
+        />
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
+            <Heart size={20} className="fill-current" />
+            <span>128</span>
+          </div>
+          <div className="flex items-center gap-2 text-blue-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
+            <MessageCircle size={20} className="fill-current" />
+            <span>24</span>
+          </div>
+          <div className="flex items-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+            <Share2 size={20} />
+          </div>
+        </div>
+        <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
+          <Bookmark size={20} className="fill-current" />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 // --- Mock Poll Card ---
@@ -119,9 +163,7 @@ export const MockChatCard = () => {
         <span className="text-sm font-semibold text-foreground">
           General Chat
         </span>
-        <span className="ml-auto text-[10px] text-muted-foreground">
-          3 online
-        </span>
+        <span className="ml-auto text-xs text-muted-foreground">3 online</span>
       </div>
 
       {/* Messages area */}
@@ -129,7 +171,7 @@ export const MockChatCard = () => {
         {/* Day separator */}
         <div className="flex items-center justify-center py-2">
           <div className="h-px flex-1 bg-border/60" />
-          <div className="mx-3 text-[11px] font-medium text-muted-foreground/70 bg-background/70 border border-border/50 px-3 py-1 rounded-full tabular-nums">
+          <div className="mx-3 text-xs font-medium text-muted-foreground/70 bg-background/70 border border-border/50 px-3 py-1 rounded-full tabular-nums">
             Today
           </div>
           <div className="h-px flex-1 bg-border/60" />
@@ -138,7 +180,7 @@ export const MockChatCard = () => {
         {/* Received message – sarah */}
         <div className="flex items-start gap-3 justify-start">
           <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40">
-            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
               S
             </AvatarFallback>
           </Avatar>
@@ -151,8 +193,8 @@ export const MockChatCard = () => {
                 2:08 PM
               </span>
             </div>
-            <div className="relative w-fit max-w-full break-words rounded-[1.25rem] px-4 py-2.5 shadow-sm bg-card text-foreground border border-border/60 dark:bg-muted dark:border-transparent">
-              <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+            <div className="relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm bg-card text-foreground border border-border/60 dark:bg-muted dark:border-transparent">
+              <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                 The new UI is insane! 🚀
               </div>
             </div>
@@ -164,8 +206,8 @@ export const MockChatCard = () => {
           <div className="flex items-start gap-3 justify-start">
             <div className="w-9 shrink-0" />
             <div className="flex flex-col max-w-[75%] min-w-0 items-start">
-              <div className="relative w-fit max-w-full break-words rounded-[1.25rem] px-4 py-2.5 shadow-sm bg-card text-foreground border border-border/60 dark:bg-muted dark:border-transparent">
-                <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+              <div className="relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm bg-card text-foreground border border-border/60 dark:bg-muted dark:border-transparent">
+                <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                   Clean, fast, and it just flows
                 </div>
               </div>
@@ -183,14 +225,14 @@ export const MockChatCard = () => {
                 </span>
                 <span className="text-sm font-bold text-foreground">You</span>
               </div>
-              <div className="relative w-fit max-w-full break-words rounded-[1.25rem] px-4 py-2.5 shadow-sm bg-primary text-primary-foreground shadow-primary/20 border border-primary/10">
-                <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+              <div className="relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm bg-primary text-primary-foreground shadow-primary/20 border border-primary/10">
+                <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                   Appreciate it! Shipping more polish soon 🎨
                 </div>
               </div>
             </div>
             <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40">
-              <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+              <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                 Y
               </AvatarFallback>
             </Avatar>
