@@ -45,6 +45,7 @@ export function LeftPanelCarousel() {
   const [activeIndex, setActiveIndex] = useState(1);
   const [cardCenters, setCardCenters] = useState<number[]>([]);
   const [ready, setReady] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const y = useMotionValue(0);
 
@@ -133,7 +134,7 @@ export function LeftPanelCarousel() {
 
   // --- Auto-advance timer ----------------------------------------------------
   useEffect(() => {
-    if (!ready || containerHeight === 0) return;
+    if (!ready || containerHeight === 0 || isHovered) return;
 
     const timer = setTimeout(() => {
       // Fresh measurement right before animating
@@ -163,12 +164,14 @@ export function LeftPanelCarousel() {
     }, DWELL_SECONDS * 1000);
 
     return () => clearTimeout(timer);
-  }, [ready, containerHeight, activeIndex, measure, y]);
+  }, [ready, containerHeight, activeIndex, measure, y, isHovered]);
 
   return (
     <div
       ref={containerRef}
-      className="relative h-full w-full overflow-hidden flex flex-col items-center pointer-events-none select-none"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="relative h-full w-full overflow-hidden flex flex-col items-center select-none"
       style={{
         maskImage:
           "linear-gradient(to bottom, transparent, black 8%, black 92%, transparent)",
