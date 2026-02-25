@@ -16,10 +16,10 @@ import type { ApiNotification } from "@/types/api";
 // --- Product-identical cards for auth preview (reuse in-app components) ---
 export const MockPostCard = () => {
   return (
-    <div className="w-full rounded-3xl bg-card border border-border/40 overflow-hidden shadow-sm p-5 transition-colors">
+    <div className="w-full rounded-3xl bg-card border border-border/40 overflow-hidden p-5 transition-colors">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <Avatar className="h-11 w-11 shrink-0 border border-border/40 shadow-sm bg-muted/20">
+        <Avatar className="h-11 w-11 shrink-0 border border-border/40 bg-muted/20">
           <AvatarImage
             className="object-cover"
             src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=150&q=80"
@@ -84,11 +84,11 @@ export const MockPostCard = () => {
 // --- Mock Poll Card ---
 export const MockPollCard = () => {
   return (
-    <div className="w-full rounded-3xl bg-card border border-border/40 overflow-hidden shadow-sm p-5 transition-colors">
+    <div className="w-full rounded-3xl bg-card border border-border/40 overflow-hidden p-5 transition-colors">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <Avatar className="h-11 w-11 shrink-0 border border-border/40 shadow-sm bg-muted/20">
+          <Avatar className="h-11 w-11 shrink-0 border border-border/40 bg-muted/20">
             <AvatarImage
               className="object-cover"
               src="https://images.unsplash.com/photo-1529068755536-a5ade0dcb4e8?q=80&w=581&auto=format&fit=crop"
@@ -188,7 +188,7 @@ export const MockPollCard = () => {
 // --- Mock Story Card ---
 export const MockStoryCard = () => {
   return (
-    <div className="w-full rounded-3xl bg-card border border-border/40 overflow-hidden shadow-sm transition-colors">
+    <div className="w-full rounded-3xl bg-card border border-border/40 overflow-hidden transition-colors">
       {/* Full-width cover image */}
       <div className="w-full h-56 bg-muted relative">
         <img
@@ -213,7 +213,7 @@ export const MockStoryCard = () => {
         {/* Engagement Row */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2.5">
-            <Avatar className="h-7 w-7 shrink-0 shadow-sm border border-border/40 bg-muted/20">
+            <Avatar className="h-7 w-7 shrink-0 border border-border/40 bg-muted/20">
               <AvatarImage
                 className="object-cover"
                 src="https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?q=80&w=876&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -266,7 +266,7 @@ export const MockStoryCard = () => {
 // Self-contained mini conversation that mirrors the production ChatMessageList UI structure.
 export const MockChatCard = () => {
   return (
-    <div className="w-full rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm">
+    <div className="w-full rounded-2xl border border-border/60 bg-card overflow-hidden">
       {/* Date Separator Header */}
       <div className="flex items-center justify-center py-4 border-b border-border/40 bg-muted/20">
         <div className="text-sm font-semibold text-muted-foreground/70 bg-background/50 border border-border/50 px-4 py-1 rounded-full">
@@ -278,7 +278,7 @@ export const MockChatCard = () => {
       <div className="px-5 py-6 space-y-6">
         {/* Received messages - sarah */}
         <div className="flex items-end gap-3 justify-start">
-          <Avatar className="h-10 w-10 shrink-0 shadow-sm border border-border/40 bg-muted mb-1">
+          <Avatar className="h-10 w-10 shrink-0 border border-border/40 bg-muted mb-1">
             <AvatarImage
               className="object-cover"
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop"
@@ -295,7 +295,7 @@ export const MockChatCard = () => {
                 2:08 PM
               </span>
             </div>
-            <div className="relative w-fit max-w-full break-words rounded-3xl rounded-tl-lg px-5 py-3 shadow-sm bg-muted text-foreground border border-transparent">
+            <div className="relative w-fit max-w-full break-words rounded-3xl rounded-tl-lg px-5 py-3 bg-muted text-foreground border border-transparent">
               <div className="text-[15px] font-medium leading-relaxed whitespace-pre-wrap break-words">
                 The new UI is insane! 🚀
               </div>
@@ -322,7 +322,7 @@ export const MockChatCard = () => {
                 2:09 PM
               </span>
             </div>
-            <div className="relative w-fit max-w-full break-words rounded-3xl rounded-tl-lg px-5 py-3 shadow-sm bg-muted text-foreground border border-transparent">
+            <div className="relative w-fit max-w-full break-words rounded-3xl rounded-tl-lg px-5 py-3 bg-muted text-foreground border border-transparent">
               <div className="text-[15px] font-medium leading-relaxed whitespace-pre-wrap break-words">
                 Clean, fast, and it just flows
               </div>
@@ -339,13 +339,13 @@ export const MockChatCard = () => {
               </span>
               <span className="text-sm font-bold text-foreground">You</span>
             </div>
-            <div className="relative w-fit max-w-full break-words rounded-3xl rounded-tr-lg px-5 py-3 shadow-sm bg-primary text-primary-foreground">
+            <div className="relative w-fit max-w-full break-words rounded-3xl rounded-tr-lg px-5 py-3 bg-primary text-primary-foreground">
               <div className="text-[15px] font-medium leading-relaxed whitespace-pre-wrap break-words">
                 Appreciate it! Shipping more polish soon 🎨
               </div>
             </div>
           </div>
-          <Avatar className="h-10 w-10 shrink-0 shadow-sm border border-border/40 bg-muted mb-1">
+          <Avatar className="h-10 w-10 shrink-0 border border-border/40 bg-muted mb-1">
             <AvatarImage
               className="object-cover"
               src="https://images.unsplash.com/photo-1529068755536-a5ade0dcb4e8?w=800&auto=format&fit=crop"
@@ -444,7 +444,7 @@ export const MockNotificationCard = () => {
 // --- Mock Profile Card ---
 export const MockProfileCard = () => {
   return (
-    <div className="w-full rounded-[28px] bg-card border border-border/40 overflow-hidden shadow-sm transition-colors text-left pb-6">
+    <div className="w-full rounded-[28px] bg-card border border-border/40 overflow-hidden transition-colors text-left pb-6">
       {/* Cover Image Area */}
       <div className="w-full h-[140px] bg-blue-600 relative sm:h-[160px]">
         {/* Mock background cover image - or solid blue as requested */}
@@ -461,7 +461,7 @@ export const MockProfileCard = () => {
         <div className="flex items-end justify-between -mt-10 relative z-10 mb-5">
           <div className="flex items-end gap-3.5">
             <div className="relative shrink-0">
-              <Avatar className="h-[88px] w-[88px] border-4 border-card shadow-sm bg-muted relative z-20">
+              <Avatar className="h-[88px] w-[88px] border-4 border-card bg-muted relative z-20">
                 <AvatarImage
                   className="object-cover"
                   src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=800&auto=format&fit=crop"
@@ -471,7 +471,7 @@ export const MockProfileCard = () => {
                   AD
                 </AvatarFallback>
               </Avatar>
-              <button className="absolute bottom-1 right-0 rounded-full bg-card shadow-sm flex items-center justify-center translate-x-1.5 translate-y-1.5 z-30 border-[3px] border-card">
+              <button className="absolute bottom-1 right-0 rounded-full bg-card flex items-center justify-center translate-x-1.5 translate-y-1.5 z-30 border-[3px] border-card">
                 <div className="bg-muted rounded-full p-1.5 hover:bg-muted/80 transition-colors">
                   <Camera size={13} className="text-foreground stroke-[2.5]" />
                 </div>

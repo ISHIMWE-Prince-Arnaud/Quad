@@ -241,7 +241,7 @@ const CarouselItem = React.forwardRef<
     const distanceFromCenter = Math.abs(viewportCenter - currentCenter);
     const maxDist = containerHeight * 0.25;
     const factor = 1 - Math.min(distanceFromCenter / maxDist, 1);
-    return `0 ${20 * factor}px ${40 * factor}px -10px hsla(var(--primary) / ${0.2 * factor})`;
+    return `0 ${4 * factor}px ${12 * factor}px -4px hsla(var(--primary) / ${0.1 * factor})`;
   });
 
   return (
