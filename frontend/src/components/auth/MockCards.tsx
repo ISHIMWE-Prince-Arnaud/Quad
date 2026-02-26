@@ -6,11 +6,11 @@ import {
   MessageCircle,
   Share2,
   Bookmark,
-  Users,
   EyeOff,
   Camera,
   Calendar,
 } from "lucide-react";
+import { FaUsers } from "react-icons/fa";
 import type { ApiNotification } from "@/types/api";
 
 // --- Product-identical cards for auth preview (reuse in-app components) ---
@@ -84,11 +84,11 @@ export const MockPostCard = () => {
 // --- Mock Poll Card ---
 export const MockPollCard = () => {
   return (
-    <div className="w-full rounded-3xl bg-card border border-border/40 overflow-hidden p-6 transition-colors">
+    <div className="w-full rounded-3xl bg-card border border-border/40 overflow-hidden p-6 transition-colors shadow-card">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <Avatar className="h-11 w-11 shrink-0 border border-border/40 bg-muted/20">
+          <Avatar className="h-11 w-11 shrink-0 border-2 border-background shadow-sm bg-muted/20">
             <AvatarImage
               className="object-cover"
               src="https://images.unsplash.com/photo-1529068755536-a5ade0dcb4e8?q=80&w=581&auto=format&fit=crop"
@@ -99,15 +99,16 @@ export const MockPollCard = () => {
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="text-[14px] font-bold text-foreground leading-tight truncate">
+            <span className="text-[14px] font-bold text-foreground leading-tight">
               princearnaud
             </span>
-            <div className="text-[11px] font-medium text-muted-foreground mt-0.5 truncate">
+            <div className="text-[11px] font-medium text-muted-foreground mt-0.5">
               2 hours ago
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold">
+
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 text-[12px] font-semibold">
           <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
           Expires in 24 hours
         </div>
@@ -121,63 +122,79 @@ export const MockPollCard = () => {
       </div>
 
       {/* Options */}
-      <div className="flex flex-col gap-3 mb-5">
+      <div className="flex flex-col gap-3 mb-4">
         {/* Voted Option (Feed - 45%) */}
-        <div className="relative flex h-11 w-full items-center justify-between rounded-full bg-muted/30 text-[13px] font-semibold border-[1.5px] border-primary overflow-hidden">
+        <div className="relative h-11 w-full overflow-hidden rounded-full border border-border/40 transition-all duration-300 ring-2 ring-primary ring-offset-background ring-offset-2 scale-[1.01] shadow-sm">
           <div
-            className="absolute left-0 top-0 h-full bg-primary"
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary/60 to-primary"
             style={{ width: "45%" }}
           />
-          <div className="relative z-10 flex w-full justify-between items-center px-4">
-            <span className="text-white">Feed</span>
-            <span className="text-foreground dark:text-white">45%</span>
+          <div className="relative z-10 flex h-full items-center justify-between gap-4 px-5">
+            <span className="truncate text-[13px] font-bold text-primary-foreground">
+              Feed
+            </span>
+            <span className="shrink-0 text-[13px] font-bold text-primary-foreground">
+              45%
+            </span>
           </div>
         </div>
 
         {/* Unvoted Option (Chat - 30%) */}
-        <div className="relative flex h-11 w-full items-center justify-between rounded-full bg-muted/20 text-[13px] font-semibold overflow-hidden">
+        <div className="relative h-11 w-full overflow-hidden rounded-full border border-border/40 bg-muted/20 transition-all duration-300">
           <div
-            className="absolute left-0 top-0 h-full bg-primary/20 dark:bg-primary/10"
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary/60 to-primary"
             style={{ width: "30%" }}
           />
-          <div className="relative z-10 flex w-full justify-between items-center px-4">
-            <span className="text-white">Chat</span>
-            <span className="text-foreground dark:text-white">30%</span>
+          <div className="relative z-10 flex h-full items-center justify-between gap-4 px-5">
+            <span className="truncate text-[13px] font-semibold text-primary-foreground">
+              Chat
+            </span>
+            <span className="shrink-0 text-[13px] font-bold text-foreground">
+              30%
+            </span>
           </div>
         </div>
 
         {/* Unvoted Option (Stories - 25%) */}
-        <div className="relative flex h-11 w-full items-center justify-between rounded-full bg-muted/20 text-[13px] font-semibold overflow-hidden">
+        <div className="relative h-11 w-full overflow-hidden rounded-full border border-border/40 bg-muted/20 transition-all duration-300">
           <div
-            className="absolute left-0 top-0 h-full bg-primary/20 dark:bg-primary/10"
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary/60 to-primary"
             style={{ width: "25%" }}
           />
-          <div className="relative z-10 flex w-full justify-between items-center px-4">
-            <span className="text-white">Stories</span>
-            <span className="text-foreground dark:text-white">25%</span>
+          <div className="relative z-10 flex h-full items-center justify-between gap-4 px-5">
+            <span className="truncate text-[13px] font-semibold text-primary-foreground">
+              Stories
+            </span>
+            <span className="shrink-0 text-[13px] font-bold text-foreground">
+              25%
+            </span>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-2">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
-            <Heart size={18} className="fill-current" />
-            <span className="text-xs">84</span>
+      <div className="border-t border-border/40 pt-4">
+        <div className="flex items-center justify-between text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all duration-200 cursor-pointer">
+              <Heart size={18} className="text-rose-500 fill-rose-500" />
+              <span className="text-xs font-bold">84</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:bg-accent transition-all duration-200 cursor-default">
+              <FaUsers size={18} />
+              <span className="text-[12px] font-bold tabular-nums">1200</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 text-muted-foreground font-bold text-sm cursor-pointer hover:text-foreground transition-colors">
-            <Users size={18} className="fill-current" />
-            <span className="text-xs">1200</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
-            <EyeOff size={14} />
-            ANONYMOUS
-          </div>
-          <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
-            <Bookmark size={18} className="fill-current" />
+
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-3 py-1.5 text-primary text-[11px] font-bold tracking-wide">
+              <EyeOff size={16} />
+              <span>ANONYMOUS</span>
+            </div>
+
+            <div className="p-2.5 rounded-xl text-amber-500 bg-amber-500/10 transition-all duration-200 cursor-pointer">
+              <Bookmark size={18} className="fill-current" />
+            </div>
           </div>
         </div>
       </div>
