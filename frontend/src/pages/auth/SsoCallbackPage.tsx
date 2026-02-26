@@ -37,8 +37,8 @@ export default function SsoCallbackPage() {
           </p>
         </div>
         <AuthenticateWithRedirectCallback
-          signInForceRedirectUrl="/dashboard"
-          signUpForceRedirectUrl="/dashboard"
+          signInForceRedirectUrl="/app/feed"
+          signUpForceRedirectUrl="/app/feed"
         />
       </div>
     </AuthSplitLayout>

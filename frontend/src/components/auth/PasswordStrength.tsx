@@ -17,37 +17,37 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
   };
 
   const strength = getStrength(password);
-  const labels = ["Too weak", "Weak", "Fair", "Good", "Strong", "Excellent"];
+  const labels = ["TOO WEAK", "WEAK", "FAIR", "GOOD", "STRONG", "EXCELLENT"];
   const colors = [
-    "bg-muted",
-    "bg-destructive",
-    "bg-orange-500",
-    "bg-yellow-500",
-    "bg-primary",
-    "bg-success",
+    "bg-muted/30",
+    "bg-[#ef4444] shadow-[0_0_10px_rgba(239,68,68,0.3)]",
+    "bg-[#f97316] shadow-[0_0_10px_rgba(249,115,22,0.3)]",
+    "bg-[#eab308] shadow-[0_0_10px_rgba(234,179,8,0.3)]",
+    "bg-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.3)]",
+    "bg-[#22c55e] shadow-[0_0_10px_rgba(34,197,94,0.3)]",
   ];
 
   return (
-    <div className="space-y-2 mt-1 px-1">
-      <div className="flex justify-between items-center">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-          Password Strength
+    <div className="space-y-2 mt-2 px-1">
+      <div className="flex justify-between items-center px-0.5">
+        <span className="text-[9px] font-black uppercase tracking-[0.1em] text-muted-foreground/60">
+          Security Pulse
         </span>
         <span
           className={cn(
-            "text-[10px] font-bold uppercase tracking-wider transition-colors",
-            strength > 0 ? "text-foreground" : "text-muted-foreground",
+            "text-[9px] font-black uppercase tracking-[0.1em] transition-all duration-500",
+            strength > 0 ? "text-foreground" : "text-muted-foreground/40",
           )}>
           {password ? labels[strength] : "---"}
         </span>
       </div>
-      <div className="flex gap-1 h-1">
+      <div className="flex gap-1.5 h-1">
         {[1, 2, 3, 4, 5].map((step) => (
           <div
             key={step}
             className={cn(
-              "flex-1 rounded-full transition-all duration-500",
-              strength >= step ? colors[strength] : "bg-muted/30",
+              "flex-1 rounded-full transition-all duration-700 ease-in-out",
+              strength >= step ? colors[strength] : "bg-muted/20",
             )}
           />
         ))}

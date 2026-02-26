@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useSignUp } from "@clerk/clerk-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Eye, EyeOff, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
 import { LoadingSpinner } from "@/components/ui/loading";
 import { Button } from "@/components/ui/button";
@@ -78,7 +79,7 @@ export default function SignUpPage() {
     try {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_google",
-        redirectUrl: "/sso-callback",
+        redirectUrl: "/signup/sso-callback",
         redirectUrlComplete: oauthRedirectComplete,
       });
     } catch (err: unknown) {
@@ -185,16 +186,26 @@ export default function SignUpPage() {
           <h2 className="text-4xl font-bold tracking-tight text-foreground">
             {step === "form" ? (
               <>
-                Create your <span className="text-primary italic">account</span>
+                Create your{" "}
+                <span className="bg-gradient-to-r from-primary via-[#60a5fa] to-primary bg-clip-text text-transparent italic drop-shadow-sm">
+                  account
+                </span>
               </>
             ) : (
-              "Verify your email"
+              <span className="bg-gradient-to-r from-primary via-[#60a5fa] to-primary bg-clip-text text-transparent drop-shadow-sm">
+                Verify your email
+              </span>
             )}
           </h2>
           <p className="text-muted-foreground/80 max-w-[280px]">
-            {step === "form"
-              ? "Join Quad and start moving in real time."
-              : `We sent a code to ${email}`}
+            {step === "form" ? (
+              "Join Quad and start moving in real time."
+            ) : (
+              <>
+                We sent a code to{" "}
+                <span className="text-primary font-bold">{email}</span>
+              </>
+            )}
           </p>
         </div>
 
@@ -233,11 +244,7 @@ export default function SignUpPage() {
                       onClick={handleGoogleSignUp}
                       loading={submitting}
                       disabled={submitting}>
-                      <img
-                        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/0/google.svg"
-                        className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"
-                        alt="Google"
-                      />
+                      <FcGoogle className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
                       Continue with Google
                     </Button>
 
@@ -335,7 +342,7 @@ export default function SignUpPage() {
 
                       <Button
                         type="submit"
-                        className="w-full h-14 rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] mt-2"
+                        className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] mt-2"
                         loading={submitting}
                         disabled={
                           submitting ||
@@ -370,14 +377,6 @@ export default function SignUpPage() {
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ duration: 0.3 }}
                   className="space-y-8">
-                  <div className="bg-primary/5 border border-primary/10 rounded-2xl p-5 text-center">
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      Enter the 6-digit code we sent to
-                      <br />
-                      <span className="font-bold text-foreground">{email}</span>
-                    </p>
-                  </div>
-
                   <form className="space-y-8" onSubmit={handleVerifyCode}>
                     <SegmentedOTP
                       value={code}
@@ -387,7 +386,7 @@ export default function SignUpPage() {
 
                     <Button
                       type="submit"
-                      className="w-full h-14 rounded-2xl shadow-lg shadow-primary/20"
+                      className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                       loading={submitting}
                       disabled={submitting || code.length < 6}>
                       Verify & Continue

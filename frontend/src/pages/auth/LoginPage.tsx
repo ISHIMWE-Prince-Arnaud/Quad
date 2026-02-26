@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { useAuth, useSignIn } from "@clerk/clerk-react";
 import { Eye, EyeOff } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 import {
   getIntendedDestination,
   peekIntendedDestination,
@@ -97,7 +98,7 @@ export default function LoginPage() {
     try {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_google",
-        redirectUrl: "/sso-callback",
+        redirectUrl: "/login/sso-callback",
         redirectUrlComplete: oauthRedirectComplete,
       });
     } catch (err: unknown) {
@@ -115,8 +116,11 @@ export default function LoginPage() {
     <AuthSplitLayout variant="login">
       <div className="space-y-10">
         <div className="flex flex-col items-center text-center space-y-3">
-          <h2 className="text-4xl font-bold tracking-tight text-foreground bg-clip-text">
-            Sign in to <span className="text-primary italic">Quad</span>
+          <h2 className="text-4xl font-bold tracking-tight text-foreground">
+            Sign in to{" "}
+            <span className="bg-gradient-to-r from-primary via-[#60a5fa] to-primary bg-clip-text text-transparent italic drop-shadow-sm">
+              Quad
+            </span>
           </h2>
           <p className="text-muted-foreground/80 max-w-[280px]">
             Welcome back. Continue where the pulse left off.
@@ -149,11 +153,7 @@ export default function LoginPage() {
                 onClick={handleGoogleSignIn}
                 loading={submitting}
                 disabled={submitting}>
-                <img
-                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/0/google.svg"
-                  className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"
-                  alt="Google"
-                />
+                <FcGoogle className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" />
                 Continue with Google
               </Button>
 
@@ -205,17 +205,9 @@ export default function LoginPage() {
                   }
                 />
 
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    className="text-[11px] font-bold uppercase tracking-wider text-primary hover:text-primary/80 transition-colors">
-                    Forgot Password?
-                  </button>
-                </div>
-
                 <Button
                   type="submit"
-                  className="w-full h-14 rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+                  className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                   loading={submitting}
                   disabled={!canSubmit}>
                   Sign In

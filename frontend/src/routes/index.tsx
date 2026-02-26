@@ -43,6 +43,22 @@ export const router = createBrowserRouter([
             element: <IndexRedirect />,
           },
           {
+            path: "login/sso-callback",
+            element: (
+              <LazyRoute>
+                <SsoCallbackPage />
+              </LazyRoute>
+            ),
+          },
+          {
+            path: "signup/sso-callback",
+            element: (
+              <LazyRoute>
+                <SsoCallbackPage />
+              </LazyRoute>
+            ),
+          },
+          {
             path: "login/*",
             element: (
               <LazyRoute>
@@ -55,14 +71,6 @@ export const router = createBrowserRouter([
             element: (
               <LazyRoute>
                 <SignUpPage />
-              </LazyRoute>
-            ),
-          },
-          {
-            path: "sso-callback",
-            element: (
-              <LazyRoute>
-                <SsoCallbackPage />
               </LazyRoute>
             ),
           },
