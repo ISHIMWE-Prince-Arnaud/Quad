@@ -4,6 +4,12 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { RootLayout } from "@/layouts/RootLayout";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { MainLayout } from "@/layouts/MainLayout";
+import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
+import {
+  LoginSkeleton,
+  SignUpSkeleton,
+  CallbackSkeleton,
+} from "@/components/auth/AuthSkeletons";
 import { LazyRoute } from "./LazyRoute";
 import { IndexRedirect } from "./IndexRedirect";
 
@@ -45,7 +51,12 @@ export const router = createBrowserRouter([
           {
             path: "login/sso-callback",
             element: (
-              <LazyRoute>
+              <LazyRoute
+                fallback={
+                  <AuthSplitLayout variant="login">
+                    <CallbackSkeleton />
+                  </AuthSplitLayout>
+                }>
                 <SsoCallbackPage />
               </LazyRoute>
             ),
@@ -53,7 +64,12 @@ export const router = createBrowserRouter([
           {
             path: "signup/sso-callback",
             element: (
-              <LazyRoute>
+              <LazyRoute
+                fallback={
+                  <AuthSplitLayout variant="signup">
+                    <CallbackSkeleton />
+                  </AuthSplitLayout>
+                }>
                 <SsoCallbackPage />
               </LazyRoute>
             ),
@@ -61,7 +77,12 @@ export const router = createBrowserRouter([
           {
             path: "login/*",
             element: (
-              <LazyRoute>
+              <LazyRoute
+                fallback={
+                  <AuthSplitLayout variant="login">
+                    <LoginSkeleton />
+                  </AuthSplitLayout>
+                }>
                 <LoginPage />
               </LazyRoute>
             ),
@@ -69,7 +90,12 @@ export const router = createBrowserRouter([
           {
             path: "signup/*",
             element: (
-              <LazyRoute>
+              <LazyRoute
+                fallback={
+                  <AuthSplitLayout variant="signup">
+                    <SignUpSkeleton />
+                  </AuthSplitLayout>
+                }>
                 <SignUpPage />
               </LazyRoute>
             ),

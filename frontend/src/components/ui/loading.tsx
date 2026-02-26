@@ -37,30 +37,13 @@ export function SkeletonBlock({ className }: { className?: string }) {
 
 export function LoadingPage() {
   return (
-    <div className="space-y-8 animate-pulse">
-      <div className="space-y-3">
-        <SkeletonLine className="w-48 h-8 rounded-md" />
-        <SkeletonLine className="w-64 h-4 rounded-md opacity-60" />
-      </div>
-
-      <div className="space-y-6">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-card border border-border/40 rounded-[2rem] p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <SkeletonAvatar className="h-10 w-10" />
-              <div className="space-y-2">
-                <SkeletonLine className="w-32 h-4" />
-                <SkeletonLine className="w-24 h-3" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <SkeletonLine className="w-full h-4" />
-              <SkeletonLine className="w-11/12 h-4" />
-            </div>
-          </div>
-        ))}
+    <div className="fixed inset-0 flex items-center justify-center bg-background z-[100] animate-in fade-in duration-500">
+      <div className="relative">
+        {/* Glow Aura */}
+        <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full animate-pulse-subtle scale-150" />
+        <div className="relative z-10 p-4 rounded-full bg-background/40 backdrop-blur-sm border border-border/40 shadow-2xl">
+          <LoadingSpinner size="lg" className="text-primary" />
+        </div>
       </div>
     </div>
   );
