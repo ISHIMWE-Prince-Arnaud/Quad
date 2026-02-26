@@ -235,6 +235,30 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
  * DELETE USER
  * =========================
  */
+/**
+ * =========================
+ * CHECK USERNAME AVAILABILITY
+ * =========================
+ */
+export const checkUsername = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { username } = req.params;
+
+    if (!username || username.length < 3) {
+      return res.status(200).json({ success: true, available: false });
+    }
+
+    const existingUser = await User.findOne({
+      username: { $regex: new RegExp(`^${username}$`, "i") },
+    }).lean();
+
+    return res.status(200).json({
+      success: true,
+      available: !existingUser,
+    });
+  },
+);
+
 export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
   const { clerkId } = req.params;
   const { userId } = getAuth(req);

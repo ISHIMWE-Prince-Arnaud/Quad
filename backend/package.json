@@ -27,7 +27,7 @@
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.19.3",
+    "mongoose": "^9.2.2",
     "multer": "^2.0.2",
     "node-cron": "^4.2.1",
     "pino": "^9.6.0",

@@ -7,12 +7,11 @@ import {
   peekIntendedDestination,
 } from "@/lib/redirectAfterLogin";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
-import { Logo } from "@/components/ui/Logo";
+import { LoadingSpinner } from "@/components/ui/loading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import PulsingLogoSpinner from "@/components/ui/PulsingLogoSpinner";
 
 export default function LoginPage() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -114,108 +113,129 @@ export default function LoginPage() {
 
   return (
     <AuthSplitLayout variant="login">
-      <div className="space-y-6">
-        <div className="flex flex-col items-center text-center">
-          <Logo size="md" />
-          <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-            Sign in to Quad
+      <div className="space-y-10">
+        <div className="flex flex-col items-center text-center space-y-3">
+          <h2 className="text-4xl font-bold tracking-tight text-foreground bg-clip-text">
+            Sign in to <span className="text-primary italic">Quad</span>
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground/80 max-w-[280px]">
             Welcome back. Continue where the pulse left off.
           </p>
         </div>
 
         {!isSignInLoaded && (
-          <div className="py-6">
-            <PulsingLogoSpinner />
+          <div className="flex justify-center py-10">
+            <LoadingSpinner size="lg" />
           </div>
         )}
 
         {isSignInLoaded && (
-          <>
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+              <Alert
+                variant="destructive"
+                className="rounded-2xl border-destructive/20 bg-destructive/5">
+                <AlertDescription className="text-xs font-medium">
+                  {error}
+                </AlertDescription>
               </Alert>
             )}
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={handleGoogleSignIn}
-              loading={submitting}
-              disabled={submitting}>
-              Continue with Google
-            </Button>
+            <div className="space-y-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full h-14 rounded-2xl border-border/50 hover:bg-accent/50 hover:border-primary/30 transition-all duration-300 font-semibold shadow-sm group"
+                onClick={handleGoogleSignIn}
+                loading={submitting}
+                disabled={submitting}>
+                <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/0/google.svg"
+                  className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"
+                  alt="Google"
+                />
+                Continue with Google
+              </Button>
 
-            <div className="relative py-2">
-              <Separator />
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs text-muted-foreground">
-                or
+              <div className="relative py-4">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full opacity-50" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-4 text-muted-foreground font-bold tracking-widest">
+                    or
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <form className="space-y-4" onSubmit={handlePasswordSignIn}>
-              <Input
-                label="Email or username"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                autoComplete="username"
-                disabled={submitting}
-                error={identifierError}
-                onBlur={() => setTouched((t) => ({ ...t, identifier: true }))}
-              />
-              <Input
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                disabled={submitting}
-                error={passwordError}
-                onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-                rightElement={
+              <form className="space-y-5" onSubmit={handlePasswordSignIn}>
+                <Input
+                  label="Email or username"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  autoComplete="username"
+                  disabled={submitting}
+                  error={identifierError}
+                  onBlur={() => setTouched((t) => ({ ...t, identifier: true }))}
+                />
+                <Input
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  disabled={submitting}
+                  error={passwordError}
+                  onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                  rightElement={
+                    <button
+                      type="button"
+                      className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      disabled={submitting}>
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  }
+                />
+
+                <div className="flex justify-end">
                   <button
                     type="button"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                    onClick={() => setShowPassword((v) => !v)}
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
-                    disabled={submitting}>
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    className="text-[11px] font-bold uppercase tracking-wider text-primary hover:text-primary/80 transition-colors">
+                    Forgot Password?
                   </button>
-                }
-              />
-              <Button
-                type="submit"
-                className="w-full"
-                loading={submitting}
-                disabled={!canSubmit}>
-                Continue
-              </Button>
-            </form>
+                </div>
 
-            <div className="text-center text-xs text-muted-foreground">
-              Use your email or username to sign in.
+                <Button
+                  type="submit"
+                  className="w-full h-14 rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98]"
+                  loading={submitting}
+                  disabled={!canSubmit}>
+                  Sign In
+                </Button>
+              </form>
             </div>
 
-            <div className="text-center text-sm text-muted-foreground">
-              Don’t have an account?{" "}
-              <button
-                type="button"
-                className="font-medium text-primary hover:text-primary/80"
-                onClick={() => navigate("/signup")}
-                disabled={submitting}>
-                Sign up
-              </button>
+            <div className="text-center pt-2">
+              <p className="text-sm text-muted-foreground">
+                Don’t have an account?{" "}
+                <button
+                  type="button"
+                  className="font-bold text-primary hover:underline underline-offset-4 decoration-2"
+                  onClick={() => navigate("/signup")}
+                  disabled={submitting}>
+                  Create account
+                </button>
+              </p>
             </div>
-          </>
+          </div>
         )}
       </div>
     </AuthSplitLayout>

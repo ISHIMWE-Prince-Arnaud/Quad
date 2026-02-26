@@ -1,5 +1,9 @@
 import type { Model } from "mongoose";
-import type { FilterQuery, PopulateOptions, SortOrder } from "mongoose";
+import type mongoose from "mongoose";
+
+export type FilterQuery<T> = any;
+export type PopulateOptions = any;
+export type SortOrder = any;
 
 export interface PaginationOptions {
   page: number;

@@ -5,6 +5,7 @@ import {
   getUser,
   updateUser,
   deleteUser,
+  checkUsername,
 } from "../controllers/user.controller.js";
 
 import {
@@ -34,6 +35,15 @@ router.post(
   validateSchema(createUserSchema), // Validate request body
   createUser, // Controller handles creation
 );
+
+/**
+ * -------------------------
+ * CHECK USERNAME AVAILABILITY
+ * GET /api/users/check/:username
+ * Public: Anyone can check
+ * -------------------------
+ */
+router.get("/check/:username", checkUsername);
 
 /**
  * -------------------------

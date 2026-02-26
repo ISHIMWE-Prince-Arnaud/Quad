@@ -55,8 +55,8 @@ export class PollService {
         ? { questionMedia: pollData.questionMedia }
         : {}),
       options,
-      settings: pollData.settings || {
-        anonymousVoting: false,
+      settings: {
+        anonymousVoting: pollData.settings?.anonymousVoting ?? false,
       },
       status: "active",
       ...(pollData.expiresAt !== undefined
@@ -64,7 +64,7 @@ export class PollService {
         : {}),
       totalVotes: 0,
       reactionsCount: 0,
-    });
+    } as any);
 
     const io = getSocketIO();
     io.emit("newPoll", poll);
