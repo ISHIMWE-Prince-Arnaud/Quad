@@ -9,7 +9,7 @@ import {
   peekIntendedDestination,
 } from "@/lib/redirectAfterLogin";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
-import { LoadingSpinner } from "@/components/ui/loading";
+import { LoginSkeleton } from "@/components/auth/AuthSkeletons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -131,11 +131,7 @@ export default function LoginPage() {
           </p>
         </motion.div>
 
-        {!isSignInLoaded && (
-          <div className="flex justify-center py-6">
-            <LoadingSpinner size="lg" />
-          </div>
-        )}
+        {!isSignInLoaded && <LoginSkeleton />}
 
         {isSignInLoaded && (
           <motion.div

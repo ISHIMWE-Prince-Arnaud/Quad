@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Eye, EyeOff, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
-import { LoadingSpinner } from "@/components/ui/loading";
+import { SignUpSkeleton } from "@/components/auth/AuthSkeletons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -215,11 +215,7 @@ export default function SignUpPage() {
           </p>
         </motion.div>
 
-        {!isLoaded && (
-          <div className="flex justify-center py-6">
-            <LoadingSpinner size="lg" />
-          </div>
-        )}
+        {!isLoaded && <SignUpSkeleton />}
 
         {isLoaded && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
