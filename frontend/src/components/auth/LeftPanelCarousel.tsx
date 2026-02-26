@@ -31,10 +31,10 @@ const DISPLAY_CARDS = [CARDS[CARDS.length - 1], ...CARDS, CARDS[0]];
 const GAP = 16;
 
 /** Seconds each card rests at center before advancing */
-const DWELL_SECONDS = 5;
+const DWELL_SECONDS = 3.8;
 
 /** Duration of each scroll transition (seconds) */
-const TRANSITION_DURATION = 1;
+const TRANSITION_DURATION = 0.8;
 
 export function LeftPanelCarousel() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -84,10 +84,16 @@ export function LeftPanelCarousel() {
       const centers = measure();
       setCardCenters(centers);
 
-      // Center the first real card (index 1)
-      y.set(h / 2 - centers[1]);
+      // Smooth Initial Arrival Sequence
+      const target = h / 2 - centers[1];
+      // Start 120px lower for a graceful rise
+      y.set(target - 120);
+      animate(y, target, {
+        duration: 2.2,
+        ease: [0.16, 1, 0.3, 1], // Sophisticated entry
+      });
       setReady(true);
-    }, 300);
+    }, 450); // Slightly more time for initial paint
 
     return () => clearTimeout(timeout);
   }, [measure, y]);
@@ -147,7 +153,8 @@ export function LeftPanelCarousel() {
 
       animate(y, targetY, {
         duration: TRANSITION_DURATION,
-        ease: [0.32, 0.72, 0, 1],
+        // More "Weighted" Snap Easing
+        ease: [0.22, 1, 0.36, 1],
         onComplete: () => {
           if (nextIndex === DISPLAY_CARDS.length - 1) {
             // Reached the duplicated first card – silently snap to real first
