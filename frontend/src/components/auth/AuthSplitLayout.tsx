@@ -17,6 +17,10 @@ export function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
         <div className="absolute -top-[30%] -left-[10%] w-[70%] h-[70%] rounded-full bg-primary/10 blur-[120px] animate-pulse-subtle" />
         <div className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] rounded-full bg-secondary/10 blur-[100px] animate-pulse-subtle [animation-delay:1s]" />
         <div className="absolute top-[40%] left-[20%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[80px] animate-pulse-subtle [animation-delay:2s]" />
+
+        {/* Form grounding - Faint radial glow behind where the form sits */}
+        <div className="absolute lg:right-[15%] right-1/2 lg:translate-x-0 translate-x-1/2 top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/[0.03] blur-[100px] animate-pulse-subtle" />
+
         {/* Noise texture overlay */}
         <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay [background-image:url('https://grainy-gradients.vercel.app/noise.svg')]" />
       </div>

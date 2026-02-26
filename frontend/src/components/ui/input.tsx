@@ -59,10 +59,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             className={cn(
               "flex h-11 w-full rounded-full border border-input bg-background/50 px-5 py-3 pt-5 text-sm font-medium ring-offset-background transition-all placeholder:opacity-0 focus:placeholder:opacity-100 placeholder:text-muted-foreground/50 focus-visible:outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-50",
-              "focus:ring-[6px] focus:ring-primary/10",
+              "focus:ring-[6px] focus:ring-primary/10 focus:shadow-[0_0_20px_-5px_hsla(var(--primary)/0.15)]",
               rightElement && "pr-12",
               error &&
-                "border-destructive focus:ring-destructive/10 focus:border-destructive",
+                "border-destructive focus:ring-destructive/10 focus:border-destructive focus:shadow-none",
               className,
             )}
             ref={ref}

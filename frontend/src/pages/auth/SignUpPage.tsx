@@ -8,9 +8,7 @@ import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
 import { LoadingSpinner } from "@/components/ui/loading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { PasswordStrength } from "@/components/auth/PasswordStrength";
 import { SegmentedOTP } from "@/components/auth/SegmentedOTP";
 import {
   getIntendedDestination,
@@ -165,25 +163,33 @@ export default function SignUpPage() {
 
   return (
     <AuthSplitLayout variant="signup">
-      <div className="space-y-8 max-w-sm mx-auto">
+      <div className="space-y-8 max-w-md mx-auto">
         {/* Breadcrumbs / Step Indicator */}
-        <div className="flex justify-center items-center gap-2 px-10">
+        <div className="flex justify-center items-center gap-3 px-10">
           <div
             className={cn(
-              "h-1 flex-1 rounded-full transition-all duration-500",
-              step === "form" ? "bg-primary" : "bg-primary/20",
+              "h-1.5 flex-1 rounded-full transition-all duration-700",
+              step === "form"
+                ? "bg-gradient-to-r from-primary to-[#60a5fa] shadow-[0_0_10px_rgba(var(--primary-rgb),0.3)]"
+                : "bg-primary/20",
             )}
           />
           <div
             className={cn(
-              "h-1 flex-1 rounded-full transition-all duration-500",
-              step === "verify" ? "bg-primary" : "bg-muted/30",
+              "h-1.5 flex-1 rounded-full transition-all duration-700",
+              step === "verify"
+                ? "bg-gradient-to-r from-primary to-[#60a5fa] shadow-[0_0_10px_rgba(var(--primary-rgb),0.3)]"
+                : "bg-muted/10",
             )}
           />
         </div>
 
-        <div className="flex flex-col items-center text-center space-y-2">
-          <h2 className="text-3xl font-black tracking-tight text-foreground">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex flex-col items-center text-center space-y-3">
+          <h2 className="text-4xl font-black tracking-tight text-foreground">
             {step === "form" ? (
               <>
                 Create your{" "}
@@ -197,7 +203,7 @@ export default function SignUpPage() {
               </span>
             )}
           </h2>
-          <p className="text-[13px] text-muted-foreground/60 font-medium max-w-[260px]">
+          <p className="text-[14px] text-muted-foreground/50 font-medium max-w-[280px]">
             {step === "form" ? (
               "Join Quad and start moving in real time."
             ) : (
@@ -207,7 +213,7 @@ export default function SignUpPage() {
               </>
             )}
           </p>
-        </div>
+        </motion.div>
 
         {!isLoaded && (
           <div className="flex justify-center py-6">
@@ -220,7 +226,7 @@ export default function SignUpPage() {
             {error && (
               <Alert
                 variant="destructive"
-                className="rounded-2xl mb-6 border-destructive/20 bg-destructive/5 px-4 py-3">
+                className="rounded-full mb-6 border-destructive/20 bg-destructive/5 px-5 py-3">
                 <AlertDescription className="text-xs font-semibold leading-normal">
                   {error}
                 </AlertDescription>
@@ -231,16 +237,16 @@ export default function SignUpPage() {
               {step === "form" ? (
                 <motion.div
                   key="form"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.4 }}
                   className="space-y-6">
                   <div className="space-y-4">
                     <Button
                       type="button"
                       variant="outline"
-                      className="w-full h-11 rounded-full border-border/40 hover:bg-accent/50 hover:border-primary/30 transition-all duration-300 font-bold text-sm shadow-sm group"
+                      className="w-full h-11 rounded-full border-border/40 hover:bg-accent/40 transition-all duration-300 font-bold text-sm group"
                       onClick={handleGoogleSignUp}
                       loading={submitting}
                       disabled={submitting}>
@@ -248,12 +254,12 @@ export default function SignUpPage() {
                       Continue with Google
                     </Button>
 
-                    <div className="relative py-2">
+                    <div className="relative py-4 flex items-center justify-center">
                       <div className="absolute inset-0 flex items-center">
-                        <Separator className="w-full opacity-40" />
+                        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-border/40 to-transparent" />
                       </div>
-                      <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
-                        <span className="bg-background px-4 text-muted-foreground">
+                      <div className="relative bg-background px-6">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">
                           OR
                         </span>
                       </div>
@@ -280,9 +286,19 @@ export default function SignUpPage() {
                               {checkingUsername ? (
                                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                               ) : usernameAvailable === true ? (
-                                <CheckCircle2 className="h-4 w-4 text-success" />
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: [1.2, 1] }}
+                                  transition={{ duration: 0.3 }}>
+                                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
+                                </motion.div>
                               ) : usernameAvailable === false ? (
-                                <XCircle className="h-4 w-4 text-destructive" />
+                                <motion.div
+                                  initial={{ x: 5 }}
+                                  animate={{ x: 0 }}
+                                  transition={{ type: "spring" }}>
+                                  <XCircle className="h-4 w-4 text-destructive" />
+                                </motion.div>
                               ) : null}
                             </div>
                           )
@@ -323,7 +339,7 @@ export default function SignUpPage() {
                           rightElement={
                             <button
                               type="button"
-                              className="p-1.5 text-muted-foreground/50 hover:text-primary transition-colors"
+                              className="p-1.5 text-muted-foreground/30 hover:text-primary transition-colors"
                               onClick={() => setShowPassword((v) => !v)}
                               aria-label={
                                 showPassword ? "Hide password" : "Show password"
@@ -337,22 +353,36 @@ export default function SignUpPage() {
                             </button>
                           }
                         />
-                        <PasswordStrength password={password} />
                       </div>
 
-                      <Button
-                        type="submit"
-                        className="w-full h-11 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] mt-2"
-                        loading={submitting}
-                        disabled={
-                          submitting ||
-                          username.trim().length < 3 ||
-                          email.trim().length === 0 ||
-                          password.length < 8 ||
-                          usernameAvailable === false
-                        }>
-                        Sign Up
-                      </Button>
+                      <div className="relative group overflow-hidden rounded-full mt-2">
+                        <Button
+                          type="submit"
+                          className="w-full h-11 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99] relative"
+                          loading={submitting}
+                          disabled={
+                            submitting ||
+                            username.trim().length < 3 ||
+                            email.trim().length === 0 ||
+                            password.length < 8 ||
+                            usernameAvailable === false
+                          }>
+                          Sign Up
+                          {/* Shimmer Effect */}
+                          <motion.div
+                            animate={{
+                              left: ["-100%", "200%"],
+                            }}
+                            transition={{
+                              duration: 3,
+                              repeat: Infinity,
+                              repeatDelay: 5,
+                              ease: "easeInOut",
+                            }}
+                            className="absolute inset-x-0 h-full w-[100px] skew-x-[25deg] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"
+                          />
+                        </Button>
+                      </div>
                     </form>
                   </div>
 
@@ -372,31 +402,46 @@ export default function SignUpPage() {
               ) : (
                 <motion.div
                   key="verify"
-                  initial={{ opacity: 0, x: 10 }}
+                  initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.3 }}
+                  exit={{ opacity: 0, x: -20 }}
                   className="space-y-6">
-                  <form className="space-y-6" onSubmit={handleVerifyCode}>
-                    <SegmentedOTP
-                      value={code}
-                      onChange={setCode}
-                      disabled={submitting}
-                    />
+                  <form className="space-y-8" onSubmit={handleVerifyCode}>
+                    <div className="flex justify-center">
+                      <SegmentedOTP
+                        value={code}
+                        onChange={setCode}
+                        disabled={submitting}
+                      />
+                    </div>
 
-                    <Button
-                      type="submit"
-                      className="w-full h-11 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                      loading={submitting}
-                      disabled={submitting || code.length < 6}>
-                      Verify & Continue
-                    </Button>
+                    <div className="relative group overflow-hidden rounded-full">
+                      <Button
+                        type="submit"
+                        className="w-full h-11 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99] relative"
+                        loading={submitting}
+                        disabled={submitting || code.length < 6}>
+                        Verify & Continue
+                        <motion.div
+                          animate={{
+                            left: ["-100%", "200%"],
+                          }}
+                          transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            repeatDelay: 5,
+                            ease: "easeInOut",
+                          }}
+                          className="absolute inset-x-0 h-full w-[100px] skew-x-[25deg] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"
+                        />
+                      </Button>
+                    </div>
                   </form>
 
                   <div className="flex items-center justify-between px-2">
                     <button
                       type="button"
-                      className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground/60 hover:text-foreground transition-colors"
+                      className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground/40 hover:text-foreground transition-colors"
                       onClick={() => setStep("form")}
                       disabled={submitting}>
                       Back
