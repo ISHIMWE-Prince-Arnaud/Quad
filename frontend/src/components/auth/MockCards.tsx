@@ -60,21 +60,21 @@ export const MockPostCard = () => {
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-2">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
-            <Heart size={20} className="fill-current" />
-            <span>128</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
+            <Heart size={18} className="fill-current" />
+            <span className="text-xs">128</span>
           </div>
-          <div className="flex items-center gap-2 text-blue-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
-            <MessageCircle size={20} className="fill-current" />
-            <span>24</span>
+          <div className="flex items-center gap-1.5 text-blue-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
+            <MessageCircle size={18} className="fill-current" />
+            <span className="text-xs">24</span>
           </div>
           <div className="flex items-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
-            <Share2 size={20} />
+            <Share2 size={18} />
           </div>
         </div>
-        <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
-          <Bookmark size={20} className="fill-current" />
+        <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
+          <Bookmark size={18} className="fill-current" />
         </div>
       </div>
     </div>
@@ -161,23 +161,23 @@ export const MockPollCard = () => {
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-2">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
-            <Heart size={20} className="fill-current" />
-            <span>84</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
+            <Heart size={18} className="fill-current" />
+            <span className="text-xs">84</span>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground font-bold text-sm cursor-pointer hover:text-foreground transition-colors">
-            <Users size={20} className="fill-current" />
-            <span>1200</span>
+          <div className="flex items-center gap-1.5 text-muted-foreground font-bold text-sm cursor-pointer hover:text-foreground transition-colors">
+            <Users size={18} className="fill-current" />
+            <span className="text-xs">1200</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold">
-            <EyeOff size={16} />
+          <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
+            <EyeOff size={14} />
             ANONYMOUS
           </div>
-          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
-            <Bookmark size={20} className="fill-current" />
+          <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
+            <Bookmark size={18} className="fill-current" />
           </div>
         </div>
       </div>
@@ -232,28 +232,28 @@ export const MockStoryCard = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
-              <Heart size={18} className="fill-current" />
-              <span>54</span>
+            <div className="flex items-center gap-1.5 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
+              <Heart size={16} className="fill-current" />
+              <span className="text-xs">54</span>
             </div>
-            <div className="flex items-center gap-2 text-blue-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
-              <MessageCircle size={18} className="fill-current" />
-              <span>12</span>
+            <div className="flex items-center gap-1.5 text-blue-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
+              <MessageCircle size={16} className="fill-current" />
+              <span className="text-xs">12</span>
             </div>
           </div>
         </div>
 
         {/* Action Row */}
         <div className="flex items-center justify-between pt-1">
-          <span className="text-sm font-bold text-muted-foreground/80">
+          <span className="text-[11px] font-bold text-muted-foreground/80 lowercase">
             5 hours ago
           </span>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="flex items-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
-              <Share2 size={20} />
+              <Share2 size={18} />
             </div>
-            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
-              <Bookmark size={20} className="fill-current" />
+            <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
+              <Bookmark size={18} className="fill-current" />
             </div>
           </div>
         </div>
@@ -278,13 +278,13 @@ export const MockChatCard = () => {
       <div className="px-5 py-6 space-y-6">
         {/* Received messages - sarah */}
         <div className="flex items-end gap-3 justify-start">
-          <Avatar className="h-10 w-10 shrink-0 border border-border/40 bg-muted mb-1">
+          <Avatar className="h-8 w-8 shrink-0 border border-border/40 bg-muted mb-1">
             <AvatarImage
               className="object-cover"
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop"
               alt="@sarah"
             />
-            <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
               SR
             </AvatarFallback>
           </Avatar>
@@ -307,13 +307,13 @@ export const MockChatCard = () => {
 
         {/* Received message - eddy */}
         <div className="flex items-end gap-3 justify-start">
-          <Avatar className="h-10 w-10 shrink-0 shadow-sm border border-border/40 bg-muted mb-1">
+          <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40 bg-muted mb-1">
             <AvatarImage
               className="object-cover"
               src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&auto=format&fit=crop"
               alt="@eddy"
             />
-            <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
               ED
             </AvatarFallback>
           </Avatar>
@@ -361,12 +361,12 @@ export const MockChatCard = () => {
       </div>
 
       {/* Composer bar */}
-      <div className="flex items-center gap-3 px-6 py-4 border-t border-border/40 bg-card">
-        <div className="flex-1 rounded-full bg-transparent border border-border/60 px-5 py-3 text-sm font-semibold text-muted-foreground/50 hover:bg-muted/10 transition-colors">
+      <div className="flex items-center gap-3 px-6 py-3 border-t border-border/40 bg-card">
+        <div className="flex-1 rounded-full bg-transparent border border-border/60 px-4 py-2 text-[13px] font-semibold text-muted-foreground/50 hover:bg-muted/10 transition-colors">
           Type a message...
         </div>
-        <div className="h-10 w-10 rounded-full flex items-center justify-center cursor-pointer hover:bg-muted/30 transition-colors">
-          <Send className="h-5 w-5 text-muted-foreground/60" />
+        <div className="h-9 w-9 rounded-full flex items-center justify-center cursor-pointer hover:bg-muted/30 transition-colors">
+          <Send className="h-4.5 w-4.5 text-muted-foreground/60" />
         </div>
       </div>
     </div>
@@ -489,7 +489,7 @@ export const MockProfileCard = () => {
           </div>
 
           <div className="pb-1 shrink-0">
-            <button className="px-5 py-1.5 rounded-full border-[1.5px] border-border/60 text-[13px] font-bold text-foreground bg-transparent hover:bg-muted/30 transition-colors">
+            <button className="px-4 py-1.5 rounded-full border-[1.5px] border-border/60 text-xs font-bold text-foreground bg-transparent hover:bg-muted/30 transition-colors">
               Edit Profile
             </button>
           </div>
