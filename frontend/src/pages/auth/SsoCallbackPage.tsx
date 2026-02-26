@@ -50,7 +50,7 @@ export default function SsoCallbackPage() {
             <div className="flex flex-col items-center space-y-2">
               <p className="text-[14px] text-muted-foreground/50 font-medium tracking-wide">
                 Syncing your account with the{" "}
-                <span className="bg-gradient-to-r from-primary to-[#60a5fa] bg-clip-text text-transparent italic font-black">
+                <span className="bg-gradient-to-r from-primary to-[#60a5fa] bg-clip-text text-transparent italic font-black pr-2">
                   Quad
                 </span>{" "}
                 pulse

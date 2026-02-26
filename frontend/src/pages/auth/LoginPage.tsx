@@ -122,7 +122,7 @@ export default function LoginPage() {
           className="flex flex-col items-center text-center space-y-3">
           <h2 className="text-4xl font-black tracking-tight text-foreground">
             Sign in to{" "}
-            <span className="bg-gradient-to-r from-primary via-[#60a5fa] to-primary bg-clip-text text-transparent italic drop-shadow-sm">
+            <span className="bg-gradient-to-r from-primary via-[#60a5fa] to-primary bg-clip-text text-transparent italic drop-shadow-sm pr-2">
               Quad
             </span>
           </h2>

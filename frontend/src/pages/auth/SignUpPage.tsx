@@ -193,7 +193,7 @@ export default function SignUpPage() {
             {step === "form" ? (
               <>
                 Create your{" "}
-                <span className="bg-gradient-to-r from-primary via-[#60a5fa] to-primary bg-clip-text text-transparent italic drop-shadow-sm">
+                <span className="bg-gradient-to-r from-primary via-[#60a5fa] to-primary bg-clip-text text-transparent italic drop-shadow-sm pr-2">
                   account
                 </span>
               </>
