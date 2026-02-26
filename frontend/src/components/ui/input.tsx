@@ -58,7 +58,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             type={type}
             className={cn(
-              "flex h-14 w-full rounded-2xl border border-input bg-background/50 px-4 py-4 pt-6 text-sm ring-offset-background transition-all placeholder:opacity-0 focus:placeholder:opacity-100 placeholder:text-muted-foreground/50 focus-visible:outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-50",
+              "flex h-11 w-full rounded-full border border-input bg-background/50 px-5 py-3 pt-5 text-sm font-medium ring-offset-background transition-all placeholder:opacity-0 focus:placeholder:opacity-100 placeholder:text-muted-foreground/50 focus-visible:outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-50",
               "focus:ring-[6px] focus:ring-primary/10",
               rightElement && "pr-12",
               error &&
@@ -80,10 +80,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {label && (
             <label
               className={cn(
-                "absolute left-4 transition-all duration-200 pointer-events-none select-none",
+                "absolute left-5 transition-all duration-200 pointer-events-none select-none",
                 isFocused || hasValue
-                  ? "top-2 text-[10px] font-bold uppercase tracking-wider text-primary"
-                  : "top-4 text-sm text-muted-foreground",
+                  ? "top-1 text-[8px] font-black uppercase tracking-[0.1em] text-primary"
+                  : "top-3 text-[13px] text-muted-foreground font-medium",
                 error && (isFocused || hasValue) && "text-destructive",
               )}>
               {label}

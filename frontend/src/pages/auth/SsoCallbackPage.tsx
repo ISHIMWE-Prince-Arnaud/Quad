@@ -23,16 +23,16 @@ export default function SsoCallbackPage() {
 
   return (
     <AuthSplitLayout variant="login">
-      <div className="flex flex-col items-center justify-center space-y-8 py-10">
+      <div className="flex flex-col items-center justify-center space-y-6 py-6 max-w-sm mx-auto">
         <div className="relative">
           <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
           <LoadingSpinner size="lg" className="relative z-10" />
         </div>
         <div className="text-center space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <p className="text-xl font-bold tracking-tight text-foreground">
+          <p className="text-lg font-black tracking-tight text-foreground">
             {message}
           </p>
-          <p className="text-sm text-muted-foreground/60 font-medium">
+          <p className="text-[13px] text-muted-foreground/60 font-medium">
             Redirecting you to Quad
           </p>
         </div>

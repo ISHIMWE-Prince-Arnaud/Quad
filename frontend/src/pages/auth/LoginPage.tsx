@@ -114,32 +114,32 @@ export default function LoginPage() {
 
   return (
     <AuthSplitLayout variant="login">
-      <div className="space-y-10">
-        <div className="flex flex-col items-center text-center space-y-3">
-          <h2 className="text-4xl font-bold tracking-tight text-foreground">
+      <div className="space-y-8 max-w-sm mx-auto">
+        <div className="flex flex-col items-center text-center space-y-2">
+          <h2 className="text-3xl font-black tracking-tight text-foreground">
             Sign in to{" "}
             <span className="bg-gradient-to-r from-primary via-[#60a5fa] to-primary bg-clip-text text-transparent italic drop-shadow-sm">
               Quad
             </span>
           </h2>
-          <p className="text-muted-foreground/80 max-w-[280px]">
+          <p className="text-[13px] text-muted-foreground/60 font-medium max-w-[240px]">
             Welcome back. Continue where the pulse left off.
           </p>
         </div>
 
         {!isSignInLoaded && (
-          <div className="flex justify-center py-10">
+          <div className="flex justify-center py-6">
             <LoadingSpinner size="lg" />
           </div>
         )}
 
         {isSignInLoaded && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {error && (
               <Alert
                 variant="destructive"
-                className="rounded-2xl border-destructive/20 bg-destructive/5">
-                <AlertDescription className="text-xs font-medium">
+                className="rounded-2xl border-destructive/20 bg-destructive/5 px-4 py-3">
+                <AlertDescription className="text-xs font-semibold leading-normal">
                   {error}
                 </AlertDescription>
               </Alert>
@@ -149,7 +149,7 @@ export default function LoginPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-14 rounded-2xl border-border/50 hover:bg-accent/50 hover:border-primary/30 transition-all duration-300 font-semibold shadow-sm group"
+                className="w-full h-11 rounded-full border-border/40 hover:bg-accent/50 hover:border-primary/30 transition-all duration-300 font-bold text-sm shadow-sm group"
                 onClick={handleGoogleSignIn}
                 loading={submitting}
                 disabled={submitting}>
@@ -157,18 +157,18 @@ export default function LoginPage() {
                 Continue with Google
               </Button>
 
-              <div className="relative py-4">
+              <div className="relative py-2">
                 <div className="absolute inset-0 flex items-center">
-                  <Separator className="w-full opacity-50" />
+                  <Separator className="w-full opacity-40" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-4 text-muted-foreground font-bold tracking-widest">
-                    or
+                <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
+                  <span className="bg-background px-4 text-muted-foreground">
+                    OR
                   </span>
                 </div>
               </div>
 
-              <form className="space-y-5" onSubmit={handlePasswordSignIn}>
+              <form className="space-y-4" onSubmit={handlePasswordSignIn}>
                 <Input
                   label="Email or username"
                   value={identifier}
@@ -190,7 +190,7 @@ export default function LoginPage() {
                   rightElement={
                     <button
                       type="button"
-                      className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                      className="p-1.5 text-muted-foreground/50 hover:text-primary transition-colors"
                       onClick={() => setShowPassword((v) => !v)}
                       aria-label={
                         showPassword ? "Hide password" : "Show password"
@@ -207,7 +207,7 @@ export default function LoginPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full h-11 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] mt-2"
                   loading={submitting}
                   disabled={!canSubmit}>
                   Sign In
@@ -216,11 +216,11 @@ export default function LoginPage() {
             </div>
 
             <div className="text-center pt-2">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[13px] text-muted-foreground font-medium">
                 Don’t have an account?{" "}
                 <button
                   type="button"
-                  className="font-bold text-primary hover:underline underline-offset-4 decoration-2"
+                  className="font-black text-primary hover:underline underline-offset-4 decoration-2"
                   onClick={() => navigate("/signup")}
                   disabled={submitting}>
                   Create account

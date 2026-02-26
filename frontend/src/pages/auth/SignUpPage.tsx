@@ -165,25 +165,25 @@ export default function SignUpPage() {
 
   return (
     <AuthSplitLayout variant="signup">
-      <div className="space-y-8">
+      <div className="space-y-8 max-w-sm mx-auto">
         {/* Breadcrumbs / Step Indicator */}
-        <div className="flex justify-center items-center gap-3">
+        <div className="flex justify-center items-center gap-2 px-10">
           <div
             className={cn(
-              "h-1.5 w-12 rounded-full transition-all duration-500",
-              step === "form" ? "bg-primary w-20" : "bg-primary/30",
+              "h-1 flex-1 rounded-full transition-all duration-500",
+              step === "form" ? "bg-primary" : "bg-primary/20",
             )}
           />
           <div
             className={cn(
-              "h-1.5 w-12 rounded-full transition-all duration-500",
-              step === "verify" ? "bg-primary w-20" : "bg-muted/50",
+              "h-1 flex-1 rounded-full transition-all duration-500",
+              step === "verify" ? "bg-primary" : "bg-muted/30",
             )}
           />
         </div>
 
         <div className="flex flex-col items-center text-center space-y-2">
-          <h2 className="text-4xl font-bold tracking-tight text-foreground">
+          <h2 className="text-3xl font-black tracking-tight text-foreground">
             {step === "form" ? (
               <>
                 Create your{" "}
@@ -197,7 +197,7 @@ export default function SignUpPage() {
               </span>
             )}
           </h2>
-          <p className="text-muted-foreground/80 max-w-[280px]">
+          <p className="text-[13px] text-muted-foreground/60 font-medium max-w-[260px]">
             {step === "form" ? (
               "Join Quad and start moving in real time."
             ) : (
@@ -210,7 +210,7 @@ export default function SignUpPage() {
         </div>
 
         {!isLoaded && (
-          <div className="flex justify-center py-10">
+          <div className="flex justify-center py-6">
             <LoadingSpinner size="lg" />
           </div>
         )}
@@ -220,8 +220,8 @@ export default function SignUpPage() {
             {error && (
               <Alert
                 variant="destructive"
-                className="rounded-2xl mb-6 border-destructive/20 bg-destructive/5">
-                <AlertDescription className="text-xs font-medium">
+                className="rounded-2xl mb-6 border-destructive/20 bg-destructive/5 px-4 py-3">
+                <AlertDescription className="text-xs font-semibold leading-normal">
                   {error}
                 </AlertDescription>
               </Alert>
@@ -240,7 +240,7 @@ export default function SignUpPage() {
                     <Button
                       type="button"
                       variant="outline"
-                      className="w-full h-14 rounded-2xl border-border/50 hover:bg-accent/50 hover:border-primary/30 transition-all duration-300 font-semibold group shadow-sm"
+                      className="w-full h-11 rounded-full border-border/40 hover:bg-accent/50 hover:border-primary/30 transition-all duration-300 font-bold text-sm shadow-sm group"
                       onClick={handleGoogleSignUp}
                       loading={submitting}
                       disabled={submitting}>
@@ -250,16 +250,16 @@ export default function SignUpPage() {
 
                     <div className="relative py-2">
                       <div className="absolute inset-0 flex items-center">
-                        <Separator className="w-full opacity-50" />
+                        <Separator className="w-full opacity-40" />
                       </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-4 text-muted-foreground font-bold tracking-widest">
-                          or
+                      <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
+                        <span className="bg-background px-4 text-muted-foreground">
+                          OR
                         </span>
                       </div>
                     </div>
 
-                    <form className="space-y-5" onSubmit={handleCreateAccount}>
+                    <form className="space-y-4" onSubmit={handleCreateAccount}>
                       <Input
                         label="Username"
                         value={username}
@@ -323,7 +323,7 @@ export default function SignUpPage() {
                           rightElement={
                             <button
                               type="button"
-                              className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                              className="p-1.5 text-muted-foreground/50 hover:text-primary transition-colors"
                               onClick={() => setShowPassword((v) => !v)}
                               aria-label={
                                 showPassword ? "Hide password" : "Show password"
@@ -342,7 +342,7 @@ export default function SignUpPage() {
 
                       <Button
                         type="submit"
-                        className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] mt-2"
+                        className="w-full h-11 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] mt-2"
                         loading={submitting}
                         disabled={
                           submitting ||
@@ -357,11 +357,11 @@ export default function SignUpPage() {
                   </div>
 
                   <div className="text-center pt-2">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-[13px] text-muted-foreground font-medium">
                       Already have an account?{" "}
                       <button
                         type="button"
-                        className="font-bold text-primary hover:underline underline-offset-4 decoration-2"
+                        className="font-black text-primary hover:underline underline-offset-4 decoration-2"
                         onClick={() => navigate("/login")}
                         disabled={submitting}>
                         Sign in
@@ -376,8 +376,8 @@ export default function SignUpPage() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ duration: 0.3 }}
-                  className="space-y-8">
-                  <form className="space-y-8" onSubmit={handleVerifyCode}>
+                  className="space-y-6">
+                  <form className="space-y-6" onSubmit={handleVerifyCode}>
                     <SegmentedOTP
                       value={code}
                       onChange={setCode}
@@ -386,7 +386,7 @@ export default function SignUpPage() {
 
                     <Button
                       type="submit"
-                      className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      className="w-full h-11 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                       loading={submitting}
                       disabled={submitting || code.length < 6}>
                       Verify & Continue
@@ -396,14 +396,14 @@ export default function SignUpPage() {
                   <div className="flex items-center justify-between px-2">
                     <button
                       type="button"
-                      className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground/60 hover:text-foreground transition-colors"
                       onClick={() => setStep("form")}
                       disabled={submitting}>
                       Back
                     </button>
                     <button
                       type="button"
-                      className="text-[11px] font-bold uppercase tracking-wider text-primary hover:text-primary/80 transition-colors"
+                      className="text-[10px] font-black uppercase tracking-[0.1em] text-primary hover:text-primary/80 transition-colors"
                       onClick={async () => {
                         if (!signUp) return;
                         setSubmitting(true);

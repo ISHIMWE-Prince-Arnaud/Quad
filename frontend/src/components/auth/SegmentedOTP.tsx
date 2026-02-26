@@ -90,8 +90,8 @@ export function SegmentedOTP({ value, onChange, disabled }: SegmentedOTPProps) {
           disabled={disabled}
           autoComplete="one-time-code"
           className={cn(
-            "w-12 h-14 sm:w-14 sm:h-16 text-center text-xl font-extrabold bg-muted/20 border rounded-2xl transition-all duration-300 outline-none shadow-sm",
-            "focus:border-primary focus:ring-[8px] focus:ring-primary/20 focus:scale-105 focus:bg-background",
+            "w-10 h-12 sm:w-12 sm:h-14 text-center text-xl font-extrabold bg-muted/20 border rounded-xl transition-all duration-300 outline-none shadow-sm",
+            "focus:border-primary focus:ring-[6px] focus:ring-primary/20 focus:scale-105 focus:bg-background",
             value[i]
               ? "border-primary text-primary"
               : "border-border/50 text-muted-foreground",
