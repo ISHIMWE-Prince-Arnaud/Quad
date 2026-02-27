@@ -247,12 +247,12 @@ export default function ChatPage() {
             </DialogFooter>
           ) : (
             <>
-              <div className="space-y-3">
-                <div className="rounded-xl border border-border bg-muted/30 px-4 py-3">
-                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-border/40 bg-muted/20 px-4 py-3">
+                  <div className="text-[10px] uppercase tracking-[0.1em] font-bold text-muted-foreground/50">
                     Original
                   </div>
-                  <div className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap break-words">
+                  <div className="mt-1.5 text-sm text-muted-foreground/70 whitespace-pre-wrap break-words leading-relaxed">
                     {originalEditText.trim().length > 0
                       ? originalEditText
                       : "(empty message)"}
@@ -265,7 +265,7 @@ export default function ChatPage() {
                   onChange={(e) => setEditText(e.target.value)}
                   maxLength={MAX_MESSAGE_LENGTH}
                   rows={4}
-                  className="w-full rounded-xl bg-background border border-border px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                  className="w-full rounded-2xl bg-background border border-border/60 px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary/40 focus:ring-[3px] focus:ring-primary/10 resize-none transition-all duration-200"
                   onKeyDown={(e) => {
                     if (e.key === "Escape") {
                       e.preventDefault();
@@ -280,15 +280,15 @@ export default function ChatPage() {
                   }}
                 />
 
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground/50 px-1">
+                  <span className="font-medium">
                     {editText.trim().length === 0
                       ? "Message cannot be empty"
                       : !hasEditChanges
                         ? "No changes"
                         : ""}
                   </span>
-                  <span className="tabular-nums">
+                  <span className="tabular-nums font-bold">
                     {editText.length}/{MAX_MESSAGE_LENGTH}
                   </span>
                 </div>

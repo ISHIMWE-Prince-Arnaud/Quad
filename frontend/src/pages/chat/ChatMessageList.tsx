@@ -7,6 +7,7 @@ import { ChatListSkeleton } from "@/components/ui/loading";
 import type { ChatMessage } from "@/types/chat";
 import { AlertTriangle, MessageSquare, Edit2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 type MinimalUser = {
   clerkId: string;
@@ -234,15 +235,21 @@ export const ChatMessageList = memo(function ChatMessageList({
               const showHeader = startsNewGroup;
               const showActions = isSelf;
               const bubbleBase =
-                "relative w-fit max-w-full break-words rounded-[1.25rem] px-4 py-2.5 shadow-sm transition-all duration-200 group-hover:shadow-md";
+                "relative w-fit max-w-full break-words px-4 py-2.5 shadow-sm transition-all duration-200 group-hover:shadow-md";
               const bubbleClass = isSelf
                 ? cn(
                     bubbleBase,
-                    "bg-primary text-primary-foreground shadow-primary/20 border border-primary/10",
+                    "bg-primary text-primary-foreground shadow-primary/15 border border-primary/10",
+                    startsNewGroup
+                      ? "rounded-[1.25rem] rounded-tr-lg"
+                      : "rounded-[1.25rem]",
                   )
                 : cn(
                     bubbleBase,
-                    "bg-card text-foreground border border-border/60 hover:bg-muted/30 dark:bg-muted dark:border-transparent",
+                    "bg-card text-foreground border border-border/50 hover:bg-muted/20 dark:bg-muted dark:border-transparent",
+                    startsNewGroup
+                      ? "rounded-[1.25rem] rounded-tl-lg"
+                      : "rounded-[1.25rem]",
                   );
 
               const headerName = isSelf ? "You" : m.author.username;
@@ -314,21 +321,24 @@ export const ChatMessageList = memo(function ChatMessageList({
 
                       <div className={bubbleClass}>
                         {showActions && (
-                          <div className="absolute -top-3 right-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-200 scale-95 group-hover:scale-100 flex items-center gap-0.5 bg-background border border-border shadow-sm rounded-full p-1 pr-2">
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8, y: 4 }}
+                            whileInView={{ opacity: 0 }}
+                            className="absolute -top-3.5 right-2 z-10 opacity-0 group-hover:!opacity-100 transition-opacity duration-150 flex items-center gap-0.5 bg-background/95 backdrop-blur-sm border border-border/60 shadow-md rounded-full p-0.5">
                             <button
                               onClick={() => onStartEdit(m)}
-                              className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
+                              className="p-1.5 text-muted-foreground/70 hover:text-foreground hover:bg-muted rounded-full transition-all duration-150 hover:scale-110 active:scale-95"
                               title="Edit message">
                               <Edit2 className="h-3.5 w-3.5" />
                             </button>
-                            <div className="w-[1px] h-3 bg-border mx-0.5" />
+                            <div className="w-[1px] h-3 bg-border/60 mx-0.5" />
                             <button
                               onClick={() => onDeleteMessage(m.id)}
-                              className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
+                              className="p-1.5 text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 rounded-full transition-all duration-150 hover:scale-110 active:scale-95"
                               title="Delete message">
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
-                          </div>
+                          </motion.div>
                         )}
 
                         {m.text && (
@@ -341,10 +351,11 @@ export const ChatMessageList = memo(function ChatMessageList({
 
                     {isSelf &&
                       (showAvatar ? (
-                        <Avatar className="h-8 w-8 shrink-0">
+                        <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-primary/20 hover:scale-105 transition-transform duration-200">
                           <AvatarImage
                             src={user?.profileImage}
                             alt={user?.username}
+                            className="object-cover"
                           />
                           <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
                             {user?.username?.[0]?.toUpperCase() || "U"}
@@ -394,12 +405,13 @@ export const ChatMessageList = memo(function ChatMessageList({
                         <div
                           className={cn(
                             bubbleBase,
-                            "bg-primary/40 text-primary-foreground opacity-80",
+                            "bg-primary/50 text-primary-foreground rounded-[1.25rem] rounded-tr-lg overflow-hidden",
                           )}>
-                          <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                          <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words relative z-10">
                             {pendingOutgoingText}
                           </div>
-                          <div className="absolute -bottom-1 -right-1 h-2 w-2 rounded-full bg-primary/50 animate-pulse" />
+                          {/* Shimmer sweep */}
+                          <div className="absolute inset-0 -translate-x-full animate-[shimmer-sweep_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                         </div>
                       </div>
 
@@ -427,11 +439,11 @@ export const ChatMessageList = memo(function ChatMessageList({
           <div className="pt-1">
             <div className="flex items-start gap-3 justify-end">
               <div className="flex flex-col max-w-[75%] min-w-0 items-end">
-                <div className="relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm bg-primary/40 text-primary-foreground opacity-80">
-                  <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                <div className="relative w-fit max-w-full break-words rounded-[1.25rem] rounded-tr-lg px-4 py-2.5 shadow-sm bg-primary/50 text-primary-foreground overflow-hidden">
+                  <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words relative z-10">
                     {pendingOutgoingText}
                   </div>
-                  <div className="absolute -bottom-1 -right-1 h-2 w-2 rounded-full bg-primary/50 animate-pulse" />
+                  <div className="absolute inset-0 -translate-x-full animate-[shimmer-sweep_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                 </div>
               </div>
               <Avatar className="h-8 w-8 shrink-0 opacity-80">
