@@ -244,7 +244,7 @@ export const checkUsername = asyncHandler(
   async (req: Request, res: Response) => {
     const { username } = req.params;
 
-    if (!username || username.length < 3) {
+    if (!username || username.length < 4 || username.length > 64) {
       return res.status(200).json({ success: true, available: false });
     }
 
@@ -258,6 +258,23 @@ export const checkUsername = asyncHandler(
     });
   },
 );
+
+export const checkEmail = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.params;
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(200).json({ success: true, available: false });
+  }
+
+  const existingUser = await User.findOne({
+    email: email.toLowerCase(),
+  }).lean();
+
+  return res.status(200).json({
+    success: true,
+    available: !existingUser,
+  });
+});
 
 export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
   const { clerkId } = req.params;
