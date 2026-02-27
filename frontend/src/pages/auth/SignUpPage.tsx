@@ -15,6 +15,7 @@ import {
   peekIntendedDestination,
 } from "@/lib/redirectAfterLogin";
 import { cn } from "@/lib/utils";
+import { AuthProcessingState } from "@/components/auth/AuthProcessingState";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -308,7 +309,16 @@ export default function SignUpPage() {
             )}
 
             <AnimatePresence mode="wait">
-              {step === "form" ? (
+              {submitting ? (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="min-h-[400px] flex items-center justify-center">
+                  <AuthProcessingState />
+                </motion.div>
+              ) : step === "form" ? (
                 <motion.div
                   key="form"
                   initial={{ opacity: 0, scale: 0.98 }}
