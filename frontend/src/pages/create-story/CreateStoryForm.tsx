@@ -1,6 +1,11 @@
 import { EditorContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
-import { Clock, Loader2, Save, Send } from "lucide-react";
+import {
+  PiClockBold,
+  PiSpinnerBold,
+  PiFloppyDiskBold,
+  PiPaperPlaneRightBold,
+} from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -74,9 +79,9 @@ export function CreateStoryForm({
             onClick={onSaveDraft}
             className="h-8 rounded-full border border-border/40 bg-muted hover:bg-accent text-foreground font-semibold px-4">
             {submitting ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <PiSpinnerBold className="h-4 w-4 animate-spin mr-2" />
             ) : (
-              <Save className="h-4 w-4 mr-2" />
+              <PiFloppyDiskBold className="h-4 w-4 mr-2" />
             )}
             Save as Draft
           </Button>
@@ -85,9 +90,9 @@ export function CreateStoryForm({
             onClick={onPublish}
             className="h-8 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-5">
             {submitting ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <PiSpinnerBold className="h-4 w-4 animate-spin mr-2" />
             ) : (
-              <Send className="h-4 w-4 mr-2 fill-current" />
+              <PiPaperPlaneRightBold className="h-4 w-4 mr-2 fill-current" />
             )}
             Publish
           </Button>
@@ -150,9 +155,9 @@ export function CreateStoryForm({
           {autosaveLabel && (
             <div className="absolute bottom-4 right-6 text-[10px] font-semibold text-muted-foreground flex items-center gap-2 select-none">
               {autoSaving ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
+                <PiSpinnerBold className="h-3 w-3 animate-spin" />
               ) : (
-                <Clock className="h-3 w-3" />
+                <PiClockBold className="h-3 w-3" />
               )}
               <span>{autosaveLabel}</span>
             </div>

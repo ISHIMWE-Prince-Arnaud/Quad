@@ -180,21 +180,18 @@ PollSchema.path("questionMedia").validate(function (value: unknown) {
 // ===========================
 
 // Validate option text uniqueness
-PollSchema.pre("validate", function (next) {
+PollSchema.pre("validate", function () {
   const statusRaw = this.status as unknown as string;
   if (statusRaw === "closed") this.status = "expired";
-  next();
 });
 
-PollSchema.pre("save", function (next) {
+PollSchema.pre("save", function () {
   const optionTexts = this.options.map((opt) => opt.text.toLowerCase().trim());
   const uniqueTexts = new Set(optionTexts);
 
   if (optionTexts.length !== uniqueTexts.size) {
-    return next(new Error("Poll options must have unique text"));
+    throw new Error("Poll options must have unique text");
   }
-
-  next();
 });
 
 export const Poll = mongoose.model<IPollDocument>("Poll", PollSchema);

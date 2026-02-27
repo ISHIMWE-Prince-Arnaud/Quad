@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { PiSpinnerBold } from "react-icons/pi";
 
 export function EditProfileActions({
   isSubmitting,
@@ -26,7 +26,7 @@ export function EditProfileActions({
         className="w-full sm:w-auto sm:min-w-[180px] h-11 flex items-center justify-center gap-2 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95">
         {isSubmitting ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <PiSpinnerBold className="h-4 w-4 animate-spin" />
             Saving...
           </>
         ) : (

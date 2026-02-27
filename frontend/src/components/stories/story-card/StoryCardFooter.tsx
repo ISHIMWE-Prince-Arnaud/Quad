@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Bookmark, Share2 } from "lucide-react";
+import { PiBookmarkSimpleBold, PiShareNetworkBold } from "react-icons/pi";
 
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import { CommentCountIcon } from "@/components/engagement/CommentCountIcon";
@@ -64,7 +64,7 @@ export function StoryCardFooter({
           type="button"
           onClick={onCopyLink}
           className={cn(actionBase, "hover:bg-accent hover:text-success")}>
-          <Share2 className="h-3.5 w-3.5" />
+          <PiShareNetworkBold className="h-3.5 w-3.5" />
         </button>
 
         <button
@@ -78,7 +78,7 @@ export function StoryCardFooter({
               ? "text-warning bg-warning/10"
               : "text-muted-foreground hover:text-warning hover:bg-warning/5",
           )}>
-          <Bookmark
+          <PiBookmarkSimpleBold
             className={cn("h-3.5 w-3.5", bookmarked && "fill-current")}
           />
         </button>

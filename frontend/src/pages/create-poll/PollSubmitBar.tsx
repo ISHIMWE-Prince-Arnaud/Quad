@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { PiSpinnerBold } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 
 export function PollSubmitBar({
@@ -27,7 +27,7 @@ export function PollSubmitBar({
         )}>
         {submitting ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <PiSpinnerBold className="mr-2 h-4 w-4 animate-spin" />
             {submittingLabel || "Posting..."}
           </>
         ) : (

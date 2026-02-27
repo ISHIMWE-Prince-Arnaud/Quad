@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { PiSpinnerBold, PiArrowLeftBold } from "react-icons/pi";
 import { useAuthStore } from "@/stores/authStore";
 import { ProfileService } from "@/services/profileService";
 import { UploadService } from "@/services/uploadService";
@@ -135,7 +135,7 @@ export default function EditProfilePage() {
   if (!user)
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-[#2563eb]" />
+        <PiSpinnerBold className="h-8 w-8 animate-spin text-[#2563eb]" />
       </div>
     );
 
@@ -145,7 +145,7 @@ export default function EditProfilePage() {
         <button
           onClick={() => navigate(-1)}
           className="h-12 w-12 flex items-center justify-center rounded-2xl bg-card border border-border/40 text-muted-foreground hover:text-foreground hover:border-border/60 transition-all shadow-xl">
-          <ArrowLeft className="h-6 w-6" />
+          <PiArrowLeftBold className="h-6 w-6" />
         </button>
         <div>
           <h1 className="text-4xl font-black text-foreground tracking-tight">

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { PiArrowLeftBold } from "react-icons/pi";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { Button } from "@/components/ui/button";
@@ -207,7 +207,7 @@ export default function EditStoryPage() {
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-4">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back
           </Button>
         </div>
@@ -230,7 +230,7 @@ export default function EditStoryPage() {
       <div className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back
           </Button>
         </div>

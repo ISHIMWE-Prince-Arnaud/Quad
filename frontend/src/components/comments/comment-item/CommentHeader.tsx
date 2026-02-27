@@ -1,5 +1,5 @@
 import { timeAgo } from "@/lib/timeUtils";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { PiDotsThreeBold, PiPencilBold, PiTrashBold } from "react-icons/pi";
 
 import type { Comment } from "@/types/comment";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ export function CommentHeader({
                 size="sm"
                 className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent"
                 aria-label="Comment options">
-                <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+                <PiDotsThreeBold className="h-4 w-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -59,13 +59,13 @@ export function CommentHeader({
               <DropdownMenuItem
                 onClick={onEdit}
                 className="rounded-lg px-3 py-2 text-[13px] text-foreground focus:bg-accent focus:text-accent-foreground">
-                <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
+                <PiPencilBold className="mr-2 h-4 w-4" aria-hidden="true" />
                 Edit comment
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={onRequestDelete}
                 className="rounded-lg px-3 py-2 text-[13px] text-destructive focus:bg-destructive/10 focus:text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                <PiTrashBold className="mr-2 h-4 w-4" aria-hidden="true" />
                 Delete comment
               </DropdownMenuItem>
             </DropdownMenuContent>

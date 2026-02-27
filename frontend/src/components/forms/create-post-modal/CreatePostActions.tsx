@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { PiSpinnerBold } from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
 
@@ -39,7 +39,7 @@ export function CreatePostActions({
           className="min-w-[110px] rounded-full">
           {isLoading ? (
             <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <PiSpinnerBold className="h-4 w-4 mr-2 animate-spin" />
               Posting...
             </>
           ) : (

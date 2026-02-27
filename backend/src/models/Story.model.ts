@@ -105,7 +105,7 @@ StorySchema.index({ tags: 1, status: 1, publishedAt: -1 });
 /**
  * Auto-set publishedAt when status changes to published
  */
-StorySchema.pre("save", function (next) {
+StorySchema.pre("save", function () {
   // If story is being published for the first time
   if (this.status === "published" && !this.publishedAt) {
     this.publishedAt = new Date();
@@ -115,8 +115,6 @@ StorySchema.pre("save", function (next) {
   if (this.status === "draft" && this.publishedAt) {
     delete this.publishedAt; // Remove the property entirely
   }
-
-  next();
 });
 
 export const Story = mongoose.model<IStoryDocument>("Story", StorySchema);

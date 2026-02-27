@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { X, Upload, Video } from "lucide-react";
+import { PiXBold, PiUploadSimpleBold, PiVideoCameraBold } from "react-icons/pi";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { UploadService } from "@/services/uploadService";
@@ -187,7 +187,7 @@ export function MediaUploader({
             : "border-border hover:border-primary/50",
         )}
         onClick={() => fileInputRef.current?.click()}>
-        <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+        <PiUploadSimpleBold className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
         <p className="text-sm font-medium mb-1">
           Click to upload or drag and drop
         </p>
@@ -220,7 +220,7 @@ export function MediaUploader({
                 />
               ) : (
                 <div className="w-full h-full bg-muted flex items-center justify-center">
-                  <Video className="h-8 w-8 text-muted-foreground" />
+                  <PiVideoCameraBold className="h-8 w-8 text-muted-foreground" />
                 </div>
               )}
               <Button
@@ -229,7 +229,7 @@ export function MediaUploader({
                 size="sm"
                 className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
                 onClick={() => removeMedia(index)}>
-                <X className="h-4 w-4" />
+                <PiXBold className="h-4 w-4" />
               </Button>
               {media.aspectRatio && (
                 <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">

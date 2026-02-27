@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { PiArrowLeftBold, PiSpinnerBold } from "react-icons/pi";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { Button } from "@/components/ui/button";
@@ -408,7 +408,7 @@ export default function EditPollPage() {
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-4">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back
           </Button>
         </div>
@@ -433,7 +433,7 @@ export default function EditPollPage() {
             className="group inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-bold transition-all"
             onClick={() => navigate("/app/polls")}>
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary group-hover:bg-accent transition-colors">
-              <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+              <PiArrowLeftBold className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
             </div>
             <span className="text-xl tracking-tight">Edit Poll</span>
           </button>
@@ -445,7 +445,7 @@ export default function EditPollPage() {
             className="h-8 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-4">
             {isSubmitting ? (
               <span className="inline-flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <PiSpinnerBold className="h-4 w-4 animate-spin" />
                 Saving
               </span>
             ) : (

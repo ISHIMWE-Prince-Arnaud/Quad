@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth, useSignIn } from "@clerk/clerk-react";
-import { Eye, EyeOff } from "lucide-react";
+import { PiEyeBold, PiEyeSlashBold } from "react-icons/pi";
 import { FcGoogle } from "react-icons/fc";
 import {
   getIntendedDestination,
@@ -190,9 +190,9 @@ export default function LoginPage() {
                       }
                       disabled={submitting}>
                       {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
+                        <PiEyeSlashBold className="h-4 w-4" />
                       ) : (
-                        <Eye className="h-4 w-4" />
+                        <PiEyeBold className="h-4 w-4" />
                       )}
                     </button>
                   }

@@ -1,6 +1,6 @@
 import type { DragEventHandler } from "react";
 
-import { Upload } from "lucide-react";
+import { PiUploadSimpleBold } from "react-icons/pi";
 
 import { cn } from "@/lib/utils";
 
@@ -37,7 +37,7 @@ export function MediaUploadDropzone({
         input.click();
       }}>
       <div className="mx-auto h-12 w-12 rounded-2xl bg-muted flex items-center justify-center">
-        <Upload className="h-5 w-5 text-primary" />
+        <PiUploadSimpleBold className="h-5 w-5 text-primary" />
       </div>
       <p className="mt-3 text-sm font-semibold text-foreground">
         Click to upload or drag and drop

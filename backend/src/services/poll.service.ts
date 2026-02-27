@@ -39,7 +39,7 @@ export class PollService {
       author: {
         clerkId: user.clerkId,
         username: user.username,
-        email: user.email,
+        ...(user.email ? { email: user.email } : {}),
         ...(user.displayName !== undefined
           ? { displayName: user.displayName }
           : {}),
@@ -52,7 +52,7 @@ export class PollService {
       },
       question: pollData.question,
       ...(pollData.questionMedia !== undefined
-        ? { questionMedia: pollData.questionMedia }
+        ? { questionMedia: pollData.questionMedia as IPollMedia }
         : {}),
       options,
       settings: {
@@ -64,7 +64,7 @@ export class PollService {
         : {}),
       totalVotes: 0,
       reactionsCount: 0,
-    } as any);
+    });
 
     const io = getSocketIO();
     io.emit("newPoll", poll);

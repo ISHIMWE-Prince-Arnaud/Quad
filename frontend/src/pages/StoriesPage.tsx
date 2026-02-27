@@ -5,7 +5,7 @@ import type { Story } from "@/types/story";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StoryCard } from "@/components/stories/StoryCard";
 import { logError } from "@/lib/errorHandling";
-import { BookOpen } from "lucide-react";
+import { PiBookOpenTextBold } from "react-icons/pi";
 import { LoadMoreButton } from "@/components/ui/loading";
 
 function getErrorMessage(error: unknown): string {
@@ -187,7 +187,7 @@ export default function StoriesPage() {
           <div className="py-16">
             <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card p-8 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-                <BookOpen className="h-6 w-6" />
+                <PiBookOpenTextBold className="h-6 w-6" />
               </div>
               <h2 className="text-lg font-semibold text-foreground">
                 {view === "drafts" ? "No drafts yet" : "No stories yet"}

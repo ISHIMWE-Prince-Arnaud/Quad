@@ -2,7 +2,7 @@ import type { ChangeEvent, RefObject } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Camera, Trash2 } from "lucide-react";
+import { PiCameraBold, PiTrashBold } from "react-icons/pi";
 
 export function CoverImageSection({
   src,
@@ -51,7 +51,7 @@ export function CoverImageSection({
                 <>Processing...</>
               ) : (
                 <>
-                  <Camera className="h-4 w-4 mr-2" />
+                  <PiCameraBold className="h-4 w-4 mr-2" />
                   Change Cover
                 </>
               )}
@@ -64,7 +64,7 @@ export function CoverImageSection({
                 onClick={onRemove}
                 disabled={processing}
                 className="bg-black/20 hover:bg-black/30 text-white border-white/20 backdrop-blur-sm">
-                <Trash2 className="h-4 w-4 mr-2" />
+                <PiTrashBold className="h-4 w-4 mr-2" />
                 Remove
               </Button>
             )}

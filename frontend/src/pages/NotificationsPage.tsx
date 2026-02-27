@@ -1,12 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
-import { BellOff } from "lucide-react";
+import { PiBellSlashBold } from "react-icons/pi";
 
 import { NotificationSkeleton, LoadMoreButton } from "@/components/ui/loading";
 import { NotificationRow } from "./notifications/NotificationRow";
@@ -69,7 +65,7 @@ export default function NotificationsPage() {
             controller.notifications.length === 0 && (
               <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                 <div className="h-16 w-16 rounded-full bg-muted/30 flex items-center justify-center mb-4">
-                  <BellOff className="w-8 h-8 opacity-40" />
+                  <PiBellSlashBold className="w-8 h-8 opacity-40" />
                 </div>
                 <h3 className="font-medium text-foreground mb-1">
                   No notifications yet

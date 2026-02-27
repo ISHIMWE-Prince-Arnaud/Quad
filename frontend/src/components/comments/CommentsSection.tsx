@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { CommentService } from "@/services/commentService";
 import type { Comment } from "@/types/comment";
-import { ChevronDown, MessageCircle } from "lucide-react";
+import { PiCaretDownBold, PiChatCircleBold } from "react-icons/pi";
 import { useSocketStore } from "@/stores/socketStore";
 
 function getErrorMessage(error: unknown): string {
@@ -323,7 +323,7 @@ export function CommentsSection({
           <div className="py-10">
             <div className="mx-auto max-w-md rounded-2xl border border-border/40 bg-muted/30 p-6 text-center">
               <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <MessageCircle className="h-5 w-5 text-primary" />
+                <PiChatCircleBold className="h-5 w-5 text-primary" />
               </div>
               <p className="mt-4 text-[14px] font-semibold text-foreground">
                 No comments yet
@@ -352,7 +352,7 @@ export function CommentsSection({
               loading={loading}
               className="text-muted-foreground hover:text-foreground">
               Load more comments
-              {!loading && <ChevronDown className="ml-2 h-4 w-4" />}
+              {!loading && <PiCaretDownBold className="ml-2 h-4 w-4" />}
             </Button>
           </div>
         )}

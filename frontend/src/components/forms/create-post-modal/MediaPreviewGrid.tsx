@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { PiXBold } from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -52,7 +52,7 @@ export function MediaPreviewGrid({
                   size="sm"
                   className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-7 w-7 p-0 rounded-full"
                   onClick={() => onRemoveMedia(index)}>
-                  <X className="h-4 w-4" />
+                  <PiXBold className="h-4 w-4" />
                 </Button>
               </Card>
             </motion.div>

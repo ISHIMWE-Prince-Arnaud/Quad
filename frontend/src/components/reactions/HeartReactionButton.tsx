@@ -1,4 +1,4 @@
-import { Heart } from "lucide-react";
+import { PiHeartBold } from "react-icons/pi";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
@@ -47,7 +47,7 @@ export function HeartReactionButton({
           animate={liked ? { scale: [1, 1.25, 0.95, 1] } : { scale: 1 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
           className="relative inline-flex">
-          <Heart
+          <PiHeartBold
             className={cn("h-4 w-4", baseIconClass, iconClassName)}
             style={{ fill: isFilled ? "currentColor" : "none" }}
           />

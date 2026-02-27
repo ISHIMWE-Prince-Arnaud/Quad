@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Keyboard } from "lucide-react";
+import { PiKeyboardBold } from "react-icons/pi";
 
 interface Shortcut {
   key: string;
@@ -42,7 +42,7 @@ export function KeyboardShortcutsDialog() {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Keyboard className="h-5 w-5" />
+            <PiKeyboardBold className="h-5 w-5" />
             Keyboard Shortcuts
           </DialogTitle>
           <DialogDescription>

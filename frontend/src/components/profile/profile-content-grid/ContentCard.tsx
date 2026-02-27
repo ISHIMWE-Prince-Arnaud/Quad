@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { Heart, MoreHorizontal, Play, Share } from "lucide-react";
+import {
+  PiHeartBold,
+  PiDotsThreeBold,
+  PiBookOpenTextBold,
+  PiShareNetworkBold,
+} from "react-icons/pi";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -89,7 +94,7 @@ export function ContentCard({ item }: { item: ContentItem }) {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                  <Play className="h-8 w-8 text-white" />
+                  <PiBookOpenTextBold className="h-8 w-8 text-white" />
                 </div>
               </div>
             )}
@@ -190,7 +195,7 @@ export function ContentCard({ item }: { item: ContentItem }) {
             variant="ghost"
             size="sm"
             className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
-            <MoreHorizontal className="h-3 w-3" />
+            <PiDotsThreeBold className="h-3 w-3" />
           </Button>
         </div>
 
@@ -207,7 +212,7 @@ export function ContentCard({ item }: { item: ContentItem }) {
                 "h-auto p-0 text-muted-foreground hover:text-red-500",
                 item.isLiked && "text-red-500",
               )}>
-              <Heart
+              <PiHeartBold
                 className={cn("h-4 w-4 mr-1", item.isLiked && "fill-current")}
               />
               <span className="text-xs">{item.likes}</span>
@@ -229,7 +234,7 @@ export function ContentCard({ item }: { item: ContentItem }) {
                 variant="ghost"
                 size="sm"
                 className="h-auto p-0 text-muted-foreground hover:text-primary">
-                <Share className="h-4 w-4 mr-1" />
+                <PiShareNetworkBold className="h-4 w-4 mr-1" />
                 <span className="text-xs">{item.shares}</span>
               </Button>
             )}

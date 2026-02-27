@@ -52,10 +52,10 @@ router.post(
           await User.create({
             clerkId: evt.data.id,
             username,
-            email,
+            ...(email ? { email } : {}),
             displayName,
-            firstName,
-            lastName,
+            ...(firstName ? { firstName } : {}),
+            ...(lastName ? { lastName } : {}),
             profileImage,
           });
 
@@ -82,10 +82,10 @@ router.post(
               ...(usernameConflict && usernameConflict.clerkId !== evt.data.id
                 ? {}
                 : { username }),
-              email,
-              profileImage,
-              firstName,
-              lastName,
+              ...(email ? { email } : {}),
+              ...(profileImage ? { profileImage } : {}),
+              ...(firstName ? { firstName } : {}),
+              ...(lastName ? { lastName } : {}),
             },
           };
 
@@ -176,6 +176,13 @@ router.post(
 
         case "user.deleted": {
           const userId = evt.data.id;
+
+          if (!userId) {
+            logger.warn("Clerk user.deleted received without user id", {
+              eventType,
+            });
+            break;
+          }
 
           // Cascade delete all user data
           // We use dynamic imports or assume models are available

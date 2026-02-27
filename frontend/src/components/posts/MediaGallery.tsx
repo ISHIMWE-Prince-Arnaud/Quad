@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  Loader2,
-  Maximize,
-  Minimize,
-  Pause,
-  Play,
-  Settings,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
+  PiCheckBold,
+  PiCaretLeftBold,
+  PiCaretRightBold,
+  PiDownloadSimpleBold,
+  PiSpinnerBold,
+  PiCornersOutBold,
+  PiCornersInBold,
+  PiPauseBold,
+  PiPlayBold,
+  PiGearBold,
+  PiSpeakerHighBold,
+  PiSpeakerSlashBold,
+} from "react-icons/pi";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -441,7 +441,7 @@ function VideoPlayer({
           <div className="flex flex-col items-center gap-2 text-white/90">
             {!hasError ? (
               <>
-                <Loader2 className="h-7 w-7 animate-spin" />
+                <PiSpinnerBold className="h-7 w-7 animate-spin" />
                 <div className="text-sm font-medium">
                   {isSlowNetwork ? "Buffering…" : "Loading…"}
                 </div>
@@ -471,7 +471,7 @@ function VideoPlayer({
           }}
           className="absolute inset-0 flex items-center justify-center">
           <span className="flex items-center justify-center h-16 w-16 rounded-full bg-primary shadow-lg shadow-primary/20">
-            <Play className="h-7 w-7 text-primary-foreground ml-0.5" />
+            <PiPlayBold className="h-7 w-7 text-primary-foreground ml-0.5" />
           </span>
         </button>
       )}
@@ -519,9 +519,9 @@ function VideoPlayer({
                 }}
                 className="h-9 w-9 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center">
                 {isPlaying ? (
-                  <Pause className="h-4 w-4 text-white" />
+                  <PiPauseBold className="h-4 w-4 text-white" />
                 ) : (
-                  <Play className="h-4 w-4 text-white ml-0.5" />
+                  <PiPlayBold className="h-4 w-4 text-white ml-0.5" />
                 )}
               </button>
 
@@ -531,9 +531,9 @@ function VideoPlayer({
                 onClick={toggleMute}
                 className="h-9 w-9 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center">
                 {isMuted || volume === 0 ? (
-                  <VolumeX className="h-4 w-4 text-white" />
+                  <PiSpeakerSlashBold className="h-4 w-4 text-white" />
                 ) : (
-                  <Volume2 className="h-4 w-4 text-white" />
+                  <PiSpeakerHighBold className="h-4 w-4 text-white" />
                 )}
               </button>
 
@@ -562,7 +562,7 @@ function VideoPlayer({
                     showControls();
                   }}
                   className="h-9 w-9 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center">
-                  <Settings className="h-4 w-4 text-white" />
+                  <PiGearBold className="h-4 w-4 text-white" />
                 </button>
 
                 {settingsOpen && (
@@ -574,7 +574,7 @@ function VideoPlayer({
                         setSettingsOpen(false);
                       }}
                       className="w-full px-3 py-2 text-sm text-white/90 hover:bg-white/5 flex items-center gap-2">
-                      <Download className="h-4 w-4" />
+                      <PiDownloadSimpleBold className="h-4 w-4" />
                       Download
                     </button>
 
@@ -589,7 +589,7 @@ function VideoPlayer({
                         className="w-full px-3 py-2 text-sm text-white/90 hover:bg-white/5 flex items-center justify-between">
                         <span>{rate === 1 ? "Normal" : `${rate}x`}</span>
                         {Math.abs(playbackRate - rate) < 0.001 && (
-                          <Check className="h-4 w-4" />
+                          <PiCheckBold className="h-4 w-4" />
                         )}
                       </button>
                     ))}
@@ -614,9 +614,9 @@ function VideoPlayer({
                 onClick={() => void toggleFullscreen()}
                 className="h-9 w-9 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center">
                 {isFullscreen ? (
-                  <Minimize className="h-4 w-4 text-white" />
+                  <PiCornersInBold className="h-4 w-4 text-white" />
                 ) : (
-                  <Maximize className="h-4 w-4 text-white" />
+                  <PiCornersOutBold className="h-4 w-4 text-white" />
                 )}
               </button>
             </div>
@@ -941,7 +941,7 @@ function MediaLightbox({
                       e.stopPropagation();
                       onPrev();
                     }}>
-                    <ChevronLeft className="h-8 w-8" />
+                    <PiCaretLeftBold className="h-8 w-8" />
                   </Button>
                   <Button
                     variant="ghost"
@@ -953,7 +953,7 @@ function MediaLightbox({
                       e.stopPropagation();
                       onNext();
                     }}>
-                    <ChevronRight className="h-8 w-8" />
+                    <PiCaretRightBold className="h-8 w-8" />
                   </Button>
                 </>
               )}

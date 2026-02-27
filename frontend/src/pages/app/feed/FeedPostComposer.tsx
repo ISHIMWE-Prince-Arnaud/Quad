@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
-import { Image, Video, Loader2 } from "lucide-react";
+import { PiImageBold, PiVideoCameraBold, PiSpinnerBold } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 import { showErrorToast } from "@/lib/error-handling/toasts";
 
@@ -195,7 +195,7 @@ export function FeedPostComposer({
                 className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-xl transition-all"
                 aria-label="Add image"
                 title="Add image">
-                <Image className="w-5 h-5" />
+                <PiImageBold className="w-5 h-5" />
               </button>
               <button
                 type="button"
@@ -205,7 +205,7 @@ export function FeedPostComposer({
                 className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-xl transition-all"
                 aria-label="Add video"
                 title="Add video">
-                <Video className="w-5 h-5" />
+                <PiVideoCameraBold className="w-5 h-5" />
               </button>
             </div>
 
@@ -239,7 +239,7 @@ export function FeedPostComposer({
                 }}>
                 {isSubmitting ? (
                   <span className="inline-flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <PiSpinnerBold className="h-4 w-4 animate-spin" />
                     Posting...
                   </span>
                 ) : (

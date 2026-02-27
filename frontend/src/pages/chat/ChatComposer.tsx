@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { Loader2, SendHorizontal } from "lucide-react";
+import { PiSpinnerBold, PiPaperPlaneRightBold } from "react-icons/pi";
 import { motion, AnimatePresence } from "framer-motion";
 import { MAX_MESSAGE_LENGTH } from "./constants";
 import { Button } from "@/components/ui/button";
@@ -101,9 +101,9 @@ export function ChatComposer({
                 : "bg-muted text-muted-foreground cursor-not-allowed shadow-none",
             )}>
             {sending ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <PiSpinnerBold className="h-5 w-5 animate-spin" />
             ) : (
-              <SendHorizontal className="h-5 w-5 ml-0.5" />
+              <PiPaperPlaneRightBold className="h-5 w-5 ml-0.5" />
             )}
           </Button>
         </motion.div>

@@ -7,7 +7,7 @@ import { CommentService } from "@/services/commentService";
 import { useAuthStore } from "@/stores/authStore";
 import type { Comment } from "@/types/comment";
 import { showSuccessToast, showErrorToast } from "@/lib/errorHandling";
-import { SendHorizontal } from "lucide-react"; // Assumes lucide-react is installed
+import { PiPaperPlaneRightBold } from "react-icons/pi"; // Assumes react-icons is installed
 import { cn } from "@/lib/utils";
 
 interface CommentComposerProps {
@@ -148,7 +148,7 @@ export function CommentComposer({
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    Post <SendHorizontal className="h-3 w-3" />
+                    Post <PiPaperPlaneRightBold className="h-3 w-3" />
                   </span>
                 )}
               </Button>

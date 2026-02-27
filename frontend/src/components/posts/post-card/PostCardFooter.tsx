@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Bookmark, Share2 } from "lucide-react";
+import { PiBookmarkSimpleBold, PiShareNetworkBold } from "react-icons/pi";
 
 import { cn } from "@/lib/utils";
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
@@ -60,7 +60,7 @@ export function PostCardFooter({
           className={cn(actionBase, "hover:bg-success/10 hover:text-success")}
           aria-label="Share post"
           title="Share">
-          <Share2 className="h-4 w-4" />
+          <PiShareNetworkBold className="h-4 w-4" />
         </button>
       </div>
 
@@ -77,7 +77,9 @@ export function PostCardFooter({
         )}
         aria-label={bookmarked ? "Remove bookmark" : "Bookmark post"}
         title={bookmarked ? "Remove bookmark" : "Bookmark"}>
-        <Bookmark className={cn("h-4 w-4", bookmarked && "fill-current")} />
+        <PiBookmarkSimpleBold
+          className={cn("h-4 w-4", bookmarked && "fill-current")}
+        />
       </button>
     </>
   );

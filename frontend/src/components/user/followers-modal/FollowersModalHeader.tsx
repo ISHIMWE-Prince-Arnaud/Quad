@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { PiXBold } from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
 
@@ -17,7 +17,7 @@ export function FollowersModalHeader({
         size="sm"
         onClick={onClose}
         className="h-9 w-9 p-0 rounded-full text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30">
-        <X className="h-4 w-4" />
+        <PiXBold className="h-4 w-4" />
       </Button>
     </div>
   );

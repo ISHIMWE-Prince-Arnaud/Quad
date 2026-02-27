@@ -1,6 +1,11 @@
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Bookmark, Images, SquarePen, BarChart3 } from "lucide-react";
+import {
+  PiBookmarkSimpleBold,
+  PiBookOpenTextBold,
+  PiFileTextBold,
+  PiChartBarBold,
+} from "react-icons/pi";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
@@ -159,7 +164,7 @@ export default function ProfilePage() {
                   !controller.postsLoading &&
                   controller.posts.length === 0 && (
                     <EmptyState
-                      icon={<SquarePen className="h-7 w-7" />}
+                      icon={<PiFileTextBold className="h-7 w-7" />}
                       title="No posts yet"
                       description="When you publish posts, they’ll show up here."
                     />
@@ -207,7 +212,7 @@ export default function ProfilePage() {
                     !controller.storiesLoading &&
                     controller.stories.length === 0 && (
                       <EmptyState
-                        icon={<Images className="h-7 w-7" />}
+                        icon={<PiBookOpenTextBold className="h-7 w-7" />}
                         title="No stories yet"
                         description="Stories you create will appear here."
                       />
@@ -259,7 +264,7 @@ export default function ProfilePage() {
                     !controller.pollsLoading &&
                     controller.polls.length === 0 && (
                       <EmptyState
-                        icon={<BarChart3 className="h-7 w-7" />}
+                        icon={<PiChartBarBold className="h-7 w-7" />}
                         title="No polls yet"
                         description="Create a poll and it will show up here for people to vote on."
                       />
@@ -367,7 +372,7 @@ export default function ProfilePage() {
                         !controller.savedPostsLoading &&
                         controller.savedPosts.length === 0 && (
                           <EmptyState
-                            icon={<Bookmark className="h-7 w-7" />}
+                            icon={<PiBookmarkSimpleBold className="h-7 w-7" />}
                             title="No bookmarked posts"
                             description="Posts you bookmark will appear here for quick access."
                           />
@@ -400,7 +405,7 @@ export default function ProfilePage() {
                         !controller.savedStoriesLoading &&
                         controller.savedStories.length === 0 && (
                           <EmptyState
-                            icon={<Bookmark className="h-7 w-7" />}
+                            icon={<PiBookmarkSimpleBold className="h-7 w-7" />}
                             title="No bookmarked stories"
                             description="Stories you bookmark will be saved here."
                           />
@@ -439,7 +444,7 @@ export default function ProfilePage() {
                         !controller.savedPollsLoading &&
                         controller.savedPolls.length === 0 && (
                           <EmptyState
-                            icon={<Bookmark className="h-7 w-7" />}
+                            icon={<PiBookmarkSimpleBold className="h-7 w-7" />}
                             title="No bookmarked polls"
                             description="Polls you bookmark will show up here."
                           />

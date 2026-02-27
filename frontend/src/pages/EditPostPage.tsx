@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { PiArrowLeftBold } from "react-icons/pi";
 import { Button } from "@/components/ui/button";
 import { LoadingPage } from "@/components/ui/loading";
 import { CreatePostForm } from "@/components/forms/CreatePostForm";
@@ -107,7 +107,7 @@ export default function EditPostPage() {
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-4">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back
           </Button>
         </div>
@@ -137,7 +137,7 @@ export default function EditPostPage() {
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back
           </Button>
           <h1 className="text-2xl font-bold">Edit Post</h1>

@@ -1,9 +1,12 @@
-import type { Model } from "mongoose";
-import type mongoose from "mongoose";
+import type {
+  Model,
+  PopulateOptions as MongoosePopulateOptions,
+  SortOrder as MongooseSortOrder,
+} from "mongoose";
 
-export type FilterQuery<T> = any;
-export type PopulateOptions = any;
-export type SortOrder = any;
+export type FilterQuery = Record<string, unknown>;
+export type PopulateOptions = MongoosePopulateOptions;
+export type SortOrder = MongooseSortOrder;
 
 export interface PaginationOptions {
   page: number;
@@ -29,7 +32,7 @@ export interface PaginatedResult<T> {
  */
 export async function getPaginatedData<T>(
   model: Model<T>,
-  query: FilterQuery<T>,
+  query: FilterQuery,
   options: PaginationOptions,
 ): Promise<PaginatedResult<T>> {
   const { page, limit, sort = { createdAt: -1 }, select, populate } = options;

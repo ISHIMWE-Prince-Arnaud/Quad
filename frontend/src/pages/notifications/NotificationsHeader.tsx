@@ -1,4 +1,4 @@
-import { MoreHorizontal, Check, Trash2 } from "lucide-react";
+import { PiDotsThreeBold, PiCheckBold, PiTrashBold } from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,7 +51,7 @@ export function NotificationsHeader({
               onClick={onMarkAllAsRead}
               disabled={unreadLocalCount === 0}
               className="transition-all hover:text-primary hover:bg-primary/10 hover:shadow-sm hover:border-primary">
-              <Check className="h-4 w-4" />
+              <PiCheckBold className="h-4 w-4" />
               Mark all read
             </Button>
 
@@ -61,7 +61,7 @@ export function NotificationsHeader({
               size="sm"
               onClick={onClearRead}
               className="transition-all hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40 hover:shadow-sm">
-              <Trash2 className="h-4 w-4" />
+              <PiTrashBold className="h-4 w-4" />
               Clear read
             </Button>
           </div>
@@ -73,7 +73,7 @@ export function NotificationsHeader({
                 variant="ghost"
                 size="icon"
                 className="h-9 w-9 sm:hidden">
-                <MoreHorizontal className="h-4 w-4" />
+                <PiDotsThreeBold className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -81,13 +81,13 @@ export function NotificationsHeader({
                 onClick={onMarkAllAsRead}
                 disabled={unreadLocalCount === 0}
                 className="focus:bg-accent/70">
-                <Check className="w-4 h-4 mr-2" />
+                <PiCheckBold className="w-4 h-4 mr-2" />
                 Mark all read
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={onClearRead}
                 className="focus:bg-destructive/10 focus:text-destructive">
-                <Trash2 className="w-4 h-4 mr-2" />
+                <PiTrashBold className="w-4 h-4 mr-2" />
                 Clear read
               </DropdownMenuItem>
             </DropdownMenuContent>

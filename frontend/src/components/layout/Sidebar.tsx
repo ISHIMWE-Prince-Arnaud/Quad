@@ -1,13 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
-import type { LucideIcon } from "lucide-react";
+import type { IconType } from "react-icons";
 import {
-  Home,
-  MessagesSquare,
-  BookOpen,
-  BarChart3,
-  User,
-  Bell,
-} from "lucide-react";
+  PiHouseBold,
+  PiChatCircleBold,
+  PiBookOpenTextBold,
+  PiChartBarBold,
+  PiUserBold,
+  PiBellBold,
+} from "react-icons/pi";
 import { LogoWithText } from "@/components/ui/Logo";
 import { useAuthStore } from "@/stores/authStore";
 import { useNotificationStore } from "@/stores/notificationStore";
@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 type NavItem = {
   name: string;
   href: string;
-  icon: LucideIcon;
+  icon: IconType;
   badge?: number;
 };
 
@@ -26,14 +26,14 @@ export function Sidebar() {
   const { unreadCount } = useNotificationStore();
 
   const navigationItems: NavItem[] = [
-    { name: "Feed", href: "/app/feed", icon: Home },
-    { name: "Polls", href: "/app/polls", icon: BarChart3 },
-    { name: "Stories", href: "/app/stories", icon: BookOpen },
-    { name: "Chat", href: "/app/chat", icon: MessagesSquare },
+    { name: "Feed", href: "/app/feed", icon: PiHouseBold },
+    { name: "Polls", href: "/app/polls", icon: PiChartBarBold },
+    { name: "Stories", href: "/app/stories", icon: PiBookOpenTextBold },
+    { name: "Chat", href: "/app/chat", icon: PiChatCircleBold },
     {
       name: "Notifications",
       href: "/app/notifications",
-      icon: Bell,
+      icon: PiBellBold,
       badge: unreadCount,
     },
     ...(user?.username
@@ -41,7 +41,7 @@ export function Sidebar() {
           {
             name: "Profile",
             href: `/app/profile/${user.username}`,
-            icon: User,
+            icon: PiUserBold,
           },
         ]
       : []),

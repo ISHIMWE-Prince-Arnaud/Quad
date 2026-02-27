@@ -1,5 +1,5 @@
 import type { Editor } from "@tiptap/core";
-import { Redo2, Undo2 } from "lucide-react";
+import { PiArrowUUpRightBold, PiArrowUUpLeftBold } from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,7 @@ export function StoryEditorToolbar({ editor }: { editor: Editor | null }) {
             ? "text-muted-foreground hover:text-foreground hover:bg-accent"
             : "text-muted-foreground/40",
         )}>
-        <Undo2 className="h-4 w-4" />
+        <PiArrowUUpLeftBold className="h-4 w-4" />
       </Button>
       <Button
         type="button"
@@ -33,7 +33,7 @@ export function StoryEditorToolbar({ editor }: { editor: Editor | null }) {
             ? "text-muted-foreground hover:text-foreground hover:bg-accent"
             : "text-muted-foreground/40",
         )}>
-        <Redo2 className="h-4 w-4" />
+        <PiArrowUUpRightBold className="h-4 w-4" />
       </Button>
       <div className="w-[1px] h-6 bg-border/40 mx-1 self-center" />
       <span className="hidden sm:block text-[11px] font-semibold text-muted-foreground pr-2 select-none">

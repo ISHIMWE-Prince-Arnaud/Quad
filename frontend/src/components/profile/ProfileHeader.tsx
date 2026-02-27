@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Camera, Calendar, Loader2 } from "lucide-react";
+import { PiCameraBold, PiCalendarBold, PiSpinnerBold } from "react-icons/pi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -134,7 +134,7 @@ export function ProfileHeader({
                 variant="secondary"
                 onClick={handleEditProfileClick}
                 className="bg-black/20 hover:bg-black/30 text-white border-white/20 backdrop-blur-sm">
-                <Camera className="h-4 w-4 mr-2" />
+                <PiCameraBold className="h-4 w-4 mr-2" />
                 Edit Cover
               </Button>
             </div>
@@ -164,7 +164,7 @@ export function ProfileHeader({
                     size="sm"
                     variant="secondary"
                     className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full p-0 shadow-lg">
-                    <Camera className="h-4 w-4" />
+                    <PiCameraBold className="h-4 w-4" />
                   </Button>
                 )}
               </div>
@@ -221,7 +221,7 @@ export function ProfileHeader({
                     )}>
                     {isPendingFollow ? (
                       <span className="inline-flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <PiSpinnerBold className="h-4 w-4 animate-spin" />
                         Following…
                       </span>
                     ) : isPendingUnfollow ? (
@@ -253,7 +253,7 @@ export function ProfileHeader({
             {/* Meta Information */}
             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
+                <PiCalendarBold className="h-4 w-4" />
                 <span>Joined {joinedDate}</span>
               </div>
             </div>

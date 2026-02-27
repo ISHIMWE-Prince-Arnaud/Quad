@@ -2,7 +2,13 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSignUp } from "@clerk/clerk-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Eye, EyeOff, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import {
+  PiEyeBold,
+  PiEyeSlashBold,
+  PiCheckCircleBold,
+  PiXCircleBold,
+  PiSpinnerBold,
+} from "react-icons/pi";
 import { FcGoogle } from "react-icons/fc";
 import { AuthSplitLayout } from "@/components/auth/AuthSplitLayout";
 import { SignUpSkeleton } from "@/components/auth/AuthSkeletons";
@@ -57,7 +63,7 @@ export default function SignUpPage() {
     if (loading)
       return (
         <div className="p-2">
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground/40" />
+          <PiSpinnerBold className="h-4 w-4 animate-spin text-muted-foreground/40" />
         </div>
       );
     if (status === "none") return null;
@@ -71,9 +77,9 @@ export default function SignUpPage() {
           status === "success" ? "text-emerald-500" : "text-destructive",
         )}>
         {status === "success" ? (
-          <CheckCircle2 className="h-3.5 w-3.5 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+          <PiCheckCircleBold className="h-3.5 w-3.5 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
         ) : (
-          <XCircle className="h-3.5 w-3.5" />
+          <PiXCircleBold className="h-3.5 w-3.5" />
         )}
       </motion.div>
     );
@@ -429,9 +435,9 @@ export default function SignUpPage() {
                                 }
                                 disabled={submitting}>
                                 {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
+                                  <PiEyeSlashBold className="h-4 w-4" />
                                 ) : (
-                                  <Eye className="h-4 w-4" />
+                                  <PiEyeBold className="h-4 w-4" />
                                 )}
                               </button>
                             </div>

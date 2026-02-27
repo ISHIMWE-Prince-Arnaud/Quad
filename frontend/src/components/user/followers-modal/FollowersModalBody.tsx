@@ -1,4 +1,4 @@
-import { Users } from "lucide-react";
+import { PiUsersBold } from "react-icons/pi";
 import { UserCard, type UserCardData } from "@/components/user/UserCard";
 import {
   SkeletonAvatar,
@@ -61,7 +61,7 @@ export function FollowersModalBody({
   return (
     <EmptyState
       variant="inline"
-      icon={<Users className="h-7 w-7" />}
+      icon={<PiUsersBold className="h-7 w-7" />}
       title={type === "followers" ? "No followers yet" : "Not following anyone"}
       description={
         type === "followers"

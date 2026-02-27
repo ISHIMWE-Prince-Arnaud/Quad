@@ -12,7 +12,7 @@ import { logger } from "../utils/logger.util.js";
 import type { IUserDocument } from "../models/User.model.js";
 import type mongoose from "mongoose";
 import type { Document } from "mongoose";
-import type { AnyBulkWriteOperation, Filter, UpdateFilter } from "mongodb";
+import type { AnyBulkWriteOperation } from "mongoose/node_modules/mongodb";
 import type { LeanDocument } from "../types/mongoose.types.js";
 
 export class DatabaseService {
@@ -54,7 +54,7 @@ export class DatabaseService {
       users.forEach((user) => {
         userMap.set(
           String((user as { _id?: unknown })._id),
-          user as Record<string, unknown>,
+          user as unknown as Record<string, unknown>,
         );
       });
       return userMap;
@@ -274,11 +274,15 @@ export class DatabaseService {
    */
   static async getContentWithAuthor<T extends Document>(
     Model: mongoose.Model<T>,
-    query: mongoose.FilterQuery<T>,
-    options?: mongoose.QueryOptions<T>,
+    query: Record<string, unknown>,
+    options?: Record<string, unknown>,
   ): Promise<LeanDocument<T>[]> {
     try {
-      const results = await Model.find(query, null, options)
+      const results = await Model.find(
+        query as unknown as Parameters<mongoose.Model<T>["find"]>[0],
+        null,
+        options as unknown as Parameters<mongoose.Model<T>["find"]>[2],
+      )
         .populate("author", "username displayName profileImage")
         .lean();
       return results as LeanDocument<T>[];
@@ -292,10 +296,10 @@ export class DatabaseService {
    * Batch update operations
    */
   static async batchUpdate(
-    Model: mongoose.Model<mongoose.Document>,
+    Model: mongoose.Model<Record<string, unknown>>,
     updates: Array<{
-      filter: Filter<Record<string, unknown>>;
-      update: UpdateFilter<Record<string, unknown>>;
+      filter: Record<string, unknown>;
+      update: Record<string, unknown>;
     }>,
   ): Promise<boolean> {
     try {

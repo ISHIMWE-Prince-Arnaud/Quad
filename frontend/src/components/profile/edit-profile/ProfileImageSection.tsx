@@ -3,7 +3,7 @@ import type { ChangeEvent, RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Trash2, Upload } from "lucide-react";
+import { PiCameraBold, PiTrashBold, PiUploadSimpleBold } from "react-icons/pi";
 
 export function ProfileImageSection({
   src,
@@ -42,7 +42,7 @@ export function ProfileImageSection({
             {processing ? (
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent" />
             ) : (
-              <Camera className="h-4 w-4" />
+              <PiCameraBold className="h-4 w-4" />
             )}
           </Button>
         </div>
@@ -54,7 +54,7 @@ export function ProfileImageSection({
             onClick={() => inputRef.current?.click()}
             disabled={processing}
             className="w-full sm:w-auto rounded-xl transition-colors hover:bg-primary/10 hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/40">
-            <Upload className="h-4 w-4 mr-2" />
+            <PiUploadSimpleBold className="h-4 w-4 mr-2" />
             {processing ? "Processing..." : "Upload New Photo"}
           </Button>
           {onRemove && src && (
@@ -64,7 +64,7 @@ export function ProfileImageSection({
               onClick={onRemove}
               disabled={processing}
               className="w-full sm:w-auto sm:ml-2 rounded-xl border-destructive/30 text-destructive transition-colors hover:bg-destructive/10 hover:border-destructive/50 hover:text-destructive focus-visible:ring-2 focus-visible:ring-destructive/40">
-              <Trash2 className="h-4 w-4 mr-2" />
+              <PiTrashBold className="h-4 w-4 mr-2" />
               Remove
             </Button>
           )}

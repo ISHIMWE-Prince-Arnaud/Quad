@@ -1,6 +1,10 @@
 import { cn } from "@/lib/utils";
 import type { PollMedia } from "@/types/poll";
-import { Image as ImageIcon, Loader2, X } from "lucide-react";
+import {
+  PiImageBold as ImageIcon,
+  PiSpinnerBold,
+  PiXBold,
+} from "react-icons/pi";
 import { useRef } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -131,7 +135,7 @@ export function PollQuestionSection({
               {uploadingQuestionMedia ? (
                 <>
                   <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    <PiSpinnerBold className="h-5 w-5 animate-spin text-primary" />
                   </div>
                   <p className="text-sm font-semibold text-[#64748b]">
                     Uploading image...
@@ -169,7 +173,7 @@ export function PollQuestionSection({
             {uploadingQuestionMedia && (
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                 <div className="flex items-center gap-3 rounded-full border border-border/40 bg-card/70 px-4 py-2 backdrop-blur-sm">
-                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <PiSpinnerBold className="h-4 w-4 animate-spin text-primary" />
                   <span className="text-xs font-semibold text-foreground">
                     Uploading...
                   </span>
@@ -204,7 +208,7 @@ export function PollQuestionSection({
                   e.stopPropagation();
                   setQuestionMedia(undefined);
                 }}>
-                <X className="h-4 w-4 mr-2" />
+                <PiXBold className="h-4 w-4 mr-2" />
                 Remove
               </Button>
             </div>

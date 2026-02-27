@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import type { ReactionType } from "@/services/reactionService";
 import { timeAgo } from "@/lib/timeUtils";
-import { Bookmark } from "lucide-react";
+import { PiBookmarkSimpleBold } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 import { useStoryBookmark } from "@/components/stories/story-card/useStoryBookmark";
 
@@ -87,7 +87,7 @@ export function StoryPageBody({
               )}
               aria-label={bookmarked ? "Remove bookmark" : "Bookmark story"}
               title={bookmarked ? "Remove bookmark" : "Bookmark"}>
-              <Bookmark
+              <PiBookmarkSimpleBold
                 className={cn("h-4 w-4", bookmarked && "fill-current")}
               />
             </button>

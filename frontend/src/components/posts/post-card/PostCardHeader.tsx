@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { PiDotsThreeBold, PiPencilBold, PiTrashBold } from "react-icons/pi";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -62,7 +62,7 @@ export function PostCardHeader({
               size="sm"
               className="h-9 w-9 p-0 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-2 focus-visible:ring-primary/40 md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100"
               aria-label="Post options">
-              <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+              <PiDotsThreeBold className="h-4 w-4" aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -71,7 +71,7 @@ export function PostCardHeader({
             <DropdownMenuItem
               onClick={onEdit}
               className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-accent focus:bg-accent">
-              <Pencil
+              <PiPencilBold
                 className="h-4 w-4 text-muted-foreground"
                 aria-hidden="true"
               />
@@ -83,7 +83,7 @@ export function PostCardHeader({
             <DropdownMenuItem
               className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
               onClick={onRequestDelete}>
-              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              <PiTrashBold className="h-4 w-4" aria-hidden="true" />
               Delete post
             </DropdownMenuItem>
           </DropdownMenuContent>

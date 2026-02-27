@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { PiArrowLeftBold } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 import { UploadService } from "@/services/uploadService";
 import { StoryService } from "@/services/storyService";
@@ -178,7 +178,7 @@ export default function CreateStoryPage() {
             variant="ghost"
             size="sm"
             onClick={() => navigate("/app/stories")}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <PiArrowLeftBold className="h-4 w-4 mr-2" />
             Back to Stories
           </Button>
         </div>

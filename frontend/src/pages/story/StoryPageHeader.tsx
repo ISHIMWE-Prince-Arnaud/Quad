@@ -1,4 +1,9 @@
-import { Share2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+  PiShareNetworkBold,
+  PiDotsThreeBold,
+  PiPencilBold,
+  PiTrashBold,
+} from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +37,7 @@ export function StoryPageHeader({
           onClick={onShare}
           className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10 transition-all duration-200"
           aria-label="Copy story link">
-          <Share2 className="h-4 w-4" aria-hidden="true" />
+          <PiShareNetworkBold className="h-4 w-4" aria-hidden="true" />
         </Button>
         {isOwner && (
           <DropdownMenu>
@@ -43,7 +48,7 @@ export function StoryPageHeader({
                 size="sm"
                 className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent"
                 aria-label="Story options">
-                <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+                <PiDotsThreeBold className="h-4 w-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -52,13 +57,13 @@ export function StoryPageHeader({
               <DropdownMenuItem
                 onClick={onEdit}
                 className="rounded-lg px-3 py-2 text-[13px] text-foreground focus:bg-accent focus:text-accent-foreground">
-                <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
+                <PiPencilBold className="mr-2 h-4 w-4" aria-hidden="true" />
                 Edit story
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={onDelete}
                 className="rounded-lg px-3 py-2 text-[13px] text-destructive focus:bg-destructive/10 focus:text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                <PiTrashBold className="mr-2 h-4 w-4" aria-hidden="true" />
                 Delete story
               </DropdownMenuItem>
             </DropdownMenuContent>

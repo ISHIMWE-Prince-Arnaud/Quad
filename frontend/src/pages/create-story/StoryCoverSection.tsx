@@ -1,5 +1,9 @@
 import { useRef } from "react";
-import { Image as ImageIcon, Loader2, X } from "lucide-react";
+import {
+  PiImageBold as ImageIcon,
+  PiSpinnerBold,
+  PiXBold,
+} from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -65,7 +69,7 @@ export function StoryCoverSection({
             {uploadingCover ? (
               <>
                 <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  <PiSpinnerBold className="h-5 w-5 animate-spin text-primary" />
                 </div>
                 <p className="text-sm font-semibold text-muted-foreground">
                   Uploading cover image...
@@ -103,7 +107,7 @@ export function StoryCoverSection({
           {uploadingCover && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
               <div className="flex items-center gap-3 rounded-full border border-border/40 bg-card/70 px-4 py-2">
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <PiSpinnerBold className="h-4 w-4 animate-spin text-primary" />
                 <span className="text-xs font-semibold text-foreground">
                   Uploading...
                 </span>
@@ -138,7 +142,7 @@ export function StoryCoverSection({
                 e.stopPropagation();
                 onRemoveCover();
               }}>
-              <X className="h-4 w-4 mr-2" />
+              <PiXBold className="h-4 w-4 mr-2" />
               Remove
             </Button>
           </div>

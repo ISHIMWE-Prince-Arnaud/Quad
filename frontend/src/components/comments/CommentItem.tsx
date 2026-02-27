@@ -3,7 +3,7 @@ import type { Comment } from "@/types/comment";
 import { CommentService } from "@/services/commentService";
 import { useAuthStore } from "@/stores/authStore";
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { PiTrashBold } from "react-icons/pi";
 
 import { CommentBody } from "./comment-item/CommentBody";
 import { CommentEngagementBar } from "./comment-item/CommentEngagementBar";
@@ -124,7 +124,7 @@ export function CommentItem({
           <DialogHeader className="items-center text-center space-y-4">
             <div className="h-16 w-16 rounded-full bg-destructive/15 flex items-center justify-center">
               <div className="h-10 w-10 rounded-xl bg-destructive flex items-center justify-center">
-                <Trash2
+                <PiTrashBold
                   className="h-5 w-5 text-destructive-foreground"
                   aria-hidden="true"
                 />

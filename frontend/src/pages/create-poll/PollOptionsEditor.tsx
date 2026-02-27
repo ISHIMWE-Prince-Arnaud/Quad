@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Plus, X } from "lucide-react";
+import { PiPlusBold, PiXBold } from "react-icons/pi";
 import type { Dispatch, SetStateAction } from "react";
 
 import type { LocalOption, ValidationErrors } from "./types";
@@ -69,7 +69,7 @@ export function PollOptionsEditor({
                   ? "opacity-0 cursor-default"
                   : "text-muted-foreground hover:text-destructive hover:bg-destructive/10",
               )}>
-              <X className="h-5 w-5" />
+              <PiXBold className="h-5 w-5" />
             </button>
           </div>
         ))}
@@ -97,7 +97,7 @@ export function PollOptionsEditor({
             : "text-primary hover:border-primary/50 hover:bg-primary/5",
         )}>
         <span className="inline-flex items-center justify-center gap-2">
-          <Plus className="h-4 w-4" />
+          <PiPlusBold className="h-4 w-4" />
           Add another option
         </span>
       </button>

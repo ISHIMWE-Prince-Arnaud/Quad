@@ -14,7 +14,7 @@ export function SegmentedOTP({ value, onChange, disabled }: SegmentedOTPProps) {
     // Focus first empty input or the last one if all are filled
     const firstEmptyIndex = value.length < 6 ? value.length : 5;
     inputRefs.current[firstEmptyIndex]?.focus();
-  }, []);
+  }, [value.length]);
 
   const handleChange = (
     index: number,

@@ -47,7 +47,7 @@ export const calculateProfileStats = async (
             { contentType: "story", contentId: { $in: storyIds } },
             { contentType: "poll", contentId: { $in: pollIds } },
           ],
-        } as any);
+        } as unknown as Record<string, unknown>);
 
         return totalReactions;
       })(),

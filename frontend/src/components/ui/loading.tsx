@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { PiSpinnerBold } from "react-icons/pi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "./button";
 
@@ -19,7 +19,7 @@ export function LoadingSpinner({
   size = "md",
 }: LoadingSpinnerProps) {
   return (
-    <Loader2
+    <PiSpinnerBold
       className={cn(
         "animate-spin text-muted-foreground",
         sizeClasses[size],

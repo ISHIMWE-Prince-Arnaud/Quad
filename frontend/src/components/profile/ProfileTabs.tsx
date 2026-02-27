@@ -1,5 +1,10 @@
 import { type ReactNode } from "react";
-import { SquarePen, Images, BarChart3, Bookmark } from "lucide-react";
+import {
+  PiFileTextBold,
+  PiBookOpenTextBold,
+  PiChartBarBold,
+  PiBookmarkSimpleBold,
+} from "react-icons/pi";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -16,28 +21,28 @@ const tabs = [
   {
     id: "posts" as ProfileTab,
     label: "Posts",
-    icon: SquarePen,
+    icon: PiFileTextBold,
     description: "All posts and updates",
     public: true,
   },
   {
     id: "stories" as ProfileTab,
     label: "Stories",
-    icon: Images,
+    icon: PiBookOpenTextBold,
     description: "Shared stories and moments",
     public: true,
   },
   {
     id: "polls" as ProfileTab,
     label: "Polls",
-    icon: BarChart3,
+    icon: PiChartBarBold,
     description: "Created and participated polls",
     public: true,
   },
   {
     id: "saved" as ProfileTab,
     label: "Bookmarks",
-    icon: Bookmark,
+    icon: PiBookmarkSimpleBold,
     description: "Saved posts and content",
     public: false, // Only visible to own profile
   },

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AlertCircle } from "lucide-react";
+import { PiWarningCircleBold } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -101,7 +101,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <div
             id="input-error"
             className="flex items-center gap-1.5 text-[11px] font-medium text-destructive px-1 translate-y-[-2px] animate-slide-in-from-top">
-            <AlertCircle className="h-3 w-3" />
+            <PiWarningCircleBold className="h-3 w-3" />
             <span>{error}</span>
           </div>
         ) : showCharacterCount && maxLength ? (

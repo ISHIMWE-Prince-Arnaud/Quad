@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { PiArrowLeftBold } from "react-icons/pi";
 import { UploadService } from "@/services/uploadService";
 import { PollService } from "@/services/pollService";
 import type { Poll, PollMedia, CreatePollInput } from "@/types/poll";
@@ -194,7 +194,7 @@ export default function CreatePollPage() {
             className="group inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-bold transition-all"
             onClick={() => navigate("/app/polls")}>
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary group-hover:bg-accent transition-colors">
-              <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+              <PiArrowLeftBold className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
             </div>
             <span className="text-xl tracking-tight">Create Poll</span>
           </button>

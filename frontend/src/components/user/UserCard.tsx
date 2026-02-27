@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle, Loader2, MoreHorizontal } from "lucide-react";
+import {
+  PiCheckCircleBold,
+  PiSpinnerBold,
+  PiDotsThreeBold,
+} from "react-icons/pi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -139,7 +143,7 @@ export function UserCard({
               <div className="flex items-center gap-1">
                 <p className="font-semibold text-sm truncate">{displayName}</p>
                 {user.isVerified && (
-                  <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                  <PiCheckCircleBold className="h-4 w-4 text-primary flex-shrink-0" />
                 )}
               </div>
               <p className="text-muted-foreground text-xs truncate">
@@ -163,7 +167,7 @@ export function UserCard({
               }>
               {isPendingFollow ? (
                 <span className="inline-flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <PiSpinnerBold className="h-4 w-4 animate-spin" />
                   Following…
                 </span>
               ) : isPendingUnfollow ? (
@@ -227,7 +231,7 @@ export function UserCard({
                 <div className="flex items-center gap-1">
                   <h3 className="font-semibold truncate">{displayName}</h3>
                   {user.isVerified && (
-                    <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                    <PiCheckCircleBold className="h-4 w-4 text-primary flex-shrink-0" />
                   )}
                 </div>
                 <p className="text-muted-foreground text-sm truncate">
@@ -245,7 +249,7 @@ export function UserCard({
                   disabled={Boolean(isPending)}>
                   {isPendingFollow ? (
                     <span className="inline-flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <PiSpinnerBold className="h-4 w-4 animate-spin" />
                       Following…
                     </span>
                   ) : isPendingUnfollow ? (
@@ -259,7 +263,7 @@ export function UserCard({
               )}
 
               <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
+                <PiDotsThreeBold className="h-4 w-4" />
               </Button>
             </div>
           </div>

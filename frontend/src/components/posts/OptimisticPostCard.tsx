@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { PiSpinnerBold } from "react-icons/pi";
 
 import {
   Card,
@@ -39,7 +39,7 @@ export function OptimisticPostCard({ post }: { post: Post }) {
                 </span>
                 <span className="text-[#334155] text-[10px]">·</span>
                 <span className="text-[11px] font-medium text-[#64748b] whitespace-nowrap flex items-center gap-1">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <PiSpinnerBold className="h-3.5 w-3.5 animate-spin" />
                   Posting...
                 </span>
               </div>

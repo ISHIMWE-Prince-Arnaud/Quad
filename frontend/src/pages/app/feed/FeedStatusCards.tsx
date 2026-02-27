@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { AlertCircle, Sparkles } from "lucide-react";
+import { PiWarningCircleBold, PiSparkleBold } from "react-icons/pi";
 import { motion } from "framer-motion";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,7 +32,7 @@ export function FeedStatusCards({
         <Card className="shadow-card bg-card border border-border/40 rounded-[2rem]">
           <CardContent className="py-12 text-center">
             <div className="mx-auto mb-4 h-12 w-12 rounded-2xl bg-destructive/10 border border-destructive/20 grid place-items-center">
-              <AlertCircle className="h-6 w-6 text-destructive" />
+              <PiWarningCircleBold className="h-6 w-6 text-destructive" />
             </div>
             <h3 className="text-lg font-bold mb-2 text-foreground">
               Something went wrong
@@ -62,7 +62,7 @@ export function FeedStatusCards({
         <Card className="shadow-card bg-card border border-border/40 rounded-[2rem]">
           <CardContent className="py-12 text-center">
             <div className="mx-auto mb-4 h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 grid place-items-center">
-              <Sparkles className="h-6 w-6 text-primary" />
+              <PiSparkleBold className="h-6 w-6 text-primary" />
             </div>
             <h3 className="text-lg font-bold mb-2 text-foreground">
               {emptyState.title}

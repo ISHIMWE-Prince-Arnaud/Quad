@@ -1,7 +1,4 @@
-import mongoose from "mongoose";
-
 import { ChatMessage } from "../models/ChatMessage.model.js";
-import type { IChatMessageDocument } from "../models/ChatMessage.model.js";
 import { User } from "../models/User.model.js";
 import type {
   CreateMessageSchemaType,
@@ -81,7 +78,7 @@ export class ChatService {
   ) {
     const { page, limit, before } = query;
 
-    const filter: mongoose.FilterQuery<IChatMessageDocument> = {};
+    const filter: Record<string, unknown> = {};
 
     if (before) {
       const beforeMessage = await ChatMessage.findById(before);

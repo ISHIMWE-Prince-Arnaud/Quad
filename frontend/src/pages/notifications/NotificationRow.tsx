@@ -1,4 +1,4 @@
-import { Check,Trash2 } from "lucide-react";
+import { PiCheckBold, PiTrashBold } from "react-icons/pi";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,11 @@ export function NotificationRow({
   const hasActor = !!notification.actor;
   const displayName =
     notification.actor?.displayName || notification.actor?.username || "";
-  const avatarInitial = hasActor ? displayName.charAt(0).toUpperCase() : <FaInfo />;
+  const avatarInitial = hasActor ? (
+    displayName.charAt(0).toUpperCase()
+  ) : (
+    <FaInfo />
+  );
 
   return (
     <div
@@ -74,7 +78,7 @@ export function NotificationRow({
             variant="ghost"
             className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-full"
             title="Mark as read">
-            <Check className="w-4 h-4" />
+            <PiCheckBold className="w-4 h-4" />
           </Button>
         )}
 
@@ -87,7 +91,7 @@ export function NotificationRow({
           variant="ghost"
           className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
           title="Delete">
-          <Trash2 className="w-4 h-4" />
+          <PiTrashBold className="w-4 h-4" />
         </Button>
       </div>
     </div>

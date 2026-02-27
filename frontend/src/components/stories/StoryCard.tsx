@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { timeAgo } from "@/lib/timeUtils";
 import { useAuthStore } from "@/stores/authStore";
 import type { Story } from "@/types/story";
-import { Bookmark, Share2 } from "lucide-react";
+import { PiBookmarkSimpleBold, PiShareNetworkBold } from "react-icons/pi";
 
 import { StoryCardBody } from "./story-card/StoryCardBody";
 import { StoryCardDeleteDialog } from "./story-card/StoryCardDeleteDialog";
@@ -188,7 +188,7 @@ export function StoryCard({
                 type="button"
                 onClick={handleCopyLink}
                 className="p-2 rounded-xl text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10 transition-all duration-200">
-                <Share2 className="h-4 w-4" />
+                <PiShareNetworkBold className="h-4 w-4" />
               </button>
 
               <button
@@ -202,7 +202,7 @@ export function StoryCard({
                     ? "text-amber-500 bg-amber-500/10"
                     : "text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10",
                 )}>
-                <Bookmark
+                <PiBookmarkSimpleBold
                   className={cn("h-4 w-4", bookmarked && "fill-current")}
                 />
               </button>

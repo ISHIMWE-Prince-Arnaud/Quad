@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Menu,
-  X,
-  Bell,
-  Home,
-  MessageCircle,
-  BarChart3,
-  BookOpen,
-  User,
-} from "lucide-react";
+  PiListBold,
+  PiXBold,
+  PiBellBold,
+  PiHouseBold,
+  PiChatCircleBold,
+  PiChartBarBold,
+  PiBookOpenTextBold,
+  PiUserBold,
+} from "react-icons/pi";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogoWithText } from "@/components/ui/Logo";
 import { UserAvatar } from "@/components/auth/UserMenu";
@@ -43,37 +43,37 @@ export function Navbar() {
     {
       name: "Feed",
       href: "/app/feed",
-      icon: Home,
+      icon: PiHouseBold,
       badge: 0,
     },
     {
       name: "Polls",
       href: "/app/polls",
-      icon: BarChart3,
+      icon: PiChartBarBold,
       badge: 0,
     },
     {
       name: "Stories",
       href: "/app/stories",
-      icon: BookOpen,
+      icon: PiBookOpenTextBold,
       badge: 0,
     },
     {
       name: "Chat",
       href: "/app/chat",
-      icon: MessageCircle,
+      icon: PiChatCircleBold,
       badge: 0,
     },
     {
       name: "Notifications",
       href: "/app/notifications",
-      icon: Bell,
+      icon: PiBellBold,
       badge: unreadCount,
     },
     {
       name: "Profile",
       href: user?.username ? `/app/profile/${user.username}` : "/app/profile",
-      icon: User,
+      icon: PiUserBold,
       badge: 0,
     },
   ];
@@ -99,7 +99,7 @@ export function Navbar() {
               aria-label={`Notifications${
                 unreadCount > 0 ? ` (${unreadCount} unread)` : ""
               } (Shortcut: B)`}>
-              <Bell className="h-5 w-5" aria-hidden="true" />
+              <PiBellBold className="h-5 w-5" aria-hidden="true" />
               {unreadCount > 0 && (
                 <span
                   className="absolute -top-0.5 -right-0.5 inline-flex min-w-[1rem] h-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground"
@@ -119,9 +119,9 @@ export function Navbar() {
               aria-label="Toggle mobile menu"
               aria-expanded={isMobileMenuOpen}>
               {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
+                <PiXBold className="h-5 w-5" />
               ) : (
-                <Menu className="h-5 w-5" />
+                <PiListBold className="h-5 w-5" />
               )}
             </button>
           </div>

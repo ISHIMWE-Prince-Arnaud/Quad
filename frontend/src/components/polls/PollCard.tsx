@@ -6,13 +6,13 @@ import { showErrorToast } from "@/lib/error-handling/toasts";
 import { FaUsers } from "react-icons/fa";
 
 import {
-  Bookmark,
-  EyeOff,
-  Info,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-} from "lucide-react";
+  PiBookmarkSimpleBold,
+  PiEyeSlashBold,
+  PiInfoBold,
+  PiDotsThreeBold,
+  PiPencilBold,
+  PiTrashBold,
+} from "react-icons/pi";
 
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import { Badge } from "@/components/ui/badge";
@@ -275,7 +275,7 @@ export function PollCard({
                             size="sm"
                             className="h-9 w-9 p-0 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-2 focus-visible:ring-primary/40"
                             aria-label="Poll options">
-                            <MoreHorizontal
+                            <PiDotsThreeBold
                               className="h-4 w-4"
                               aria-hidden="true"
                             />
@@ -295,7 +295,7 @@ export function PollCard({
                                 : undefined
                             }
                             className="gap-2 rounded-lg px-3 py-2 hover:bg-accent focus:bg-accent">
-                            <Pencil
+                            <PiPencilBold
                               className="h-4 w-4 text-muted-foreground"
                               aria-hidden="true"
                             />
@@ -315,7 +315,7 @@ export function PollCard({
                               <DropdownMenuItem
                                 className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
                                 onClick={() => setIsDeleteDialogOpen(true)}>
-                                <Trash2
+                                <PiTrashBold
                                   className="h-4 w-4"
                                   aria-hidden="true"
                                 />
@@ -369,7 +369,7 @@ export function PollCard({
                             size="sm"
                             className="h-9 w-9 p-0 shrink-0 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-2 focus-visible:ring-primary/40"
                             aria-label="Poll options">
-                            <MoreHorizontal
+                            <PiDotsThreeBold
                               className="h-4 w-4"
                               aria-hidden="true"
                             />
@@ -389,7 +389,7 @@ export function PollCard({
                                 : undefined
                             }
                             className="gap-2 rounded-lg px-3 py-2 hover:bg-accent focus:bg-accent">
-                            <Pencil
+                            <PiPencilBold
                               className="h-4 w-4 text-muted-foreground"
                               aria-hidden="true"
                             />
@@ -409,7 +409,7 @@ export function PollCard({
                               <DropdownMenuItem
                                 className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
                                 onClick={() => setIsDeleteDialogOpen(true)}>
-                                <Trash2
+                                <PiTrashBold
                                   className="h-4 w-4"
                                   aria-hidden="true"
                                 />
@@ -499,7 +499,7 @@ export function PollCard({
                 <div className="flex items-center gap-3">
                   {poll.settings.anonymousVoting && (
                     <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-3 py-1.5 text-primary text-[11px] font-bold tracking-wide">
-                      <EyeOff className="h-4 w-4" aria-hidden="true" />
+                      <PiEyeSlashBold className="h-4 w-4" aria-hidden="true" />
                       <span>ANONYMOUS</span>
                     </div>
                   )}
@@ -519,7 +519,7 @@ export function PollCard({
                       bookmarked ? "Remove bookmark" : "Bookmark poll"
                     }
                     title={bookmarked ? "Remove bookmark" : "Bookmark"}>
-                    <Bookmark
+                    <PiBookmarkSimpleBold
                       className={cn("h-4 w-4", bookmarked && "fill-current")}
                     />
                   </button>
@@ -531,7 +531,7 @@ export function PollCard({
               <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-border/40 bg-muted/30 px-4 py-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <Info className="h-4 w-4" aria-hidden="true" />
+                    <PiInfoBold className="h-4 w-4" aria-hidden="true" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-[12px] font-semibold text-foreground/90 leading-tight truncate">

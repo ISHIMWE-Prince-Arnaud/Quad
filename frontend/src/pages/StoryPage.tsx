@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { PiArrowLeftBold } from "react-icons/pi";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { CommentsSection } from "@/components/comments/CommentsSection";
 import { useAuthStore } from "@/stores/authStore";
@@ -35,7 +35,7 @@ export default function StoryPage() {
         variant="ghost"
         size="sm"
         onClick={() => navigate("/app/stories")}>
-        <ArrowLeft className="h-4 w-4 mr-2" />
+        <PiArrowLeftBold className="h-4 w-4 mr-2" />
         Back to Stories
       </Button>
     </div>

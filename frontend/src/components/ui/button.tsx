@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { Loader2 } from "lucide-react";
+import { PiSpinnerBold } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 import { logError } from "@/lib/errorHandling";
 
@@ -62,7 +62,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const content = (
       <span className="relative flex items-center justify-center gap-2">
-        {loading && <Loader2 className="h-4 w-4 animate-spin absolute" />}
+        {loading && <PiSpinnerBold className="h-4 w-4 animate-spin absolute" />}
         <span
           className={cn(
             "flex items-center gap-2 transition-all duration-200",
@@ -114,7 +114,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             childElement,
             undefined,
             <span className="relative flex items-center justify-center gap-2">
-              {loading && <Loader2 className="h-4 w-4 animate-spin absolute" />}
+              {loading && (
+                <PiSpinnerBold className="h-4 w-4 animate-spin absolute" />
+              )}
               <span
                 className={cn(
                   "flex items-center gap-2 transition-opacity duration-200",

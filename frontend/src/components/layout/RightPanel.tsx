@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Camera,
-  FileText,
-  MessageCircle,
-  BarChart3,
-  LogOut,
-  AlertTriangle,
-  BadgeCheck,
-} from "lucide-react";
+  PiBookOpenTextBold,
+  PiFileTextBold,
+  PiChatCircleBold,
+  PiChartBarBold,
+  PiSignOutBold,
+  PiWarningCircleBold,
+  PiSealCheckBold,
+} from "react-icons/pi";
 import { useAuth } from "@clerk/clerk-react";
 
 import { Button } from "@/components/ui/button";
@@ -58,7 +58,7 @@ function QuickCreate() {
           asChild
           className="w-full justify-start rounded-2xl border shadow-none bg-primary/10 hover:bg-primary/15 border-primary/20 text-foreground h-11">
           <Link to="/app/create/post" aria-label="Create a post">
-            <FileText className="h-4 w-4 text-primary" />
+            <PiFileTextBold className="h-4 w-4 text-primary" />
             Post
           </Link>
         </Button>
@@ -67,7 +67,7 @@ function QuickCreate() {
           asChild
           className="w-full justify-start rounded-2xl border shadow-none bg-primary/10 hover:bg-primary/15 border-primary/20 text-foreground h-11">
           <Link to="/app/create/poll" aria-label="Create a poll">
-            <BarChart3 className="h-4 w-4 text-primary" />
+            <PiChartBarBold className="h-4 w-4 text-primary" />
             Poll
           </Link>
         </Button>
@@ -76,7 +76,7 @@ function QuickCreate() {
           asChild
           className="w-full justify-start rounded-2xl border shadow-none bg-primary/10 hover:bg-primary/15 border-primary/20 text-foreground h-11">
           <Link to="/app/create/story" aria-label="Create a story">
-            <Camera className="h-4 w-4 text-primary" />
+            <PiBookOpenTextBold className="h-4 w-4 text-primary" />
             Story
           </Link>
         </Button>
@@ -209,7 +209,7 @@ function ActiveChatsMini() {
             size="sm"
             className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md">
             <Link to="/app/chat" aria-label="Open chat" title="Go to chat">
-              <MessageCircle className="h-4 w-4" />
+              <PiChatCircleBold className="h-4 w-4" />
               Open Chat
             </Link>
           </Button>
@@ -264,7 +264,7 @@ function AccountMiniCard() {
               </p>
               {user?.isVerified && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary shrink-0">
-                  <BadgeCheck className="h-4 w-4" />
+                  <PiSealCheckBold className="h-4 w-4" />
                 </span>
               )}
             </div>
@@ -282,13 +282,13 @@ function AccountMiniCard() {
               size="icon"
               className="rounded-full text-destructive/90 hover:text-destructive hover:bg-destructive/10 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
               aria-label="Log out">
-              <LogOut className="h-4 w-4" />
+              <PiSignOutBold className="h-4 w-4" />
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-card border-border text-card-foreground">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-destructive" />
+                <PiWarningCircleBold className="h-5 w-5 text-destructive" />
                 Log Out
               </DialogTitle>
               <DialogDescription className="text-muted-foreground">

@@ -1,14 +1,14 @@
 import type { Editor } from "@tiptap/core";
 import {
-  AlignCenter,
-  AlignLeft,
-  AlignRight,
-  Bold,
-  Code,
-  Italic,
-  Link as LinkIcon,
-  Underline as UnderlineIcon,
-} from "lucide-react";
+  PiTextAlignCenterBold as AlignCenter,
+  PiTextAlignLeftBold as AlignLeft,
+  PiTextAlignRightBold as AlignRight,
+  PiTextBBold as Bold,
+  PiCodeBold as Code,
+  PiTextItalicBold as Italic,
+  PiLinkBold as LinkIcon,
+  PiTextUnderlineBold as UnderlineIcon,
+} from "react-icons/pi";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";

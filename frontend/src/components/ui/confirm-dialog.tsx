@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { PiWarningBold } from "react-icons/pi";
 
 export interface ConfirmDialogProps {
   open: boolean;
@@ -42,7 +42,7 @@ export function ConfirmDialog({
         <DialogHeader>
           <div className="flex items-center gap-2">
             {variant === "destructive" && (
-              <AlertTriangle className="h-5 w-5 text-destructive" />
+              <PiWarningBold className="h-5 w-5 text-destructive" />
             )}
             <DialogTitle>{title}</DialogTitle>
           </div>

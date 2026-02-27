@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MoreHorizontal } from "lucide-react";
+import { PiDotsThreeBold } from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,13 +27,15 @@ export function StoryCardHeader({
 }) {
   return (
     <div className="flex items-start justify-between">
-      <span className="text-xs text-muted-foreground">{timeAgo(createdAt)}</span>
+      <span className="text-xs text-muted-foreground">
+        {timeAgo(createdAt)}
+      </span>
 
       {/* More options */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-            <MoreHorizontal className="h-4 w-4" />
+            <PiDotsThreeBold className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

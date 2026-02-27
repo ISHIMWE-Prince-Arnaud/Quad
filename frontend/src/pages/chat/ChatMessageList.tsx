@@ -5,7 +5,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ChatListSkeleton } from "@/components/ui/loading";
 import type { ChatMessage } from "@/types/chat";
-import { AlertTriangle, MessageSquare, Edit2, Trash2 } from "lucide-react";
+import {
+  PiWarningBold,
+  PiChatCircleBold,
+  PiPencilBold,
+  PiTrashBold,
+} from "react-icons/pi";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -73,7 +78,7 @@ function ChatEmptyState() {
   return (
     <div className="flex flex-col items-center justify-center text-center py-16 animate-in fade-in duration-500">
       <div className="h-16 w-16 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-sm mb-4">
-        <MessageSquare className="h-8 w-8 text-primary/80" />
+        <PiChatCircleBold className="h-8 w-8 text-primary/80" />
       </div>
       <h3 className="text-lg font-semibold text-foreground">No messages yet</h3>
       <p className="mt-1 text-sm text-muted-foreground max-w-sm">
@@ -84,7 +89,7 @@ function ChatEmptyState() {
       <div className="mt-6 w-full max-w-md space-y-3">
         <div className="flex items-start gap-3 justify-start">
           <div className="h-8 w-8 rounded-full bg-muted/60 border border-border/40 flex items-center justify-center shrink-0">
-            <MessageSquare className="h-4 w-4 text-muted-foreground/70" />
+            <PiChatCircleBold className="h-4 w-4 text-muted-foreground/70" />
           </div>
           <div className="max-w-[75%]">
             <div className="w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-muted text-foreground">
@@ -128,7 +133,7 @@ function ChatErrorState({ onRetry }: { onRetry?: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-16 animate-in fade-in duration-500">
       <div className="h-16 w-16 rounded-3xl bg-destructive/10 border border-destructive/20 flex items-center justify-center shadow-sm mb-4">
-        <AlertTriangle className="h-8 w-8 text-destructive" />
+        <PiWarningBold className="h-8 w-8 text-destructive" />
       </div>
       <h3 className="text-lg font-semibold text-foreground">
         Couldn’t load chat
@@ -329,14 +334,14 @@ export const ChatMessageList = memo(function ChatMessageList({
                               onClick={() => onStartEdit(m)}
                               className="p-1.5 text-muted-foreground/70 hover:text-foreground hover:bg-muted rounded-full transition-all duration-150 hover:scale-110 active:scale-95"
                               title="Edit message">
-                              <Edit2 className="h-3.5 w-3.5" />
+                              <PiPencilBold className="h-3.5 w-3.5" />
                             </button>
                             <div className="w-[1px] h-3 bg-border/60 mx-0.5" />
                             <button
                               onClick={() => onDeleteMessage(m.id)}
                               className="p-1.5 text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 rounded-full transition-all duration-150 hover:scale-110 active:scale-95"
                               title="Delete message">
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <PiTrashBold className="h-3.5 w-3.5" />
                             </button>
                           </motion.div>
                         )}

@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import { PiChatCircleBold } from "react-icons/pi";
 
 import { cn } from "@/lib/utils";
 
@@ -10,11 +10,8 @@ export function CommentCountIcon({
   className?: string;
 }) {
   return (
-    <MessageCircle
-      className={cn(
-        className,
-        count > 0 && "text-[#2563EB] fill-current"
-      )}
+    <PiChatCircleBold
+      className={cn(className, count > 0 && "text-[#2563EB] fill-current")}
     />
   );
 }

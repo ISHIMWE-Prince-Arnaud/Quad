@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { PiArrowLeftBold } from "react-icons/pi";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/posts/PostCard";
 import { PostService } from "@/services/postService";
@@ -92,7 +92,7 @@ export default function PostPage() {
           size="sm"
           className="mb-4 hover:bg-secondary"
           onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <PiArrowLeftBold className="h-4 w-4 mr-2" />
           Back
         </Button>
 
@@ -113,7 +113,7 @@ export default function PostPage() {
           </p>
           <Button asChild>
             <Link to="/app/feed">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <PiArrowLeftBold className="h-4 w-4 mr-2" />
               Back to Feed
             </Link>
           </Button>
@@ -130,7 +130,7 @@ export default function PostPage() {
         size="sm"
         className="mb-2 h-10 px-4 text-muted-foreground hover:text-foreground hover:bg-accent transition-all group"
         onClick={() => navigate(-1)}>
-        <ArrowLeft className="h-4 w-4 mr-2 transition-transform group-hover:-translate-x-1" />
+        <PiArrowLeftBold className="h-4 w-4 mr-2 transition-transform group-hover:-translate-x-1" />
         Back
       </Button>
 

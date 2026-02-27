@@ -47,11 +47,10 @@ FollowSchema.index({ userId: 1, createdAt: -1 });
 // ===========================
 
 // Prevent self-following
-FollowSchema.pre("save", function (next) {
+FollowSchema.pre("save", function () {
   if (this.userId === this.followingId) {
-    return next(new Error("Users cannot follow themselves"));
+    throw new Error("Users cannot follow themselves");
   }
-  next();
 });
 
 export const Follow = mongoose.model<IFollowDocument>("Follow", FollowSchema);

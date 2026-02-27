@@ -1,4 +1,4 @@
-import { Moon, Sun } from "lucide-react";
+import { PiMoonBold, PiSunBold } from "react-icons/pi";
 import { useThemeStore } from "@/stores/themeStore";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +23,7 @@ export function ThemeSelector() {
               : "text-muted-foreground hover:text-foreground",
           )}
           title="Light">
-          <Sun className="h-4 w-4" />
+          <PiSunBold className="h-4 w-4" />
           Light
         </button>
 
@@ -39,7 +39,7 @@ export function ThemeSelector() {
               : "text-muted-foreground hover:text-foreground",
           )}
           title="Dark">
-          <Moon className="h-4 w-4" />
+          <PiMoonBold className="h-4 w-4" />
           Dark
         </button>
       </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
+import { PiTrayBold } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 
 export type { ContentItem } from "./profile-content-grid/types";
@@ -95,12 +96,21 @@ export function ProfileContentGrid({
 
   if (items.length === 0) {
     return (
-      <div className={cn("text-center py-12", className)}>
-        <div className="text-muted-foreground">
-          <div className="text-4xl mb-4">📭</div>
-          <h3 className="text-lg font-medium mb-2">No content yet</h3>
-          <p className="text-sm">
-            When content is created, it will appear here.
+      <div
+        className={cn(
+          "text-center py-20 bg-card/30 rounded-3xl border border-dashed border-border/60",
+          className,
+        )}>
+        <div className="text-muted-foreground max-w-xs mx-auto">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 text-muted-foreground/40">
+            <PiTrayBold className="h-8 w-8" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            No content yet
+          </h3>
+          <p className="text-sm text-muted-foreground/70">
+            When content is created or saved, it will appear here in your
+            profile.
           </p>
         </div>
       </div>
