@@ -48,12 +48,12 @@ export default function FeedPage() {
       <PageTransition>
         <div className="max-w-4xl mx-auto px-6 py-8 space-y-10">
           <div className="space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-black text-foreground tracking-tight">
+            <div className="space-y-1.5">
+              <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent">
                 Feed
               </h1>
-              <p className="text-sm text-muted-foreground">
-                See what’s happening right now.
+              <p className="text-sm text-muted-foreground/70">
+                See what's happening right now.
               </p>
             </div>
 

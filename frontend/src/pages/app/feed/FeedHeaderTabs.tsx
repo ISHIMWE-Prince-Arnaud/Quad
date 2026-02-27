@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import type { FeedTab, FeedType } from "@/types/feed";
 
 export function FeedHeaderTabs({
@@ -15,36 +15,41 @@ export function FeedHeaderTabs({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <div className="inline-flex rounded-full border border-border/40 p-1 bg-muted/30">
-        <Button
-          type="button"
-          size="sm"
-          variant={feedType === "foryou" ? "default" : "ghost"}
-          className={cn(
-            "rounded-full px-4 transition-all duration-200",
-            feedType === "foryou"
-              ? "bg-primary text-primary-foreground shadow-md"
-              : "text-muted-foreground hover:bg-accent hover:text-foreground",
-          )}
-          onClick={() => onFeedTypeChange("foryou")}>
-          For You
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={feedType === "following" ? "default" : "ghost"}
-          className={cn(
-            "rounded-full px-4 transition-all duration-200",
-            feedType === "following"
-              ? "bg-primary text-primary-foreground shadow-md"
-              : "text-muted-foreground hover:bg-accent hover:text-foreground",
-          )}
-          onClick={() => onFeedTypeChange("following")}>
-          Following
-        </Button>
+      {/* Feed type selector with sliding indicator */}
+      <div className="inline-flex rounded-full border border-border/40 p-1 bg-muted/20 backdrop-blur-sm">
+        {(
+          [
+            ["foryou", "For You"],
+            ["following", "Following"],
+          ] as [FeedType, string][]
+        ).map(([value, label]) => {
+          const isActive = feedType === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              onClick={() => onFeedTypeChange(value)}
+              className={cn(
+                "relative px-5 py-1.5 text-sm font-bold rounded-full transition-colors duration-200 z-10",
+                isActive
+                  ? "text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}>
+              {isActive && (
+                <motion.div
+                  layoutId="feedTypeIndicator"
+                  className="absolute inset-0 bg-primary rounded-full shadow-md shadow-primary/20"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">{label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      <div className="flex gap-1.5 p-1 rounded-2xl bg-muted/20 border border-border/40">
+      {/* Content filter tabs with sliding indicator */}
+      <div className="flex gap-1 p-1 rounded-2xl bg-muted/15 border border-border/30">
         {(
           [
             ["home", "Home"],
@@ -54,20 +59,25 @@ export function FeedHeaderTabs({
         ).map(([value, label]) => {
           const isActive = tab === value;
           return (
-            <Button
+            <button
               key={value}
               type="button"
-              size="sm"
-              variant={isActive ? "secondary" : "ghost"}
+              onClick={() => onTabChange(value)}
               className={cn(
-                "px-4 rounded-xl font-bold transition-all",
+                "relative px-4 py-1.5 text-sm font-bold rounded-xl transition-colors duration-200 z-10",
                 isActive
-                  ? "bg-background text-primary shadow-sm border border-border/40"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground",
+              )}>
+              {isActive && (
+                <motion.div
+                  layoutId="feedTabIndicator"
+                  className="absolute inset-0 bg-background rounded-xl shadow-sm border border-border/40"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
               )}
-              onClick={() => onTabChange(value)}>
-              {label}
-            </Button>
+              <span className="relative z-10">{label}</span>
+            </button>
           );
         })}
       </div>
