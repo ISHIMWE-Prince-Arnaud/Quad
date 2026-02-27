@@ -6,6 +6,7 @@ import {
   updateUser,
   deleteUser,
   checkUsername,
+  checkEmail,
 } from "../controllers/user.controller.js";
 
 import {
@@ -44,6 +45,7 @@ router.post(
  * -------------------------
  */
 router.get("/check/:username", checkUsername);
+router.get("/check-email/:email", checkEmail);
 
 /**
  * -------------------------
