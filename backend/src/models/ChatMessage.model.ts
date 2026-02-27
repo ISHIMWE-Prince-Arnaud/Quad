@@ -69,11 +69,10 @@ ChatMessageSchema.index({ mentions: 1, createdAt: -1 });
 // ===========================
 
 // Ensure at least text or media is present
-ChatMessageSchema.pre("save", function (next) {
+ChatMessageSchema.pre("save", function (this: IChatMessageDocument) {
   if (!this.text) {
-    return next(new Error("Message must have text"));
+    throw new Error("Message must have text");
   }
-  next();
 });
 
 export const ChatMessage = mongoose.model<IChatMessageDocument>(
