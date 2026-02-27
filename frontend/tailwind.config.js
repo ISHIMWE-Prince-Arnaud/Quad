@@ -125,6 +125,10 @@ export default {
           "0%": { backgroundPosition: "-1000px 0" },
           "100%": { backgroundPosition: "1000px 0" },
         },
+        "shimmer-sweep": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(200%)" },
+        },
         "bounce-in": {
           "0%": { transform: "scale(1)" },
           "50%": { transform: "scale(1.25)" },

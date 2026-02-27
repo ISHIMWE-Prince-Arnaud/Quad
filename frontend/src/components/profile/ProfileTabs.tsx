@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { SquarePen, Images, BarChart3, Bookmark } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export type ProfileTab = "posts" | "stories" | "polls" | "saved";
@@ -51,7 +52,11 @@ export function ProfileTabs({
   const visibleTabs = tabs.filter((tab) => tab.public || isOwnProfile);
 
   return (
-    <div className={cn("bg-background border-b border-border", className)}>
+    <div
+      className={cn(
+        "bg-background/80 backdrop-blur-sm border-b border-border/60 sticky top-0 z-10",
+        className,
+      )}>
       <div className="max-w-4xl mx-auto">
         {/* Mobile Tab Navigation */}
         <div className="sm:hidden">
@@ -69,7 +74,7 @@ export function ProfileTabs({
 
         {/* Desktop Tab Navigation */}
         <div className="hidden sm:flex">
-          <div className="flex space-x-1 w-full">
+          <div className="flex w-full">
             {visibleTabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -79,18 +84,31 @@ export function ProfileTabs({
                   key={tab.id}
                   onClick={() => onTabChange(tab.id)}
                   className={cn(
-                    "flex items-center justify-center relative group flex-1 py-2",
+                    "relative flex-1 flex items-center justify-center py-3 transition-colors duration-200",
                   )}
                   title={tab.description}>
                   <span
                     className={cn(
-                      "inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200",
+                      "relative z-10 inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200",
                       isActive
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent/60",
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-foreground",
                     )}>
-                    <Icon className="h-4 w-4" />
-                    <span className="hidden sm:inline">{tab.label}</span>
+                    {isActive && (
+                      <motion.div
+                        layoutId="profileTabIndicator"
+                        className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-full"
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 30,
+                        }}
+                      />
+                    )}
+                    <Icon className="h-4 w-4 relative z-10" />
+                    <span className="hidden sm:inline relative z-10">
+                      {tab.label}
+                    </span>
                   </span>
                 </button>
               );
