@@ -27,6 +27,8 @@ export default function SignUpPage() {
   );
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [email, setEmail] = useState("");
+  const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
+  const [checkingEmail, setCheckingEmail] = useState(false);
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -79,7 +81,7 @@ export default function SignUpPage() {
   // Username availability check
   useEffect(() => {
     const checkAvailability = async () => {
-      if (username.trim().length < 3) {
+      if (username.trim().length < 4 || username.trim().length > 64) {
         setUsernameAvailable(null);
         return;
       }
@@ -102,6 +104,32 @@ export default function SignUpPage() {
     return () => clearTimeout(timer);
   }, [username]);
 
+  // Email availability check
+  useEffect(() => {
+    const checkAvailability = async () => {
+      if (!isEmailValid) {
+        setEmailAvailable(null);
+        return;
+      }
+      setCheckingEmail(true);
+      try {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || "/api";
+        const res = await fetch(`${baseUrl}/users/check-email/${email.trim()}`);
+        const data = await res.json();
+        if (data.success) {
+          setEmailAvailable(data.available);
+        }
+      } catch (err) {
+        console.error("Failed to check email availability", err);
+      } finally {
+        setCheckingEmail(false);
+      }
+    };
+
+    const timer = setTimeout(checkAvailability, 500);
+    return () => clearTimeout(timer);
+  }, [email, isEmailValid]);
+
   const handleGoogleSignUp = async () => {
     setError(null);
     if (!isLoaded || !signUp) return;
@@ -109,7 +137,7 @@ export default function SignUpPage() {
     try {
       await signUp.authenticateWithRedirect({
         strategy: "oauth_google",
-        redirectUrl: "/signup/sso-callback",
+        redirectUrl: `${window.location.origin}/signup/sso-callback`,
         redirectUrlComplete: oauthRedirectComplete,
       });
     } catch (err: unknown) {
@@ -132,8 +160,12 @@ export default function SignUpPage() {
       setError("Please choose a username");
       return;
     }
-    if (username.trim().length < 3) {
-      setError("Username must be at least 3 characters");
+    if (username.trim().length < 4) {
+      setError("Username must be at least 4 characters");
+      return;
+    }
+    if (username.trim().length > 64) {
+      setError("Username cannot exceed 64 characters");
       return;
     }
     if (usernameAvailable === false) {
@@ -142,6 +174,10 @@ export default function SignUpPage() {
     }
     if (email.trim().length === 0) {
       setError("Please enter your email");
+      return;
+    }
+    if (emailAvailable === false) {
+      setError("This email is already registered");
       return;
     }
     if (password.length < 8) {
@@ -315,7 +351,8 @@ export default function SignUpPage() {
                           <StatusIndicator
                             loading={checkingUsername}
                             status={
-                              username.trim().length >= 3
+                              username.trim().length >= 4 &&
+                              username.trim().length <= 64
                                 ? usernameAvailable === true
                                   ? "success"
                                   : usernameAvailable === false
@@ -336,10 +373,15 @@ export default function SignUpPage() {
                         error={undefined}
                         rightElement={
                           <StatusIndicator
+                            loading={checkingEmail}
                             status={
                               email.trim().length > 0
                                 ? isEmailValid
-                                  ? "success"
+                                  ? emailAvailable === true
+                                    ? "success"
+                                    : emailAvailable === false
+                                      ? "error"
+                                      : "none"
                                   : "error"
                                 : "none"
                             }
