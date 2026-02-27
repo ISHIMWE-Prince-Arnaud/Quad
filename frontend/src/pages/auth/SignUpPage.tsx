@@ -32,17 +32,49 @@ export default function SignUpPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [touched, setTouched] = useState({
-    username: false,
-    email: false,
-    password: false,
-    code: false,
-  });
 
   const oauthRedirectComplete = useMemo(() => {
     const destination = peekIntendedDestination();
     return `${window.location.origin}${destination}`;
   }, []);
+
+  const isEmailValid = useMemo(() => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }, [email]);
+
+  const isPasswordValid = password.length >= 8;
+
+  const StatusIndicator = ({
+    status,
+    loading = false,
+  }: {
+    status: "success" | "error" | "none";
+    loading?: boolean;
+  }) => {
+    if (loading)
+      return (
+        <div className="p-2">
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground/40" />
+        </div>
+      );
+    if (status === "none") return null;
+
+    return (
+      <motion.div
+        initial={{ scale: 0.5, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className={cn(
+          "flex items-center justify-center",
+          status === "success" ? "text-emerald-500" : "text-destructive",
+        )}>
+        {status === "success" ? (
+          <CheckCircle2 className="h-3.5 w-3.5 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+        ) : (
+          <XCircle className="h-3.5 w-3.5" />
+        )}
+      </motion.div>
+    );
+  };
 
   // Username availability check
   useEffect(() => {
@@ -96,13 +128,24 @@ export default function SignUpPage() {
     setError(null);
     if (!isLoaded || !signUp) return;
 
-    setTouched((t) => ({ ...t, username: true, email: true, password: true }));
-    if (
-      username.trim().length === 0 ||
-      email.trim().length === 0 ||
-      password.length === 0 ||
-      usernameAvailable === false
-    ) {
+    if (username.trim().length === 0) {
+      setError("Please choose a username");
+      return;
+    }
+    if (username.trim().length < 3) {
+      setError("Username must be at least 3 characters");
+      return;
+    }
+    if (usernameAvailable === false) {
+      setError("This username is already taken");
+      return;
+    }
+    if (email.trim().length === 0) {
+      setError("Please enter your email");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
       return;
     }
 
@@ -132,7 +175,6 @@ export default function SignUpPage() {
     setError(null);
     if (!isLoaded || !signUp) return;
 
-    setTouched((t) => ({ ...t, code: true }));
     if (code.trim().length === 0) return;
 
     setSubmitting(true);
@@ -268,36 +310,20 @@ export default function SignUpPage() {
                         onChange={(e) => setUsername(e.target.value)}
                         autoComplete="username"
                         disabled={submitting}
-                        error={
-                          touched.username && username.trim().length === 0
-                            ? "Choose a username"
-                            : undefined
-                        }
-                        onBlur={() =>
-                          setTouched((t) => ({ ...t, username: true }))
-                        }
+                        error={undefined}
                         rightElement={
-                          username.trim().length >= 3 && (
-                            <div className="p-2">
-                              {checkingUsername ? (
-                                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                              ) : usernameAvailable === true ? (
-                                <motion.div
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: [1.2, 1] }}
-                                  transition={{ duration: 0.3 }}>
-                                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
-                                </motion.div>
-                              ) : usernameAvailable === false ? (
-                                <motion.div
-                                  initial={{ x: 5 }}
-                                  animate={{ x: 0 }}
-                                  transition={{ type: "spring" }}>
-                                  <XCircle className="h-4 w-4 text-destructive" />
-                                </motion.div>
-                              ) : null}
-                            </div>
-                          )
+                          <StatusIndicator
+                            loading={checkingUsername}
+                            status={
+                              username.trim().length >= 3
+                                ? usernameAvailable === true
+                                  ? "success"
+                                  : usernameAvailable === false
+                                    ? "error"
+                                    : "none"
+                                : "none"
+                            }
+                          />
                         }
                       />
                       <Input
@@ -307,13 +333,17 @@ export default function SignUpPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         autoComplete="email"
                         disabled={submitting}
-                        error={
-                          touched.email && email.trim().length === 0
-                            ? "Enter your email"
-                            : undefined
-                        }
-                        onBlur={() =>
-                          setTouched((t) => ({ ...t, email: true }))
+                        error={undefined}
+                        rightElement={
+                          <StatusIndicator
+                            status={
+                              email.trim().length > 0
+                                ? isEmailValid
+                                  ? "success"
+                                  : "error"
+                                : "none"
+                            }
+                          />
                         }
                       />
                       <div className="space-y-3">
@@ -324,29 +354,35 @@ export default function SignUpPage() {
                           onChange={(e) => setPassword(e.target.value)}
                           autoComplete="new-password"
                           disabled={submitting}
-                          error={
-                            touched.password && password.length === 0
-                              ? "Create a password"
-                              : undefined
-                          }
-                          onBlur={() =>
-                            setTouched((t) => ({ ...t, password: true }))
-                          }
+                          error={undefined}
                           rightElement={
-                            <button
-                              type="button"
-                              className="p-1.5 text-muted-foreground/30 hover:text-primary transition-colors"
-                              onClick={() => setShowPassword((v) => !v)}
-                              aria-label={
-                                showPassword ? "Hide password" : "Show password"
-                              }
-                              disabled={submitting}>
-                              {showPassword ? (
-                                <EyeOff className="h-4 w-4" />
-                              ) : (
-                                <Eye className="h-4 w-4" />
-                              )}
-                            </button>
+                            <div className="flex items-center gap-2 pr-1">
+                              <StatusIndicator
+                                status={
+                                  password.length > 0
+                                    ? isPasswordValid
+                                      ? "success"
+                                      : "error"
+                                    : "none"
+                                }
+                              />
+                              <button
+                                type="button"
+                                className="p-1.5 text-muted-foreground/30 hover:text-primary transition-colors focus:outline-none"
+                                onClick={() => setShowPassword((v) => !v)}
+                                aria-label={
+                                  showPassword
+                                    ? "Hide password"
+                                    : "Show password"
+                                }
+                                disabled={submitting}>
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </button>
+                            </div>
                           }
                         />
                       </div>
@@ -356,13 +392,7 @@ export default function SignUpPage() {
                           type="submit"
                           className="w-full h-11 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-black text-sm shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99] relative"
                           loading={submitting}
-                          disabled={
-                            submitting ||
-                            username.trim().length < 3 ||
-                            email.trim().length === 0 ||
-                            password.length < 8 ||
-                            usernameAvailable === false
-                          }>
+                          disabled={submitting}>
                           Sign Up
                           {/* Shimmer Effect */}
                           <motion.div

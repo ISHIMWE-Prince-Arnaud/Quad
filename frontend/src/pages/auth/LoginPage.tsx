@@ -23,10 +23,6 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [touched, setTouched] = useState({
-    identifier: false,
-    password: false,
-  });
 
   const oauthRedirectComplete = useMemo(() => {
     const destination = peekIntendedDestination();
@@ -41,18 +37,7 @@ export default function LoginPage() {
     }
   }, [isLoaded, isSignedIn, navigate]);
 
-  const identifierError =
-    touched.identifier && identifier.trim().length === 0
-      ? "Enter your email or username"
-      : undefined;
-
-  const passwordError =
-    touched.password && password.length === 0
-      ? "Enter your password"
-      : undefined;
-
-  const canSubmit =
-    identifier.trim().length > 0 && password.length > 0 && !submitting;
+  const canSubmit = !submitting;
 
   const handlePasswordSignIn = async (e: FormEvent) => {
     e.preventDefault();
@@ -60,8 +45,14 @@ export default function LoginPage() {
 
     if (!isSignInLoaded || !signIn) return;
 
-    setTouched({ identifier: true, password: true });
-    if (identifier.trim().length === 0 || password.length === 0) return;
+    if (identifier.trim().length === 0) {
+      setError("Please enter your email or username");
+      return;
+    }
+    if (password.length === 0) {
+      setError("Please enter your password");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -179,8 +170,7 @@ export default function LoginPage() {
                   onChange={(e) => setIdentifier(e.target.value)}
                   autoComplete="username"
                   disabled={submitting}
-                  error={identifierError}
-                  onBlur={() => setTouched((t) => ({ ...t, identifier: true }))}
+                  error={undefined}
                 />
                 <Input
                   label="Password"
@@ -189,8 +179,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
                   disabled={submitting}
-                  error={passwordError}
-                  onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                  error={undefined}
                   rightElement={
                     <button
                       type="button"
