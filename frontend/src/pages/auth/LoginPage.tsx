@@ -118,7 +118,7 @@ export default function LoginPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.8, delay: 0.9, ease: "easeOut" }}
           className="flex flex-col items-center text-center space-y-3">
           <h2 className="text-4xl font-black tracking-tight text-foreground">
             Sign in to{" "}
@@ -137,7 +137,7 @@ export default function LoginPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            transition={{ duration: 0.7, delay: 1.1, ease: "easeOut" }}
             className="space-y-6">
             {error && (
               <Alert

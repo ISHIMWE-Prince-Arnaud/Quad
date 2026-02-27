@@ -34,7 +34,7 @@ export default function SsoCallbackPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.8, delay: 0.9, ease: "easeOut" }}
             className="relative">
             {/* Intense Glow Aura */}
             <div className="absolute inset-x-[-40px] inset-y-[-40px] bg-primary/[0.08] blur-[60px] rounded-full animate-pulse-subtle" />

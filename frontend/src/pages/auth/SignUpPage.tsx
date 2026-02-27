@@ -187,7 +187,7 @@ export default function SignUpPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
+          transition={{ duration: 0.8, delay: 0.9, ease: "easeOut" }}
           className="flex flex-col items-center text-center space-y-3">
           <h2 className="text-4xl font-black tracking-tight text-foreground">
             {step === "form" ? (
@@ -218,7 +218,7 @@ export default function SignUpPage() {
         {!isLoaded && <SignUpSkeleton />}
 
         {isLoaded && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 [animation-delay:1100ms] fill-mode-both">
             {error && (
               <Alert
                 variant="destructive"
