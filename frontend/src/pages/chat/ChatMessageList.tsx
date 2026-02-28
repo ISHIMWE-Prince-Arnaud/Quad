@@ -78,56 +78,21 @@ const linkifyText = (text: string) => {
 function ChatEmptyState() {
   return (
     <EmptyState
+      variant="inline"
       icon={<PiChatCircleBold className="h-8 w-8 text-primary/80" />}
       title="No messages yet"
       description="Say hi to start the conversation. Your message will appear here instantly."
-      className="my-10 mx-6">
-      <div className="mt-8 w-full max-w-md space-y-4">
-        <div className="flex items-start gap-3 justify-start">
-          <div className="h-8 w-8 rounded-full bg-muted/60 border border-border/40 flex items-center justify-center shrink-0">
-            <PiChatCircleBold className="h-4 w-4 text-muted-foreground/70" />
-          </div>
-          <div className="max-w-[75%]">
-            <div className="w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-muted text-foreground">
-              <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
-                Try: “Hey everyone”
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-3 justify-end">
-          <div className="max-w-[75%]">
-            <div className="w-fit max-w-full rounded-2xl px-4 py-2.5 shadow-sm bg-primary/50 text-primary-foreground">
-              <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
-                <span className="font-medium">Tip:</span> Press{" "}
-                <kbd className="px-1.5 py-0.5 rounded border border-border/60 bg-background/30 text-xs">
-                  Enter
-                </kbd>{" "}
-                to send,{" "}
-                <kbd className="px-1.5 py-0.5 rounded border border-border/60 bg-background/30 text-xs text-nowrap">
-                  Shift+Enter
-                </kbd>{" "}
-                for a new line.
-              </div>
-            </div>
-          </div>
-          <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-            <div className="h-3 w-3 rounded-full bg-primary/40" />
-          </div>
-        </div>
-      </div>
-    </EmptyState>
+    />
   );
 }
 
 function ChatErrorState({ onRetry }: { onRetry?: () => void }) {
   return (
     <EmptyState
+      variant="inline"
       icon={<PiWarningBold className="h-8 w-8 text-destructive" />}
       title="Couldn't load chat"
-      description="Check your connection and try again."
-      className="my-10 mx-6">
+      description="Check your connection and try again.">
       <Button
         type="button"
         onClick={onRetry}

@@ -20,7 +20,7 @@ export default function NotificationsPage() {
     <ComponentErrorBoundary componentName="NotificationsPage">
       <Card className="border-0 shadow-none rounded-none bg-transparent overflow-hidden">
         {/* Header */}
-        <CardHeader className="sticky top-0 bg-background/80 backdrop-blur-md z-20 border-b px-4 py-3">
+        <CardHeader className="sticky top-0 backdrop-blur-md z-20 border-b px-4 py-3">
           <NotificationsHeader
             filter={controller.filter}
             unreadLocalCount={controller.unreadLocalCount}
@@ -44,12 +44,12 @@ export default function NotificationsPage() {
           {/* Error */}
           {controller.error && !controller.initialLoading && (
             <EmptyState
+              variant="inline"
               icon={
                 <PiWarningCircleBold className="h-8 w-8 text-destructive" />
               }
               title="Something went wrong"
-              description={controller.error}
-              className="my-12 mx-4">
+              description={controller.error}>
               <Button
                 variant="default"
                 className="rounded-full shadow-md font-bold px-8 mt-2"
@@ -64,12 +64,12 @@ export default function NotificationsPage() {
             !controller.error &&
             controller.notifications.length === 0 && (
               <EmptyState
+                variant="inline"
                 icon={
                   <PiBellSlashBold className="h-8 w-8 text-muted-foreground/80" />
                 }
                 title="No notifications yet"
                 description="When you get notifications, they'll show up here."
-                className="my-20 mx-4"
               />
             )}
 

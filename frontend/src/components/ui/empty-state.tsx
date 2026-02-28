@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -29,16 +28,18 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   const content = (
-    <div className="text-muted-foreground max-w-sm mx-auto">
+    <div className="text-muted-foreground max-w-md mx-auto w-full">
       <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 text-muted-foreground/50 ring-1 ring-inset ring-border/50 shadow-sm">
         {icon}
       </div>
-      <h3 className="text-lg font-semibold text-foreground mb-2 tracking-tight">{title}</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-2 tracking-tight">
+        {title}
+      </h3>
       <div className="text-[15px] text-muted-foreground/80 leading-relaxed mb-6">
         {description}
       </div>
 
-      {(actionLabel || secondaryActionLabel || children) && (
+      {(actionLabel || secondaryActionLabel) && (
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           {actionLabel && actionHref && (
             <Button asChild className="rounded-full shadow-md font-bold px-8">
@@ -46,10 +47,18 @@ export function EmptyState({
             </Button>
           )}
           {secondaryActionLabel && secondaryActionHref && (
-            <Button asChild variant="outline" className="rounded-full shadow-sm font-bold px-6">
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-full shadow-sm font-bold px-6">
               <Link to={secondaryActionHref}>{secondaryActionLabel}</Link>
             </Button>
           )}
+        </div>
+      )}
+
+      {children && (
+        <div className="mt-6 flex flex-col items-center justify-center w-full">
           {children}
         </div>
       )}
