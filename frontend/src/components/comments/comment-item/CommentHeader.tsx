@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -55,17 +56,21 @@ export function CommentHeader({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="min-w-[180px] rounded-xl border border-border bg-popover p-1 shadow-xl">
+              className="min-w-[180px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-xl">
               <DropdownMenuItem
                 onClick={onEdit}
-                className="rounded-lg px-3 py-2 text-[13px] text-foreground focus:bg-accent focus:text-accent-foreground">
-                <PiPencilBold className="mr-2 h-4 w-4" aria-hidden="true" />
+                className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-accent focus:bg-accent">
+                <PiPencilBold
+                  className="h-4 w-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 Edit comment
               </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-border/40" />
               <DropdownMenuItem
                 onClick={onRequestDelete}
-                className="rounded-lg px-3 py-2 text-[13px] text-destructive focus:bg-destructive/10 focus:text-destructive">
-                <PiTrashBold className="mr-2 h-4 w-4" aria-hidden="true" />
+                className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10">
+                <PiTrashBold className="h-4 w-4" aria-hidden="true" />
                 Delete comment
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -3,7 +3,12 @@ import type { ChangeEvent, RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { PiCameraBold, PiTrashBold, PiUploadSimpleBold } from "react-icons/pi";
+import {
+  PiCameraBold,
+  PiSpinnerBold,
+  PiTrashBold,
+  PiUploadSimpleBold,
+} from "react-icons/pi";
 
 export function ProfileImageSection({
   src,
@@ -40,7 +45,7 @@ export function ProfileImageSection({
             disabled={processing}
             className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full p-0 shadow-lg transition-colors hover:bg-primary/20 focus-visible:ring-2 focus-visible:ring-primary/40">
             {processing ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-foreground border-t-transparent" />
+              <PiSpinnerBold className="h-4 w-4 animate-spin" />
             ) : (
               <PiCameraBold className="h-4 w-4" />
             )}

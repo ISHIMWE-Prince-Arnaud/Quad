@@ -283,7 +283,7 @@ export function PollCard({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"
-                          className="min-w-[180px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-dropdown">
+                          className="min-w-[180px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-xl">
                           <DropdownMenuItem
                             onClick={handleEdit}
                             disabled={cannotEdit}
@@ -294,9 +294,9 @@ export function PollCard({
                                   : "Edit locked: poll is expired"
                                 : undefined
                             }
-                            className="gap-2 rounded-lg px-3 py-2 hover:bg-accent focus:bg-accent">
+                            className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-accent focus:bg-accent">
                             <PiPencilBold
-                              className="h-4 w-4 text-muted-foreground"
+                              className="h-4 w-4 text-muted-foreground shrink-0"
                               aria-hidden="true"
                             />
                             <div className="flex flex-col min-w-0 leading-tight">
@@ -311,12 +311,12 @@ export function PollCard({
 
                           {canDelete && (
                             <>
-                              <DropdownMenuSeparator className="bg-border" />
+                              <DropdownMenuSeparator className="bg-border/40" />
                               <DropdownMenuItem
                                 className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
                                 onClick={() => setIsDeleteDialogOpen(true)}>
                                 <PiTrashBold
-                                  className="h-4 w-4"
+                                  className="h-4 w-4 shrink-0"
                                   aria-hidden="true"
                                 />
                                 Delete poll
@@ -377,7 +377,7 @@ export function PollCard({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"
-                          className="min-w-[180px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-dropdown">
+                          className="min-w-[180px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-xl">
                           <DropdownMenuItem
                             onClick={handleEdit}
                             disabled={cannotEdit}
@@ -388,9 +388,9 @@ export function PollCard({
                                   : "Edit locked: poll is expired"
                                 : undefined
                             }
-                            className="gap-2 rounded-lg px-3 py-2 hover:bg-accent focus:bg-accent">
+                            className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-accent focus:bg-accent">
                             <PiPencilBold
-                              className="h-4 w-4 text-muted-foreground"
+                              className="h-4 w-4 text-muted-foreground shrink-0"
                               aria-hidden="true"
                             />
                             <div className="flex flex-col min-w-0 leading-tight">
@@ -405,12 +405,12 @@ export function PollCard({
 
                           {canDelete && (
                             <>
-                              <DropdownMenuSeparator />
+                              <DropdownMenuSeparator className="bg-border/40" />
                               <DropdownMenuItem
                                 className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
                                 onClick={() => setIsDeleteDialogOpen(true)}>
                                 <PiTrashBold
-                                  className="h-4 w-4"
+                                  className="h-4 w-4 shrink-0"
                                   aria-hidden="true"
                                 />
                                 Delete poll

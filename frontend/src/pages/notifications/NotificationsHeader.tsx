@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CardTitle } from "@/components/ui/card";
@@ -76,18 +77,21 @@ export function NotificationsHeader({
                 <PiDotsThreeBold className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="min-w-[180px] rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-xl">
               <DropdownMenuItem
                 onClick={onMarkAllAsRead}
                 disabled={unreadLocalCount === 0}
-                className="focus:bg-accent/70">
-                <PiCheckBold className="w-4 h-4 mr-2" />
+                className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-accent focus:bg-accent">
+                <PiCheckBold className="h-4 w-4 text-muted-foreground" />
                 Mark all read
               </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-border/40" />
               <DropdownMenuItem
                 onClick={onClearRead}
-                className="focus:bg-destructive/10 focus:text-destructive">
-                <PiTrashBold className="w-4 h-4 mr-2" />
+                className="gap-2 rounded-lg px-3 py-2 cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10">
+                <PiTrashBold className="h-4 w-4" />
                 Clear read
               </DropdownMenuItem>
             </DropdownMenuContent>

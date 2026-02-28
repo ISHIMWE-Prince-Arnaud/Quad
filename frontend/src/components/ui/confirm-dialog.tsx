@@ -7,7 +7,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { PiWarningBold } from "react-icons/pi";
+import { PiWarningBold, PiTrashBold } from "react-icons/pi";
+import { cn } from "@/lib/utils";
 
 export interface ConfirmDialogProps {
   open: boolean;
@@ -19,6 +20,7 @@ export interface ConfirmDialogProps {
   variant?: "default" | "destructive";
   onConfirm: () => void | Promise<void>;
   loading?: boolean;
+  className?: string;
 }
 
 export function ConfirmDialog({
@@ -31,6 +33,7 @@ export function ConfirmDialog({
   variant = "default",
   onConfirm,
   loading = false,
+  className,
 }: ConfirmDialogProps) {
   const handleConfirm = async () => {
     await onConfirm();
@@ -38,30 +41,60 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            {variant === "destructive" && (
-              <PiWarningBold className="h-5 w-5 text-destructive" />
-            )}
-            <DialogTitle>{title}</DialogTitle>
+      <DialogContent
+        showClose={false}
+        className={cn(
+          "max-w-md rounded-3xl border border-border bg-popover p-8 text-popover-foreground shadow-dropdown",
+          className,
+        )}>
+        <DialogHeader className="items-center text-center space-y-4">
+          <div
+            className={cn(
+              "h-16 w-16 rounded-full flex items-center justify-center",
+              variant === "destructive" ? "bg-destructive/15" : "bg-primary/15",
+            )}>
+            <div
+              className={cn(
+                "h-10 w-10 rounded-xl flex items-center justify-center",
+                variant === "destructive" ? "bg-destructive" : "bg-primary",
+              )}>
+              {variant === "destructive" ? (
+                <PiTrashBold
+                  className="h-5 w-5 text-destructive-foreground"
+                  aria-hidden="true"
+                />
+              ) : (
+                <PiWarningBold
+                  className="h-5 w-5 text-primary-foreground"
+                  aria-hidden="true"
+                />
+              )}
+            </div>
           </div>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle className="text-[28px] font-bold tracking-tight">
+            {title}
+          </DialogTitle>
+          <DialogDescription className="text-center text-[14px] leading-relaxed text-muted-foreground">
+            {description}
+          </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
+
+        <DialogFooter className="mt-2 flex flex-row items-center justify-center gap-4 sm:justify-center sm:space-x-0">
           <Button
             type="button"
-            variant="outline"
-            className="hover:bg-secondary"
-            onClick={() => onOpenChange(false)}
-            disabled={loading}>
+            variant="secondary"
+            className="h-12 rounded-full px-10 bg-secondary hover:bg-secondary/80 text-secondary-foreground"
+            disabled={loading}
+            onClick={() => onOpenChange(false)}>
             {cancelLabel}
           </Button>
           <Button
             type="button"
             variant={variant}
-            onClick={() => void handleConfirm()}
-            disabled={loading}>
+            className="h-12 rounded-full px-10"
+            loading={loading}
+            disabled={loading}
+            onClick={() => void handleConfirm()}>
             {loading ? "Processing..." : confirmLabel}
           </Button>
         </DialogFooter>

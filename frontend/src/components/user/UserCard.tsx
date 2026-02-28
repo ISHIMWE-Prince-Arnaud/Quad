@@ -162,8 +162,8 @@ export function UserCard({
               onMouseLeave={() => setIsFollowHovered(false)}
               className={
                 isFollowing
-                  ? "flex-shrink-0 rounded-full border-border/70 text-foreground transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-                  : "flex-shrink-0 rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+                  ? "flex-shrink-0 rounded-full px-4 border border-border/70 text-foreground transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                  : "flex-shrink-0 rounded-full px-4 bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
               }>
               {isPendingFollow ? (
                 <span className="inline-flex items-center gap-2">
@@ -246,16 +246,26 @@ export function UserCard({
                   size="sm"
                   variant={isFollowing ? "outline" : "default"}
                   onClick={handleFollowClick}
-                  disabled={Boolean(isPending)}>
+                  onMouseEnter={() => setIsFollowHovered(true)}
+                  onMouseLeave={() => setIsFollowHovered(false)}
+                  className={
+                    isFollowing
+                      ? "rounded-full px-5 border border-border/70 text-foreground transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                      : "rounded-full px-5 bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
+                  }>
                   {isPendingFollow ? (
                     <span className="inline-flex items-center gap-2">
                       <PiSpinnerBold className="h-4 w-4 animate-spin" />
                       Following…
                     </span>
                   ) : isPendingUnfollow ? (
-                    "Loading…"
+                    "..."
                   ) : isFollowing ? (
-                    "Following"
+                    isFollowHovered ? (
+                      "Unfollow"
+                    ) : (
+                      "Following"
+                    )
                   ) : (
                     "Follow"
                   )}
