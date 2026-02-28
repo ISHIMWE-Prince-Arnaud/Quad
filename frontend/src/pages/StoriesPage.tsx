@@ -7,6 +7,7 @@ import { StoryCard } from "@/components/stories/StoryCard";
 import { logError } from "@/lib/errorHandling";
 import { PiBookOpenTextBold } from "react-icons/pi";
 import { LoadMoreButton } from "@/components/ui/loading";
+import { EmptyState } from "@/components/ui/empty-state";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -184,21 +185,15 @@ export default function StoriesPage() {
         )}
 
         {!loading && stories.length === 0 && (
-          <div className="py-16">
-            <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card p-8 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-                <PiBookOpenTextBold className="h-6 w-6" />
-              </div>
-              <h2 className="text-lg font-semibold text-foreground">
-                {view === "drafts" ? "No drafts yet" : "No stories yet"}
-              </h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {view === "drafts"
-                  ? "Draft stories you save will appear here."
-                  : "Be the first to share what’s happening."}
-              </p>
-            </div>
-          </div>
+          <EmptyState
+            icon={<PiBookOpenTextBold className="h-8 w-8 text-primary" />}
+            title={view === "drafts" ? "No drafts yet" : "No stories yet"}
+            description={
+              view === "drafts"
+                ? "Draft stories you save will appear here."
+                : "Be the first to share what's happening."
+            }
+          />
         )}
 
         <div className="grid gap-6 md:grid-cols-2 items-start">

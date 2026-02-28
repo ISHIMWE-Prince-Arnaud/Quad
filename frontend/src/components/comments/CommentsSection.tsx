@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { CommentComposer } from "@/components/comments/CommentComposer";
 import { CommentItem } from "@/components/comments/CommentItem";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { CommentService } from "@/services/commentService";
@@ -320,19 +321,13 @@ export function CommentsSection({
           ))}
 
         {!initialLoading && comments.length === 0 && !error && (
-          <div className="py-10">
-            <div className="mx-auto max-w-md rounded-2xl border border-border/40 bg-muted/30 p-6 text-center">
-              <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <PiChatCircleBold className="h-5 w-5 text-primary" />
-              </div>
-              <p className="mt-4 text-[14px] font-semibold text-foreground">
-                No comments yet
-              </p>
-              <p className="mt-1 text-[13px] text-muted-foreground">
-                Be the first to share what you think.
-              </p>
-            </div>
-          </div>
+          <EmptyState
+            variant="inline"
+            icon={<PiChatCircleBold className="h-8 w-8 text-primary" />}
+            title="No comments yet"
+            description="Be the first to share what you think."
+            className="py-10"
+          />
         )}
 
         {loadingMore && (

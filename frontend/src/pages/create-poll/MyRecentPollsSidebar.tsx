@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { PiChartBarBold } from "react-icons/pi";
 import type { Poll } from "@/types/poll";
 
 export function MyRecentPollsSidebar({
@@ -25,8 +26,11 @@ export function MyRecentPollsSidebar({
             ))}
           </div>
         ) : polls.length === 0 ? (
-          <div className="py-8 text-center border border-dashed border-border/40 rounded-2xl">
-            <p className="text-[11px] font-medium text-muted-foreground">
+          <div className="py-8 text-center border-2 border-dashed border-border/50 rounded-2xl bg-card/10 flex flex-col items-center justify-center">
+            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-muted/50 mb-3 ring-1 ring-inset ring-border/50">
+              <PiChartBarBold className="h-5 w-5 text-muted-foreground/50" />
+            </div>
+            <p className="text-[12px] font-semibold text-muted-foreground">
               No polls created yet
             </p>
           </div>

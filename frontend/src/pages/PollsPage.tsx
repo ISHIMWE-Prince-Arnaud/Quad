@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
+
 import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams } from "@/types/poll";
 import { SkeletonPollCard, LoadMoreButton } from "@/components/ui/loading";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PiChartBarBold } from "react-icons/pi";
 import { useSocketStore } from "@/stores/socketStore";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import type {
@@ -259,11 +261,12 @@ export default function PollsPage() {
       )}
 
       {!loading && !error && polls.length === 0 && (
-        <Card>
-          <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            No polls found.
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={<PiChartBarBold className="h-8 w-8 text-primary" />}
+          title="No polls found"
+          description="It looks like there are no polls matching this view yet."
+          className="mt-4"
+        />
       )}
 
       <div className="space-y-6">

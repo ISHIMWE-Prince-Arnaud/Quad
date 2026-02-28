@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Card, CardContent } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -15,49 +15,52 @@ export function EmptyState({
   secondaryActionHref,
   className,
   variant = "card",
+  children,
 }: {
   icon: ReactNode;
   title: string;
-  description: string;
+  description: ReactNode;
   actionLabel?: string;
   actionHref?: string;
   secondaryActionLabel?: string;
   secondaryActionHref?: string;
   className?: string;
   variant?: "card" | "inline";
+  children?: ReactNode;
 }) {
   const content = (
-    <>
-      <div className="mx-auto mb-4 h-14 w-14 rounded-3xl bg-card/60 border border-border flex items-center justify-center shadow-sm">
-        <div className="text-muted-foreground">{icon}</div>
+    <div className="text-muted-foreground max-w-sm mx-auto">
+      <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 text-muted-foreground/50 ring-1 ring-inset ring-border/50 shadow-sm">
+        {icon}
       </div>
-      <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground max-w-sm mx-auto">
+      <h3 className="text-lg font-semibold text-foreground mb-2 tracking-tight">{title}</h3>
+      <div className="text-[15px] text-muted-foreground/80 leading-relaxed mb-6">
         {description}
-      </p>
+      </div>
 
-      {(actionLabel || secondaryActionLabel) && (
-        <div className="mt-6 flex items-center justify-center gap-3">
+      {(actionLabel || secondaryActionLabel || children) && (
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           {actionLabel && actionHref && (
-            <Button asChild>
+            <Button asChild className="rounded-full shadow-md font-bold px-8">
               <Link to={actionHref}>{actionLabel}</Link>
             </Button>
           )}
           {secondaryActionLabel && secondaryActionHref && (
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="rounded-full shadow-sm font-bold px-6">
               <Link to={secondaryActionHref}>{secondaryActionLabel}</Link>
             </Button>
           )}
+          {children}
         </div>
       )}
-    </>
+    </div>
   );
 
   if (variant === "inline") {
     return (
       <div
         className={cn(
-          "flex flex-col items-center justify-center text-center py-10",
+          "flex flex-col flex-1 items-center justify-center text-center py-24 w-full h-full",
           className,
         )}>
         {content}
@@ -66,12 +69,12 @@ export function EmptyState({
   }
 
   return (
-    <Card
+    <div
       className={cn(
-        "shadow-sm bg-card/40 border border-border rounded-[2rem]",
+        "text-center py-24 px-6 bg-card/10 rounded-[2.5rem] border-2 border-dashed border-border/50 hover:bg-card/30 transition-colors duration-300 w-full flex items-center justify-center",
         className,
       )}>
-      <CardContent className="py-12 text-center">{content}</CardContent>
-    </Card>
+      {content}
+    </div>
   );
 }

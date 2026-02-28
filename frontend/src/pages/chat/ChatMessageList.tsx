@@ -4,6 +4,7 @@ import type { RefObject } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ChatListSkeleton } from "@/components/ui/loading";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { ChatMessage } from "@/types/chat";
 import {
   PiWarningBold,
@@ -76,17 +77,12 @@ const linkifyText = (text: string) => {
 
 function ChatEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-16 animate-in fade-in duration-500">
-      <div className="h-16 w-16 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-sm mb-4">
-        <PiChatCircleBold className="h-8 w-8 text-primary/80" />
-      </div>
-      <h3 className="text-lg font-semibold text-foreground">No messages yet</h3>
-      <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-        Say hi to start the conversation. Your message will appear here
-        instantly.
-      </p>
-
-      <div className="mt-6 w-full max-w-md space-y-3">
+    <EmptyState
+      icon={<PiChatCircleBold className="h-8 w-8 text-primary/80" />}
+      title="No messages yet"
+      description="Say hi to start the conversation. Your message will appear here instantly."
+      className="my-10 mx-6">
+      <div className="mt-8 w-full max-w-md space-y-4">
         <div className="flex items-start gap-3 justify-start">
           <div className="h-8 w-8 rounded-full bg-muted/60 border border-border/40 flex items-center justify-center shrink-0">
             <PiChatCircleBold className="h-4 w-4 text-muted-foreground/70" />
@@ -109,12 +105,8 @@ function ChatEmptyState() {
                   Enter
                 </kbd>{" "}
                 to send,{" "}
-                <kbd className="px-1.5 py-0.5 rounded border border-border/60 bg-background/30 text-xs">
-                  Shift
-                </kbd>
-                +
-                <kbd className="px-1.5 py-0.5 rounded border border-border/60 bg-background/30 text-xs">
-                  Enter
+                <kbd className="px-1.5 py-0.5 rounded border border-border/60 bg-background/30 text-xs text-nowrap">
+                  Shift+Enter
                 </kbd>{" "}
                 for a new line.
               </div>
@@ -125,28 +117,25 @@ function ChatEmptyState() {
           </div>
         </div>
       </div>
-    </div>
+    </EmptyState>
   );
 }
 
 function ChatErrorState({ onRetry }: { onRetry?: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-16 animate-in fade-in duration-500">
-      <div className="h-16 w-16 rounded-3xl bg-destructive/10 border border-destructive/20 flex items-center justify-center shadow-sm mb-4">
-        <PiWarningBold className="h-8 w-8 text-destructive" />
-      </div>
-      <h3 className="text-lg font-semibold text-foreground">
-        Couldn’t load chat
-      </h3>
-      <p className="mt-1 text-sm text-muted-foreground max-w-sm">
-        Check your connection and try again.
-      </p>
-      <div className="mt-6">
-        <Button type="button" onClick={onRetry}>
-          Retry
-        </Button>
-      </div>
-    </div>
+    <EmptyState
+      icon={<PiWarningBold className="h-8 w-8 text-destructive" />}
+      title="Couldn't load chat"
+      description="Check your connection and try again."
+      className="my-10 mx-6">
+      <Button
+        type="button"
+        onClick={onRetry}
+        variant="default"
+        className="rounded-full shadow-md px-8 mt-2 font-bold">
+        Retry
+      </Button>
+    </EmptyState>
   );
 }
 

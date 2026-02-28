@@ -2,7 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
-import { PiBellSlashBold } from "react-icons/pi";
+import { PiBellSlashBold, PiWarningCircleBold } from "react-icons/pi";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { NotificationSkeleton, LoadMoreButton } from "@/components/ui/loading";
 import { NotificationRow } from "./notifications/NotificationRow";
@@ -42,38 +43,34 @@ export default function NotificationsPage() {
 
           {/* Error */}
           {controller.error && !controller.initialLoading && (
-            <div className="p-8 text-center">
-              <p className="text-sm text-destructive font-medium mb-2">
-                Something went wrong
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {controller.error}
-              </p>
+            <EmptyState
+              icon={
+                <PiWarningCircleBold className="h-8 w-8 text-destructive" />
+              }
+              title="Something went wrong"
+              description={controller.error}
+              className="my-12 mx-4">
               <Button
-                variant="outline"
-                size="sm"
-                className="mt-4"
+                variant="default"
+                className="rounded-full shadow-md font-bold px-8 mt-2"
                 onClick={() => window.location.reload()}>
                 Retry
               </Button>
-            </div>
+            </EmptyState>
           )}
 
           {/* Empty */}
           {!controller.initialLoading &&
             !controller.error &&
             controller.notifications.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                <div className="h-16 w-16 rounded-full bg-muted/30 flex items-center justify-center mb-4">
-                  <PiBellSlashBold className="w-8 h-8 opacity-40" />
-                </div>
-                <h3 className="font-medium text-foreground mb-1">
-                  No notifications yet
-                </h3>
-                <p className="text-sm">
-                  When you get notifications, they'll show up here.
-                </p>
-              </div>
+              <EmptyState
+                icon={
+                  <PiBellSlashBold className="h-8 w-8 text-muted-foreground/80" />
+                }
+                title="No notifications yet"
+                description="When you get notifications, they'll show up here."
+                className="my-20 mx-4"
+              />
             )}
 
           {/* Notifications list */}
