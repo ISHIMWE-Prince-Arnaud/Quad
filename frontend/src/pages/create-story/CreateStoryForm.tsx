@@ -1,13 +1,7 @@
 import { EditorContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
-import {
-  PiClockBold,
-  PiSpinnerBold,
-  PiFloppyDiskBold,
-  PiPaperPlaneRightBold,
-} from "react-icons/pi";
+import { PiClockBold, PiSpinnerBold } from "react-icons/pi";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { StoryCoverSection } from "./StoryCoverSection";
 import { StoryEditorBubbleMenu } from "./StoryEditorBubbleMenu";
@@ -33,72 +27,33 @@ export function CreateStoryForm({
   uploadingCover,
   validationErrors,
   canSubmit,
-  submitting,
   autoSaving,
   lastSaved,
   editor,
   onTitleChange,
   onUploadCover,
   onRemoveCover,
-  onSaveDraft,
-  onPublish,
   onInsertLink,
   onMention,
-  headerTitle,
 }: {
   title: string;
   coverImage: string | undefined;
   uploadingCover: boolean;
   validationErrors: { title?: string; content?: string };
   canSubmit: boolean;
-  submitting: boolean;
   autoSaving: boolean;
   lastSaved: Date | null;
   editor: Editor | null;
   onTitleChange: (value: string) => void;
   onUploadCover: (file: File | null) => void;
   onRemoveCover: () => void;
-  onSaveDraft: () => void;
-  onPublish: () => void;
   onInsertLink: () => void;
   onMention: () => void;
-  headerTitle?: string;
 }) {
   const autosaveLabel = getAutosaveLabel(autoSaving, lastSaved);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-extrabold text-foreground tracking-tight">
-          {headerTitle || "Create a New Story"}
-        </h1>
-        <div className="flex items-center gap-3">
-          <Button
-            variant="secondary"
-            disabled={submitting}
-            onClick={onSaveDraft}
-            className="h-8 rounded-full border border-border/40 bg-muted hover:bg-accent text-foreground font-semibold px-4">
-            {submitting ? (
-              <PiSpinnerBold className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <PiFloppyDiskBold className="h-4 w-4 mr-2" />
-            )}
-            Save as Draft
-          </Button>
-          <Button
-            disabled={!canSubmit || submitting}
-            onClick={onPublish}
-            className="h-8 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-5">
-            {submitting ? (
-              <PiSpinnerBold className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <PiPaperPlaneRightBold className="h-4 w-4 mr-2 fill-current" />
-            )}
-            Publish
-          </Button>
-        </div>
-      </div>
-
       {!canSubmit && (
         <p className="text-[11px] font-semibold text-muted-foreground">
           Add a title and some content to enable publishing.

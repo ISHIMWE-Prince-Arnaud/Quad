@@ -148,7 +148,6 @@ export default function EditPostPage() {
         onSubmit={handleSubmit}
         isLoading={isSubmitting}
         initialValues={initialValues}
-        onCancel={() => navigate(-1)}
       />
     </div>
   );

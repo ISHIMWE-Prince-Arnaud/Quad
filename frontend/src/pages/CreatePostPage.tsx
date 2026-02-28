@@ -4,6 +4,7 @@ import { CreatePostForm } from "@/components/forms/CreatePostForm";
 import { PostService } from "@/services/postService";
 import type { CreatePostData } from "@/schemas/post.schema";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
+import { PiArrowLeftBold } from "react-icons/pi";
 import { logError } from "@/lib/errorHandling";
 
 export default function CreatePostPage() {
@@ -32,15 +33,22 @@ export default function CreatePostPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Create a Post</h1>
-        <p className="text-muted-foreground mt-2">
-          Share your thoughts, photos, or videos with the community
-        </p>
-      </div>
+    <div className="mx-auto w-full max-w-2xl px-3 py-4 sm:px-4 sm:py-6">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            className="group inline-flex items-center gap-3 text-muted-foreground hover:text-foreground font-bold transition-all"
+            onClick={() => navigate("/app/feed")}>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary group-hover:bg-accent transition-colors">
+              <PiArrowLeftBold className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+            </div>
+            <span className="text-xl tracking-tight">Create Post</span>
+          </button>
+        </div>
 
-      <CreatePostForm onSubmit={handleSubmit} isLoading={isSubmitting} />
+        <CreatePostForm onSubmit={handleSubmit} isLoading={isSubmitting} />
+      </div>
     </div>
   );
 }

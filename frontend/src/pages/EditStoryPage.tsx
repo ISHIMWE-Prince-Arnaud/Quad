@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PiArrowLeftBold } from "react-icons/pi";
+import {
+  PiArrowLeftBold,
+  PiSpinnerBold,
+  PiFloppyDiskBold,
+  PiPaperPlaneRightBold,
+} from "react-icons/pi";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { Button } from "@/components/ui/button";
@@ -228,21 +233,52 @@ export default function EditStoryPage() {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-6 flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            <PiArrowLeftBold className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+        <div className="mb-6 flex items-center justify-between">
+          <button
+            type="button"
+            className="group inline-flex items-center gap-3 text-muted-foreground hover:text-foreground font-bold transition-all"
+            onClick={() => navigate(-1)}>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary group-hover:bg-accent transition-colors">
+              <PiArrowLeftBold className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+            </div>
+            <span className="text-xl tracking-tight hidden sm:block">
+              Edit Story
+            </span>
+          </button>
+
+          <div className="flex items-center gap-3">
+            <Button
+              variant="secondary"
+              disabled={submitting}
+              onClick={() => void handleSubmit("draft")}
+              className="h-9 rounded-full border border-border/40 bg-muted hover:bg-accent text-foreground font-semibold px-4">
+              {submitting ? (
+                <PiSpinnerBold className="h-4 w-4 animate-spin sm:mr-2" />
+              ) : (
+                <PiFloppyDiskBold className="h-4 w-4 sm:mr-2" />
+              )}
+              <span className="hidden sm:inline">Save as Draft</span>
+            </Button>
+            <Button
+              disabled={!canSubmit || submitting}
+              onClick={() => void handleSubmit("published")}
+              className="h-9 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-5">
+              {submitting ? (
+                <PiSpinnerBold className="h-4 w-4 animate-spin sm:mr-2" />
+              ) : (
+                <PiPaperPlaneRightBold className="h-4 w-4 sm:mr-2 fill-current" />
+              )}
+              <span className="hidden sm:inline">Publish</span>
+            </Button>
+          </div>
         </div>
 
         <CreateStoryForm
-          headerTitle="Edit Story"
           title={title}
           coverImage={coverImage}
           uploadingCover={uploadingCover}
           validationErrors={validationErrors}
           canSubmit={canSubmit}
-          submitting={submitting}
           autoSaving={false}
           lastSaved={null}
           editor={editor}
@@ -257,8 +293,6 @@ export default function EditStoryPage() {
           }}
           onUploadCover={(file) => void handleUploadCover(file)}
           onRemoveCover={() => setCoverImage(undefined)}
-          onSaveDraft={() => void handleSubmit("draft")}
-          onPublish={() => void handleSubmit("published")}
           onInsertLink={handleInsertLink}
           onMention={() => {
             const username = window.prompt(
