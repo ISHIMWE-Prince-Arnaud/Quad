@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PiArrowLeftBold, PiSpinnerBold } from "react-icons/pi";
+import { PiSpinnerBold } from "react-icons/pi";
+import { BackButton } from "@/components/ui/BackButton";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
 import { Button } from "@/components/ui/button";
@@ -407,10 +408,7 @@ export default function EditPollPage() {
     return (
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            <PiArrowLeftBold className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+          <BackButton />
         </div>
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold mb-2">Unable to edit poll</h2>
@@ -428,15 +426,7 @@ export default function EditPollPage() {
     <div className="mx-auto w-full px-3 py-4 sm:px-4 sm:py-6">
       <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
-          <button
-            type="button"
-            className="group inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-bold transition-all"
-            onClick={() => navigate("/app/polls")}>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary group-hover:bg-accent transition-colors">
-              <PiArrowLeftBold className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-            </div>
-            <span className="text-xl tracking-tight">Edit Poll</span>
-          </button>
+          <BackButton label="Edit Poll" fallbackPath="/app/polls" />
 
           <Button
             type="button"

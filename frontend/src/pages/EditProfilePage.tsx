@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { PiSpinnerBold, PiArrowLeftBold } from "react-icons/pi";
+import { PiSpinnerBold } from "react-icons/pi";
+import { BackButton } from "@/components/ui/BackButton";
 import { useAuthStore } from "@/stores/authStore";
 import { ProfileService } from "@/services/profileService";
 import { UploadService } from "@/services/uploadService";
@@ -141,20 +142,11 @@ export default function EditProfilePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10 space-y-10">
-      <header className="flex items-center gap-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="h-12 w-12 flex items-center justify-center rounded-2xl bg-card border border-border/40 text-muted-foreground hover:text-foreground hover:border-border/60 transition-all shadow-xl">
-          <PiArrowLeftBold className="h-6 w-6" />
-        </button>
-        <div>
-          <h1 className="text-4xl font-black text-foreground tracking-tight">
-            Edit Profile
-          </h1>
-          <p className="text-muted-foreground font-bold uppercase text-xs tracking-widest mt-1">
-            Customize your presence
-          </p>
-        </div>
+      <header className="flex items-center gap-4">
+        <BackButton
+          label="Edit Profile"
+          fallbackPath={`/profile/${user.username}`}
+        />
       </header>
 
       <Card className="bg-card border border-border/40 rounded-[2rem] overflow-hidden shadow-2xl">

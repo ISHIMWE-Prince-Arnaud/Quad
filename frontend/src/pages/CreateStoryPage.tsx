@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  PiArrowLeftBold,
   PiSpinnerBold,
   PiFloppyDiskBold,
   PiPaperPlaneRightBold,
 } from "react-icons/pi";
-import { useNavigate } from "react-router-dom";
 import { UploadService } from "@/services/uploadService";
 import { StoryService } from "@/services/storyService";
 import type { CreateStoryInput, StoryStatus } from "@/types/story";
@@ -16,9 +14,8 @@ import { useStoryEditor } from "./create-story/useStoryEditor";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import { logError } from "@/lib/errorHandling";
 import { Button } from "@/components/ui/button";
-
+import { BackButton } from "@/components/ui/BackButton";
 export default function CreateStoryPage() {
-  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -178,17 +175,7 @@ export default function CreateStoryPage() {
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between">
-          <button
-            type="button"
-            className="group inline-flex items-center gap-3 text-muted-foreground hover:text-foreground font-bold transition-all"
-            onClick={() => navigate("/app/stories")}>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary group-hover:bg-accent transition-colors">
-              <PiArrowLeftBold className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-            </div>
-            <span className="text-xl tracking-tight hidden sm:block">
-              Create Story
-            </span>
-          </button>
+          <BackButton label="Create Story" fallbackPath="/app/stories" />
 
           <div className="flex items-center gap-3">
             <Button

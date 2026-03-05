@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { PiArrowLeftBold } from "react-icons/pi";
-import { Button } from "@/components/ui/button";
+import { useParams, useNavigate } from "react-router-dom";
+import { BackButton } from "@/components/ui/BackButton";
 import { PostCard } from "@/components/posts/PostCard";
 import { PostService } from "@/services/postService";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
@@ -87,14 +86,9 @@ export default function PostPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-2xl space-y-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mb-4 hover:bg-secondary"
-          onClick={() => navigate(-1)}>
-          <PiArrowLeftBold className="h-4 w-4 mr-2" />
-          Back
-        </Button>
+        <div className="mb-4">
+          <BackButton />
+        </div>
 
         <SkeletonPost />
         <CommentsSkeleton />
@@ -111,12 +105,11 @@ export default function PostPage() {
             {error ||
               "The post you are looking for does not exist or has been removed."}
           </p>
-          <Button asChild>
-            <Link to="/app/feed">
-              <PiArrowLeftBold className="h-4 w-4 mr-2" />
-              Back to Feed
-            </Link>
-          </Button>
+          <BackButton
+            label="Back to Feed"
+            fallbackPath="/app/feed"
+            className="mx-auto"
+          />
         </div>
       </div>
     );
@@ -125,14 +118,9 @@ export default function PostPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl space-y-6">
       {/* Back button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="mb-2 h-10 px-4 text-muted-foreground hover:text-foreground hover:bg-accent transition-all group"
-        onClick={() => navigate(-1)}>
-        <PiArrowLeftBold className="h-4 w-4 mr-2 transition-transform group-hover:-translate-x-1" />
-        Back
-      </Button>
+      <div className="mb-2">
+        <BackButton />
+      </div>
 
       {/* Post card */}
       <PostCard post={post} onDelete={handleDelete} isSingleView />

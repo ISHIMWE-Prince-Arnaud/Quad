@@ -1,9 +1,8 @@
-import { PiArrowLeftBold } from "react-icons/pi";
+import { BackButton } from "@/components/ui/BackButton";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { CommentsSection } from "@/components/comments/CommentsSection";
 import { useAuthStore } from "@/stores/authStore";
 import type { Story } from "@/types/story";
-import { Button } from "@/components/ui/button";
 import { StoryPageSkeleton } from "@/components/ui/loading";
 
 import { StoryDeleteDialog } from "./story/StoryDeleteDialog";
@@ -30,14 +29,7 @@ export default function StoryPage() {
 
   const backToStoriesButton = (
     <div className="flex items-center gap-2">
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate("/app/stories")}>
-        <PiArrowLeftBold className="h-4 w-4 mr-2" />
-        Back to Stories
-      </Button>
+      <BackButton label="Back to Stories" fallbackPath="/app/stories" />
     </div>
   );
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PiArrowLeftBold } from "react-icons/pi";
+import { BackButton } from "@/components/ui/BackButton";
 import { Button } from "@/components/ui/button";
 import { LoadingPage } from "@/components/ui/loading";
 import { CreatePostForm } from "@/components/forms/CreatePostForm";
@@ -106,10 +106,7 @@ export default function EditPostPage() {
     return (
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            <PiArrowLeftBold className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+          <BackButton />
         </div>
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold mb-2">Unable to edit post</h2>
@@ -135,13 +132,7 @@ export default function EditPostPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            <PiArrowLeftBold className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">Edit Post</h1>
-        </div>
+        <BackButton label="Edit Post" />
       </div>
 
       <CreatePostForm

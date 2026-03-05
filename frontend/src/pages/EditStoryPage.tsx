@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  PiArrowLeftBold,
   PiSpinnerBold,
   PiFloppyDiskBold,
   PiPaperPlaneRightBold,
@@ -19,6 +18,7 @@ import { logError } from "@/lib/errorHandling";
 import { CreateStoryForm } from "./create-story/CreateStoryForm";
 import { useStoryEditor } from "./create-story/useStoryEditor";
 import { getErrorMessage } from "./create-story/getErrorMessage";
+import { BackButton } from "@/components/ui/BackButton";
 
 export default function EditStoryPage() {
   const { id } = useParams<{ id: string }>();
@@ -211,10 +211,7 @@ export default function EditStoryPage() {
     return (
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
-            <PiArrowLeftBold className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+          <BackButton />
         </div>
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold mb-2">Unable to edit story</h2>
@@ -234,17 +231,7 @@ export default function EditStoryPage() {
     <div className="container mx-auto px-4 py-6">
       <div className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between">
-          <button
-            type="button"
-            className="group inline-flex items-center gap-3 text-muted-foreground hover:text-foreground font-bold transition-all"
-            onClick={() => navigate(-1)}>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary group-hover:bg-accent transition-colors">
-              <PiArrowLeftBold className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-            </div>
-            <span className="text-xl tracking-tight hidden sm:block">
-              Edit Story
-            </span>
-          </button>
+          <BackButton label="Edit Story" />
 
           <div className="flex items-center gap-3">
             <Button

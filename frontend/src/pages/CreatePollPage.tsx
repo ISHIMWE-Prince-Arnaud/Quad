@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PiArrowLeftBold } from "react-icons/pi";
+import { BackButton } from "@/components/ui/BackButton";
 import { UploadService } from "@/services/uploadService";
 import { PollService } from "@/services/pollService";
 import type { Poll, PollMedia, CreatePollInput } from "@/types/poll";
@@ -189,15 +189,7 @@ export default function CreatePollPage() {
     <div className="mx-auto w-full px-3 py-4 sm:px-4 sm:py-6">
       <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
-          <button
-            type="button"
-            className="group inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-bold transition-all"
-            onClick={() => navigate("/app/polls")}>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary group-hover:bg-accent transition-colors">
-              <PiArrowLeftBold className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-            </div>
-            <span className="text-xl tracking-tight">Create Poll</span>
-          </button>
+          <BackButton label="Create Poll" fallbackPath="/app/polls" />
 
           <Button
             type="button"
