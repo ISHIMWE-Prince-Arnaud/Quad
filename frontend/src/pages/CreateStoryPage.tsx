@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   PiSpinnerBold,
-  PiFloppyDiskBold,
+  PiArchiveBold,
   PiPaperPlaneRightBold,
 } from "react-icons/pi";
 import { UploadService } from "@/services/uploadService";
@@ -186,7 +186,7 @@ export default function CreateStoryPage() {
               {submitting ? (
                 <PiSpinnerBold className="h-4 w-4 animate-spin sm:mr-2" />
               ) : (
-                <PiFloppyDiskBold className="h-4 w-4 sm:mr-2" />
+                <PiArchiveBold className="h-4 w-4 sm:mr-2" />
               )}
               <span className="hidden sm:inline">Save as Draft</span>
             </Button>

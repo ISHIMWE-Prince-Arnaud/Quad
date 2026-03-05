@@ -73,37 +73,53 @@ export function CreatePollForm({
 }) {
   return (
     <div className="space-y-6">
-      <div className="rounded-[2rem] border border-border/40 bg-card p-5 space-y-6 shadow-sm">
-        <PollQuestionSection
-          question={question}
-          setQuestion={setQuestion}
-          questionMedia={questionMedia}
-          setQuestionMedia={setQuestionMedia}
-          uploadingQuestionMedia={uploadingQuestionMedia}
-          onUploadQuestionMedia={onUploadQuestionMedia}
-          validationErrors={validationErrors}
-          setValidationErrors={setValidationErrors}
-        />
+      {/* Main document card — mirrors CreateStoryForm's single-card approach */}
+      <div className="rounded-[2rem] border border-border/40 bg-card shadow-sm overflow-hidden">
+        {/* Question Zone */}
+        <div className="p-6 md:p-8 space-y-5">
+          <PollQuestionSection
+            question={question}
+            setQuestion={setQuestion}
+            questionMedia={questionMedia}
+            setQuestionMedia={setQuestionMedia}
+            uploadingQuestionMedia={uploadingQuestionMedia}
+            onUploadQuestionMedia={onUploadQuestionMedia}
+            validationErrors={validationErrors}
+            setValidationErrors={setValidationErrors}
+          />
+        </div>
 
-        <PollOptionsEditor
-          options={options}
-          onAddOption={onAddOption}
-          onRemoveOption={onRemoveOption}
-          onOptionChange={onOptionChange}
-          validationErrors={validationErrors}
-          setValidationErrors={setValidationErrors}
-          disabled={optionsDisabled}
-        />
+        {/* Divider */}
+        <div className="border-t border-border/40" />
 
-        <PollSettingsAndDuration
-          settings={settings}
-          setSettings={setSettings}
-          duration={duration}
-          setDuration={setDuration}
-          disabled={restrictedDisabled}
-          validationErrors={validationErrors}
-          setValidationErrors={setValidationErrors}
-        />
+        {/* Options Zone */}
+        <div className="p-6 md:p-8">
+          <PollOptionsEditor
+            options={options}
+            onAddOption={onAddOption}
+            onRemoveOption={onRemoveOption}
+            onOptionChange={onOptionChange}
+            validationErrors={validationErrors}
+            setValidationErrors={setValidationErrors}
+            disabled={optionsDisabled}
+          />
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-border/40" />
+
+        {/* Settings Zone */}
+        <div className="p-6 md:p-8">
+          <PollSettingsAndDuration
+            settings={settings}
+            setSettings={setSettings}
+            duration={duration}
+            setDuration={setDuration}
+            disabled={restrictedDisabled}
+            validationErrors={validationErrors}
+            setValidationErrors={setValidationErrors}
+          />
+        </div>
       </div>
 
       <PollSubmitBar

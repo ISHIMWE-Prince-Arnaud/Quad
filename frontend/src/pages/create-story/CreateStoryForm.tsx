@@ -67,34 +67,41 @@ export function CreateStoryForm({
         onRemoveCover={onRemoveCover}
       />
 
-      <div className="space-y-2">
-        <input
-          value={title}
-          onChange={(e) => onTitleChange(e.target.value)}
-          placeholder="Add your story title..."
-          className={cn(
-            "w-full bg-transparent border-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-foreground placeholder:text-muted-foreground/60 p-0",
-            validationErrors.title && "text-destructive",
+      <div className="relative rounded-[2rem] border border-border/40 bg-card shadow-sm focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/20 transition-all flex flex-col">
+        {/* Sticky Toolbar at the top instead of floating at the bottom */}
+        <div className="sticky top-0 z-20 border-b border-border/40 bg-card/95 backdrop-blur-sm px-4 py-2 flex items-center justify-between rounded-t-[2rem]">
+          <StoryEditorToolbar editor={editor} />
+          {autosaveLabel && (
+            <div className="text-[10px] font-semibold text-muted-foreground flex items-center gap-1.5 select-none pr-2">
+              {autoSaving ? (
+                <PiSpinnerBold className="h-3 w-3 animate-spin" />
+              ) : (
+                <PiClockBold className="h-3 w-3" />
+              )}
+              <span className="hidden sm:inline">{autosaveLabel}</span>
+            </div>
           )}
-        />
-        {validationErrors.title && (
-          <p className="text-sm font-semibold text-destructive">
-            {validationErrors.title}
-          </p>
-        )}
-      </div>
+        </div>
 
-      <div className="space-y-2">
-        <div
-          className={cn(
-            "relative rounded-[2rem] border border-border/40 bg-card shadow-md overflow-hidden focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/20 transition-colors",
-            validationErrors.content && "border-destructive/60",
-          )}>
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
-            <StoryEditorToolbar editor={editor} />
+        <div className="p-6 md:p-8 space-y-6 flex-1">
+          <div className="space-y-2">
+            <input
+              value={title}
+              onChange={(e) => onTitleChange(e.target.value)}
+              placeholder="Give your story a brilliant title..."
+              className={cn(
+                "w-full bg-transparent border-none focus:ring-0 text-3xl md:text-4xl font-extrabold text-foreground placeholder:text-muted-foreground/40 p-0 transition-colors",
+                validationErrors.title && "text-destructive",
+              )}
+            />
+            {validationErrors.title && (
+              <p className="text-sm font-semibold text-destructive">
+                {validationErrors.title}
+              </p>
+            )}
           </div>
 
-          <div className="p-4">
+          <div className="relative min-h-[400px]">
             <StoryEditorBubbleMenu
               editor={editor}
               onInsertLink={onInsertLink}
@@ -106,23 +113,12 @@ export function CreateStoryForm({
             />
             <EditorContent editor={editor} />
           </div>
-
-          {autosaveLabel && (
-            <div className="absolute bottom-4 right-6 text-[10px] font-semibold text-muted-foreground flex items-center gap-2 select-none">
-              {autoSaving ? (
-                <PiSpinnerBold className="h-3 w-3 animate-spin" />
-              ) : (
-                <PiClockBold className="h-3 w-3" />
-              )}
-              <span>{autosaveLabel}</span>
-            </div>
-          )}
         </div>
-
-        {validationErrors.content && (
-          <p className="text-sm text-destructive">{validationErrors.content}</p>
-        )}
       </div>
+
+      {validationErrors.content && (
+        <p className="text-sm text-destructive">{validationErrors.content}</p>
+      )}
     </div>
   );
 }

@@ -41,41 +41,32 @@ export function PollQuestionSection({
 
   return (
     <>
-      <div className="space-y-4">
-        <h3 className="text-[11px] text-muted-foreground uppercase tracking-wider">
-          Poll Question
-        </h3>
-
-        <div
+      <div className="space-y-2">
+        {/* Seamless, prominent question input — no hard sub-border */}
+        <textarea
+          id="poll-question"
+          value={question}
+          onChange={(e) => {
+            setQuestion(e.target.value);
+            if (validationErrors.question) {
+              setValidationErrors((prev) => ({
+                ...prev,
+                question: undefined,
+              }));
+            }
+          }}
+          rows={2}
+          maxLength={500}
+          placeholder="Ask your question..."
           className={cn(
-            "rounded-2xl border border-border/40 bg-muted/20 px-4 py-3 focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/20 transition-colors",
-            validationErrors.question && "border-destructive/60",
-          )}>
-          <textarea
-            id="poll-question"
-            value={question}
-            onChange={(e) => {
-              setQuestion(e.target.value);
-              if (validationErrors.question) {
-                setValidationErrors((prev) => ({
-                  ...prev,
-                  question: undefined,
-                }));
-              }
-            }}
-            rows={3}
-            maxLength={500}
-            placeholder="What's on your mind?"
-            className={cn(
-              "w-full bg-transparent border-none focus:ring-0 text-base font-semibold text-foreground placeholder:text-muted-foreground/60 p-0 resize-none",
-              validationErrors.question && "text-destructive",
-            )}
-            aria-invalid={!!validationErrors.question}
-          />
-        </div>
+            "w-full bg-transparent border-none focus:ring-0 text-2xl md:text-3xl font-extrabold text-foreground placeholder:text-muted-foreground/40 p-0 resize-none leading-tight transition-colors",
+            validationErrors.question && "text-destructive",
+          )}
+          aria-invalid={!!validationErrors.question}
+        />
 
         <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground uppercase tracking-wide">
-          <span>{question.length}/500</span>
+          <span>{trimmedQuestionLength}/500</span>
           {validationErrors.question ? (
             <span className="text-destructive">
               {validationErrors.question}
@@ -88,9 +79,13 @@ export function PollQuestionSection({
         </div>
       </div>
 
-      <div className="space-y-4">
-        <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-          Media
+      {/* Divider between question and media */}
+      <div className="border-t border-border/40" />
+
+      <div className="space-y-3">
+        <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+          <ImageIcon className="h-3.5 w-3.5" />
+          Media (optional)
         </h3>
 
         <input
@@ -105,10 +100,10 @@ export function PollQuestionSection({
         {!questionMedia && (
           <div
             className={cn(
-              "relative border border-dashed rounded-[2rem] px-6 py-10 text-center transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+              "relative border border-dashed rounded-2xl px-6 py-8 text-center transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
               uploadingQuestionMedia
-                ? "border-primary bg-primary/5"
-                : "border-border/60 bg-muted/20 hover:border-primary/50 hover:bg-muted/30",
+                ? "border-primary/60 bg-primary/5"
+                : "border-border/60 bg-muted/10 hover:border-primary/40 hover:bg-primary/5",
             )}
             role="button"
             tabIndex={0}
@@ -131,26 +126,26 @@ export function PollQuestionSection({
                 onUploadQuestionMedia(file);
               }
             }}>
-            <div className="flex flex-col items-center gap-3">
+            <div className="flex flex-col items-center gap-2">
               {uploadingQuestionMedia ? (
                 <>
-                  <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
                     <PiSpinnerBold className="h-5 w-5 animate-spin text-primary" />
                   </div>
-                  <p className="text-sm font-semibold text-[#64748b]">
+                  <p className="text-sm font-semibold text-muted-foreground">
                     Uploading image...
                   </p>
                 </>
               ) : (
                 <>
-                  <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
                     <ImageIcon className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-foreground">
-                      Add a photo (optional)
+                      Add a photo
                     </p>
-                    <p className="text-[11px] font-medium text-muted-foreground mt-1">
+                    <p className="text-[11px] font-medium text-muted-foreground mt-0.5">
                       Drag & drop or click to upload
                     </p>
                   </div>
@@ -162,12 +157,12 @@ export function PollQuestionSection({
 
         {questionMedia && (
           <div
-            className="group relative overflow-hidden rounded-[2rem] border border-border/40 bg-muted/20"
+            className="group relative overflow-hidden rounded-2xl border border-border/40 bg-muted/10"
             tabIndex={0}>
             <img
               src={questionMedia.url}
               alt="poll media"
-              className="w-full max-h-80 object-cover"
+              className="w-full max-h-72 object-cover"
             />
 
             {uploadingQuestionMedia && (
