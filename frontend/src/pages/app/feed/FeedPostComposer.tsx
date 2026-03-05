@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
@@ -24,10 +25,50 @@ export function FeedPostComposer({
 }) {
   const { user } = useAuthStore();
   const [text, setText] = useState("");
+  const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const focusParam =
+      searchParams.get("create") === "post" ||
+      searchParams.get("focus") === "post";
+
+    const handleFocus = () => {
+      setIsExpanded(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // Also scroll container specifically if it's inside a scrollable div
+      containerRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    };
+
+    if (focusParam) {
+      handleFocus();
+      // Clear the param after focusing to avoid re-focusing on every re-render
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("create");
+      newParams.delete("focus");
+      setSearchParams(newParams, { replace: true });
+    }
+
+    const handleFocusEvent = () => {
+      handleFocus();
+    };
+
+    window.addEventListener("focus-post-composer", handleFocusEvent);
+    return () =>
+      window.removeEventListener("focus-post-composer", handleFocusEvent);
+  }, [searchParams, setSearchParams]);
 
   const openFilePicker = (accept: string) => {
     if (disabled) return;
@@ -54,8 +95,14 @@ export function FeedPostComposer({
   } = useCreatePostMedia();
 
   const trimmedText = text.trim();
+  const charCount = text.length;
+  const isOverLimit = charCount > 1000;
   const hasMedia = uploadedMedia.length > 0;
-  const canSubmit = hasMedia && uploadingFiles.length === 0 && !disabled;
+  const canSubmit =
+    !isOverLimit &&
+    (hasMedia || trimmedText.length > 0) &&
+    uploadingFiles.length === 0 &&
+    !disabled;
 
   useEffect(() => {
     if (!disabled && isExpanded) {
@@ -72,8 +119,8 @@ export function FeedPostComposer({
   const submit = async () => {
     if (disabled || isSubmitting) return;
 
-    if (!hasMedia) {
-      showErrorToast("Post must have at least one media");
+    if (!hasMedia && trimmedText.length === 0) {
+      showErrorToast("Post must have text or media");
       setIsExpanded(true);
       inputRef.current?.focus();
       return;
@@ -98,6 +145,7 @@ export function FeedPostComposer({
 
   return (
     <div
+      ref={containerRef}
       className={cn(
         "bg-card border border-border/40 rounded-[2rem] p-4 shadow-card transition-all hover:border-border/60",
         disabled && "opacity-60",
@@ -141,30 +189,27 @@ export function FeedPostComposer({
               target.style.height = "auto";
               target.style.height = `${target.scrollHeight}px`;
             }}
-            className="
-              w-full
-              bg-transparent
-              border-none
-              outline-none
-              ring-0
-              ring-offset-0
-              focus:outline-none
-              focus:ring-0
-              focus:ring-offset-0
-              focus-visible:outline-none
-              focus-visible:ring-0
-              focus-visible:ring-offset-0
-              active:outline-none
-              active:ring-0
-              active:ring-offset-0
-              text-foreground
-              placeholder:text-muted-foreground
-              text-lg
-              resize-none
-              min-h-[48px]
-              py-2
-            "
+            className="w-full bg-transparent border-none outline-none ring-0 focus:ring-0 focus-visible:ring-0 text-foreground placeholder:text-muted-foreground text-lg resize-none min-h-[48px] py-2"
           />
+
+          {/* Character count */}
+          {isExpanded && (
+            <div className="flex justify-end">
+              <span
+                className={cn(
+                  "text-xs font-medium tabular-nums transition-colors",
+                  charCount === 0
+                    ? "text-muted-foreground/40"
+                    : isOverLimit
+                      ? "text-destructive font-semibold"
+                      : charCount > 800
+                        ? "text-amber-500"
+                        : "text-muted-foreground",
+                )}>
+                {charCount > 0 && `${charCount}/1000`}
+              </span>
+            </div>
+          )}
 
           {isExpanded && (
             <div className="space-y-3">
@@ -227,9 +272,9 @@ export function FeedPostComposer({
               <Button
                 type="button"
                 className={cn(
-                  "rounded-full px-8 font-bold transition-all shadow-lg active:scale-95",
+                  "rounded-full px-8 font-bold transition-all active:scale-95",
                   canSubmit
-                    ? "bg-primary hover:bg-primary/90 text-primary-foreground scale-100 shadow-primary/20"
+                    ? "bg-primary hover:bg-primary/90 text-primary-foreground scale-100 shadow-lg shadow-primary/20"
                     : "bg-muted text-muted-foreground/40 cursor-not-allowed shadow-none",
                 )}
                 disabled={!canSubmit || isSubmitting}

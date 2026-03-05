@@ -1,23 +1,22 @@
-import { useState, useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
-  FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
+  FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { MediaUploader } from "./MediaUploader";
-import {
-  createPostSchema,
-  type CreatePostData,
-  type MediaData,
-} from "@/schemas/post.schema";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthStore } from "@/stores/authStore";
+import { PiImageBold, PiVideoCameraBold, PiSpinnerBold } from "react-icons/pi";
+import { cn } from "@/lib/utils";
+import { MediaUploadDropzone } from "./create-post-modal/MediaUploadDropzone";
+import { MediaPreviewGrid } from "./create-post-modal/MediaPreviewGrid";
+import { useCreatePostMedia } from "./create-post-modal/useCreatePostMedia";
+import { createPostSchema, type CreatePostData } from "@/schemas/post.schema";
 
 interface CreatePostFormProps {
   onSubmit?: (data: CreatePostData) => void | Promise<void>;
@@ -30,122 +29,195 @@ export function CreatePostForm({
   isLoading = false,
   initialValues,
 }: CreatePostFormProps) {
-  const [uploadedMedia, setUploadedMedia] = useState<MediaData[]>(
-    initialValues?.media ?? [],
-  );
+  const { user } = useAuthStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    uploadedMedia,
+    uploadingFiles,
+    isDragging,
+    handleFileSelect,
+    removeMedia,
+    removeUploadingFile,
+    handleDrop,
+    handleDragOver,
+    handleDragLeave,
+  } = useCreatePostMedia();
 
   const form = useForm<CreatePostData>({
     resolver: zodResolver(createPostSchema),
-    mode: "onChange", // Validate on change to clear errors immediately
+    mode: "onChange",
     defaultValues: {
       text: initialValues?.text ?? "",
       media: initialValues?.media ?? [],
     },
   });
 
-  const handleSubmit = async (data: CreatePostData) => {
-    // Include uploaded media in submission
+  const handleFormSubmit = async (data: CreatePostData) => {
     const submitData: CreatePostData = {
       ...(typeof data.text === "string" && data.text.trim().length > 0
         ? { text: data.text }
         : {}),
       media: uploadedMedia,
     };
-
     await onSubmit?.(submitData);
   };
 
-  // Memoize callback to prevent unnecessary re-renders in MediaUploader
-  const handleMediaChange = useCallback(
-    (media: MediaData[]) => {
-      setUploadedMedia(media);
-      form.setValue("media", media, { shouldValidate: true });
-    },
-    [form],
-  );
+  const handleMediaChangeCb = useCallback(() => {
+    form.setValue("media", uploadedMedia, { shouldValidate: true });
+  }, [form, uploadedMedia]);
+
+  void handleMediaChangeCb;
 
   const textValue =
     useWatch({ control: form.control, name: "text", defaultValue: "" }) || "";
   const charCount = textValue.length;
   const isOverLimit = charCount > 1000;
   const hasMedia = uploadedMedia.length > 0;
+  const canPost =
+    (hasMedia || textValue.trim().length > 0) && !isOverLimit && !isLoading;
+
+  const openFilePicker = (accept: string) => {
+    if (!fileInputRef.current) return;
+    fileInputRef.current.accept = accept;
+    fileInputRef.current.click();
+  };
 
   return (
-    <div className="w-full mx-auto">
-      <div className="rounded-[2rem] border border-border/40 bg-card p-6 shadow-sm mb-6">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-6">
-            {/* Post Content */}
-            <FormField
-              control={form.control}
-              name="text"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="post-text">What's happening?</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      id="post-text"
-                      placeholder="Share your thoughts..."
-                      className="min-h-[120px] resize-none"
-                      disabled={isLoading}
-                      aria-describedby="post-text-description post-text-error"
-                      aria-invalid={!!form.formState.errors.text}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription
-                    id="post-text-description"
-                    className={isOverLimit ? "text-destructive" : ""}
-                    role={isOverLimit ? "alert" : undefined}>
-                    {charCount}/1000 characters
-                    {isOverLimit && " - Character limit exceeded"}
-                  </FormDescription>
-                  <FormMessage id="post-text-error" />
-                </FormItem>
-              )}
-            />
+    <div className="rounded-[2rem] border border-border/40 bg-card shadow-sm">
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/*,video/*"
+        className="hidden"
+        onChange={(e) => {
+          void handleFileSelect(e.target.files);
+          e.currentTarget.value = "";
+        }}
+      />
 
-            {/* Media Upload */}
-            <div>
-              <FormLabel htmlFor="media-upload">Add Media</FormLabel>
-              <p
-                className="text-xs text-muted-foreground mb-2"
-                id="media-upload-description">
-                Upload up to 10 images or videos. Supported formats: JPG, PNG,
-                GIF, MP4
-              </p>
-              <MediaUploader
-                onMediaChange={handleMediaChange}
-                maxFiles={10}
-                initialMedia={initialValues?.media}
-                className="mt-2"
-                aria-describedby="media-upload-description"
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+          {/* Top: avatar + textarea */}
+          <div className="flex gap-4 p-5 pb-3">
+            <Avatar className="h-11 w-11 shrink-0 border-2 border-border/40 mt-1">
+              <AvatarImage src={user?.profileImage} />
+              <AvatarFallback className="bg-secondary text-secondary-foreground font-semibold">
+                {user?.username?.[0]?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex-1 min-w-0">
+              <FormField
+                control={form.control}
+                name="text"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <textarea
+                        {...field}
+                        id="post-text"
+                        placeholder="What's happening?"
+                        rows={3}
+                        disabled={isLoading}
+                        className={cn(
+                          "w-full bg-transparent border-none outline-none ring-0 focus:ring-0 focus-visible:ring-0",
+                          "text-foreground placeholder:text-muted-foreground text-lg resize-none min-h-[80px] py-2",
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Character count */}
+              <div className="flex justify-end mt-1">
+                <span
+                  className={cn(
+                    "text-xs font-medium tabular-nums transition-colors",
+                    charCount === 0
+                      ? "text-muted-foreground/40"
+                      : isOverLimit
+                        ? "text-destructive font-semibold"
+                        : charCount > 800
+                          ? "text-amber-500"
+                          : "text-muted-foreground",
+                  )}>
+                  {charCount > 0 && `${charCount}/1000`}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Media preview */}
+          {(uploadedMedia.length > 0 || uploadingFiles.length > 0) && (
+            <div className="px-5 pb-3">
+              <MediaPreviewGrid
+                uploadedMedia={uploadedMedia}
+                uploadingFiles={uploadingFiles}
+                onRemoveMedia={removeMedia}
+                onRemoveUploadingFile={removeUploadingFile}
               />
             </div>
+          )}
 
-            {/* Submit Button */}
-            <div className="pt-2">
-              <div className="text-sm mb-2 text-center h-5">
-                {!hasMedia && form.formState.isSubmitted && (
-                  <span className="text-destructive font-semibold">
-                    Post must have at least one valid text/media
-                  </span>
-                )}
-              </div>
-              <Button
-                type="submit"
-                disabled={
-                  isLoading || isOverLimit || (!hasMedia && !textValue.trim())
-                }
-                className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20 transition-all active:scale-95">
-                {isLoading ? "Posting..." : "Post"}
-              </Button>
+          {/* Dropzone — always visible */}
+          <div className="px-5 pb-4">
+            <MediaUploadDropzone
+              isDragging={isDragging}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onSelectFiles={handleFileSelect}
+            />
+          </div>
+
+          {/* Toolbar + submit */}
+          <div className="flex items-center justify-between px-5 py-3 border-t border-border/40">
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => openFilePicker("image/*")}
+                disabled={isLoading}
+                className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
+                aria-label="Add image"
+                title="Add image">
+                <PiImageBold className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => openFilePicker("video/*")}
+                disabled={isLoading}
+                className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
+                aria-label="Add video"
+                title="Add video">
+                <PiVideoCameraBold className="h-5 w-5" />
+              </button>
             </div>
-          </form>
-        </Form>
-      </div>
+
+            <Button
+              type="submit"
+              disabled={!canPost}
+              className={cn(
+                "rounded-full px-8 font-bold transition-all active:scale-95",
+                canPost
+                  ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
+                  : "bg-muted text-muted-foreground/40 cursor-not-allowed shadow-none",
+              )}>
+              {isLoading ? (
+                <span className="inline-flex items-center gap-2">
+                  <PiSpinnerBold className="h-4 w-4 animate-spin" />
+                  Posting...
+                </span>
+              ) : (
+                "Post"
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

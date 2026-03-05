@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   PiBookOpenTextBold,
   PiFileTextBold,
@@ -47,6 +47,18 @@ export function RightPanel() {
 }
 
 function QuickCreate() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handlePostClick = () => {
+    if (location.pathname === "/app/feed") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.dispatchEvent(new CustomEvent("focus-post-composer"));
+    } else {
+      navigate("/app/feed?create=post");
+    }
+  };
+
   return (
     <section className="rounded-3xl border border-border/40 bg-card/50 overflow-hidden">
       <div className="px-4 pt-4 pb-3 flex items-center justify-between">
@@ -55,12 +67,10 @@ function QuickCreate() {
 
       <div className="px-4 pb-4 grid grid-cols-1 gap-2">
         <Button
-          asChild
+          onClick={handlePostClick}
           className="w-full justify-start rounded-2xl border shadow-none bg-primary/10 hover:bg-primary/15 border-primary/20 text-foreground h-11">
-          <Link to="/app/create/post" aria-label="Create a post">
-            <PiFileTextBold className="h-4 w-4 text-primary" />
-            Post
-          </Link>
+          <PiFileTextBold className="h-4 w-4 text-primary" />
+          Post
         </Button>
 
         <Button
