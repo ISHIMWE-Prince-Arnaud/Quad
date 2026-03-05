@@ -12,14 +12,15 @@ import { cn } from "@/lib/utils";
 import { timeAgo } from "@/lib/timeUtils";
 import { useAuthStore } from "@/stores/authStore";
 import type { Story } from "@/types/story";
-import { PiBookmarkSimpleBold, PiShareNetworkBold } from "react-icons/pi";
+import { PiShareNetworkBold } from "react-icons/pi";
 
 import { StoryCardBody } from "./story-card/StoryCardBody";
 import { StoryCardDeleteDialog } from "./story-card/StoryCardDeleteDialog";
 import { StoryCardFooter } from "./story-card/StoryCardFooter";
 import { StoryCardHeader } from "./story-card/StoryCardHeader";
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
-import { CommentCountIcon } from "@/components/engagement/CommentCountIcon";
+import { CommentButton } from "@/components/engagement/CommentButton";
+import { BookmarkButton } from "@/components/engagement/BookmarkButton";
 import { useStoryBookmark } from "./story-card/useStoryBookmark";
 import { useStoryReactions } from "./story-card/useStoryReactions";
 import { useStoryShare } from "./story-card/useStoryShare";
@@ -157,25 +158,13 @@ export function StoryCard({
                   count={reactionCount}
                   pending={reactionPending}
                   onToggle={() => void handleSelectReaction("love")}
-                  className={cn(
-                    "flex items-center gap-2 text-sm text-muted-foreground transition-all duration-200",
-                    "hover:text-red-500 hover:bg-red-500/10 px-2 py-1 rounded-lg",
-                    userReaction && "text-red-500",
-                  )}
-                  iconClassName="h-4 w-4"
-                  countClassName="text-sm font-bold"
                   ariaLabel={`React to story. ${reactionCount} reactions`}
                 />
 
-                <Link
-                  to={`/app/stories/${story._id}`}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 px-2 py-1 rounded-lg transition-all duration-200">
-                  <CommentCountIcon
-                    count={story.commentsCount || 0}
-                    className="h-4 w-4"
-                  />
-                  <span className="font-bold">{story.commentsCount || 0}</span>
-                </Link>
+                <CommentButton
+                  postId={story._id}
+                  count={story.commentsCount || 0}
+                />
               </div>
             </div>
           </CardContent>
@@ -187,25 +176,16 @@ export function StoryCard({
               <button
                 type="button"
                 onClick={handleCopyLink}
-                className="p-2 rounded-xl text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10 transition-all duration-200">
-                <PiShareNetworkBold className="h-4 w-4" />
+                className="p-2 rounded-xl text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-500 transition-all duration-200">
+                <PiShareNetworkBold className="h-5 w-5" />
               </button>
 
-              <button
-                type="button"
-                onClick={handleToggleBookmark}
-                disabled={bookmarkPending}
-                className={cn(
-                  "p-2 rounded-xl transition-all duration-200",
-                  "disabled:opacity-50 disabled:cursor-not-allowed",
-                  bookmarked
-                    ? "text-amber-500 bg-amber-500/10"
-                    : "text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10",
-                )}>
-                <PiBookmarkSimpleBold
-                  className={cn("h-4 w-4", bookmarked && "fill-current")}
-                />
-              </button>
+              <BookmarkButton
+                bookmarked={bookmarked}
+                pending={bookmarkPending}
+                onToggle={handleToggleBookmark}
+                ariaLabel={bookmarked ? "Remove bookmark" : "Bookmark story"}
+              />
             </div>
           </CardFooter>
         </Card>

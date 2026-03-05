@@ -36,7 +36,7 @@ export function StoryPageHeader({
           variant="ghost"
           size="sm"
           onClick={onShare}
-          className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10 transition-all duration-200"
+          className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10 transition-all duration-200"
           aria-label="Copy story link">
           <PiShareNetworkBold className="h-4 w-4" aria-hidden="true" />
         </Button>
@@ -58,7 +58,10 @@ export function StoryPageHeader({
               <DropdownMenuItem
                 onClick={onEdit}
                 className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-accent focus:bg-accent">
-                <PiPencilBold className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                <PiPencilBold
+                  className="h-4 w-4 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 Edit story
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/40" />

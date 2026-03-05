@@ -6,7 +6,6 @@ import { showErrorToast } from "@/lib/error-handling/toasts";
 import { FaUsers } from "react-icons/fa";
 
 import {
-  PiBookmarkSimpleBold,
   PiEyeSlashBold,
   PiInfoBold,
   PiDotsThreeBold,
@@ -15,6 +14,7 @@ import {
 } from "react-icons/pi";
 
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
+import { BookmarkButton } from "@/components/engagement/BookmarkButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -211,9 +211,6 @@ export function PollCard({
       setDeletePending(false);
     }
   };
-
-  const actionBase =
-    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground transition-all duration-200 hover:text-foreground";
 
   return (
     <>
@@ -470,24 +467,14 @@ export function PollCard({
                 <div className="flex items-center gap-4">
                   <HeartReactionButton
                     liked={Boolean(userReaction)}
-                    filled={reactionCount > 0}
                     count={reactionCount}
                     pending={reactionPending}
                     onToggle={() => void handleSelectReaction("love")}
                     ariaLabel={`React to poll. ${reactionCount} reactions`}
-                    className={cn(
-                      actionBase,
-                      "hover:bg-red-500/10 hover:text-red-500",
-                    )}
-                    countClassName="text-xs font-bold text-muted-foreground"
                   />
 
                   {hasUserVoted && (
-                    <div
-                      className={cn(
-                        actionBase,
-                        "cursor-default hover:bg-accent",
-                      )}>
+                    <div className="inline-flex items-center gap-2 cursor-default hover:bg-muted/10 p-2 rounded-xl text-muted-foreground/60 hover:text-muted-foreground transition-all">
                       <FaUsers className="h-4 w-4" />
                       <span className="text-[12px] font-bold tabular-nums">
                         {localPoll.totalVotes}
@@ -504,25 +491,12 @@ export function PollCard({
                     </div>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={toggleBookmark}
-                    disabled={bookmarkPending}
-                    className={cn(
-                      "p-2.5 rounded-xl transition-all duration-200",
-                      "disabled:opacity-50 disabled:cursor-not-allowed",
-                      bookmarked
-                        ? "text-amber-500 bg-amber-500/10"
-                        : "text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10",
-                    )}
-                    aria-label={
-                      bookmarked ? "Remove bookmark" : "Bookmark poll"
-                    }
-                    title={bookmarked ? "Remove bookmark" : "Bookmark"}>
-                    <PiBookmarkSimpleBold
-                      className={cn("h-4 w-4", bookmarked && "fill-current")}
-                    />
-                  </button>
+                  <BookmarkButton
+                    bookmarked={bookmarked}
+                    pending={bookmarkPending}
+                    onToggle={toggleBookmark}
+                    ariaLabel={bookmarked ? "Remove bookmark" : "Bookmark poll"}
+                  />
                 </div>
               </div>
             </div>

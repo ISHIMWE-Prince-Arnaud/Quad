@@ -1,4 +1,4 @@
-import { PiHeartBold } from "react-icons/pi";
+import { PiHeartBold, PiHeartFill } from "react-icons/pi";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
@@ -26,8 +26,6 @@ export function HeartReactionButton({
 }) {
   const isFilled = liked || Boolean(filled);
 
-  const baseIconClass = isFilled ? "text-[#f43f5e]" : "text-foreground";
-
   return (
     <button
       type="button"
@@ -36,8 +34,9 @@ export function HeartReactionButton({
       aria-pressed={liked}
       aria-label={ariaLabel}
       className={cn(
-        "relative inline-flex items-center gap-2 rounded-xl transition-all hover:bg-muted/50",
+        "relative inline-flex items-center gap-2 px-3 py-2 rounded-xl transition-all hover:bg-rose-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/60 group",
         "disabled:opacity-50 disabled:cursor-not-allowed",
+        isFilled ? "text-rose-500" : "text-muted-foreground",
         className,
       )}>
       <span className="relative inline-flex items-center justify-center">
@@ -45,12 +44,23 @@ export function HeartReactionButton({
           key={liked ? "liked" : "unliked"}
           initial={{ scale: 1 }}
           animate={liked ? { scale: [1, 1.25, 0.95, 1] } : { scale: 1 }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
           className="relative inline-flex">
-          <PiHeartBold
-            className={cn("h-4 w-4", baseIconClass, iconClassName)}
-            style={{ fill: isFilled ? "currentColor" : "none" }}
-          />
+          {isFilled ? (
+            <PiHeartFill
+              className={cn(
+                "h-[18px] w-[18px] transition-all duration-300 fill-current",
+                iconClassName,
+              )}
+            />
+          ) : (
+            <PiHeartBold
+              className={cn(
+                "h-[18px] w-[18px] transition-all duration-300 text-muted-foreground group-hover:text-rose-500 group-hover:scale-110",
+                iconClassName,
+              )}
+            />
+          )}
         </motion.span>
 
         <AnimatePresence>
@@ -64,7 +74,7 @@ export function HeartReactionButton({
               transition={{ duration: 0.6, ease: "easeOut" }}
               style={{
                 boxShadow:
-                  "0 0 0 2px rgba(244,63,94,0.55), 0 0 22px rgba(244,63,94,0.35)",
+                  "0 0 0 2px rgba(244,63,94,0.4), 0 0 16px rgba(244,63,94,0.3)",
               }}
             />
           )}
@@ -72,7 +82,14 @@ export function HeartReactionButton({
       </span>
 
       {typeof count === "number" && (
-        <span className={cn("text-xs font-bold tabular-nums", countClassName)}>
+        <span
+          className={cn(
+            "text-xs font-bold tabular-nums transition-colors",
+            isFilled
+              ? "text-rose-600"
+              : "text-muted-foreground group-hover:text-rose-500",
+            countClassName,
+          )}>
           {count}
         </span>
       )}

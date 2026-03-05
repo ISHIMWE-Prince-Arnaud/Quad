@@ -1,9 +1,8 @@
-import { Link } from "react-router-dom";
-import { PiBookmarkSimpleBold, PiShareNetworkBold } from "react-icons/pi";
+import { PiShareNetworkBold } from "react-icons/pi";
 
-import { cn } from "@/lib/utils";
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
-import { CommentCountIcon } from "@/components/engagement/CommentCountIcon";
+import { CommentButton } from "@/components/engagement/CommentButton";
+import { BookmarkButton } from "@/components/engagement/BookmarkButton";
 import type { ReactionType } from "@/services/reactionService";
 
 export function PostCardFooter({
@@ -29,58 +28,35 @@ export function PostCardFooter({
   reactionCount: number;
   onSelectReaction: (type: ReactionType) => void | Promise<void>;
 }) {
-  const actionBase =
-    "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground transition-all";
-
   return (
     <>
-      <div className="flex items-center gap-6 flex-1">
+      <div className="flex items-center gap-4 flex-1">
         <HeartReactionButton
           liked={Boolean(userReaction)}
           count={reactionCount}
           pending={reactionPending}
           onToggle={() => void onSelectReaction("love")}
           ariaLabel={`React to post. ${reactionCount} reactions`}
-          className={cn(actionBase, "hover:bg-red-500/10 hover:text-red-500")}
-          countClassName="text-xs font-bold text-muted-foreground"
         />
 
-        <Link
-          to={`/app/posts/${postId}`}
-          className={cn(actionBase, "hover:bg-primary/10 hover:text-primary")}
-          aria-label={`${commentsCount} comments`}
-          title="Comments">
-          <CommentCountIcon count={commentsCount} className="h-4 w-4" />
-          <span className="text-xs font-bold">{commentsCount}</span>
-        </Link>
+        <CommentButton postId={postId} count={commentsCount} />
 
         <button
           type="button"
           onClick={onCopyLink}
-          className={cn(actionBase, "hover:bg-success/10 hover:text-success")}
+          className="p-2 rounded-xl text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-500 transition-all duration-200"
           aria-label="Share post"
           title="Share">
-          <PiShareNetworkBold className="h-4 w-4" />
+          <PiShareNetworkBold className="h-5 w-5" />
         </button>
       </div>
 
-      <button
-        type="button"
-        onClick={onToggleBookmark}
-        disabled={bookmarkPending}
-        className={cn(
-          "p-2 rounded-xl transition-all",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
-          bookmarked
-            ? "text-[#f59e0b] bg-[#f59e0b]/10"
-            : "text-muted-foreground hover:text-warning hover:bg-warning/5",
-        )}
-        aria-label={bookmarked ? "Remove bookmark" : "Bookmark post"}
-        title={bookmarked ? "Remove bookmark" : "Bookmark"}>
-        <PiBookmarkSimpleBold
-          className={cn("h-4 w-4", bookmarked && "fill-current")}
-        />
-      </button>
+      <BookmarkButton
+        bookmarked={bookmarked}
+        pending={bookmarkPending}
+        onToggle={onToggleBookmark}
+        ariaLabel={bookmarked ? "Remove bookmark" : "Bookmark post"}
+      />
     </>
   );
 }

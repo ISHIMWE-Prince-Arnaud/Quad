@@ -2,10 +2,10 @@ import { NotificationRow } from "@/pages/notifications/NotificationRow";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   PiPaperPlaneRightBold,
-  PiHeartBold,
-  PiChatDotsBold,
+  PiHeartFill,
+  PiChatCircleFill,
   PiShareNetworkBold,
-  PiBookmarkSimpleBold,
+  PiBookmarkSimpleFill,
   PiEyeSlashBold,
   PiCameraBold,
   PiCalendarBold,
@@ -61,20 +61,20 @@ export const MockPostCard = () => {
       {/* Footer */}
       <div className="flex items-center justify-between mt-2">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
-            <PiHeartBold size={18} className="fill-current" />
+          <div className="flex items-center gap-2 text-rose-500 font-bold transition-all p-2 rounded-xl hover:bg-rose-500/10 cursor-pointer">
+            <PiHeartFill size={18} className="fill-current" />
             <span className="text-xs">128</span>
           </div>
-          <div className="flex items-center gap-1.5 text-blue-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
-            <PiChatDotsBold size={18} className="fill-current" />
+          <div className="flex items-center gap-2 text-primary font-bold transition-all p-2 rounded-xl hover:bg-primary/10 cursor-pointer">
+            <PiChatCircleFill size={18} className="fill-current" />
             <span className="text-xs">24</span>
           </div>
-          <div className="flex items-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+          <div className="flex items-center text-muted-foreground p-2 rounded-xl hover:bg-emerald-500/10 hover:text-emerald-500 cursor-pointer transition-all">
             <PiShareNetworkBold size={18} />
           </div>
         </div>
-        <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
-          <PiBookmarkSimpleBold size={18} className="fill-current" />
+        <div className="flex items-center justify-center p-2 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 cursor-pointer transition-colors">
+          <PiBookmarkSimpleFill size={18} className="fill-current" />
         </div>
       </div>
     </div>
@@ -176,11 +176,13 @@ export const MockPollCard = () => {
       <div className="border-t border-border/40 pt-4">
         <div className="flex items-center justify-between text-muted-foreground">
           <div className="flex items-center gap-4">
-            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all duration-200 cursor-pointer">
-              <PiHeartBold size={18} className="text-rose-500 fill-rose-500" />
-              <span className="text-xs font-bold">84</span>
+            <div className="inline-flex items-center gap-2 p-2 rounded-xl text-rose-500 font-bold hover:bg-rose-500/10 cursor-pointer transition-all">
+              <span className="relative flex items-center justify-center">
+                <PiHeartFill size={18} className="fill-current" />
+              </span>
+              <span className="text-xs">84</span>
             </div>
-            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground hover:bg-accent transition-all duration-200 cursor-default">
+            <div className="inline-flex items-center gap-2 p-2 rounded-xl text-muted-foreground/60 hover:bg-muted/10 cursor-default transition-all">
               <FaUsers size={18} />
               <span className="text-[12px] font-bold tabular-nums">1200</span>
             </div>
@@ -192,8 +194,8 @@ export const MockPollCard = () => {
               <span>ANONYMOUS</span>
             </div>
 
-            <div className="p-2.5 rounded-xl text-amber-500 bg-amber-500/10 transition-all duration-200 cursor-pointer">
-              <PiBookmarkSimpleBold size={18} className="fill-current" />
+            <div className="p-2 rounded-xl text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 cursor-pointer transition-all">
+              <PiBookmarkSimpleFill size={18} className="fill-current" />
             </div>
           </div>
         </div>
@@ -229,11 +231,22 @@ export const MockStoryCard = () => {
 
         {/* Engagement Row */}
         <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-rose-500 font-bold p-2 rounded-xl hover:bg-rose-500/10 cursor-pointer transition-all">
+              <PiHeartFill size={18} className="fill-current" />
+              <span className="text-xs">54</span>
+            </div>
+            <div className="flex items-center gap-2 text-primary font-bold p-2 rounded-xl hover:bg-primary/10 cursor-pointer transition-all">
+              <PiChatCircleFill size={18} className="fill-current" />
+              <span className="text-xs">12</span>
+            </div>
+          </div>
+
           <div className="flex items-center gap-2.5">
             <Avatar className="h-7 w-7 shrink-0 border border-border/40 bg-muted/20">
               <AvatarImage
                 className="object-cover"
-                src="https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?q=80&w=876&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                src="https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?q=80&w=876&auto=format&fit=crop"
                 alt="@alice_dev"
               />
               <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
@@ -247,17 +260,6 @@ export const MockStoryCard = () => {
               </span>
             </div>
           </div>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5 text-rose-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
-              <PiHeartBold size={16} className="fill-current" />
-              <span className="text-xs">54</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-blue-500 font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
-              <PiChatDotsBold size={16} className="fill-current" />
-              <span className="text-xs">12</span>
-            </div>
-          </div>
         </div>
 
         {/* Action Row */}
@@ -266,11 +268,11 @@ export const MockStoryCard = () => {
             5 hours ago
           </span>
           <div className="flex items-center gap-3">
-            <div className="flex items-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+            <div className="flex items-center text-muted-foreground p-2 rounded-xl hover:bg-emerald-500/10 hover:text-emerald-500 cursor-pointer transition-all">
               <PiShareNetworkBold size={18} />
             </div>
-            <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-amber-500/10 text-amber-500 cursor-pointer hover:bg-amber-500/20 transition-colors">
-              <PiBookmarkSimpleBold size={18} className="fill-current" />
+            <div className="flex items-center justify-center p-2 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 cursor-pointer transition-all">
+              <PiBookmarkSimpleFill size={18} className="fill-current" />
             </div>
           </div>
         </div>

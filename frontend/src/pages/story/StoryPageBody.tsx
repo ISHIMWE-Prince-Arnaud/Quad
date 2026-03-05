@@ -1,9 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
+import { BookmarkButton } from "@/components/engagement/BookmarkButton";
 import type { ReactionType } from "@/services/reactionService";
 import { timeAgo } from "@/lib/timeUtils";
-import { PiBookmarkSimpleBold } from "react-icons/pi";
-import { cn } from "@/lib/utils";
 import { useStoryBookmark } from "@/components/stories/story-card/useStoryBookmark";
 
 export function StoryPageBody({
@@ -69,28 +68,15 @@ export function StoryPageBody({
               liked={Boolean(userReaction)}
               count={totalReactions}
               onToggle={() => onSelectReaction("love")}
-              className="px-4 py-2 hover:bg-red-500/10 hover:text-red-500 transition-all duration-200"
-              countClassName="text-sm font-bold"
               ariaLabel={`React to story. ${totalReactions} reactions`}
             />
 
-            <button
-              type="button"
-              onClick={handleToggleBookmark}
-              disabled={bookmarkPending}
-              className={cn(
-                "p-2.5 rounded-xl transition-all duration-200",
-                "disabled:opacity-50 disabled:cursor-not-allowed",
-                bookmarked
-                  ? "text-amber-500 bg-amber-500/10"
-                  : "text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10",
-              )}
-              aria-label={bookmarked ? "Remove bookmark" : "Bookmark story"}
-              title={bookmarked ? "Remove bookmark" : "Bookmark"}>
-              <PiBookmarkSimpleBold
-                className={cn("h-4 w-4", bookmarked && "fill-current")}
-              />
-            </button>
+            <BookmarkButton
+              bookmarked={bookmarked}
+              pending={bookmarkPending}
+              onToggle={handleToggleBookmark}
+              ariaLabel={bookmarked ? "Remove bookmark" : "Bookmark story"}
+            />
           </div>
         </CardContent>
       </Card>
