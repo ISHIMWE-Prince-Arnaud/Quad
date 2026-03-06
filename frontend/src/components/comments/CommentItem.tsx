@@ -8,7 +8,7 @@ import { CommentBody } from "./comment-item/CommentBody";
 import { CommentEngagementBar } from "./comment-item/CommentEngagementBar";
 import { CommentHeader } from "./comment-item/CommentHeader";
 import { useCommentEdit } from "./comment-item/useCommentEdit";
-import { useCommentLike } from "./comment-item/useCommentLike";
+import { useCommentReactions } from "./comment-item/useCommentReactions";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { showErrorToast } from "@/lib/error-handling/toasts";
 
@@ -28,10 +28,11 @@ export function CommentItem({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletePending, setDeletePending] = useState(false);
 
-  const { likesCount, liked, likePending, toggleLike } = useCommentLike({
-    commentId: comment._id,
-    initialCount: comment.likesCount || 0,
-  });
+  const { userReaction, reactionPending, reactionCount, selectReaction } =
+    useCommentReactions({
+      commentId: comment._id,
+      initialCount: comment.reactionsCount || 0,
+    });
 
   const {
     bodyText,
@@ -95,10 +96,10 @@ export function CommentItem({
           />
 
           <CommentEngagementBar
-            liked={liked}
-            likesCount={likesCount}
-            likePending={likePending}
-            onToggleLike={() => void toggleLike()}
+            liked={Boolean(userReaction)}
+            likesCount={reactionCount}
+            likePending={reactionPending}
+            onToggleLike={() => void selectReaction("love")}
           />
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BackButton } from "@/components/ui/BackButton";
 import { Button } from "@/components/ui/button";
@@ -98,6 +98,18 @@ export default function EditPostPage() {
     }
   };
 
+  const initialValues = useMemo((): CreatePostData => {
+    if (!post) return { text: "", media: [] };
+    return {
+      text: post.text ?? "",
+      media: (post.media ?? []).map((m) => ({
+        url: m.url,
+        type: m.type,
+        ...(m.aspectRatio ? { aspectRatio: m.aspectRatio } : {}),
+      })),
+    };
+  }, [post]);
+
   if (loading) {
     return <LoadingPage />;
   }
@@ -120,15 +132,6 @@ export default function EditPostPage() {
     );
   }
 
-  const initialValues: CreatePostData = {
-    text: post.text ?? "",
-    media: (post.media ?? []).map((m) => ({
-      url: m.url,
-      type: m.type,
-      ...(m.aspectRatio ? { aspectRatio: m.aspectRatio } : {}),
-    })),
-  };
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <div className="mb-6 flex items-center justify-between">
@@ -137,6 +140,7 @@ export default function EditPostPage() {
 
       <CreatePostForm
         onSubmit={handleSubmit}
+        onCancel={() => navigate(-1)}
         isLoading={isSubmitting}
         initialValues={initialValues}
       />
