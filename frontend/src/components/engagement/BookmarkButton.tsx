@@ -24,13 +24,15 @@ export function BookmarkButton({
       aria-pressed={bookmarked}
       aria-label={ariaLabel}
       title={ariaLabel}
-      className={cn(
-        "relative inline-flex items-center justify-center p-2 rounded-xl transition-all group",
-        "disabled:opacity-50 disabled:cursor-not-allowed",
-        "hover:bg-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60",
-        bookmarked ? "text-amber-500" : "text-muted-foreground",
-        className,
-      )}>
+        className={cn(
+          "relative inline-flex items-center justify-center p-2 rounded-xl transition-all group",
+          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60",
+          bookmarked
+            ? "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"
+            : "text-muted-foreground hover:bg-amber-500/10",
+          className,
+        )}>
       <div className="relative inline-flex items-center justify-center">
         {bookmarked ? (
           <PiBookmarkSimpleFill
