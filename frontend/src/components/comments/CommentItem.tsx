@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Comment } from "@/types/comment";
 import { CommentService } from "@/services/commentService";
@@ -70,12 +71,16 @@ export function CommentItem({
   return (
     <div className="group">
       <div className="flex gap-3">
-        <Avatar className="h-9 w-9 shrink-0">
-          <AvatarImage src={comment.author.profileImage} />
-          <AvatarFallback className="bg-muted text-muted-foreground font-medium">
-            {comment.author.username.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <Link
+          to={`/app/profile/${comment.author.username}`}
+          className="shrink-0 hover:opacity-80 transition-opacity">
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={comment.author.profileImage} />
+            <AvatarFallback className="bg-muted text-muted-foreground font-medium">
+              {comment.author.username.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </Link>
 
         <div className="flex-1 min-w-0">
           <CommentHeader

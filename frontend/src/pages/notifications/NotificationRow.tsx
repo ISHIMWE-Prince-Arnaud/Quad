@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { PiCheckBold, PiTrashBold } from "react-icons/pi";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -40,23 +41,39 @@ export function NotificationRow({
         <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-primary" />
       )}
 
-      <Avatar className="h-10 w-10 shrink-0 border border-border/50">
-        {notification.actor?.profileImage ? (
-          <AvatarImage src={notification.actor.profileImage} />
-        ) : (
+      {hasActor ? (
+        <Link
+          to={`/app/profile/${notification.actor?.username}`}
+          onClick={(e) => e.stopPropagation()}
+          className="shrink-0 hover:opacity-80 transition-opacity">
+          <Avatar className="h-10 w-10 border border-border/50">
+            {notification.actor?.profileImage ? (
+              <AvatarImage src={notification.actor.profileImage} />
+            ) : (
+              <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                {avatarInitial}
+              </AvatarFallback>
+            )}
+          </Avatar>
+        </Link>
+      ) : (
+        <Avatar className="h-10 w-10 shrink-0 border border-border/50">
           <AvatarFallback className="bg-muted text-muted-foreground text-xs">
             {avatarInitial}
           </AvatarFallback>
-        )}
-      </Avatar>
+        </Avatar>
+      )}
 
       <div className="flex-1 min-w-0 flex flex-col justify-center">
         <div className="flex justify-between items-start gap-2">
           <div className="text-sm leading-snug">
             {hasActor && (
-              <span className="font-semibold text-primary mr-1">
+              <Link
+                to={`/app/profile/${notification.actor?.username}`}
+                onClick={(e) => e.stopPropagation()}
+                className="font-semibold text-primary mr-1 hover:underline underline-offset-2">
                 @{displayName}
-              </span>
+              </Link>
             )}
             <span className="text-foreground/80">{notification.message}</span>
           </div>

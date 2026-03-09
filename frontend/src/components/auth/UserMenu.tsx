@@ -1,4 +1,5 @@
 import { useAuth, useUser, UserButton } from "@clerk/clerk-react";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { useThemeStore } from "@/stores/themeStore";
 import { getClerkAppearance } from "@/lib/clerkTheme";
@@ -80,7 +81,7 @@ export function UserAvatar({ className }: { className?: string }) {
       ? `${user.firstName} ${user.lastName}`
       : user?.firstName || user?.username || "User";
 
-  return (
+  const content = (
     <Avatar className={cn("h-10 w-10", className)}>
       <AvatarImage
         src={user?.profileImage}
@@ -92,4 +93,16 @@ export function UserAvatar({ className }: { className?: string }) {
       </AvatarFallback>
     </Avatar>
   );
+
+  if (user?.username) {
+    return (
+      <Link
+        to={`/app/profile/${user.username}`}
+        className="hover:opacity-90 transition-opacity">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 }

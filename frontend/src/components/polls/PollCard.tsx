@@ -329,7 +329,12 @@ export function PollCard({
 
               {!hasAvatar && (
                 <div className="flex items-center justify-between gap-3 w-full">
-                  <div className={cn("min-w-0", !subtitle && "text-center")}>
+                  <Link
+                    to={`/app/profile/${poll.author.username}`}
+                    className={cn(
+                      "min-w-0 hover:opacity-90 transition-opacity",
+                      !subtitle && "text-center",
+                    )}>
                     <div className="text-[14px] font-bold text-foreground leading-tight truncate">
                       {displayName}
                     </div>
@@ -341,7 +346,7 @@ export function PollCard({
                         {subtitle}
                       </div>
                     )}
-                  </div>
+                  </Link>
 
                   <div className="flex items-center gap-2 shrink-0">
                     <Badge className={badgeClassName} title={badgeTitle}>

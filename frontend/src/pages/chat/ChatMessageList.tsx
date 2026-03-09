@@ -1,5 +1,6 @@
 import { memo, useEffect } from "react";
 import type { RefObject } from "react";
+import { Link } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -243,16 +244,20 @@ export const ChatMessageList = memo(function ChatMessageList({
                     )}>
                     {!isSelf &&
                       (showAvatar ? (
-                        <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40 hover:scale-105 transition-transform duration-200">
-                          <AvatarImage
-                            src={m.author.profileImage}
-                            alt={m.author.username}
-                            className="object-cover"
-                          />
-                          <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
-                            {m.author.username?.[0]?.toUpperCase() || "U"}
-                          </AvatarFallback>
-                        </Avatar>
+                        <Link
+                          to={`/app/profile/${m.author.username}`}
+                          className="hover:opacity-80 transition-opacity">
+                          <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40 hover:scale-105 transition-transform duration-200">
+                            <AvatarImage
+                              src={m.author.profileImage}
+                              alt={m.author.username}
+                              className="object-cover"
+                            />
+                            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                              {m.author.username?.[0]?.toUpperCase() || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                        </Link>
                       ) : (
                         <div className="w-9 shrink-0" />
                       ))}
@@ -270,17 +275,21 @@ export const ChatMessageList = memo(function ChatMessageList({
                               : "flex items-center justify-start gap-2 mb-2 w-full"
                           }>
                           {!isSelf && (
-                            <span className="text-sm font-semibold text-foreground">
+                            <Link
+                              to={`/app/profile/${m.author.username}`}
+                              className="text-sm font-semibold text-foreground hover:text-primary transition-colors">
                               {headerName}
-                            </span>
+                            </Link>
                           )}
                           <span className="text-xs text-muted-foreground/60 tabular-nums">
                             {headerTime}
                           </span>
                           {isSelf && (
-                            <span className="text-sm font-bold text-foreground">
+                            <Link
+                              to={`/app/profile/${user?.username}`}
+                              className="text-sm font-bold text-foreground hover:text-primary transition-colors">
                               {headerName}
-                            </span>
+                            </Link>
                           )}
                         </div>
                       )}
@@ -340,16 +349,20 @@ export const ChatMessageList = memo(function ChatMessageList({
 
                     {isSelf &&
                       (showAvatar ? (
-                        <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-primary/20 hover:scale-105 transition-transform duration-200">
-                          <AvatarImage
-                            src={user?.profileImage}
-                            alt={user?.username}
-                            className="object-cover"
-                          />
-                          <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
-                            {user?.username?.[0]?.toUpperCase() || "U"}
-                          </AvatarFallback>
-                        </Avatar>
+                        <Link
+                          to={`/app/profile/${user?.username}`}
+                          className="hover:opacity-80 transition-opacity">
+                          <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-primary/20 hover:scale-105 transition-transform duration-200">
+                            <AvatarImage
+                              src={user?.profileImage}
+                              alt={user?.username}
+                              className="object-cover"
+                            />
+                            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                              {user?.username?.[0]?.toUpperCase() || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                        </Link>
                       ) : (
                         <div className="w-9 shrink-0" />
                       ))}
@@ -405,15 +418,19 @@ export const ChatMessageList = memo(function ChatMessageList({
                       </div>
 
                       {showAvatar ? (
-                        <Avatar className="h-8 w-8 shrink-0 opacity-80">
-                          <AvatarImage
-                            src={user?.profileImage}
-                            alt={user?.username}
-                          />
-                          <AvatarFallback>
-                            {user?.username?.[0]?.toUpperCase() || "U"}
-                          </AvatarFallback>
-                        </Avatar>
+                        <Link
+                          to={`/app/profile/${user?.username}`}
+                          className="hover:opacity-80 transition-opacity">
+                          <Avatar className="h-8 w-8 shrink-0 opacity-80">
+                            <AvatarImage
+                              src={user?.profileImage}
+                              alt={user?.username}
+                            />
+                            <AvatarFallback>
+                              {user?.username?.[0]?.toUpperCase() || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                        </Link>
                       ) : (
                         <div className="w-9 shrink-0" />
                       )}
@@ -435,12 +452,16 @@ export const ChatMessageList = memo(function ChatMessageList({
                   <div className="absolute inset-0 -translate-x-full animate-[shimmer-sweep_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                 </div>
               </div>
-              <Avatar className="h-8 w-8 shrink-0 opacity-80">
-                <AvatarImage src={user?.profileImage} alt={user?.username} />
-                <AvatarFallback>
-                  {user?.username?.[0]?.toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
+              <Link
+                to={`/app/profile/${user?.username}`}
+                className="hover:opacity-80 transition-opacity">
+                <Avatar className="h-8 w-8 shrink-0 opacity-80">
+                  <AvatarImage src={user?.profileImage} alt={user?.username} />
+                  <AvatarFallback>
+                    {user?.username?.[0]?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
             </div>
           </div>
         )}

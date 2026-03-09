@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { timeAgo } from "@/lib/timeUtils";
 import { PiDotsThreeBold, PiPencilBold, PiTrashBold } from "react-icons/pi";
 
@@ -27,9 +28,11 @@ export function CommentHeader({
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0 flex items-center gap-2">
-        <span className="truncate text-[13px] font-bold text-foreground">
+        <Link
+          to={`/app/profile/${comment.author.username}`}
+          className="truncate text-[13px] font-bold text-foreground hover:text-primary transition-colors">
           {comment.author.username}
-        </span>
+        </Link>
         {isAuthor && (
           <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wide">
             Author
