@@ -16,7 +16,6 @@ import { logError } from "@/lib/errorHandling";
 
 import { getErrorMessage } from "./polls/getErrorMessage";
 import { PollCard } from "@/components/polls/PollCard";
-import { PollsHeader } from "./polls/PollsHeader";
 
 export default function PollsPage() {
   const location = useLocation();
@@ -244,8 +243,6 @@ export default function PollsPage() {
 
   return (
     <div className="mx-auto max-w-[620px] space-y-6">
-      <PollsHeader />
-
       {error && (
         <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
           {error}
