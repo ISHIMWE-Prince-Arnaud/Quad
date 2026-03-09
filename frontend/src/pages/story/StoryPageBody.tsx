@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import { BookmarkButton } from "@/components/engagement/BookmarkButton";
 import type { ReactionType } from "@/services/reactionService";
 import { timeAgo } from "@/lib/timeUtils";
 import { useStoryBookmark } from "@/components/stories/story-card/useStoryBookmark";
+import { MediaLightbox } from "@/components/ui/MediaLightbox";
 
 export function StoryPageBody({
   storyId,
@@ -30,6 +32,7 @@ export function StoryPageBody({
 }) {
   const { bookmarked, bookmarkPending, handleToggleBookmark } =
     useStoryBookmark(storyId);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   return (
     <>
@@ -38,7 +41,8 @@ export function StoryPageBody({
           <img
             src={coverImage}
             alt={title}
-            className="w-full max-h-[420px] object-cover"
+            className="w-full max-h-[420px] object-cover cursor-pointer hover:opacity-95 transition-opacity duration-200"
+            onClick={() => setLightboxOpen(true)}
           />
         </div>
       )}
@@ -80,6 +84,17 @@ export function StoryPageBody({
           </div>
         </CardContent>
       </Card>
+
+      {coverImage && (
+        <MediaLightbox
+          media={[{ url: coverImage, type: "image" }]}
+          currentIndex={0}
+          open={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          onNext={() => {}}
+          onPrev={() => {}}
+        />
+      )}
     </>
   );
 }

@@ -34,6 +34,7 @@ import { PollOptionBar } from "./poll-card/PollOptionBar";
 import { usePollBookmark } from "./poll-card/usePollBookmark";
 import { usePollReactions } from "./poll-card/usePollReactions";
 import { usePollVoting } from "./poll-card/usePollVoting";
+import { MediaLightbox } from "@/components/ui/MediaLightbox";
 
 const displayNameFromAuthor = (poll: Poll): string => {
   const first = poll.author.firstName?.trim();
@@ -211,6 +212,8 @@ export function PollCard({
       setDeletePending(false);
     }
   };
+
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   return (
     <>
@@ -438,7 +441,8 @@ export function PollCard({
                 <img
                   src={mediaUrl!}
                   alt=""
-                  className="w-full h-64 object-cover rounded-2xl border border-border/40"
+                  className="w-full h-64 object-cover rounded-2xl border border-border/40 cursor-pointer hover:opacity-95 transition-opacity duration-200"
+                  onClick={() => setLightboxOpen(true)}
                 />
               </div>
             )}
@@ -543,7 +547,23 @@ export function PollCard({
         onConfirm={handleDelete}
         loading={deletePending}
       />
+
+      {hasMedia && (
+        <MediaLightbox
+          media={[
+            {
+              url: mediaUrl!,
+              type: "image",
+              aspectRatio: poll.questionMedia?.aspectRatio,
+            },
+          ]}
+          currentIndex={0}
+          open={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          onNext={() => {}}
+          onPrev={() => {}}
+        />
+      )}
     </>
   );
 }
-
