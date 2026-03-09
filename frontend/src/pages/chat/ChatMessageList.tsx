@@ -11,9 +11,15 @@ import {
   PiChatCircleBold,
   PiPencilBold,
   PiTrashBold,
+  PiDotsThreeVerticalBold,
 } from "react-icons/pi";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 type MinimalUser = {
   clerkId: string;
@@ -193,28 +199,29 @@ export const ChatMessageList = memo(function ChatMessageList({
               const showAvatar = startsNewGroup;
               const showHeader = startsNewGroup;
               const showActions = isSelf;
+
               const bubbleBase =
-                "relative w-fit max-w-full break-words px-4 py-2.5 shadow-sm transition-all duration-200 group-hover:shadow-md";
+                "relative w-fit max-w-full break-words px-4 py-2.5 shadow-sm transition-all duration-300 group-hover:shadow-card-hover";
               const bubbleClass = isSelf
                 ? cn(
                     bubbleBase,
-                    "bg-primary text-primary-foreground shadow-primary/15 border border-primary/10",
+                    "bg-primary text-primary-foreground shadow-primary/20",
                     startsNewGroup
-                      ? "rounded-[1.25rem] rounded-tr-lg"
-                      : "rounded-[1.25rem]",
+                      ? "rounded-[1.5rem] rounded-tr-[0.5rem]"
+                      : "rounded-[1.5rem]",
                   )
                 : cn(
                     bubbleBase,
-                    "bg-card text-foreground border border-border/50 hover:bg-muted/20 dark:bg-muted dark:border-transparent",
+                    "bg-card text-foreground border border-border/40 hover:border-border/60",
                     startsNewGroup
-                      ? "rounded-[1.25rem] rounded-tl-lg"
-                      : "rounded-[1.25rem]",
+                      ? "rounded-[1.5rem] rounded-tl-[0.5rem]"
+                      : "rounded-[1.5rem]",
                   );
 
               const headerName = isSelf ? "You" : m.author.username;
-              const headerTime = `${formatTimeOnly(new Date(m.createdAt))}${
-                m.isEdited ? " • edited" : ""
-              }`;
+              const headerTime = m.isEdited
+                ? "edited"
+                : formatTimeOnly(new Date(m.createdAt));
 
               return (
                 <div
@@ -278,33 +285,56 @@ export const ChatMessageList = memo(function ChatMessageList({
                         </div>
                       )}
 
-                      <div className={bubbleClass}>
-                        {showActions && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.8, y: 4 }}
-                            whileInView={{ opacity: 0 }}
-                            className="absolute -top-3.5 right-2 z-10 opacity-0 group-hover:!opacity-100 transition-opacity duration-150 flex items-center gap-0.5 bg-background/95 backdrop-blur-sm border border-border/60 shadow-md rounded-full p-0.5">
-                            <button
-                              onClick={() => onStartEdit(m)}
-                              className="p-1.5 text-muted-foreground/70 hover:text-foreground hover:bg-muted rounded-full transition-all duration-150 hover:scale-110 active:scale-95"
-                              title="Edit message">
-                              <PiPencilBold className="h-3.5 w-3.5" />
-                            </button>
-                            <div className="w-[1px] h-3 bg-border/60 mx-0.5" />
-                            <button
-                              onClick={() => onDeleteMessage(m.id)}
-                              className="p-1.5 text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 rounded-full transition-all duration-150 hover:scale-110 active:scale-95"
-                              title="Delete message">
-                              <PiTrashBold className="h-3.5 w-3.5" />
-                            </button>
-                          </motion.div>
-                        )}
-
-                        {m.text && (
-                          <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
-                            {linkifyText(m.text)}
+                      <div className="relative group/bubble flex items-center gap-2">
+                        {isSelf && showActions && (
+                          <div className="opacity-0 group-hover/bubble:opacity-100 transition-opacity duration-200 flex shrink-0">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-muted/80 text-muted-foreground/60 hover:text-foreground transition-colors"
+                                  title="Message options">
+                                  <PiDotsThreeVerticalBold className="h-4 w-4" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align="end"
+                                className="min-w-[140px] rounded-xl border border-border bg-popover/95 backdrop-blur-md p-1 shadow-xl animate-in fade-in-0 zoom-in-95">
+                                <DropdownMenuItem
+                                  onClick={() => onStartEdit(m)}
+                                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer hover:bg-accent focus:bg-accent transition-colors">
+                                  <PiPencilBold className="h-4 w-4 opacity-70" />
+                                  <span>Edit</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => onDeleteMessage(m.id)}
+                                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10 transition-colors">
+                                  <PiTrashBold className="h-4 w-4 opacity-70" />
+                                  <span>Delete</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         )}
+
+                        <div className={cn(bubbleClass, "overflow-hidden")}>
+                          {m.text && (
+                            <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-all">
+                              {linkifyText(m.text)}
+                            </div>
+                          )}
+                          {!showHeader && (
+                            <div
+                              className={cn(
+                                "text-[10px] mt-1 tabular-nums opacity-0 group-hover/bubble:opacity-60 transition-opacity duration-200",
+                                isSelf
+                                  ? "text-right text-primary-foreground/80"
+                                  : "text-left text-muted-foreground",
+                              )}>
+                              {formatTimeOnly(new Date(m.createdAt))}
+                              {m.isEdited && " • edited"}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -340,7 +370,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                 const showAvatar = startsNewGroup;
                 const showHeader = startsNewGroup;
                 const bubbleBase =
-                  "relative w-fit max-w-full break-words rounded-2xl px-4 py-2.5 shadow-sm transition-all duration-200";
+                  "relative w-fit max-w-full break-all rounded-2xl px-4 py-2.5 shadow-sm transition-all duration-200";
 
                 return (
                   <div
@@ -366,7 +396,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                             bubbleBase,
                             "bg-primary/50 text-primary-foreground rounded-[1.25rem] rounded-tr-lg overflow-hidden",
                           )}>
-                          <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words relative z-10">
+                          <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-all relative z-10">
                             {pendingOutgoingText}
                           </div>
                           {/* Shimmer sweep */}
@@ -398,8 +428,8 @@ export const ChatMessageList = memo(function ChatMessageList({
           <div className="pt-1">
             <div className="flex items-start gap-3 justify-end">
               <div className="flex flex-col max-w-[75%] min-w-0 items-end">
-                <div className="relative w-fit max-w-full break-words rounded-[1.25rem] rounded-tr-lg px-4 py-2.5 shadow-sm bg-primary/50 text-primary-foreground overflow-hidden">
-                  <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words relative z-10">
+                <div className="relative w-fit max-w-full break-all rounded-[1.25rem] rounded-tr-lg px-4 py-2.5 shadow-sm bg-primary/50 text-primary-foreground overflow-hidden">
+                  <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-all relative z-10">
                     {pendingOutgoingText}
                   </div>
                   <div className="absolute inset-0 -translate-x-full animate-[shimmer-sweep_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />

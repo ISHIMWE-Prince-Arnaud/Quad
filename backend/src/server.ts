@@ -21,7 +21,8 @@ import { setupFeedSocket } from "./sockets/feed.socket.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import healthRoutes from "./routes/health.routes.js";
 import apiRouter from "./routes/index.js";
-import { clerkMiddleware, clerkClient } from "@clerk/express";
+import { clerkMiddleware } from "@clerk/express";
+import { verifyToken } from "@clerk/backend";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger.config.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
@@ -90,19 +91,16 @@ io.use(async (socket, next) => {
   }
 
   try {
-    // 🔐 Verify Clerk token (session token)
+    // 🔐 Verify Clerk session token
     // The frontend sends the Clerk session token (obtained via getToken())
-    type ClerkTokenVerifier = {
-      verifyToken: (token: string) => Promise<{ sub: string }>;
-    };
-    const session = await (
-      clerkClient as unknown as ClerkTokenVerifier
-    ).verifyToken(token);
+    const verified = await verifyToken(token, {
+      secretKey: env.CLERK_SECRET_KEY,
+    });
 
-    // Store the clerkId (sub) from the verified session for downstream handlers
-    socket.data.userId = session.sub;
+    // Store the clerkId (sub) from the verified token for downstream handlers
+    socket.data.userId = verified.sub;
 
-    logger.debug(`Socket authenticated for user: ${session.sub}`);
+    logger.debug(`Socket authenticated for user: ${verified.sub}`);
     next();
   } catch (error) {
     logger.error(`Socket auth failed (invalid token): ${socket.id}`, error);
