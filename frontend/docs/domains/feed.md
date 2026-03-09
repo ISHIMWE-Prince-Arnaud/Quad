@@ -26,15 +26,11 @@
 
 - Initial load:
   - `FeedService.getFeed(feedType, { tab, limit, sort })`
-- New count polling:
-  - `FeedService.getNewContentCount({ feedType, tab, since: lastSeenId })` (interval)
 
 ## Realtime integration
 
 Listeners are registered in `useFeedController`:
 
-- `feed:new-content`
-  - Behavior: refresh immediately if near top; otherwise increments `newCount`.
 - `feed:engagement-update`
   - Behavior:
     - For posts: updates `reactionsCount` and `commentsCount` in the cached feed item.

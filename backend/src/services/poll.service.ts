@@ -12,7 +12,6 @@ import { getSocketIO } from "../config/socket.config.js";
 import {
   emitContentDeleted,
   emitEngagementUpdate,
-  emitNewContent,
 } from "../sockets/feed.socket.js";
 import {
   canViewResults,
@@ -68,7 +67,6 @@ export class PollService {
 
     const io = getSocketIO();
     io.emit("newPoll", poll);
-    emitNewContent(io, "poll", String(poll._id), poll.author.clerkId);
 
     return poll;
   }

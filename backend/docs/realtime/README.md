@@ -57,6 +57,5 @@ There is no server-side conversation/thread model, presence system, message reac
 - Room join/leave:
   - `feed:join` / `feed:leave` with payload `userId: string`
 - Feed events are emitted globally via `io.emit(...)`:
-  - `feed:new-content`
   - `feed:engagement-update`
   - `feed:content-deleted`

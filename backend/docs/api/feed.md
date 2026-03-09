@@ -5,20 +5,18 @@ Personalized feed endpoints.
 ## 4dd Endpoints
 
 ### Get feed (defaults to For You)
+
 **GET** `/api/feed`
 
 Query params validated by `feedQuerySchema`.
 
 ### Get following feed
+
 **GET** `/api/feed/following`
 
 ### Get For You feed
+
 **GET** `/api/feed/foryou`
-
-### Get new content count
-**GET** `/api/feed/new-count`
-
-Query params validated by `newCountQuerySchema`.
 
 ## 510 Authentication
 

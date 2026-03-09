@@ -38,7 +38,7 @@ function createFeedTestStore() {
 const feedStore = createFeedTestStore();
 
 // Feature: quad-production-ready, Property 23: Real-time Feed Updates
-// For any `feed:new-content` or `feed:engagement-update` event, the feed should update
+// For any `feed:engagement-update` event, the feed should update
 // to reflect the changes without requiring a refresh.
 // Validates: Requirements 7.4
 

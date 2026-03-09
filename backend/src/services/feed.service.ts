@@ -1,7 +1,4 @@
-import type {
-  FeedQuerySchemaType,
-  NewCountQuerySchemaType,
-} from "../schemas/feed.schema.js";
+import type { FeedQuerySchemaType } from "../schemas/feed.schema.js";
 import type {
   ContentTab,
   FeedSort,
@@ -173,55 +170,6 @@ export class FeedService {
     }
 
     return this.processAndReturnFeed(items, userId, query, "foryou");
-  }
-
-  /**
-   * Get Count of New Content
-   */
-  static async getNewContentCount(
-    userId: string,
-    query: NewCountQuerySchemaType,
-  ) {
-    const { feedType, tab, since } = query;
-    const baseQuery: Record<string, unknown> = { _id: { $gt: since } };
-
-    let followingIds: string[] = [];
-    if (feedType === "following") {
-      const followingSet = await getUserFollowing(userId);
-      followingIds = Array.from(followingSet);
-      if (followingIds.length === 0) return { count: 0 };
-    }
-
-    // Helper to get count for a specific source
-    const getCountForSource = async (
-      source: FeedSource,
-      authorField: string,
-      extraQuery: Record<string, unknown> = {},
-    ) => {
-      const q = { ...baseQuery, ...extraQuery };
-      if (feedType === "following") {
-        q[authorField] = { $in: followingIds };
-      }
-      return source.count(q);
-    };
-
-    let count = 0;
-
-    if (tab === "home") {
-      const [postCount, pollCount] = await Promise.all([
-        getCountForSource(postSource, "userId"),
-        getCountForSource(pollSource, "author.clerkId", {}),
-      ]);
-      count = postCount + pollCount;
-    } else {
-      if (tab === "posts") {
-        count = await getCountForSource(postSource, "userId");
-      } else if (tab === "polls") {
-        count = await getCountForSource(pollSource, "author.clerkId", {});
-      }
-    }
-
-    return { count };
   }
 
   // ==========================================

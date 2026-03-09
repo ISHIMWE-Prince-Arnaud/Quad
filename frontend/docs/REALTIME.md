@@ -70,7 +70,6 @@ See `frontend/src/pages/notifications/useNotificationsController.ts`.
 
 The feed listens to realtime events inside `useFeedController`:
 
-- `feed:new-content`
 - `feed:engagement-update`
 - `feed:content-deleted`
 

@@ -56,16 +56,6 @@ Server behavior (see `backend/src/sockets/notification.socket.ts`):
 
 Defined in `backend/src/sockets/feed.socket.ts`.
 
-- **`feed:new-content`**
-  - Payload:
-    - `contentType: "post" | "poll"`
-    - `contentId: string`
-    - `authorId: string`
-    - `timestamp: string`
-  - Emitted by:
-    - `PostService.createPost()`
-    - `PollService.createPoll()`
-
 - **`feed:engagement-update`**
   - Payload:
     - `contentType: "post" | "poll"`
@@ -265,8 +255,8 @@ These are `io.emit(...)` calls from services and are not room-scoped.
 In addition to the legacy/global events above:
 
 - Posts and Polls emit:
-  - `feed:new-content`
   - `feed:content-deleted`
+
 - Poll votes + some engagement updates emit:
   - `feed:engagement-update`
 

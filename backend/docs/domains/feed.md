@@ -16,7 +16,7 @@
 ## Middleware chain
 
 - `requireApiAuth`
-- `validateSchema(feedQuerySchema | newCountQuerySchema, "query")`
+- `validateSchema(feedQuerySchema, "query")`
 
 ## Request/response contracts
 
@@ -129,43 +129,12 @@ Edge cases:
 
 - If the user follows nobody, all content becomes discovery and is fetched without `$in/$nin` splits.
 
-## New content count: `GET /api/feed/new-count`
-
-Inputs:
-
-- `feedType`: `following | foryou`
-- `tab`: `home | posts | polls`
-- `since`: content id
-
-Request contract (validated by `newCountQuerySchema`):
-
-- Query:
-  - `feedType`: `following | foryou`
-  - `tab?`: `home | posts | polls` (default `home`)
-  - `since`: non-empty string
-
-Flow:
-
-- Builds `baseQuery: { _id: { $gt: since } }`.
-- Uses source `count(q)` methods.
-- If `feedType=following` restricts author field to followed ids.
-
-Response contract:
-
-- `200`:
-  - `{ success: true, data: { count: number } }`
-
-Edge cases:
-
-- If `feedType=following` and the user follows nobody, returns `{ count: 0 }` early.
-
 ## Failure modes
 
 - `401 Unauthorized`: missing auth.
 - `400 Validation error`:
   - `limit` outside 1-50
   - invalid `tab`/`sort`/`feedType`
-  - missing `since` for new-count
 
 ## Related docs
 

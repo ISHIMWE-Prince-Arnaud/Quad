@@ -1,7 +1,7 @@
 import { Post } from "../models/Post.model.js";
 import { User } from "../models/User.model.js";
 import { getSocketIO } from "../config/socket.config.js";
-import { emitContentDeleted, emitNewContent } from "../sockets/feed.socket.js";
+import { emitContentDeleted } from "../sockets/feed.socket.js";
 import { extractMentions } from "../utils/chat.util.js";
 import {
   createNotification,
@@ -70,7 +70,6 @@ export class PostService {
 
     const io = getSocketIO();
     io.emit("newPost", newPost);
-    emitNewContent(io, "post", newPostId, author.clerkId);
 
     if (newPost?.text) {
       await this.processMentions(

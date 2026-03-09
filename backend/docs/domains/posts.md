@@ -74,7 +74,6 @@ Model: `backend/src/models/Post.model.ts`
 Realtime emits:
 
 - `io.emit("newPost", newPost)` (legacy)
-- `emitNewContent(io, "post", newPostId, author.clerkId)` → `feed:new-content`
 
 Mentions:
 

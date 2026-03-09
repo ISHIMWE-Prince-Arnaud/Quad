@@ -56,9 +56,3 @@ export interface FeedQueryParams {
   limit?: number;
   sort?: FeedSort;
 }
-
-export interface NewCountParams {
-  feedType: FeedType;
-  tab: FeedTab;
-  since: string; // last seen content ID
-}

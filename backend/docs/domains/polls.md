@@ -71,7 +71,6 @@ Key invariants:
 ### Side effects
 
 - `io.emit("newPoll", poll)` (legacy)
-- `emitNewContent(io, "poll", pollId, authorId)` → `feed:new-content`
 
 ### Failure modes
 

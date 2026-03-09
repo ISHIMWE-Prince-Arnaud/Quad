@@ -37,8 +37,6 @@ export function useFeedController({
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [newCount, setNewCount] = useState(0);
-  const [lastSeenId, setLastSeenId] = useState<string | null>(null);
   const [creatingPost, setCreatingPost] = useState(false);
   const [mixPatternIndex, setMixPatternIndex] = useState(0);
   const socket = useSocketStore((state) => state.socket);
@@ -59,8 +57,6 @@ export function useFeedController({
 
   const handleRefreshFeed = useCallback(async () => {
     if (loading) return;
-    setLastSeenId(null);
-    setNewCount(0);
 
     try {
       setLoading(true);
@@ -84,9 +80,6 @@ export function useFeedController({
       setMixPatternIndex(normalized.nextPatternIndex);
       setCursor(data.pagination.nextCursor || null);
       setHasMore(Boolean(data.pagination.hasMore));
-      setLastSeenId(
-        normalized.items.length > 0 ? String(normalized.items[0]._id) : null,
-      );
     } catch (err: unknown) {
       logError(err, {
         component: "FeedController",
@@ -109,7 +102,6 @@ export function useFeedController({
         setItems([]);
         setCursor(null);
         setHasMore(true);
-        setNewCount(0);
         setMixPatternIndex(0);
 
         const response = await FeedService.getFeed(feedType, {
@@ -139,11 +131,6 @@ export function useFeedController({
           setMixPatternIndex(normalized.nextPatternIndex);
           setCursor(data.pagination.nextCursor || null);
           setHasMore(Boolean(data.pagination.hasMore));
-          setLastSeenId(
-            normalized.items.length > 0
-              ? String(normalized.items[0]._id)
-              : null,
-          );
         }
       } catch (err: unknown) {
         logError(err, {
@@ -169,61 +156,7 @@ export function useFeedController({
   }, [feedType, normalizeItems, tab]);
 
   useEffect(() => {
-    if (!lastSeenId) return;
-
-    const interval = setInterval(async () => {
-      try {
-        const response = await FeedService.getNewContentCount({
-          feedType,
-          tab,
-          since: lastSeenId,
-        });
-
-        if (response.success && typeof response.data?.count === "number") {
-          setNewCount(response.data.count);
-        }
-      } catch (err) {
-        logError(err, {
-          component: "FeedController",
-          action: "fetchNewContentCount",
-          metadata: { feedType, tab, lastSeenId },
-        });
-      }
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [feedType, tab, lastSeenId]);
-
-  useEffect(() => {
     if (!socket) return;
-
-    const handleNewContent = async () => {
-      if (!lastSeenId) return;
-
-      const nearTop = window.scrollY < 120;
-      if (nearTop && !loading) {
-        void handleRefreshFeed();
-        return;
-      }
-
-      try {
-        const response = await FeedService.getNewContentCount({
-          feedType,
-          tab,
-          since: lastSeenId,
-        });
-
-        if (response.success && typeof response.data?.count === "number") {
-          setNewCount(response.data.count);
-        }
-      } catch (err) {
-        logError(err, {
-          component: "FeedController",
-          action: "handleNewContent(socket)",
-          metadata: { feedType, tab, lastSeenId },
-        });
-      }
-    };
 
     const handleEngagementUpdate = (payload: FeedEngagementUpdatePayload) => {
       setItems((prev) =>
@@ -351,18 +284,16 @@ export function useFeedController({
       );
     };
 
-    socket.on("feed:new-content", handleNewContent);
     socket.on("feed:engagement-update", handleEngagementUpdate);
     socket.on("feed:content-deleted", handleContentDeleted);
     socket.on("pollVoted", handlePollVoted);
 
     return () => {
-      socket.off("feed:new-content", handleNewContent);
       socket.off("feed:engagement-update", handleEngagementUpdate);
       socket.off("feed:content-deleted", handleContentDeleted);
       socket.off("pollVoted", handlePollVoted);
     };
-  }, [feedType, handleRefreshFeed, lastSeenId, loading, tab, socket]);
+  }, [feedType, tab, socket]);
 
   const handleLoadMore = useCallback(async () => {
     if (!hasMore || !cursor || loadingMore) return;
@@ -581,7 +512,6 @@ export function useFeedController({
     loadingMore,
     creatingPost,
     error,
-    newCount,
     handleRefreshFeed,
     handleLoadMore,
     handleDeletePost,

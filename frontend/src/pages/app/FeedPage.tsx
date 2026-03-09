@@ -6,7 +6,6 @@ import type { FeedTab, FeedType } from "@/types/feed";
 import { emptyStateCopy } from "./feed/feedEmptyState";
 import { FeedHeaderTabs } from "./feed/FeedHeaderTabs";
 import { FeedList } from "./feed/FeedList";
-import { FeedNewContentBanner } from "./feed/FeedNewContentBanner";
 import { FeedStatusCards } from "./feed/FeedStatusCards";
 import { useFeedController } from "./feed/useFeedController";
 
@@ -23,7 +22,6 @@ export default function FeedPage() {
     loadingMore,
     creatingPost,
     error,
-    newCount,
     handleRefreshFeed,
     handleLoadMore,
     handleDeletePost,
@@ -67,12 +65,6 @@ export default function FeedPage() {
             <FeedPostComposer
               disabled={loading || creatingPost}
               onCreatePost={handleCreatePost}
-            />
-
-            <FeedNewContentBanner
-              newCount={newCount}
-              loading={loading}
-              onRefresh={handleRefreshFeed}
             />
 
             <FeedStatusCards

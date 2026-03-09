@@ -117,7 +117,9 @@ describe("Feed API", () => {
       .query({ tab: "posts", limit: "1", sort: "newest" });
 
     expect(first.status).toBe(200);
-    const cursor = first.body?.data?.pagination?.nextCursor as string | undefined;
+    const cursor = first.body?.data?.pagination?.nextCursor as
+      | string
+      | undefined;
     expect(typeof cursor).toBe("string");
 
     const second = await request(app)
@@ -127,27 +129,5 @@ describe("Feed API", () => {
 
     expect(second.status).toBe(200);
     expect(second.body?.data?.items?.length).toBeGreaterThan(0);
-  });
-
-  it("new content count returns count", async () => {
-    const app = createTestApp();
-    const userId = "feed_user_6";
-    await ensureUser(app, userId);
-
-    await request(app)
-      .post("/api/posts")
-      .set(getAuthHeaders(userId))
-      .send({
-        text: "P1",
-        media: [{ url: "https://example.com/a.jpg", type: "image" }],
-      });
-
-    const res = await request(app)
-      .get("/api/feed/new-count")
-      .set(getAuthHeaders(userId))
-      .query({ feedType: "foryou", tab: "posts", since: "000000000000000000000000" });
-
-    expect(res.status).toBe(200);
-    expect(typeof res.body?.data?.count).toBe("number");
   });
 });

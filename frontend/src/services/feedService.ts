@@ -1,15 +1,10 @@
 import { endpoints } from "@/lib/api";
-import type {
-  FeedApiResponse,
-  FeedQueryParams,
-  FeedType,
-  NewCountParams,
-} from "@/types/feed";
+import type { FeedApiResponse, FeedQueryParams, FeedType } from "@/types/feed";
 
 export class FeedService {
   static async getFeed(
     feedType: FeedType,
-    params: FeedQueryParams
+    params: FeedQueryParams,
   ): Promise<FeedApiResponse> {
     const apiCall =
       feedType === "following"
@@ -24,21 +19,5 @@ export class FeedService {
     });
 
     return response.data as FeedApiResponse;
-  }
-
-  static async getNewContentCount(
-    params: NewCountParams
-  ): Promise<{ success: boolean; data: { count: number }; message?: string }> {
-    const response = await endpoints.feed.getNewCount({
-      feedType: params.feedType,
-      tab: params.tab,
-      since: params.since,
-    });
-
-    return response.data as {
-      success: boolean;
-      data: { count: number };
-      message?: string;
-    };
   }
 }

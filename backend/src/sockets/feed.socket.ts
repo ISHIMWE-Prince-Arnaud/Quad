@@ -3,23 +3,6 @@ import type { FeedItemType } from "../types/feed.types.js";
 import { logger } from "../utils/logger.util.js";
 
 /**
- * Emit new content event
- */
-export const emitNewContent = (
-  io: Server,
-  contentType: FeedItemType,
-  contentId: string,
-  authorId: string,
-) => {
-  io.emit("feed:new-content", {
-    contentType,
-    contentId,
-    authorId,
-    timestamp: new Date().toISOString(),
-  });
-};
-
-/**
  * Emit engagement update event
  */
 export const emitEngagementUpdate = (

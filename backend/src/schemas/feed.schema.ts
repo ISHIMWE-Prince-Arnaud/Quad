@@ -19,16 +19,3 @@ export const feedQuerySchema = z.object({
 });
 
 export type FeedQuerySchemaType = z.infer<typeof feedQuerySchema>;
-
-// ===========================
-// NEW COUNT QUERY SCHEMA
-// ===========================
-export const newCountQuerySchema = z.object({
-  feedType: z.enum(["following", "foryou"]),
-
-  tab: z.enum(["home", "posts", "polls"]).optional().default("home"),
-
-  since: z.string().min(1, "Since cursor is required"),
-});
-
-export type NewCountQuerySchemaType = z.infer<typeof newCountQuerySchema>;

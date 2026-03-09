@@ -53,7 +53,6 @@ export const endpoints = {
     getGeneral: (params?: unknown) => api.get("/feed", { params }),
     getFollowing: (params?: unknown) => api.get("/feed/following", { params }),
     getForYou: (params?: unknown) => api.get("/feed/foryou", { params }),
-    getNewCount: (params?: unknown) => api.get("/feed/new-count", { params }),
   },
 
   follow: {

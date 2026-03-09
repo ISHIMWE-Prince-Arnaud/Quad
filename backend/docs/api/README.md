@@ -127,7 +127,6 @@ Socket.IO events for real-time features:
 
 ### Feed Events
 
-- `feed:new-content` - New content (post/poll) created
 - `feed:engagement-update` - Engagement counters changed
 - `feed:content-deleted` - Post/poll deleted
 
