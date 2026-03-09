@@ -252,7 +252,7 @@ export default function ChatPage() {
                   <div className="text-[10px] uppercase tracking-[0.1em] font-bold text-muted-foreground/50">
                     Original
                   </div>
-                  <div className="mt-1.5 text-sm text-muted-foreground/70 whitespace-pre-wrap break-words leading-relaxed">
+                  <div className="mt-1.5 text-sm text-muted-foreground/70 whitespace-pre-wrap break-all leading-relaxed">
                     {originalEditText.trim().length > 0
                       ? originalEditText
                       : "(empty message)"}
