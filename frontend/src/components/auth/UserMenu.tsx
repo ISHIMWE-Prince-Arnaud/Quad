@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth, useUser, UserButton } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
@@ -21,14 +22,18 @@ export function UserMenu() {
   const { user: clerkUser } = useUser();
   const { user, logout } = useAuthStore();
   const { isDarkMode } = useThemeStore();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
     try {
+      setIsSigningOut(true);
       logout();
       await signOut();
     } catch (error) {
       logError(error, { component: "UserMenu", action: "signOut" });
       showErrorToast(error, "Failed to sign out");
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
@@ -60,8 +65,10 @@ export function UserMenu() {
             variant="outline"
             size="sm"
             onClick={handleSignOut}
+            loading={isSigningOut}
+            disabled={isSigningOut}
             className="w-full">
-            Sign Out
+            {isSigningOut ? "Logging out..." : "Sign Out"}
           </Button>
         </CardContent>
       </Card>
@@ -106,4 +113,3 @@ export function UserAvatar({ className }: { className?: string }) {
 
   return content;
 }
-

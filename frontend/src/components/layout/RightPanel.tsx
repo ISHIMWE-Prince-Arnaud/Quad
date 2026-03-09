@@ -233,6 +233,7 @@ function AccountMiniCard() {
   const { user, logout } = useAuthStore();
   const { signOut } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const displayName =
     user?.firstName && user?.lastName
@@ -245,11 +246,14 @@ function AccountMiniCard() {
 
   const handleSignOut = async () => {
     try {
+      setIsLoggingOut(true);
       logout();
       await signOut();
       setIsDialogOpen(false);
     } catch (error) {
       logError(error, { component: "RightPanel", action: "signOut" });
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -284,7 +288,7 @@ function AccountMiniCard() {
           </div>
         </Link>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => !isLoggingOut && setIsDialogOpen(open)}>
           <DialogTrigger asChild>
             <Button
               type="button"
@@ -295,7 +299,7 @@ function AccountMiniCard() {
               <PiSignOutBold className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-card border-border text-card-foreground">
+          <DialogContent className="bg-card border-border text-card-foreground" showClose={!isLoggingOut}>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <PiWarningCircleBold className="h-5 w-5 text-destructive" />
@@ -310,14 +314,17 @@ function AccountMiniCard() {
               <Button
                 variant="ghost"
                 onClick={() => setIsDialogOpen(false)}
+                disabled={isLoggingOut}
                 className="text-muted-foreground hover:text-foreground hover:bg-accent">
                 Cancel
               </Button>
               <Button
                 variant="destructive"
                 onClick={() => void handleSignOut()}
-                className="bg-destructive hover:bg-destructive/90">
-                Log Out
+                loading={isLoggingOut}
+                disabled={isLoggingOut}
+                className="bg-destructive hover:bg-destructive/90 min-w-[100px]">
+                {isLoggingOut ? "Logging out..." : "Log Out"}
               </Button>
             </DialogFooter>
           </DialogContent>
