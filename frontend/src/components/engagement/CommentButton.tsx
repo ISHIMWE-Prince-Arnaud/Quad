@@ -19,7 +19,7 @@ export function CommentButton({
 
   return (
     <Link
-      to={`/app/posts/${postId}`}
+      to={`/posts/${postId}`}
       className={cn(
         "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-muted-foreground transition-all group",
         hasComments
@@ -61,3 +61,4 @@ export function CommentButton({
     </Link>
   );
 }
+

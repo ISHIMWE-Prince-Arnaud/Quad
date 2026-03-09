@@ -385,7 +385,7 @@ export default function EditPollPage() {
       invalidateCache(/\/polls/);
 
       showSuccessToast("Poll updated");
-      navigate("/app/polls", {
+      navigate("/polls", {
         state: res.data ? { updatedPoll: res.data } : undefined,
       });
     } catch (err: unknown) {
@@ -416,7 +416,7 @@ export default function EditPollPage() {
             {error ||
               "The poll you are trying to edit does not exist or cannot be loaded."}
           </p>
-          <Button onClick={() => navigate("/app/polls")}>Back to Polls</Button>
+          <Button onClick={() => navigate("/polls")}>Back to Polls</Button>
         </div>
       </div>
     );
@@ -426,7 +426,7 @@ export default function EditPollPage() {
     <div className="mx-auto w-full px-3 py-4 sm:px-4 sm:py-6">
       <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
-          <BackButton label="Edit Poll" fallbackPath="/app/polls" />
+          <BackButton label="Edit Poll" fallbackPath="/polls" />
 
           <Button
             type="button"
@@ -473,3 +473,4 @@ export default function EditPollPage() {
     </div>
   );
 }
+

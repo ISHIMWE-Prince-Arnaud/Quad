@@ -155,7 +155,7 @@ export function useProfilePageController({
             );
 
             if (profileData?.username && profileData.username !== username) {
-              navigate(`/app/profile/${profileData.username}`, {
+              navigate(`/profile/${profileData.username}`, {
                 replace: true,
               });
             }
@@ -1032,7 +1032,7 @@ export function useProfilePageController({
           });
         }
 
-        navigate(`/app/profile/${updatedUser.username}`, { replace: true });
+        navigate(`/profile/${updatedUser.username}`, { replace: true });
       }
     },
     [currentUser, isOwnProfile, navigate, setAuthUser, username],
@@ -1196,3 +1196,4 @@ export function useProfilePageController({
     handleUserUpdate,
   };
 }
+

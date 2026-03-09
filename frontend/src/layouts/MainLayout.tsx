@@ -11,8 +11,8 @@ export function MainLayout() {
   const location = useLocation();
 
   const isChatRoute =
-    location.pathname === "/app/chat" ||
-    location.pathname.startsWith("/app/chat/");
+    location.pathname === "/chat" ||
+    location.pathname.startsWith("/chat/");
 
   if (isLoading) {
     return <MainAppSkeleton />;
@@ -74,3 +74,4 @@ export function MainLayout() {
     </div>
   );
 }
+

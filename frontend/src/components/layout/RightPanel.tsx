@@ -51,11 +51,11 @@ function QuickCreate() {
   const location = useLocation();
 
   const handlePostClick = () => {
-    if (location.pathname === "/app/feed") {
+    if (location.pathname === "/") {
       window.scrollTo({ top: 0, behavior: "smooth" });
       window.dispatchEvent(new CustomEvent("focus-post-composer"));
     } else {
-      navigate("/app/feed?create=post");
+      navigate("/feed?create=post");
     }
   };
 
@@ -76,7 +76,7 @@ function QuickCreate() {
         <Button
           asChild
           className="w-full justify-start rounded-2xl border shadow-none bg-primary/10 hover:bg-primary/15 border-primary/20 text-foreground h-11">
-          <Link to="/app/create/poll" aria-label="Create a poll">
+          <Link to="/create/poll" aria-label="Create a poll">
             <PiChartBarBold className="h-4 w-4 text-primary" />
             Poll
           </Link>
@@ -85,7 +85,7 @@ function QuickCreate() {
         <Button
           asChild
           className="w-full justify-start rounded-2xl border shadow-none bg-primary/10 hover:bg-primary/15 border-primary/20 text-foreground h-11">
-          <Link to="/app/create/story" aria-label="Create a story">
+          <Link to="/create/story" aria-label="Create a story">
             <PiBookOpenTextBold className="h-4 w-4 text-primary" />
             Story
           </Link>
@@ -218,7 +218,7 @@ function ActiveChatsMini() {
             asChild
             size="sm"
             className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md">
-            <Link to="/app/chat" aria-label="Open chat" title="Go to chat">
+            <Link to="/chat" aria-label="Open chat" title="Go to chat">
               <PiChatCircleBold className="h-4 w-4" />
               Open Chat
             </Link>
@@ -240,8 +240,8 @@ function AccountMiniCard() {
       : user?.firstName || user?.username || "User";
 
   const profileHref = user?.username
-    ? `/app/profile/${user.username}`
-    : "/app/feed";
+    ? `/profile/${user.username}`
+    : "/";
 
   const handleSignOut = async () => {
     try {
@@ -326,3 +326,6 @@ function AccountMiniCard() {
     </section>
   );
 }
+
+
+

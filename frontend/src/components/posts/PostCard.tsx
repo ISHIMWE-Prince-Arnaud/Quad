@@ -61,7 +61,7 @@ export function PostCard({
   };
 
   const handleCopyLink = async () => {
-    const path = `/app/posts/${post._id}`;
+    const path = `/posts/${post._id}`;
     const url = `${window.location.origin}${path}`;
 
     try {
@@ -82,7 +82,7 @@ export function PostCard({
   };
 
   const handleEdit = () => {
-    navigate(`/app/posts/${post._id}/edit`);
+    navigate(`/posts/${post._id}/edit`);
   };
 
   const safeReactionCount = reactionCount ?? post.reactionsCount ?? 0;
@@ -158,3 +158,4 @@ export function PostCard({
     </>
   );
 }
+

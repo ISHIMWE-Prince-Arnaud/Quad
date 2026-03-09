@@ -38,12 +38,12 @@ describe("Active Navigation Highlighting Property Tests", () => {
     await fc.assert(
       fc.asyncProperty(
         fc.constantFrom(
-          "/app/feed",
-          "/app/notifications",
-          "/app/chat",
-          "/app/stories",
-          "/app/polls",
-          "/app/profile/testuser",
+          "/",
+          "/notifications",
+          "/chat",
+          "/stories",
+          "/polls",
+          "/profile/testuser",
         ),
         async (activePath) => {
           // Clean up before each property test iteration
@@ -109,12 +109,12 @@ describe("Active Navigation Highlighting Property Tests", () => {
     await fc.assert(
       fc.asyncProperty(
         fc.constantFrom(
-          "/app/feed",
-          "/app/notifications",
-          "/app/chat",
-          "/app/stories",
-          "/app/polls",
-          "/app/profile/testuser",
+          "/",
+          "/notifications",
+          "/chat",
+          "/stories",
+          "/polls",
+          "/profile/testuser",
         ),
         async (activePath) => {
           // Clean up before each property test iteration
@@ -175,12 +175,12 @@ describe("Active Navigation Highlighting Property Tests", () => {
     await fc.assert(
       fc.asyncProperty(
         fc.constantFrom(
-          "/app/feed",
-          "/app/notifications",
-          "/app/chat",
-          "/app/stories",
-          "/app/polls",
-          "/app/profile/testuser",
+          "/",
+          "/notifications",
+          "/chat",
+          "/stories",
+          "/polls",
+          "/profile/testuser",
         ),
         async (activePath) => {
           // Clean up before each property test iteration
@@ -229,20 +229,20 @@ describe("Active Navigation Highlighting Property Tests", () => {
       fc.asyncProperty(
         fc.tuple(
           fc.constantFrom(
-            "/app/feed",
-            "/app/notifications",
-            "/app/chat",
-            "/app/stories",
-            "/app/polls",
-            "/app/profile/testuser",
+            "/",
+            "/notifications",
+            "/chat",
+            "/stories",
+            "/polls",
+            "/profile/testuser",
           ),
           fc.constantFrom(
-            "/app/feed",
-            "/app/notifications",
-            "/app/chat",
-            "/app/stories",
-            "/app/polls",
-            "/app/profile/testuser",
+            "/",
+            "/notifications",
+            "/chat",
+            "/stories",
+            "/polls",
+            "/profile/testuser",
           ),
         ),
         async ([firstPath, secondPath]) => {
@@ -324,3 +324,5 @@ describe("Active Navigation Highlighting Property Tests", () => {
     );
   });
 });
+
+

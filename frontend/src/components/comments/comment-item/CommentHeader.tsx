@@ -29,7 +29,7 @@ export function CommentHeader({
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0 flex items-center gap-2">
         <Link
-          to={`/app/profile/${comment.author.username}`}
+          to={`/profile/${comment.author.username}`}
           className="truncate text-[13px] font-bold text-foreground hover:text-primary transition-colors">
           {comment.author.username}
         </Link>
@@ -83,3 +83,4 @@ export function CommentHeader({
     </div>
   );
 }
+

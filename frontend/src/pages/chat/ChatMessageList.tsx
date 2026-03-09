@@ -245,7 +245,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                     {!isSelf &&
                       (showAvatar ? (
                         <Link
-                          to={`/app/profile/${m.author.username}`}
+                          to={`/profile/${m.author.username}`}
                           className="hover:opacity-80 transition-opacity">
                           <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-border/40 hover:scale-105 transition-transform duration-200">
                             <AvatarImage
@@ -276,7 +276,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                           }>
                           {!isSelf && (
                             <Link
-                              to={`/app/profile/${m.author.username}`}
+                              to={`/profile/${m.author.username}`}
                               className="text-sm font-semibold text-foreground hover:text-primary transition-colors">
                               {headerName}
                             </Link>
@@ -286,7 +286,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                           </span>
                           {isSelf && (
                             <Link
-                              to={`/app/profile/${user?.username}`}
+                              to={`/profile/${user?.username}`}
                               className="text-sm font-bold text-foreground hover:text-primary transition-colors">
                               {headerName}
                             </Link>
@@ -350,7 +350,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                     {isSelf &&
                       (showAvatar ? (
                         <Link
-                          to={`/app/profile/${user?.username}`}
+                          to={`/profile/${user?.username}`}
                           className="hover:opacity-80 transition-opacity">
                           <Avatar className="h-8 w-8 shrink-0 shadow-sm border border-primary/20 hover:scale-105 transition-transform duration-200">
                             <AvatarImage
@@ -419,7 +419,7 @@ export const ChatMessageList = memo(function ChatMessageList({
 
                       {showAvatar ? (
                         <Link
-                          to={`/app/profile/${user?.username}`}
+                          to={`/profile/${user?.username}`}
                           className="hover:opacity-80 transition-opacity">
                           <Avatar className="h-8 w-8 shrink-0 opacity-80">
                             <AvatarImage
@@ -453,7 +453,7 @@ export const ChatMessageList = memo(function ChatMessageList({
                 </div>
               </div>
               <Link
-                to={`/app/profile/${user?.username}`}
+                to={`/profile/${user?.username}`}
                 className="hover:opacity-80 transition-opacity">
                 <Avatar className="h-8 w-8 shrink-0 opacity-80">
                   <AvatarImage src={user?.profileImage} alt={user?.username} />
@@ -469,3 +469,4 @@ export const ChatMessageList = memo(function ChatMessageList({
     </>
   );
 });
+

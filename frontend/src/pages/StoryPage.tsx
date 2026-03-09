@@ -29,7 +29,7 @@ export default function StoryPage() {
 
   const backToStoriesButton = (
     <div className="flex items-center gap-2">
-      <BackButton label="Back to Stories" fallbackPath="/app/stories" />
+      <BackButton label="Back to Stories" fallbackPath="/stories" />
     </div>
   );
 
@@ -96,3 +96,4 @@ export default function StoryPage() {
     </div>
   );
 }
+

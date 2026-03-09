@@ -82,7 +82,7 @@ export default function EditPostPage() {
 
       if (response.success) {
         showSuccessToast("Post updated");
-        navigate(`/app/posts/${id}`);
+        navigate(`/posts/${id}`);
       } else {
         showErrorToast(response.message || "Failed to update post");
       }
@@ -126,7 +126,7 @@ export default function EditPostPage() {
             {error ||
               "The post you are trying to edit does not exist or cannot be loaded."}
           </p>
-          <Button onClick={() => navigate("/app/feed")}>Back to Feed</Button>
+          <Button onClick={() => navigate("/")}>Back to Feed</Button>
         </div>
       </div>
     );
@@ -147,3 +147,6 @@ export default function EditPostPage() {
     </div>
   );
 }
+
+
+

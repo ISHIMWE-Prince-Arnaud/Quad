@@ -188,7 +188,7 @@ export default function EditStoryPage() {
       showSuccessToast(
         status === "published" ? "Story updated" : "Draft updated",
       );
-      navigate(`/app/stories/${id}`, {
+      navigate(`/stories/${id}`, {
         state: { story: res.data, refreshKey: Date.now() },
       });
     } catch (err) {
@@ -219,7 +219,7 @@ export default function EditStoryPage() {
             {error ||
               "The story you are trying to edit does not exist or cannot be loaded."}
           </p>
-          <Button onClick={() => navigate("/app/stories")}>
+          <Button onClick={() => navigate("/stories")}>
             Back to Stories
           </Button>
         </div>
@@ -294,3 +294,5 @@ export default function EditStoryPage() {
     </div>
   );
 }
+
+

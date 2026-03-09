@@ -7,7 +7,7 @@ import type { ApiProfile } from "@/types/api";
 /**
  * Feature: quad-production-ready, Property 20: Username Change URL Update
  *
- * For any username change, the profile URL should update to `/app/profile/:newUsername`
+ * For any username change, the profile URL should update to `/profile/:newUsername`
  * and redirect from the old URL.
  *
  * Validates: Requirements 6.4
@@ -274,3 +274,4 @@ describe("Property 20: Username Change URL Update", () => {
     );
   });
 });
+

@@ -222,10 +222,10 @@ export function useNotificationsController({
       const normalizedContentType = contentType?.toLowerCase();
 
       if (normalizedContentType === "post" && contentId)
-        return `/app/posts/${contentId}`;
+        return `/posts/${contentId}`;
       if (normalizedContentType === "story" && contentId)
-        return `/app/stories/${contentId}`;
-      if (normalizedContentType === "poll" && contentId) return "/app/polls";
+        return `/stories/${contentId}`;
+      if (normalizedContentType === "poll" && contentId) return "/polls";
       if (
         normalizedContentType &&
         ["chat", "conversation", "chatmessage"].includes(
@@ -233,12 +233,12 @@ export function useNotificationsController({
         ) &&
         contentId
       )
-        return `/app/chat/${contentId}`;
+        return `/chat/${contentId}`;
 
       if (type === "chat_mention")
-        return contentId ? `/app/chat/${contentId}` : "/app/chat";
+        return contentId ? `/chat/${contentId}` : "/chat";
       if (type === "follow" && actor?.username)
-        return `/app/profile/${actor.username}`;
+        return `/profile/${actor.username}`;
 
       return null;
     },

@@ -86,7 +86,7 @@ export function StoryCard({
   };
 
   const handleEdit = () => {
-    navigate(`/app/stories/${story._id}/edit`);
+    navigate(`/stories/${story._id}/edit`);
   };
 
   if (variant === "grid") {
@@ -109,7 +109,7 @@ export function StoryCard({
             className,
           )}>
           {story.coverImage && (
-            <Link to={`/app/stories/${story._id}`} className="block">
+            <Link to={`/stories/${story._id}`} className="block">
               <div className="aspect-video w-full overflow-hidden">
                 <img
                   src={story.coverImage}
@@ -121,7 +121,7 @@ export function StoryCard({
           )}
 
           <CardContent className="px-6 pt-5 pb-4">
-            <Link to={`/app/stories/${story._id}`} className="block">
+            <Link to={`/stories/${story._id}`} className="block">
               <h3 className="text-xl font-semibold text-foreground leading-snug line-clamp-1 min-h-[1.75rem]">
                 {story.title}
               </h3>
@@ -132,7 +132,7 @@ export function StoryCard({
 
             <div className="mt-6 flex items-center justify-between gap-4">
               <Link
-                to={`/app/profile/${story.author.username}`}
+                to={`/profile/${story.author.username}`}
                 className="flex items-center gap-2 min-w-0 hover:opacity-90 transition-opacity">
                 <Avatar className="h-7 w-7">
                   <AvatarImage src={story.author.profileImage} />
@@ -263,3 +263,4 @@ export function StoryCard({
     </>
   );
 }
+

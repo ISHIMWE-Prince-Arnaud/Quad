@@ -19,13 +19,15 @@ export const emptyStateCopy: Record<FeedTab, FeedEmptyState> = {
     title: "No posts yet",
     description: "Be the first to publish a post for this community.",
     secondaryActionLabel: "Back to Feed",
-    secondaryActionHref: "/app/feed",
+    secondaryActionHref: "/",
   },
   polls: {
     title: "No polls yet",
     description:
       "Start the conversation with a quick poll and gather votes in real time.",
     secondaryActionLabel: "Explore Polls",
-    secondaryActionHref: "/app/polls",
+    secondaryActionHref: "/polls",
   },
 };
+
+

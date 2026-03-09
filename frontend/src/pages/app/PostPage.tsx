@@ -69,7 +69,7 @@ export default function PostPage() {
       const response = await PostService.deletePost(deletedPostId);
       if (response.success) {
         showSuccessToast("Post deleted");
-        navigate("/app/feed");
+        navigate("/");
       } else {
         showErrorToast(response.message || "Failed to delete post");
       }
@@ -107,7 +107,7 @@ export default function PostPage() {
           </p>
           <BackButton
             label="Back to Feed"
-            fallbackPath="/app/feed"
+            fallbackPath="/"
             className="mx-auto"
           />
         </div>
@@ -133,3 +133,5 @@ export default function PostPage() {
     </div>
   );
 }
+
+

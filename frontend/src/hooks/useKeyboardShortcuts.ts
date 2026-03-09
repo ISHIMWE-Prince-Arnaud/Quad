@@ -76,7 +76,7 @@ export function useAppKeyboardShortcuts() {
     {
       key: "h",
       description: "Go to home/feed",
-      action: () => navigate("/app/feed"),
+      action: () => navigate("/"),
     },
     {
       key: "p",
@@ -85,14 +85,14 @@ export function useAppKeyboardShortcuts() {
         // Navigate to current user's profile
         const username = localStorage.getItem("username");
         if (username) {
-          navigate(`/app/profile/${username}`);
+          navigate(`/profile/${username}`);
         }
       },
     },
     {
       key: "b",
       description: "Go to notifications",
-      action: () => navigate("/app/notifications"),
+      action: () => navigate("/notifications"),
     },
     {
       key: "/",
@@ -107,3 +107,6 @@ export function useAppKeyboardShortcuts() {
 
   useKeyboardShortcuts(shortcuts);
 }
+
+
+

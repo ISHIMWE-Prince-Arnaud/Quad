@@ -56,7 +56,7 @@ export function StoryCardHeader({
           <DropdownMenuItem
             asChild
             className="gap-2 rounded-lg px-3 py-2 cursor-pointer hover:bg-accent focus:bg-accent">
-            <Link to={`/app/stories/${storyId}`}>
+            <Link to={`/stories/${storyId}`}>
               <PiEyeBold
                 className="h-4 w-4 text-muted-foreground"
                 aria-hidden="true"
@@ -99,3 +99,4 @@ export function StoryCardHeader({
     </div>
   );
 }
+

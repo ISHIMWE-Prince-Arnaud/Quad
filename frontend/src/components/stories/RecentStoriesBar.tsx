@@ -40,7 +40,7 @@ export function RecentStoriesBar({ className }: { className?: string }) {
           Stories
         </h2>
         <Link
-          to="/app/stories"
+          to="/stories"
           className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
           View all
         </Link>
@@ -59,7 +59,7 @@ export function RecentStoriesBar({ className }: { className?: string }) {
           : stories.map((story) => (
               <Link
                 key={story._id}
-                to={`/app/stories/${story._id}`}
+                to={`/stories/${story._id}`}
                 className="flex flex-col items-center gap-2 shrink-0 group">
                 <div className="relative p-[3px] rounded-full bg-gradient-to-tr from-[#2563eb] to-[#9333ea] transition-transform group-hover:scale-105 active:scale-95">
                   <div className="rounded-full bg-background p-[2px]">
@@ -83,3 +83,5 @@ export function RecentStoriesBar({ className }: { className?: string }) {
     </div>
   );
 }
+
+

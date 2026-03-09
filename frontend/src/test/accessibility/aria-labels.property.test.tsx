@@ -84,7 +84,7 @@ describe("Property 60: ARIA Labels Presence", () => {
           text: fc
             .string({ minLength: 1, maxLength: 50 })
             .filter((s) => s.trim().length > 0),
-          href: fc.constantFrom("/app/feed", "/app/profile", "/app/polls"),
+          href: fc.constantFrom("/", "/profile", "/polls"),
         }),
         (props) => {
           const { text, href } = props;
@@ -210,3 +210,5 @@ describe("Property 60: ARIA Labels Presence", () => {
     );
   });
 });
+
+

@@ -34,11 +34,11 @@ export function PostCardBody({
               className="block"
               role="link"
               tabIndex={0}
-              onClick={() => navigate(`/app/posts/${postId}`)}
+              onClick={() => navigate(`/posts/${postId}`)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  navigate(`/app/posts/${postId}`);
+                  navigate(`/posts/${postId}`);
                 }
               }}>
               <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
@@ -58,3 +58,4 @@ export function PostCardBody({
     </>
   );
 }
+

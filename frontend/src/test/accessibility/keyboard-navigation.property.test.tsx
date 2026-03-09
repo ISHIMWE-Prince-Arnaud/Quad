@@ -98,10 +98,10 @@ describe("Property 59: Keyboard Navigation Support", () => {
         fc.record({
           text: fc.string({ minLength: 1, maxLength: 50 }),
           href: fc.constantFrom(
-            "/app/feed",
-            "/app/profile/user",
-            "/app/polls",
-            "/app/notifications"
+            "/",
+            "/profile/user",
+            "/polls",
+            "/notifications"
           ),
         }),
         (props) => {
@@ -179,9 +179,9 @@ describe("Property 59: Keyboard Navigation Support", () => {
     const { container } = render(
       <BrowserRouter>
         <nav aria-label="Main navigation">
-          <a href="/app/feed">Home</a>
-          <a href="/app/polls">Polls</a>
-          <a href="/app/notifications">Notifications</a>
+          <a href="/">Home</a>
+          <a href="/polls">Polls</a>
+          <a href="/notifications">Notifications</a>
         </nav>
       </BrowserRouter>
     );
@@ -197,3 +197,5 @@ describe("Property 59: Keyboard Navigation Support", () => {
     expect(links.length).toBe(3);
   });
 });
+
+

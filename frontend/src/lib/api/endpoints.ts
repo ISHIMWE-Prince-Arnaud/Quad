@@ -50,7 +50,7 @@ export const endpoints = {
   },
 
   feed: {
-    getGeneral: (params?: unknown) => api.get("/feed", { params }),
+    getGeneral: (params?: unknown) => api.get("/", { params }),
     getFollowing: (params?: unknown) => api.get("/feed/following", { params }),
     getForYou: (params?: unknown) => api.get("/feed/foryou", { params }),
   },
@@ -158,3 +158,4 @@ export const endpoints = {
     delete: (url: string) => api.delete("/upload", { data: { url } }),
   },
 };
+

@@ -97,7 +97,7 @@ export function UserAvatar({ className }: { className?: string }) {
   if (user?.username) {
     return (
       <Link
-        to={`/app/profile/${user.username}`}
+        to={`/profile/${user.username}`}
         className="hover:opacity-90 transition-opacity">
         {content}
       </Link>
@@ -106,3 +106,4 @@ export function UserAvatar({ className }: { className?: string }) {
 
   return content;
 }
+

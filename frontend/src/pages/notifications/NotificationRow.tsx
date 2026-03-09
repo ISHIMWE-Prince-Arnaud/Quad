@@ -43,7 +43,7 @@ export function NotificationRow({
 
       {hasActor ? (
         <Link
-          to={`/app/profile/${notification.actor?.username}`}
+          to={`/profile/${notification.actor?.username}`}
           onClick={(e) => e.stopPropagation()}
           className="shrink-0 hover:opacity-80 transition-opacity">
           <Avatar className="h-10 w-10 border border-border/50">
@@ -69,7 +69,7 @@ export function NotificationRow({
           <div className="text-sm leading-snug">
             {hasActor && (
               <Link
-                to={`/app/profile/${notification.actor?.username}`}
+                to={`/profile/${notification.actor?.username}`}
                 onClick={(e) => e.stopPropagation()}
                 className="font-semibold text-primary mr-1 hover:underline underline-offset-2">
                 @{displayName}
@@ -114,3 +114,4 @@ export function NotificationRow({
     </div>
   );
 }
+

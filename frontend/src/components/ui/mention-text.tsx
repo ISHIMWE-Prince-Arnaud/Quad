@@ -23,7 +23,7 @@ export function MentionText({
               className="text-primary font-medium hover:underline"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/app/profile/${username}`);
+                navigate(`/profile/${username}`);
               }}>
               {part}
             </button>
@@ -34,3 +34,4 @@ export function MentionText({
     </span>
   );
 }
+

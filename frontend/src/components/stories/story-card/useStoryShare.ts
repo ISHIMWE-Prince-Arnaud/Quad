@@ -11,7 +11,7 @@ export function useStoryShare({
   title: string;
 }) {
   return useCallback(async () => {
-    const path = `/app/stories/${storyId}`;
+    const path = `/stories/${storyId}`;
     const url = `${window.location.origin}${path}`;
 
     try {
@@ -31,3 +31,4 @@ export function useStoryShare({
     }
   }, [storyId, title]);
 }
+

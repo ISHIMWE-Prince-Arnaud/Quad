@@ -60,9 +60,9 @@ export function validateEnv(): EnvConfig {
     clerkSignInUrl: import.meta.env.VITE_CLERK_SIGN_IN_URL || "/login",
     clerkSignUpUrl: import.meta.env.VITE_CLERK_SIGN_UP_URL || "/signup",
     clerkAfterSignInUrl:
-      import.meta.env.VITE_CLERK_AFTER_SIGN_IN_URL || "/app/feed",
+      import.meta.env.VITE_CLERK_AFTER_SIGN_IN_URL || "/",
     clerkAfterSignUpUrl:
-      import.meta.env.VITE_CLERK_AFTER_SIGN_UP_URL || "/app/feed",
+      import.meta.env.VITE_CLERK_AFTER_SIGN_UP_URL || "/",
     enablePWA: import.meta.env.VITE_ENABLE_PWA === "true",
     enableNotifications: import.meta.env.VITE_ENABLE_NOTIFICATIONS === "true",
     nodeEnv:
@@ -87,3 +87,5 @@ export const isProduction = env.nodeEnv === "production";
  * Check if running in development
  */
 export const isDevelopment = env.nodeEnv === "development";
+
+

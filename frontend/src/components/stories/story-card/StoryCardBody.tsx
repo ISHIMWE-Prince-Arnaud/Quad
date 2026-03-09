@@ -42,7 +42,7 @@ export function StoryCardBody({
     <>
       {/* Cover image */}
       {coverImage && (
-        <Link to={`/app/stories/${storyId}`} className="block">
+        <Link to={`/stories/${storyId}`} className="block">
           <div className="p-3">
             <div className="aspect-video w-full overflow-hidden rounded-xl">
               <img
@@ -57,7 +57,7 @@ export function StoryCardBody({
 
       {/* Title and excerpt */}
       <div className="px-4 pb-4 space-y-2">
-        <Link to={`/app/stories/${storyId}`} className="block space-y-2">
+        <Link to={`/stories/${storyId}`} className="block space-y-2">
           <h3 className="font-semibold text-lg line-clamp-2 leading-tight">
             {title}
           </h3>
@@ -71,7 +71,7 @@ export function StoryCardBody({
         {/* Author info and metadata */}
         <div className="flex items-center gap-2 pt-2">
           <Link
-            to={`/app/profile/${authorUsername}`}
+            to={`/profile/${authorUsername}`}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Avatar className="h-6 w-6">
               <AvatarImage src={authorProfileImage} />
@@ -96,3 +96,4 @@ export function StoryCardBody({
     </>
   );
 }
+

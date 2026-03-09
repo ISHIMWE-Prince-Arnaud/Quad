@@ -11,7 +11,6 @@ import {
   CallbackSkeleton,
 } from "@/components/auth/AuthSkeletons";
 import { LazyRoute } from "./LazyRoute";
-import { IndexRedirect } from "./IndexRedirect";
 
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
@@ -38,15 +37,10 @@ export const router = createBrowserRouter([
     path: "/",
     element: <RootLayout />,
     children: [
-      // Public routes
+      // 1. Auth / Public Routes (Explicit paths)
       {
-        path: "",
         element: <AuthLayout />,
         children: [
-          {
-            index: true,
-            element: <IndexRedirect />,
-          },
           {
             path: "login/sso-callback",
             element: (
@@ -101,9 +95,9 @@ export const router = createBrowserRouter([
           },
         ],
       },
-      // Protected routes
+      // 2. Protected Routes (Root level + empty path)
       {
-        path: "app",
+        path: "",
         element: (
           <ProtectedRoute>
             <MainLayout />
@@ -112,15 +106,15 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/app/feed" replace />,
-          },
-          {
-            path: "feed",
             element: (
               <LazyRoute>
                 <FeedPage />
               </LazyRoute>
             ),
+          },
+          {
+            path: "feed",
+            element: <Navigate to="/" replace />, // Redirect /feed to /
           },
           {
             path: "profile/:username",
@@ -154,7 +148,6 @@ export const router = createBrowserRouter([
               </LazyRoute>
             ),
           },
-
           {
             path: "stories",
             element: (
@@ -220,6 +213,10 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: "chat/:id",
+            element: <Navigate to="/chat" replace />,
+          },
+          {
             path: "notifications",
             element: (
               <LazyRoute>
@@ -228,6 +225,11 @@ export const router = createBrowserRouter([
             ),
           },
         ],
+      },
+      // 3. Legacy Redirects
+      {
+        path: "app/*",
+        element: <Navigate to="/" replace />,
       },
     ],
   },

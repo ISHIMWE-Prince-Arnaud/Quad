@@ -17,10 +17,10 @@ export default function SsoCallbackPage() {
 
           <div className="flex flex-col items-center">
             <AuthenticateWithRedirectCallback
-              signInFallbackRedirectUrl="/app/feed"
-              signUpFallbackRedirectUrl="/app/feed"
-              signInForceRedirectUrl="/app/feed"
-              signUpForceRedirectUrl="/app/feed"
+              signInFallbackRedirectUrl="/"
+              signUpFallbackRedirectUrl="/"
+              signInForceRedirectUrl="/"
+              signUpForceRedirectUrl="/"
             />
           </div>
         </div>
@@ -28,3 +28,5 @@ export default function SsoCallbackPage() {
     </AuthSplitLayout>
   );
 }
+
+

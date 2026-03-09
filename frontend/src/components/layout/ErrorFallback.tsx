@@ -61,7 +61,7 @@ export function ErrorFallback({
             )}
             <Button
               variant="outline"
-              onClick={() => (window.location.href = "/app/feed")}
+              onClick={() => (window.location.href = "/")}
               className="flex-1 gap-2">
               <PiHouseBold className="h-4 w-4" />
               Go Home
@@ -97,3 +97,5 @@ export function NotFoundFallback() {
     />
   );
 }
+
+

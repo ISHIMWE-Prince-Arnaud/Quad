@@ -26,13 +26,13 @@ export function Sidebar() {
   const { unreadCount } = useNotificationStore();
 
   const navigationItems: NavItem[] = [
-    { name: "Feed", href: "/app/feed", icon: PiHouseBold },
-    { name: "Polls", href: "/app/polls", icon: PiChartBarBold },
-    { name: "Stories", href: "/app/stories", icon: PiBookOpenTextBold },
-    { name: "Chat", href: "/app/chat", icon: PiChatCircleBold },
+    { name: "Feed", href: "/", icon: PiHouseBold },
+    { name: "Polls", href: "/polls", icon: PiChartBarBold },
+    { name: "Stories", href: "/stories", icon: PiBookOpenTextBold },
+    { name: "Chat", href: "/chat", icon: PiChatCircleBold },
     {
       name: "Notifications",
-      href: "/app/notifications",
+      href: "/notifications",
       icon: PiBellBold,
       badge: unreadCount,
     },
@@ -40,7 +40,7 @@ export function Sidebar() {
       ? [
           {
             name: "Profile",
-            href: `/app/profile/${user.username}`,
+            href: `/profile/${user.username}`,
             icon: PiUserBold,
           },
         ]
@@ -54,7 +54,7 @@ export function Sidebar() {
       )}>
       {/* 1. Logo - Improved branding */}
       <div className="px-8 pt-8 pb-10">
-        <Link to="/app/feed" aria-label="Go to Home">
+        <Link to="/" aria-label="Go to Home">
           <LogoWithText size="md" className="hover:opacity-90 transition" />
         </Link>
       </div>
@@ -111,3 +111,5 @@ export function Sidebar() {
     </div>
   );
 }
+
+

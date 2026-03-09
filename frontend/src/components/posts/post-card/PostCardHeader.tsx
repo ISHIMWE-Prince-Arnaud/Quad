@@ -29,7 +29,7 @@ export function PostCardHeader({
   return (
     <div className="flex items-start justify-between group">
       <Link
-        to={`/app/profile/${post.author.username}`}
+        to={`/profile/${post.author.username}`}
         className="flex items-center gap-3 hover:opacity-80 transition-opacity">
         <Avatar className="h-10 w-10 border-2 border-border/40 shadow-inner">
           <AvatarImage src={post.author.profileImage} />
@@ -92,3 +92,4 @@ export function PostCardHeader({
     </div>
   );
 }
+

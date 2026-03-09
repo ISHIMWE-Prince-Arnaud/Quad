@@ -42,7 +42,7 @@ export function FeedStatusCards({
             asChild
             variant="outline"
             className="rounded-full shadow-sm font-bold px-6">
-            <Link to="/app/feed">Go to Feed</Link>
+            <Link to="/">Go to Feed</Link>
           </Button>
         </EmptyState>
       </motion.div>
@@ -70,3 +70,5 @@ export function FeedStatusCards({
 
   return null;
 }
+
+

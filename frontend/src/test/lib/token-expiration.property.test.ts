@@ -25,7 +25,7 @@ describe("Token Expiration Property Tests", () => {
     window.location = {
       ...originalLocation,
       href: "",
-      pathname: "/app/feed",
+      pathname: "/",
     } as unknown as string & Location;
 
     // Spy on localStorage methods (already mocked in setup.ts)
@@ -122,7 +122,7 @@ describe("Token Expiration Property Tests", () => {
             .filter((s) => !s.includes("/login")),
           async (pathname) => {
             // Setup
-            window.location.pathname = `/app/${pathname}`;
+            window.location.pathname = `/${pathname}`;
             localStorage.setItem("clerk-db-jwt", "test-token");
 
             // Mock 401 response
@@ -237,7 +237,7 @@ describe("Token Expiration Property Tests", () => {
           fc.array(fc.string({ minLength: 1 }), { minLength: 2, maxLength: 5 }),
           async (endpoints) => {
             // Setup
-            window.location.pathname = "/app/feed";
+            window.location.pathname = "/";
             localStorage.setItem("clerk-db-jwt", "test-token");
 
             const initialHref = window.location.href;
@@ -272,3 +272,6 @@ describe("Token Expiration Property Tests", () => {
     });
   });
 });
+
+
+

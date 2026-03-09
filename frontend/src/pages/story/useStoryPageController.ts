@@ -94,7 +94,7 @@ export function useStoryPageController({
   const handleShare = useCallback(async () => {
     try {
       if (!id) return;
-      const path = `/app/stories/${id}`;
+      const path = `/stories/${id}`;
       const url = `${window.location.origin}${path}`;
 
       const ok = await copyToClipboard(url);
@@ -120,7 +120,7 @@ export function useStoryPageController({
       const res = await StoryService.delete(id);
       if (res.success) {
         showSuccessToast("Story deleted");
-        onNavigate("/app/stories");
+        onNavigate("/stories");
       } else {
         showErrorToast(res.message || "Failed to delete story");
       }
@@ -139,7 +139,7 @@ export function useStoryPageController({
 
   const handleEdit = useCallback(() => {
     if (!id) return;
-    onNavigate(`/app/stories/${id}/edit`);
+    onNavigate(`/stories/${id}/edit`);
   }, [id, onNavigate]);
 
   const handleSelectReaction = useCallback(
@@ -196,3 +196,5 @@ export function useStoryPageController({
     handleSelectReaction,
   };
 }
+
+

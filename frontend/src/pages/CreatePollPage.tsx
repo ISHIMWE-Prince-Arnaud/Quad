@@ -163,7 +163,7 @@ export default function CreatePollPage() {
         ...(createdId ? { id: createdId } : {}),
       };
 
-      navigate("/app/polls", { state: { createdPoll: normalizedPoll } });
+      navigate("/polls", { state: { createdPoll: normalizedPoll } });
     } catch (error) {
       logError(error, { component: "CreatePollPage", action: "submitPoll" });
       showErrorToast(getErrorMessage(error));
@@ -189,7 +189,7 @@ export default function CreatePollPage() {
     <div className="mx-auto w-full px-3 py-4 sm:px-4 sm:py-6">
       <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
-          <BackButton label="Create Poll" fallbackPath="/app/polls" />
+          <BackButton label="Create Poll" fallbackPath="/polls" />
 
           <Button
             type="button"
@@ -225,3 +225,4 @@ export default function CreatePollPage() {
     </div>
   );
 }
+

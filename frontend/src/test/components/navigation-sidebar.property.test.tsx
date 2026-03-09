@@ -134,12 +134,12 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
 
           // Property: Each navigation item must have the correct href
           const expectedHrefs: Record<string, string> = {
-            Feed: "/app/feed",
-            Polls: "/app/polls",
-            Stories: "/app/stories",
-            Chat: "/app/chat",
-            Notifications: "/app/notifications",
-            Profile: `/app/profile/${username}`,
+            Feed: "/",
+            Polls: "/polls",
+            Stories: "/stories",
+            Chat: "/chat",
+            Notifications: "/notifications",
+            Profile: `/profile/${username}`,
           };
 
           const navLinks = container.querySelectorAll("nav a");
@@ -234,3 +234,6 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
     );
   });
 });
+
+
+

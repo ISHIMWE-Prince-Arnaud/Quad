@@ -9,5 +9,5 @@ export function IndexRedirect() {
     return <MainAppSkeleton />;
   }
 
-  return <Navigate to={isSignedIn ? "/app/feed" : "/login"} replace />;
+  return <Navigate to={isSignedIn ? "/" : "/login"} replace />;
 }

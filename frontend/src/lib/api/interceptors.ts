@@ -134,7 +134,7 @@ export function attachInterceptors(api: AxiosInstance) {
           }
 
           if (
-            response.config.url?.includes("/feed") ||
+            response.config.url?.includes("/") ||
             response.config.url?.includes("/notifications")
           ) {
             ttl = 30 * 1000;
@@ -260,3 +260,4 @@ export function attachInterceptors(api: AxiosInstance) {
     }
   );
 }
+

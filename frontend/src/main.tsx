@@ -19,11 +19,13 @@ createRoot(document.getElementById("root")!).render(
       publishableKey={PUBLISHABLE_KEY}
       signInUrl="/login"
       signUpUrl="/signup"
-      signInFallbackRedirectUrl="/app/feed"
-      signUpFallbackRedirectUrl="/app/feed">
+      signInFallbackRedirectUrl="/"
+      signUpFallbackRedirectUrl="/">
       <ErrorBoundary>
         <App />
       </ErrorBoundary>
     </ClerkProvider>
   </StrictMode>,
 );
+
+

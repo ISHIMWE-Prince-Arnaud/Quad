@@ -3,7 +3,7 @@
  */
 
 const REDIRECT_KEY = "redirectAfterLogin";
-const DEFAULT_REDIRECT = "/app/feed";
+const DEFAULT_REDIRECT = "/";
 
 /**
  * Save the intended destination before redirecting to login
@@ -50,3 +50,5 @@ export function clearIntendedDestination(): void {
 export function hasIntendedDestination(): boolean {
   return !!sessionStorage.getItem(REDIRECT_KEY);
 }
+
+

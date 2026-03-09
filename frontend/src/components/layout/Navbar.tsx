@@ -42,37 +42,37 @@ export function Navbar() {
   const navigationItems = [
     {
       name: "Feed",
-      href: "/app/feed",
+      href: "/",
       icon: PiHouseBold,
       badge: 0,
     },
     {
       name: "Polls",
-      href: "/app/polls",
+      href: "/polls",
       icon: PiChartBarBold,
       badge: 0,
     },
     {
       name: "Stories",
-      href: "/app/stories",
+      href: "/stories",
       icon: PiBookOpenTextBold,
       badge: 0,
     },
     {
       name: "Chat",
-      href: "/app/chat",
+      href: "/chat",
       icon: PiChatCircleBold,
       badge: 0,
     },
     {
       name: "Notifications",
-      href: "/app/notifications",
+      href: "/notifications",
       icon: PiBellBold,
       badge: unreadCount,
     },
     {
       name: "Profile",
-      href: user?.username ? `/app/profile/${user.username}` : "/app/profile",
+      href: user?.username ? `/profile/${user.username}` : "/profile",
       icon: PiUserBold,
       badge: 0,
     },
@@ -85,7 +85,7 @@ export function Navbar() {
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
         <div className="flex items-center justify-between h-16 px-4">
           {/* Left: Logo */}
-          <Link to="/app/feed" className="flex items-center gap-2 group">
+          <Link to="/" className="flex items-center gap-2 group">
             <LogoWithText size="sm" />
           </Link>
 
@@ -93,7 +93,7 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             {/* Notifications */}
             <Link
-              to="/app/notifications"
+              to="/notifications"
               className="relative p-2 rounded-lg hover:bg-accent transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               title="Notifications"
               aria-label={`Notifications${
@@ -157,7 +157,7 @@ export function Navbar() {
                 {navigationItems.map((item) => {
                   const isActive =
                     location.pathname === item.href ||
-                    (item.href !== "/app/feed" &&
+                    (item.href !== "/" &&
                       location.pathname.startsWith(item.href));
                   const Icon = item.icon;
                   const hasBadge = item.badge > 0;
@@ -208,3 +208,5 @@ export function Navbar() {
     </>
   );
 }
+
+

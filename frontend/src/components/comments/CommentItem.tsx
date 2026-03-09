@@ -72,7 +72,7 @@ export function CommentItem({
     <div className="group">
       <div className="flex gap-3">
         <Link
-          to={`/app/profile/${comment.author.username}`}
+          to={`/profile/${comment.author.username}`}
           className="shrink-0 hover:opacity-80 transition-opacity">
           <Avatar className="h-9 w-9">
             <AvatarImage src={comment.author.profileImage} />
@@ -126,3 +126,4 @@ export function CommentItem({
     </div>
   );
 }
+

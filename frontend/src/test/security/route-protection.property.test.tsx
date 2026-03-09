@@ -69,7 +69,7 @@ function renderWithProviders(
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route
-          path="/app/*"
+          path="/*"
           element={
             <ProtectedRoute>
               <ProtectedContent />
@@ -96,13 +96,13 @@ describe("Property 56: Protected Route Authentication Check", () => {
       fc.asyncProperty(
         // Generate random protected route paths
         fc.constantFrom(
-          "/app/feed",
-          "/app/profile/testuser",
-          "/app/posts/123",
-          "/app/chat",
-          "/app/notifications",
-          "/app/settings",
-          "/app/polls",
+          "/",
+          "/profile/testuser",
+          "/posts/123",
+          "/chat",
+          "/notifications",
+          "/settings",
+          "/polls",
         ),
         async (protectedPath) => {
           // Clean up before each property test iteration
@@ -137,13 +137,13 @@ describe("Property 56: Protected Route Authentication Check", () => {
       fc.asyncProperty(
         // Generate random protected route paths
         fc.constantFrom(
-          "/app/feed",
-          "/app/profile/testuser",
-          "/app/posts/123",
-          "/app/chat",
-          "/app/notifications",
-          "/app/settings",
-          "/app/polls",
+          "/",
+          "/profile/testuser",
+          "/posts/123",
+          "/chat",
+          "/notifications",
+          "/settings",
+          "/polls",
         ),
         async (protectedPath) => {
           // Clean up before each property test iteration
@@ -171,7 +171,7 @@ describe("Property 56: Protected Route Authentication Check", () => {
   it("should show loading state while authentication is being verified", async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.constantFrom("/app/feed", "/app/profile/testuser", "/app/posts/123"),
+        fc.constantFrom("/", "/profile/testuser", "/posts/123"),
         fc.boolean(), // isSignedIn doesn't matter when not loaded
         async (protectedPath, isSignedIn) => {
           // Clean up before each property test iteration
@@ -199,7 +199,7 @@ describe("Property 56: Protected Route Authentication Check", () => {
   it("should preserve query parameters when redirecting to login", async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.constantFrom("/app/feed", "/app/polls", "/app/posts/123"),
+        fc.constantFrom("/", "/polls", "/posts/123"),
         fc
           .string({ minLength: 1, maxLength: 20 })
           .filter((s) => /^[a-zA-Z0-9]+$/.test(s)),
@@ -236,7 +236,7 @@ describe("Property 56: Protected Route Authentication Check", () => {
       fc.asyncProperty(
         // Generate various route patterns
         fc.record({
-          base: fc.constantFrom("/app/feed", "/app/profile", "/app/posts"),
+          base: fc.constantFrom("/", "/profile", "/posts"),
           param: fc.option(
             fc
               .string({ minLength: 1, maxLength: 10 })
@@ -276,3 +276,5 @@ describe("Property 56: Protected Route Authentication Check", () => {
     );
   });
 });
+
+

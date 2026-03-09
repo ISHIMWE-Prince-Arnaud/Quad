@@ -198,7 +198,7 @@ export function PollCard({
       }
       return;
     }
-    navigate(`/app/polls/${poll.id}/edit`);
+    navigate(`/polls/${poll.id}/edit`);
   };
 
   const handleDelete = async () => {
@@ -232,7 +232,7 @@ export function PollCard({
               {hasAvatar && (
                 <div className="flex items-center justify-between gap-3 w-full">
                   <Link
-                    to={`/app/profile/${poll.author.username}`}
+                    to={`/profile/${poll.author.username}`}
                     className="flex items-center gap-3 min-w-0 hover:opacity-90 transition-opacity">
                     <img
                       src={poll.author.profileImage}
@@ -330,7 +330,7 @@ export function PollCard({
               {!hasAvatar && (
                 <div className="flex items-center justify-between gap-3 w-full">
                   <Link
-                    to={`/app/profile/${poll.author.username}`}
+                    to={`/profile/${poll.author.username}`}
                     className={cn(
                       "min-w-0 hover:opacity-90 transition-opacity",
                       !subtitle && "text-center",
@@ -546,3 +546,4 @@ export function PollCard({
     </>
   );
 }
+
