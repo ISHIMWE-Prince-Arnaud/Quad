@@ -22,7 +22,7 @@
        ============================================ */
 
     /* Core Surface Colors (cool-neutral, subtle blue tint) */
-    --background: 220 14% 96%; /* App background - off-white with cool tint */
+    --background: 220 20% 98%; /* App background - tinted off-white for contrast against white cards */
     --foreground: 224 71% 4%; /* Primary text - near-black, not pure black */
     --card: 0 0% 100%; /* Card surfaces - pure white */
     --card-foreground: 224 71% 4%;
@@ -30,19 +30,19 @@
     --popover-foreground: 224 71% 4%;
 
     /* Panel/Sidebar surfaces - subtle tinted white */
-    --sidebar: 220 14% 98%;
+    --sidebar: 220 20% 98%;
     --sidebar-foreground: 224 71% 4%;
 
     /* Brand & Accent Colors */
     --primary: 221 83% 53%; /* Brand blue - consistent across themes */
     --primary-foreground: 210 40% 98%;
-    --secondary: 220 14% 96%; /* Subtle cool gray */
+    --secondary: 220 14% 92%; /* Subtle cool gray - darkened for contrast */
     --secondary-foreground: 224 71% 4%;
-    --accent: 220 14% 93%; /* Hover/focus backgrounds */
+    --accent: 220 14% 90%; /* Hover/focus backgrounds */
     --accent-foreground: 224 71% 4%;
 
     /* Muted/Subdued Colors */
-    --muted: 220 14% 96%;
+    --muted: 220 14% 92%; /* Darkened to distinguish from background */
     --muted-foreground: 220 9% 46%; /* Secondary text - WCAG AA on white */
 
     /* Semantic Colors */
@@ -54,14 +54,14 @@
     --warning-foreground: 0 0% 0%;
 
     /* Borders & Inputs */
-    --border: 220 13% 91%; /* Subtle cool-gray borders */
-    --border-subtle: 220 13% 94%; /* Even lighter for fine dividers */
-    --input: 220 13% 91%;
+    --border: 220 13% 86%; /* Darkened for visibility */
+    --border-subtle: 220 13% 90%; /* Even lighter for fine dividers */
+    --input: 220 13% 86%; /* Darkened for visibility */
     --ring: 221 83% 53%;
 
     /* Skeleton Loading Colors */
-    --skeleton: 220 13% 91%;
-    --skeleton-shimmer: 220 13% 95%;
+    --skeleton: 220 13% 88%;
+    --skeleton-shimmer: 220 13% 94%;
 
     /* ============================================
        Border Radius Tokens
@@ -91,28 +91,28 @@
     --spacing-24: 6rem;
 
     /* ============================================
-       Shadow Tokens - Minimal, soft shadows for light mode
-       Low opacity, large blur, small Y-offset
+       Shadow Tokens - Stronger, visible shadows for light mode
+       Higher opacity for clear stacking contexts and depth
        ============================================ */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.05);
     --shadow-md:
-      0 2px 8px -2px rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.03);
+      0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
     --shadow-lg:
-      0 4px 16px -4px rgb(0 0 0 / 0.06), 0 2px 6px -2px rgb(0 0 0 / 0.04);
+      0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
     --shadow-xl:
-      0 8px 24px -6px rgb(0 0 0 / 0.08), 0 4px 10px -4px rgb(0 0 0 / 0.04);
-    --shadow-2xl: 0 16px 40px -12px rgb(0 0 0 / 0.1);
-    --shadow-inner: inset 0 1px 2px 0 rgb(0 0 0 / 0.03);
+      0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.15);
+    --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.04);
 
-    /* Card-specific shadow - minimal elevation */
+    /* Card-specific shadow - noticeable elevation */
     --shadow-card:
-      0 1px 3px 0 rgb(0 0 0 / 0.02), 0 1px 2px -1px rgb(0 0 0 / 0.02);
+      0 2px 5px -1px rgb(0 0 0 / 0.04), 0 1px 3px -1px rgb(0 0 0 / 0.02);
     --shadow-card-hover:
-      0 4px 12px -4px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.03);
+      0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
 
     /* Dropdown/popover shadow */
     --shadow-dropdown:
-      0 4px 16px -4px rgb(0 0 0 / 0.08), 0 2px 6px -2px rgb(0 0 0 / 0.04);
+      0 10px 25px -5px rgb(0 0 0 / 0.12), 0 8px 10px -6px rgb(0 0 0 / 0.06);
 
     /* ============================================
        Z-index Scale

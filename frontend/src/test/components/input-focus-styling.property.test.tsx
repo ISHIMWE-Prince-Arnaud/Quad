@@ -24,19 +24,19 @@ describe("Input Focus Styling Property Tests", () => {
               label={inputProps.label ?? undefined}
               type={inputProps.type}
               disabled={inputProps.disabled}
-            />
+            />,
           );
 
           const input = container.querySelector("input");
           expect(input).toBeInTheDocument();
 
-          // Property: Input should have focus-visible:ring-primary class
-          expect(input).toHaveClass("focus-visible:ring-primary");
-          expect(input).toHaveClass("focus-visible:border-primary");
-          expect(input).toHaveClass("focus-visible:ring-2");
-        }
+          // Property: Input should have proper focus classes
+          expect(input).toHaveClass("focus:border-primary");
+          expect(input).toHaveClass("focus:ring-[6px]");
+          expect(input).toHaveClass("focus:ring-primary/10");
+        },
       ),
-      { numRuns: 100 }
+      { numRuns: 100 },
     );
   });
 });
