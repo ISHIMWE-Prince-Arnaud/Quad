@@ -262,12 +262,17 @@ export const checkUsername = asyncHandler(
 export const checkEmail = asyncHandler(async (req: Request, res: Response) => {
   const { email } = req.params;
 
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  const normalizedEmail = Array.isArray(email) ? email[0] : email;
+
+  if (
+    !normalizedEmail ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+  ) {
     return res.status(200).json({ success: true, available: false });
   }
 
   const existingUser = await User.findOne({
-    email: email.toLowerCase(),
+    email: normalizedEmail.toLowerCase(),
   }).lean();
 
   return res.status(200).json({
