@@ -63,7 +63,7 @@ export function CoverImageSection({
                 size="sm"
                 onClick={onRemove}
                 disabled={processing}
-                className="bg-black/20 hover:bg-black/30 text-white border-white/20 backdrop-blur-sm">
+                className="bg-destructive/20 hover:bg-destructive/40 text-white border-destructive/30 hover:border-destructive/50 backdrop-blur-md transition-all">
                 <PiTrashBold className="h-4 w-4 mr-2" />
                 Remove
               </Button>

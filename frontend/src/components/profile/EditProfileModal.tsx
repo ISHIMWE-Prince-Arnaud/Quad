@@ -8,10 +8,7 @@ import {
   processCoverImage,
   revokePreviewUrl,
 } from "@/lib/imageUtils";
-import {
-  showErrorToast,
-  showSuccessToast,
-} from "@/lib/error-handling/toasts";
+import { showErrorToast, showSuccessToast } from "@/lib/error-handling/toasts";
 import { UploadService } from "@/services/uploadService";
 
 import { CoverImageSection } from "./edit-profile/CoverImageSection";
@@ -82,7 +79,7 @@ export function EditProfileModal({
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
     reset,
     watch,
   } = useForm<EditProfileFormData>({
@@ -331,12 +328,23 @@ export function EditProfileModal({
               bioValue={bioValue}
             />
 
-            <EditProfileActions
-              isSubmitting={isSubmitting}
-              profileProcessing={profileImage.processing}
-              coverProcessing={coverImage.processing}
-              onCancel={handleClose}
-            />
+            {/* Form Dirty Check */}
+            {(() => {
+              const hasImageChanges =
+                profileImage.preview !== (user.profileImage || null) ||
+                coverImage.preview !== (user.coverImage || null);
+              const isActuallyDirty = isDirty || hasImageChanges;
+
+              return (
+                <EditProfileActions
+                  isSubmitting={isSubmitting}
+                  profileProcessing={profileImage.processing}
+                  coverProcessing={coverImage.processing}
+                  onCancel={handleClose}
+                  disabled={!isActuallyDirty}
+                />
+              );
+            })()}
           </form>
         </div>
       </div>

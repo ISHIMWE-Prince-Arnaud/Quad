@@ -24,7 +24,6 @@ export function EditProfileFields({
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="firstName">First Name</Label>
           <Input
             id="firstName"
             {...register("firstName")}
@@ -38,7 +37,6 @@ export function EditProfileFields({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="lastName">Last Name</Label>
           <Input
             id="lastName"
             {...register("lastName")}
@@ -53,7 +51,6 @@ export function EditProfileFields({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="username">Username</Label>
         <Input
           id="username"
           {...register("username")}
