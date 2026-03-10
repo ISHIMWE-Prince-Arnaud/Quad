@@ -1,5 +1,6 @@
 import multer from "multer";
 import type { Request } from "express";
+import { env } from "../config/env.config.js";
 
 // Store files in memory as buffers
 const storage = multer.memoryStorage();
@@ -46,7 +47,7 @@ export const uploadSingle = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB max (memory-buffered)
+    fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES, // max (Controller enforces specific limits per type)
   },
 }).single("file");
 
@@ -55,7 +56,7 @@ export const uploadMultiple = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB per file (memory-buffered)
+    fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES,
     files: 10, // Max 10 files
   },
 }).array("files", 10);
@@ -82,7 +83,7 @@ export const uploadImage = multer({
     }
   },
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB for images
+    fileSize: env.IMAGE_MAX_FILE_SIZE_BYTES, // for images
   },
 }).single("image");
 
@@ -105,7 +106,7 @@ export const uploadVideo = multer({
     }
   },
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB for videos (memory-buffered)
+    fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES, // for videos
   },
 }).single("video");
 
@@ -129,7 +130,7 @@ export const uploadImages = multer({
     }
   },
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB per image
+    fileSize: env.IMAGE_MAX_FILE_SIZE_BYTES,
     files: 10, // Max 10 images
   },
 }).array("images", 10);

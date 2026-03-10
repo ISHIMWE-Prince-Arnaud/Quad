@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import { env } from "@/lib/envValidation";
 import { attachInterceptors } from "./interceptors";
 
 const API_BASE_URL =
@@ -7,7 +7,7 @@ const API_BASE_URL =
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: env.apiTimeoutMs,
   headers: {
     "Content-Type": "application/json",
   },

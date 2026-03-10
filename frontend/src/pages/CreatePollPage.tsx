@@ -9,7 +9,7 @@ import { ZodError } from "zod";
 import type { ZodIssue } from "zod";
 import { createPollSchema } from "@/schemas/poll.schema";
 import { CreatePollForm } from "./create-poll/CreatePollForm";
-import { getErrorMessage } from "./create-poll/getErrorMessage";
+import { formatErrorMessage } from "@/lib/error-handling/formatters";
 import { mapFileToMedia } from "./create-poll/pollUtils";
 import type {
   LocalOption,
@@ -79,7 +79,7 @@ export default function CreatePollPage() {
         component: "CreatePollPage",
         action: "uploadQuestionMedia",
       });
-      showErrorToast(getErrorMessage(error));
+      showErrorToast(formatErrorMessage(error));
     } finally {
       setUploadingQuestionMedia(false);
     }
@@ -166,7 +166,7 @@ export default function CreatePollPage() {
       navigate("/polls", { state: { createdPoll: normalizedPoll } });
     } catch (error) {
       logError(error, { component: "CreatePollPage", action: "submitPoll" });
-      showErrorToast(getErrorMessage(error));
+      showErrorToast(formatErrorMessage(error));
     } finally {
       setSubmitting(false);
     }
@@ -225,4 +225,3 @@ export default function CreatePollPage() {
     </div>
   );
 }
-

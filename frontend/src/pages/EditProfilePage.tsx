@@ -16,6 +16,7 @@ import { EditProfileActions } from "@/components/profile/edit-profile/EditProfil
 import { UploadErrorAlert } from "@/components/profile/edit-profile/UploadErrorAlert";
 import { processProfileImage, processCoverImage } from "@/lib/imageUtils";
 import { showErrorToast, showSuccessToast } from "@/lib/error-handling/toasts";
+import { formatErrorMessage } from "@/lib/error-handling/formatters";
 
 const editProfileSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50),
@@ -88,10 +89,10 @@ export default function EditProfilePage() {
       setProfileImage({ preview: res.url, processing: false });
       showSuccessToast("Profile image uploaded");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Upload failed";
-      setUploadError(message);
       setProfileImage((prev) => ({ ...prev, processing: false }));
-      showErrorToast(message);
+      const message = formatErrorMessage(err);
+      setUploadError(message);
+      showErrorToast(err);
     }
   };
 
@@ -108,10 +109,10 @@ export default function EditProfilePage() {
       setCoverImage({ preview: res.url, processing: false });
       showSuccessToast("Cover image uploaded");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Upload failed";
-      setUploadError(message);
       setCoverImage((prev) => ({ ...prev, processing: false }));
-      showErrorToast(message);
+      const message = formatErrorMessage(err);
+      setUploadError(message);
+      showErrorToast(err);
     }
   };
 
@@ -127,9 +128,9 @@ export default function EditProfilePage() {
       showSuccessToast("Profile updated");
       navigate(`/profile/${updated.username}`);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Update failed";
+      const message = formatErrorMessage(err);
       setUploadError(message);
-      showErrorToast(message);
+      showErrorToast(err);
     }
   };
 

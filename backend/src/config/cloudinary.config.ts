@@ -7,6 +7,7 @@ cloudinary.config({
   api_key: env.CLOUDINARY_API_KEY,
   api_secret: env.CLOUDINARY_API_SECRET,
   secure: true, // Use HTTPS URLs
+  timeout: env.CLOUDINARY_TIMEOUT_MS, // Set default request timeout
 });
 
 // Cloudinary folders for organization
@@ -47,39 +48,29 @@ export const UPLOAD_PRESETS = {
   POST_IMAGE: {
     folder: CLOUDINARY_FOLDERS.POSTS,
     resource_type: "image" as const,
-    transformation: [
-      { quality: "auto", fetch_format: "auto" },
-    ],
+    transformation: [{ quality: "auto", fetch_format: "auto" }],
   },
   POST_VIDEO: {
     folder: CLOUDINARY_FOLDERS.POSTS,
     resource_type: "video" as const,
-    transformation: [
-      { quality: "auto", fetch_format: "auto" },
-    ],
+    transformation: [{ quality: "auto", fetch_format: "auto" }],
   },
   // Stories: Images and videos with any of the 3 aspect ratios
   STORY_IMAGE: {
     folder: CLOUDINARY_FOLDERS.STORIES,
     resource_type: "image" as const,
-    transformation: [
-      { quality: "auto", fetch_format: "auto" },
-    ],
+    transformation: [{ quality: "auto", fetch_format: "auto" }],
   },
   STORY_VIDEO: {
     folder: CLOUDINARY_FOLDERS.STORIES,
     resource_type: "video" as const,
-    transformation: [
-      { quality: "auto", fetch_format: "auto" },
-    ],
+    transformation: [{ quality: "auto", fetch_format: "auto" }],
   },
   // Polls: Images and videos with any of the 3 aspect ratios
   POLL_IMAGE: {
     folder: CLOUDINARY_FOLDERS.POLLS,
     resource_type: "image" as const,
-    transformation: [
-      { quality: "auto", fetch_format: "auto" },
-    ],
+    transformation: [{ quality: "auto", fetch_format: "auto" }],
   },
   // Profile: Images only (no videos)
   PROFILE: {
@@ -102,39 +93,48 @@ export const UPLOAD_PRESETS = {
 } as const;
 
 // Helper to generate responsive image URLs based on aspect ratio
-export const getResponsiveImageUrls = (publicId: string, aspectRatio: AspectRatio = "1:1") => {
+export const getResponsiveImageUrls = (
+  publicId: string,
+  aspectRatio: AspectRatio = "1:1",
+) => {
   const config = ASPECT_RATIOS[aspectRatio];
   return {
-    thumbnail: cloudinary.url(publicId, { 
-      width: 150, 
+    thumbnail: cloudinary.url(publicId, {
+      width: 150,
       height: aspectRatio === "1:1" ? 150 : aspectRatio === "16:9" ? 84 : 267,
-      crop: "fill" 
+      crop: "fill",
     }),
-    small: cloudinary.url(publicId, { 
-      width: 400, 
-      crop: "limit" 
+    small: cloudinary.url(publicId, {
+      width: 400,
+      crop: "limit",
     }),
-    medium: cloudinary.url(publicId, { 
-      width: 800, 
-      crop: "limit" 
+    medium: cloudinary.url(publicId, {
+      width: 800,
+      crop: "limit",
     }),
-    large: cloudinary.url(publicId, { 
-      width: config.dimensions.width, 
-      height: config.dimensions.height, 
-      crop: "limit" 
+    large: cloudinary.url(publicId, {
+      width: config.dimensions.width,
+      height: config.dimensions.height,
+      crop: "limit",
     }),
-    original: cloudinary.url(publicId, { quality: "auto", fetch_format: "auto" }),
+    original: cloudinary.url(publicId, {
+      quality: "auto",
+      fetch_format: "auto",
+    }),
   };
 };
 
 // Helper to generate video thumbnail
-export const getVideoThumbnail = (publicId: string, aspectRatio: AspectRatio = "16:9") => {
+export const getVideoThumbnail = (
+  publicId: string,
+  aspectRatio: AspectRatio = "16:9",
+) => {
   const thumbDimensions = {
     "1:1": { width: 400, height: 400 },
     "16:9": { width: 400, height: 225 },
     "9:16": { width: 225, height: 400 },
   };
-  
+
   return cloudinary.url(publicId, {
     resource_type: "video",
     transformation: [

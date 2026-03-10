@@ -19,7 +19,7 @@ import type {
   ValidationErrors,
 } from "./create-poll/types";
 import { CreatePollForm } from "./create-poll/CreatePollForm";
-import { getErrorMessage } from "./create-poll/getErrorMessage";
+import { formatErrorMessage } from "@/lib/error-handling/formatters";
 import { mapFileToMedia } from "./create-poll/pollUtils";
 
 export default function EditPollPage() {
@@ -157,7 +157,7 @@ export default function EditPollPage() {
           action: "fetchPoll",
           metadata: { id },
         });
-        if (!cancelled) setError(getErrorMessage(err));
+        if (!cancelled) setError(formatErrorMessage(err));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -273,7 +273,7 @@ export default function EditPollPage() {
         component: "EditPollPage",
         action: "uploadQuestionMedia",
       });
-      showErrorToast(getErrorMessage(err));
+      showErrorToast(formatErrorMessage(err));
     } finally {
       setUploadingQuestionMedia(false);
     }
@@ -394,7 +394,7 @@ export default function EditPollPage() {
         action: "updatePoll",
         metadata: { id },
       });
-      showErrorToast(getErrorMessage(err));
+      showErrorToast(formatErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -473,4 +473,3 @@ export default function EditPollPage() {
     </div>
   );
 }
-

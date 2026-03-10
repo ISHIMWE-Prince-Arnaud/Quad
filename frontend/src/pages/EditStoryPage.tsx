@@ -17,7 +17,7 @@ import { logError } from "@/lib/errorHandling";
 
 import { CreateStoryForm } from "./create-story/CreateStoryForm";
 import { useStoryEditor } from "./create-story/useStoryEditor";
-import { getErrorMessage } from "./create-story/getErrorMessage";
+import { formatErrorMessage } from "@/lib/error-handling/formatters";
 import { BackButton } from "@/components/ui/BackButton";
 
 export default function EditStoryPage() {
@@ -75,7 +75,7 @@ export default function EditStoryPage() {
           action: "loadStory",
           metadata: { id },
         });
-        if (!cancelled) setError(getErrorMessage(err));
+        if (!cancelled) setError(formatErrorMessage(err));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -131,7 +131,7 @@ export default function EditStoryPage() {
         action: "uploadCoverImage",
         metadata: { id },
       });
-      showErrorToast(getErrorMessage(err));
+      showErrorToast(formatErrorMessage(err));
     } finally {
       setUploadingCover(false);
     }
@@ -197,7 +197,7 @@ export default function EditStoryPage() {
         action: "updateStory",
         metadata: { id },
       });
-      showErrorToast(getErrorMessage(err));
+      showErrorToast(formatErrorMessage(err));
     } finally {
       setSubmitting(false);
     }
@@ -219,9 +219,7 @@ export default function EditStoryPage() {
             {error ||
               "The story you are trying to edit does not exist or cannot be loaded."}
           </p>
-          <Button onClick={() => navigate("/stories")}>
-            Back to Stories
-          </Button>
+          <Button onClick={() => navigate("/stories")}>Back to Stories</Button>
         </div>
       </div>
     );
@@ -294,5 +292,3 @@ export default function EditStoryPage() {
     </div>
   );
 }
-
-

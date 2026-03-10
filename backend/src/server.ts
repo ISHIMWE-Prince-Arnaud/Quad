@@ -73,8 +73,8 @@ const server = createServer(app);
 const io = new SocketIOServer(server, {
   cors: getSocketCorsOptions(),
   // Additional Socket.IO options for production
-  pingTimeout: 60000,
-  pingInterval: 25000,
+  pingTimeout: env.SOCKET_PING_TIMEOUT_MS,
+  pingInterval: env.SOCKET_PING_INTERVAL_MS,
   transports: ["websocket", "polling"],
 });
 
@@ -135,6 +135,9 @@ const startServer = async () => {
     server.listen(env.PORT, () => {
       logger.server(`Server running on port ${env.PORT}`);
     });
+
+    // Set server timeout to 5 minutes (configured via SERVER_TIMEOUT_MS) to support large file uploads
+    server.setTimeout(env.SERVER_TIMEOUT_MS);
   } catch (error) {
     logger.error("Failed to start server", error);
     process.exit(1);

@@ -77,14 +77,20 @@ export function MediaPreviewGrid({
                     <span className="text-sm text-muted-foreground">Video</span>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                   {file.error ? (
-                    <div className="text-center p-4">
-                      <p className="text-white text-xs mb-2">{file.error}</p>
+                    <div className="flex flex-col items-center gap-2 p-4 text-center">
+                      <div className="bg-destructive/20 p-2 rounded-full">
+                        <PiXBold className="h-6 w-6 text-red-500" />
+                      </div>
+                      <p className="text-red-400 text-xs font-semibold px-2 balance">
+                        {file.error}
+                      </p>
                       <Button
                         type="button"
                         variant="secondary"
                         size="sm"
+                        className="h-7 px-3 text-xs rounded-full mt-1"
                         onClick={() => onRemoveUploadingFile(index)}>
                         Remove
                       </Button>

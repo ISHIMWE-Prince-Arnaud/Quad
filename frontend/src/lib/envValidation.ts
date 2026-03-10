@@ -22,6 +22,10 @@ interface EnvConfig {
   // Environment
   nodeEnv: string;
 
+  // Media Configuration
+  uploadTimeoutMs: number;
+  apiTimeoutMs: number;
+
   // Optional: Error Tracking
   sentryDsn?: string;
   sentryEnvironment?: string;
@@ -59,16 +63,18 @@ export function validateEnv(): EnvConfig {
     clerkPublishableKey: import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
     clerkSignInUrl: import.meta.env.VITE_CLERK_SIGN_IN_URL || "/login",
     clerkSignUpUrl: import.meta.env.VITE_CLERK_SIGN_UP_URL || "/signup",
-    clerkAfterSignInUrl:
-      import.meta.env.VITE_CLERK_AFTER_SIGN_IN_URL || "/",
-    clerkAfterSignUpUrl:
-      import.meta.env.VITE_CLERK_AFTER_SIGN_UP_URL || "/",
+    clerkAfterSignInUrl: import.meta.env.VITE_CLERK_AFTER_SIGN_IN_URL || "/",
+    clerkAfterSignUpUrl: import.meta.env.VITE_CLERK_AFTER_SIGN_UP_URL || "/",
     enablePWA: import.meta.env.VITE_ENABLE_PWA === "true",
     enableNotifications: import.meta.env.VITE_ENABLE_NOTIFICATIONS === "true",
     nodeEnv:
       import.meta.env.VITE_NODE_ENV || import.meta.env.MODE || "development",
     sentryDsn: import.meta.env.VITE_SENTRY_DSN,
     sentryEnvironment: import.meta.env.VITE_SENTRY_ENVIRONMENT,
+    uploadTimeoutMs:
+      parseInt(import.meta.env.VITE_UPLOAD_TIMEOUT_MS as string, 10) || 300000,
+    apiTimeoutMs:
+      parseInt(import.meta.env.VITE_API_TIMEOUT_MS as string, 10) || 10000,
   };
 }
 
@@ -87,5 +93,3 @@ export const isProduction = env.nodeEnv === "production";
  * Check if running in development
  */
 export const isDevelopment = env.nodeEnv === "development";
-
-

@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import type { DragEvent } from "react";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
+import { formatErrorMessage } from "@/lib/error-handling/formatters";
 
 import { UploadService } from "@/services/uploadService";
 import type { MediaData } from "@/schemas/post.schema";
@@ -101,10 +102,12 @@ export function useCreatePostMedia() {
           });
           setUploadingFiles((prev) =>
             prev.map((uf, idx) =>
-              idx === uploadingIndex ? { ...uf, error: "Upload failed" } : uf,
+              idx === uploadingIndex
+                ? { ...uf, error: formatErrorMessage(error) }
+                : uf,
             ),
           );
-          showErrorToast("Failed to upload media");
+          showErrorToast(error, "Failed to upload media");
         }
       }
     },

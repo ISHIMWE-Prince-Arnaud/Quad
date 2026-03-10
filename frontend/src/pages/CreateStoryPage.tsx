@@ -8,10 +8,10 @@ import { UploadService } from "@/services/uploadService";
 import { StoryService } from "@/services/storyService";
 import type { CreateStoryInput, StoryStatus } from "@/types/story";
 import { createStorySchema } from "@/schemas/story.schema";
-import { getErrorMessage } from "./create-story/getErrorMessage";
 import { CreateStoryForm } from "./create-story/CreateStoryForm";
 import { useStoryEditor } from "./create-story/useStoryEditor";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
+import { formatErrorMessage } from "@/lib/error-handling/formatters";
 import { logError } from "@/lib/errorHandling";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/BackButton";
@@ -104,7 +104,7 @@ export default function CreateStoryPage() {
         component: "CreateStoryPage",
         action: "uploadCoverImage",
       });
-      showErrorToast(getErrorMessage(err));
+      showErrorToast(formatErrorMessage(err));
     } finally {
       setUploadingCover(false);
     }
@@ -165,7 +165,7 @@ export default function CreateStoryPage() {
       setLastSaved(null);
     } catch (err) {
       logError(err, { component: "CreateStoryPage", action: "submitStory" });
-      showErrorToast(getErrorMessage(err));
+      showErrorToast(formatErrorMessage(err));
     } finally {
       setSubmitting(false);
     }
@@ -238,4 +238,3 @@ export default function CreateStoryPage() {
     </div>
   );
 }
-

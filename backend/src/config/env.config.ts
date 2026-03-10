@@ -25,14 +25,44 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().optional(),
   SENTRY_DSN: z.string().optional(),
   SENTRY_ENVIRONMENT: z.string().optional(),
-  RATE_LIMIT_GENERAL_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
+  RATE_LIMIT_GENERAL_WINDOW_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(60_000),
   RATE_LIMIT_GENERAL_MAX: z.coerce.number().int().positive().default(500),
-  RATE_LIMIT_UPLOAD_WINDOW_MS: z.coerce.number().int().positive().default(900_000),
+  RATE_LIMIT_UPLOAD_WINDOW_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(900_000),
   RATE_LIMIT_UPLOAD_MAX: z.coerce.number().int().positive().default(60),
-  RATE_LIMIT_AUTH_WINDOW_MS: z.coerce.number().int().positive().default(900_000),
+  RATE_LIMIT_AUTH_WINDOW_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(900_000),
   RATE_LIMIT_AUTH_MAX: z.coerce.number().int().positive().default(10),
-  RATE_LIMIT_WRITE_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
+  RATE_LIMIT_WRITE_WINDOW_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(60_000),
   RATE_LIMIT_WRITE_MAX: z.coerce.number().int().positive().default(120),
+  SERVER_TIMEOUT_MS: z.coerce.number().int().positive().default(300_000),
+  UPLOAD_MAX_FILE_SIZE_BYTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(1073741824),
+  IMAGE_MAX_FILE_SIZE_BYTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(10485760),
+  CLOUDINARY_TIMEOUT_MS: z.coerce.number().int().positive().default(300000), // Default to 5 minutes
+  SOCKET_PING_TIMEOUT_MS: z.coerce.number().int().positive().default(60000),
+  SOCKET_PING_INTERVAL_MS: z.coerce.number().int().positive().default(25000),
 });
 
 const parsed = envSchema.safeParse(process.env);

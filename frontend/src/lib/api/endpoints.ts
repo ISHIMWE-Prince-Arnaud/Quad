@@ -1,4 +1,5 @@
 import { api } from "./apiInstance";
+import { env } from "@/lib/envValidation";
 
 export const endpoints = {
   users: {
@@ -120,7 +121,7 @@ export const endpoints = {
       formData.append("file", file);
       return api.post("/upload/post", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 60000,
+        timeout: env.uploadTimeoutMs,
       });
     },
     story: (file: File) => {
@@ -128,7 +129,7 @@ export const endpoints = {
       formData.append("file", file);
       return api.post("/upload/story", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 60000,
+        timeout: env.uploadTimeoutMs,
       });
     },
     poll: (file: File) => {
@@ -136,7 +137,7 @@ export const endpoints = {
       formData.append("file", file);
       return api.post("/upload/poll", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 60000,
+        timeout: env.uploadTimeoutMs,
       });
     },
     profile: (file: File) => {
@@ -144,7 +145,7 @@ export const endpoints = {
       formData.append("file", file);
       return api.post("/upload/profile", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 60000,
+        timeout: env.uploadTimeoutMs,
       });
     },
     cover: (file: File) => {
@@ -152,10 +153,9 @@ export const endpoints = {
       formData.append("file", file);
       return api.post("/upload/cover", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 60000,
+        timeout: env.uploadTimeoutMs,
       });
     },
     delete: (url: string) => api.delete("/upload", { data: { url } }),
   },
 };
-

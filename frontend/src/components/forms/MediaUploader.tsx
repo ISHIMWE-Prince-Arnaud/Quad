@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { formatErrorMessage } from "@/lib/error-handling/formatters";
 import { PiXBold, PiUploadSimpleBold, PiVideoCameraBold } from "react-icons/pi";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -130,10 +131,12 @@ export function MediaUploader({
           });
           setUploadingFiles((prev) =>
             prev.map((uf, idx) =>
-              idx === uploadingIndex ? { ...uf, error: "Upload failed" } : uf,
+              idx === uploadingIndex
+                ? { ...uf, error: formatErrorMessage(error) }
+                : uf,
             ),
           );
-          showErrorToast("Failed to upload media");
+          showErrorToast(error, "Failed to upload media");
         }
       }
     },
