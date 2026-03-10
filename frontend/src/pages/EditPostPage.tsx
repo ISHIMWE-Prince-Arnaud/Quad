@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BackButton } from "@/components/ui/BackButton";
-import { Button } from "@/components/ui/button";
 import { LoadingPage } from "@/components/ui/loading";
 import { CreatePostForm } from "@/components/forms/CreatePostForm";
 import { PostService } from "@/services/postService";
@@ -9,6 +8,8 @@ import type { CreatePostData } from "@/schemas/post.schema";
 import type { Post } from "@/types/post";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import { logError } from "@/lib/errorHandling";
+import { ContentNotFound } from "@/components/ui/ContentNotFound";
+import { PiFileTextBold } from "react-icons/pi";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -116,19 +117,16 @@ export default function EditPostPage() {
 
   if (error || !post) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="mb-4">
-          <BackButton />
-        </div>
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold mb-2">Unable to edit post</h2>
-          <p className="text-muted-foreground mb-4">
-            {error ||
-              "The post you are trying to edit does not exist or cannot be loaded."}
-          </p>
-          <Button onClick={() => navigate("/")}>Back to Feed</Button>
-        </div>
-      </div>
+      <ContentNotFound
+        title="Unable to edit post"
+        description={
+          error ||
+          "The post you are trying to edit does not exist or cannot be loaded."
+        }
+        icon={<PiFileTextBold className="h-10 w-10 text-primary" />}
+        backLabel="Back to Feed"
+        backPath="/"
+      />
     );
   }
 
@@ -147,6 +145,3 @@ export default function EditPostPage() {
     </div>
   );
 }
-
-
-

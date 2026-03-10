@@ -9,6 +9,8 @@ import { StoryDeleteDialog } from "./story/StoryDeleteDialog";
 import { StoryPageBody } from "./story/StoryPageBody";
 import { StoryPageHeader } from "./story/StoryPageHeader";
 import { useStoryPageController } from "./story/useStoryPageController";
+import { ContentNotFound } from "@/components/ui/ContentNotFound";
+import { PiBookOpenTextBold } from "react-icons/pi";
 
 export default function StoryPage() {
   const { id } = useParams<{ id: string }>();
@@ -39,11 +41,16 @@ export default function StoryPage() {
 
   if (controller.error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-2xl rounded-md border border-destructive/40 bg-destructive/10 p-4 text-destructive">
-          {controller.error}
-        </div>
-      </div>
+      <ContentNotFound
+        title="Story Not Found"
+        description={
+          controller.error ||
+          "The story you are looking for could not be found."
+        }
+        icon={<PiBookOpenTextBold className="h-10 w-10 text-primary" />}
+        backLabel="Back to Stories"
+        backPath="/stories"
+      />
     );
   }
 
@@ -96,4 +103,3 @@ export default function StoryPage() {
     </div>
   );
 }
-

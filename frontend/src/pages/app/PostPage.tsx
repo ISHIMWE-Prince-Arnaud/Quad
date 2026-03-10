@@ -8,6 +8,8 @@ import type { Post } from "@/types/post";
 import { CommentsSection } from "@/components/comments/CommentsSection";
 import { logError } from "@/lib/errorHandling";
 import { SkeletonPost, CommentsSkeleton } from "@/components/ui/loading";
+import { ContentNotFound } from "@/components/ui/ContentNotFound";
+import { PiFileTextBold } from "react-icons/pi";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -98,20 +100,16 @@ export default function PostPage() {
 
   if (error || !post) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold mb-2">Post Not Found</h2>
-          <p className="text-muted-foreground mb-6">
-            {error ||
-              "The post you are looking for does not exist or has been removed."}
-          </p>
-          <BackButton
-            label="Back to Feed"
-            fallbackPath="/"
-            className="mx-auto"
-          />
-        </div>
-      </div>
+      <ContentNotFound
+        title="Post Not Found"
+        description={
+          error ||
+          "The post you are looking for does not exist or has been moved."
+        }
+        icon={<PiFileTextBold className="h-10 w-10 text-primary" />}
+        backLabel="Back to Feed"
+        backPath="/"
+      />
     );
   }
 
@@ -133,5 +131,3 @@ export default function PostPage() {
     </div>
   );
 }
-
-

@@ -5,7 +5,9 @@ import {
   PiBookOpenTextBold,
   PiFileTextBold,
   PiChartBarBold,
+  PiUserBold,
 } from "react-icons/pi";
+import { ContentNotFound } from "@/components/ui/ContentNotFound";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
@@ -86,25 +88,30 @@ export default function ProfilePage() {
     return <ProfileSkeleton isOwnProfile={controller.isOwnProfile} />;
   }
 
-  if (controller.error) {
+  if (controller.isNotFound || !controller.user || !profileHeaderUser) {
     return (
-      <ErrorFallback
+      <ContentNotFound
         title={
           controller.isNotFound ? "Profile Not Found" : "Something Went Wrong"
         }
-        description={controller.error}
-        resetErrorBoundary={() => window.location.reload()}
+        description={
+          controller.error ||
+          "The user profile you are looking for does not exist."
+        }
+        icon={<PiUserBold className="h-10 w-10 text-primary" />}
+        backLabel="Back to Feed"
+        backPath="/"
       />
     );
   }
 
-  if (!controller.user || !profileHeaderUser) {
+  if (controller.error) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-4">
-          <p className="text-muted-foreground">Profile not found</p>
-        </div>
-      </div>
+      <ErrorFallback
+        title="Something Went Wrong"
+        description={controller.error}
+        resetErrorBoundary={() => window.location.reload()}
+      />
     );
   }
 
@@ -115,7 +122,7 @@ export default function ProfilePage() {
           {/* Profile Header */}
           <div className="px-4 py-6">
             <ProfileHeader
-              user={profileHeaderUser}
+              user={profileHeaderUser!}
               isOwnProfile={controller.isOwnProfile}
               isFollowing={controller.isFollowing}
               activeTab={controller.activeTab}

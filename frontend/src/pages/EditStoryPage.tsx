@@ -7,18 +7,20 @@ import {
 } from "react-icons/pi";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 
-import { Button } from "@/components/ui/button";
 import { LoadingPage } from "@/components/ui/loading";
 import { UploadService } from "@/services/uploadService";
 import { StoryService } from "@/services/storyService";
 import type { Story, StoryStatus, UpdateStoryInput } from "@/types/story";
 import { createStorySchema } from "@/schemas/story.schema";
 import { logError } from "@/lib/errorHandling";
+import { ContentNotFound } from "@/components/ui/ContentNotFound";
+import { PiBookOpenTextBold } from "react-icons/pi";
 
 import { CreateStoryForm } from "./create-story/CreateStoryForm";
 import { useStoryEditor } from "./create-story/useStoryEditor";
 import { formatErrorMessage } from "@/lib/error-handling/formatters";
 import { BackButton } from "@/components/ui/BackButton";
+import { Button } from "@/components/ui/button";
 
 export default function EditStoryPage() {
   const { id } = useParams<{ id: string }>();
@@ -209,19 +211,16 @@ export default function EditStoryPage() {
 
   if (error || !story) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="mb-4">
-          <BackButton />
-        </div>
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold mb-2">Unable to edit story</h2>
-          <p className="text-muted-foreground mb-4">
-            {error ||
-              "The story you are trying to edit does not exist or cannot be loaded."}
-          </p>
-          <Button onClick={() => navigate("/stories")}>Back to Stories</Button>
-        </div>
-      </div>
+      <ContentNotFound
+        title="Unable to edit story"
+        description={
+          error ||
+          "The story you are trying to edit does not exist or cannot be loaded."
+        }
+        icon={<PiBookOpenTextBold className="h-10 w-10 text-primary" />}
+        backLabel="Back to Stories"
+        backPath="/stories"
+      />
     );
   }
 
