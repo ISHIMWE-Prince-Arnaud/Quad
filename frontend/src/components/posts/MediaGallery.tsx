@@ -42,7 +42,11 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
           className={cn(
             "relative rounded-xl overflow-hidden",
             item.type === "video" &&
-              cn("bg-black", getAspectClass(item.aspectRatio), "max-h-[500px]"),
+              cn(
+                "bg-zinc-100 dark:bg-black",
+                getAspectClass(item.aspectRatio),
+                "max-h-[500px]",
+              ),
             className,
           )}>
           {item.type === "image" ? (

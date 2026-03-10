@@ -10,7 +10,10 @@ import {
   PiGearBold,
   PiSpeakerHighBold,
   PiSpeakerSlashBold,
+  PiAirplayBold,
+  PiArrowsClockwiseBold,
 } from "react-icons/pi";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 function formatTime(seconds: number) {
@@ -32,11 +35,15 @@ let globalVideoPlayerInstance = 0;
 export function VideoPlayer({
   src,
   autoPlay,
+  poster,
+  preload = "metadata",
   containerClassName,
   videoClassName,
 }: {
   src: string;
   autoPlay?: boolean;
+  poster?: string;
+  preload?: "auto" | "metadata" | "none";
   containerClassName?: string;
   videoClassName?: string;
 }) {
@@ -44,10 +51,12 @@ export function VideoPlayer({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const hideTimerRef = useRef<number | null>(null);
   const settingsRef = useRef<HTMLDivElement | null>(null);
+  const progressBarRef = useRef<HTMLDivElement | null>(null);
   const playerIdRef = useRef<string>(
     `vp_${Date.now()}_${(globalVideoPlayerInstance += 1)}`,
   );
   const bufferingTimerRef = useRef<number | null>(null);
+  const lastTapRef = useRef<number>(0);
 
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -56,15 +65,26 @@ export function VideoPlayer({
   const [isSlowNetwork, setIsSlowNetwork] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(1);
+  const [volume, setVolume] = useState(() => {
+    const saved = localStorage.getItem("quad_video_volume");
+    return saved ? parseFloat(saved) : 1;
+  });
   const [playbackRate, setPlaybackRate] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
   const [seekValue, setSeekValue] = useState(0);
+  const [buffered, setBuffered] = useState<[number, number][]>([]);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showRemainingTime, setShowRemainingTime] = useState(false);
+  const [hoverTime, setHoverTime] = useState<number | null>(null);
+  const [hoverX, setHoverX] = useState(0);
+  const [seekOverlay, setSeekOverlay] = useState<"forward" | "backward" | null>(
+    null,
+  );
+  const [wasPlayingBeforeScroll, setWasPlayingBeforeScroll] = useState(false);
 
   const clearHideTimer = useCallback(() => {
     if (hideTimerRef.current) {
@@ -85,7 +105,7 @@ export function VideoPlayer({
     if (!isPlaying || settingsOpen) return;
     hideTimerRef.current = window.setTimeout(() => {
       setControlsVisible(false);
-    }, 2200);
+    }, 2500);
   }, [clearHideTimer, isPlaying, settingsOpen]);
 
   const showControls = useCallback(() => {
@@ -123,6 +143,7 @@ export function VideoPlayer({
       const v = Math.max(0, Math.min(1, value));
       video.volume = v;
       setVolume(v);
+      localStorage.setItem("quad_video_volume", v.toString());
       if (v > 0 && video.muted) {
         video.muted = false;
         setIsMuted(false);
@@ -215,6 +236,107 @@ export function VideoPlayer({
     showControls();
   }, [showControls]);
 
+  const retryLoad = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.load();
+    setHasError(false);
+    setIsInitialLoading(true);
+  }, []);
+
+  // Intersection Observer for Auto-Pause/Resume
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            if (isPlaying) {
+              videoRef.current?.pause();
+              setWasPlayingBeforeScroll(true);
+            }
+          } else {
+            if (wasPlayingBeforeScroll) {
+              void videoRef.current?.play();
+              setWasPlayingBeforeScroll(false);
+            }
+          }
+        });
+      },
+      { threshold: 0.6 },
+    );
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [isPlaying, wasPlayingBeforeScroll]);
+
+  // Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if focus is in an input or textarea
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      switch (e.key.toLowerCase()) {
+        case " ":
+        case "k":
+          e.preventDefault();
+          void togglePlay();
+          break;
+        case "f":
+          e.preventDefault();
+          void toggleFullscreen();
+          break;
+        case "m":
+          e.preventDefault();
+          toggleMute();
+          break;
+        case "arrowleft":
+          e.preventDefault();
+          seekTo(
+            videoRef.current?.currentTime
+              ? videoRef.current.currentTime - 5
+              : 0,
+          );
+          showControls();
+          break;
+        case "arrowright":
+          e.preventDefault();
+          seekTo(
+            videoRef.current?.currentTime
+              ? videoRef.current.currentTime + 5
+              : 0,
+          );
+          showControls();
+          break;
+        case "arrowup":
+          e.preventDefault();
+          changeVolume(volume + 0.1);
+          break;
+        case "arrowdown":
+          e.preventDefault();
+          changeVolume(volume - 0.1);
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    togglePlay,
+    toggleFullscreen,
+    toggleMute,
+    seekTo,
+    volume,
+    changeVolume,
+    showControls,
+  ]);
+
   useEffect(() => {
     const onFsChange = () => {
       const el = containerRef.current;
@@ -228,6 +350,9 @@ export function VideoPlayer({
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+
+    // Apply saved volume on initial load
+    video.volume = volume;
 
     const handleLoaded = () => {
       setIsReady(true);
@@ -273,6 +398,15 @@ export function VideoPlayer({
       if (!isSeeking) {
         setCurrentTime(video.currentTime);
       }
+      // Update buffered ranges
+      const b = [];
+      for (let i = 0; i < video.buffered.length; i++) {
+        b.push([video.buffered.start(i), video.buffered.end(i)] as [
+          number,
+          number,
+        ]);
+      }
+      setBuffered(b);
     };
 
     const handlePlay = () => {
@@ -330,7 +464,7 @@ export function VideoPlayer({
       video.removeEventListener("pause", handlePause);
       video.removeEventListener("volumechange", handleVolume);
     };
-  }, [clearHideTimer, isSeeking, scheduleHide]);
+  }, [clearHideTimer, isSeeking, scheduleHide, volume]);
 
   useEffect(() => {
     clearBufferingTimer();
@@ -391,14 +525,91 @@ export function VideoPlayer({
     };
   }, [clearBufferingTimer, clearHideTimer]);
 
+  const handleMouseMoveTrack = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressBarRef.current || duration <= 0) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+    const time = (x / rect.width) * duration;
+    setHoverX(x);
+    setHoverTime(time);
+  };
+
+  const handlePointerDownTrack = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!progressBarRef.current || duration <= 0) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+    const time = (x / rect.width) * duration;
+    setIsSeeking(true);
+    setSeekValue(time);
+
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      const moveX = Math.max(
+        0,
+        Math.min(rect.width, moveEvent.clientX - rect.left),
+      );
+      setSeekValue((moveX / rect.width) * duration);
+    };
+
+    const onPointerUp = (upEvent: PointerEvent) => {
+      const upX = Math.max(
+        0,
+        Math.min(rect.width, upEvent.clientX - rect.left),
+      );
+      const finalTime = (upX / rect.width) * duration;
+      setIsSeeking(false);
+      seekTo(finalTime);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+  };
+
+  const handleTap = (e: React.MouseEvent) => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const rect = video.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const width = rect.width;
+
+    const now = Date.now();
+    const lastTap = lastTapRef.current;
+    lastTapRef.current = now;
+
+    if (now - lastTap < 300) {
+      // Double tap detected
+      if (x < width * 0.3) {
+        // Left side - back 10s
+        seekTo(video.currentTime - 10);
+        setSeekOverlay("backward");
+        setTimeout(() => setSeekOverlay(null), 600);
+      } else if (x > width * 0.7) {
+        // Right side - forward 10s
+        seekTo(video.currentTime + 10);
+        setSeekOverlay("forward");
+        setTimeout(() => setSeekOverlay(null), 600);
+      } else {
+        void togglePlay();
+      }
+    } else {
+      // Single tap
+      void togglePlay();
+      showControls();
+    }
+  };
+
   const effectiveTime = isSeeking ? seekValue : currentTime;
   const progressPct = duration > 0 ? (effectiveTime / duration) * 100 : 0;
 
   return (
     <div
       ref={containerRef}
+      role="region"
+      aria-label="Video Player"
       className={cn(
-        "relative bg-muted/30 overflow-hidden w-full h-full backdrop-blur-sm",
+        "relative bg-zinc-100 dark:bg-black group overflow-hidden w-full h-full select-none",
         containerClassName,
       )}
       onMouseMove={showControls}
@@ -412,212 +623,349 @@ export function VideoPlayer({
       <video
         ref={videoRef}
         src={src}
+        poster={poster}
+        preload={preload}
         autoPlay={autoPlay}
         playsInline
-        className={cn("w-full h-full object-cover", videoClassName)}
-        onClick={() => {
-          void togglePlay();
-          showControls();
-        }}
+        className={cn(
+          "w-full h-full object-contain bg-zinc-100 dark:bg-black",
+          videoClassName,
+        )}
+        onClick={handleTap}
       />
 
-      {(isInitialLoading || isBuffering || hasError) && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-black/35 pointer-events-none backdrop-blur-[2px]">
-          <div className="flex flex-col items-center gap-2 text-foreground/80">
-            {!hasError ? (
-              <>
-                <PiSpinnerBold className="h-7 w-7 animate-spin text-primary" />
-                <div className="text-sm font-medium">
-                  {isSlowNetwork ? "Buffering…" : "Loading…"}
-                </div>
-                {isSlowNetwork && (
-                  <div className="text-xs text-muted-foreground">
-                    Network seems slow or unstable
-                  </div>
+      {/* Double Tap Seek Feedback Overlay */}
+      <AnimatePresence>
+        {seekOverlay && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className={cn(
+              "absolute top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 pointer-events-none z-20",
+              seekOverlay === "backward" ? "left-1/4" : "right-1/4",
+            )}>
+            <div className="bg-black/60 dark:bg-white/20 backdrop-blur-md rounded-full p-4 text-white">
+              <PiArrowsClockwiseBold
+                className={cn(
+                  "h-8 w-8",
+                  seekOverlay === "backward" && "scale-x-[-1]",
                 )}
-              </>
-            ) : (
-              <>
-                <div className="text-sm font-medium">Failed to load video</div>
-                <div className="text-xs text-muted-foreground">
-                  Tap play to retry
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {!isPlaying && isReady && !isInitialLoading && !hasError && (
-        <button
-          type="button"
-          aria-label="Play"
-          onClick={() => {
-            void togglePlay();
-            showControls();
-          }}
-          className="absolute inset-0 flex items-center justify-center group">
-          <span className="flex items-center justify-center h-16 w-16 rounded-full bg-primary shadow-lg shadow-primary/20 transition-transform duration-200 group-hover:scale-110">
-            <PiPlayBold className="h-7 w-7 text-primary-foreground ml-0.5" />
-          </span>
-        </button>
-      )}
-
-      <div
-        className={cn(
-          "absolute inset-x-0 bottom-0 transition-opacity duration-300",
-          controlsVisible ? "opacity-100" : "opacity-0",
+              />
+            </div>
+            <span className="text-white font-bold text-lg drop-shadow-lg">
+              {seekOverlay === "backward" ? "-10s" : "+10s"}
+            </span>
+          </motion.div>
         )}
-        onClick={(e) => e.stopPropagation()}>
-        <div className="px-3 pb-3 pt-2 bg-gradient-to-t from-background/90 via-background/40 to-transparent backdrop-blur-[2px]">
-          <input
-            type="range"
-            min={0}
-            max={duration || 0}
-            step={0.1}
-            value={effectiveTime}
-            disabled={!isReady || duration <= 0}
-            onPointerDown={() => {
-              setIsSeeking(true);
-              setSeekValue(currentTime);
-            }}
-            onChange={(e) => {
-              setSeekValue(Number(e.target.value));
-            }}
-            onPointerUp={() => {
-              setIsSeeking(false);
-              seekTo(seekValue);
+      </AnimatePresence>
+
+      {/* Center States (Loading, Buffering, Error) */}
+      <AnimatePresence>
+        {(isInitialLoading || isBuffering || hasError) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 flex items-center justify-center bg-black/40 dark:bg-background/40 backdrop-blur-[4px] z-10">
+            <div className="flex flex-col items-center gap-4 text-white dark:text-foreground text-center px-6">
+              {!hasError ? (
+                <>
+                  <PiSpinnerBold className="h-10 w-10 animate-spin text-primary filter drop-shadow-lg" />
+                  <div className="flex flex-col gap-1">
+                    <div className="text-base font-semibold">
+                      {isSlowNetwork ? "Poor connection…" : "Loading media…"}
+                    </div>
+                    {isSlowNetwork && (
+                      <div className="text-sm opacity-70 max-w-xs">
+                        Trying to fetch your video. Please check your network.
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="bg-red-500/20 p-4 rounded-full mb-2">
+                    <PiAirplayBold className="h-8 w-8 text-red-500" />
+                  </div>
+                  <div className="text-base font-bold">
+                    Failed to load video
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      retryLoad();
+                    }}
+                    className="mt-2 px-6 py-2 bg-primary text-primary-foreground rounded-full font-bold hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/20">
+                    Try Again
+                  </button>
+                </>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main Play Button Overlay */}
+      <AnimatePresence>
+        {!isPlaying && isReady && !isInitialLoading && !hasError && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            type="button"
+            aria-label="Play Video"
+            onClick={(e) => {
+              e.stopPropagation();
+              void togglePlay();
               showControls();
             }}
-            className="w-full h-1.5 appearance-none bg-foreground/10 rounded-full outline-none cursor-pointer accent-primary"
-            style={{
-              background: `linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${progressPct}%, hsl(var(--foreground) / 0.1) ${progressPct}%, hsl(var(--foreground) / 0.1) 100%)`,
-            }}
-          />
+            className="absolute inset-0 flex items-center justify-center group z-10">
+            <span className="flex items-center justify-center h-16 w-16 rounded-full bg-primary text-white shadow-2xl shadow-primary/40 transition-transform duration-300 group-hover:scale-110">
+              <PiPlayBold className="h-8 w-8 ml-0.5" />
+            </span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
-          <div className="mt-2 flex items-center justify-between text-foreground">
-            <div className="flex items-center gap-2">
+      {/* Controls Container */}
+      <div
+        className={cn(
+          "absolute inset-x-0 bottom-0 z-30 transition-all duration-500 transform",
+          controlsVisible
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4 pointer-events-none",
+        )}
+        onClick={(e) => e.stopPropagation()}>
+        <div className="px-4 pb-4 pt-10 bg-gradient-to-t from-black/80 via-black/30 to-transparent dark:from-black/95 dark:via-black/50 dark:to-transparent">
+          {/* Custom Progress Bar */}
+          <div
+            ref={progressBarRef}
+            className="relative h-1.5 group/track cursor-pointer mb-4 flex items-center"
+            onMouseMove={handleMouseMoveTrack}
+            onMouseEnter={() => setHoverTime(0)}
+            onMouseLeave={() => setHoverTime(null)}
+            onPointerDown={handlePointerDownTrack}>
+            {/* Background Track */}
+            <div className="absolute inset-0 bg-white/30 dark:bg-white/20 rounded-full overflow-hidden transition-all group-hover/track:h-2">
+              {/* Buffer Bar */}
+              {buffered.map(([start, end], i) => (
+                <div
+                  key={i}
+                  className="absolute h-full bg-white/40 dark:bg-white/30 rounded-full"
+                  style={{
+                    left: `${(start / duration) * 100}%`,
+                    width: `${((end - start) / duration) * 100}%`,
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Active Progress */}
+            <motion.div
+              className="absolute inset-y-0 left-0 bg-primary rounded-full z-10 transition-all group-hover/track:h-2 shadow-[0_0_10px_rgba(var(--primary),0.5)]"
+              style={{ width: `${progressPct}%` }}>
+              {/* Handle */}
+              <div
+                className={cn(
+                  "absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary border-2 border-white dark:border-white/80 rounded-full shadow-lg transition-transform scale-0 group-hover/track:scale-100",
+                  isSeeking && "scale-125",
+                )}
+              />
+            </motion.div>
+
+            {/* Hover Tooltip */}
+            <AnimatePresence>
+              {hoverTime !== null && duration > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute bottom-full mb-3 -translate-x-1/2 pointer-events-none z-20"
+                  style={{ left: hoverX }}>
+                  <div className="bg-white/95 dark:bg-black/85 backdrop-blur-md px-2 py-1 rounded text-[10px] font-bold text-black dark:text-white border border-black/10 dark:border-white/10 shadow-xl tabular-nums">
+                    {formatTime(hoverTime)}
+                  </div>
+                  <div className="w-1.5 h-1.5 bg-white/95 dark:bg-black/85 rotate-45 absolute -bottom-0.5 left-1/2 -translate-x-1/2" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {/* Play/Pause with morph effect simulation */}
               <button
                 type="button"
-                aria-label={isPlaying ? "Pause" : "Play"}
                 onClick={() => {
                   void togglePlay();
                   showControls();
                 }}
-                className="h-9 w-9 rounded-lg bg-secondary/50 hover:bg-secondary border border-border/40 flex items-center justify-center transition-colors">
-                {isPlaying ? (
-                  <PiPauseBold className="h-4 w-4" />
-                ) : (
-                  <PiPlayBold className="h-4 w-4 ml-0.5" />
-                )}
+                className="h-10 w-10 rounded-xl bg-white/20 dark:bg-white/10 hover:bg-white/30 dark:hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all active:scale-95 shadow-sm border border-white/20 dark:border-white/10 text-white">
+                <AnimatePresence mode="wait">
+                  {isPlaying ? (
+                    <motion.div
+                      key="pause"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}>
+                      <PiPauseBold className="h-5 w-5 drop-shadow-md" />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="play"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}>
+                      <PiPlayBold className="h-5 w-5 ml-0.5 drop-shadow-md" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </button>
 
-              <button
-                type="button"
-                aria-label={isMuted || volume === 0 ? "Unmute" : "Mute"}
-                onClick={toggleMute}
-                className="h-9 w-9 rounded-lg bg-secondary/50 hover:bg-secondary border border-border/40 flex items-center justify-center transition-colors">
-                {isMuted || volume === 0 ? (
-                  <PiSpeakerSlashBold className="h-4 w-4" />
-                ) : (
-                  <PiSpeakerHighBold className="h-4 w-4" />
-                )}
-              </button>
-
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.01}
-                value={isMuted ? 0 : volume}
-                onChange={(e) => changeVolume(Number(e.target.value))}
-                className="w-20 h-1.5 appearance-none bg-foreground/10 rounded-full outline-none hidden sm:block accent-primary cursor-pointer"
-              />
-
-              <span className="text-xs tabular-nums font-medium text-muted-foreground">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div ref={settingsRef} className="relative">
+              <div className="flex items-center group/volume">
                 <button
                   type="button"
-                  aria-label="Settings"
-                  onClick={() => {
-                    setSettingsOpen((v) => !v);
-                    showControls();
-                  }}
-                  className="h-9 w-9 rounded-lg bg-secondary/50 hover:bg-secondary border border-border/40 flex items-center justify-center transition-colors">
-                  <PiGearBold className="h-4 w-4" />
+                  onClick={toggleMute}
+                  className="h-10 w-10 rounded-xl bg-white/20 dark:bg-white/10 hover:bg-white/30 dark:hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all active:scale-95 border border-white/20 dark:border-white/10 text-white">
+                  {isMuted || volume === 0 ? (
+                    <PiSpeakerSlashBold className="h-5 w-5" />
+                  ) : (
+                    <PiSpeakerHighBold className="h-5 w-5" />
+                  )}
                 </button>
 
-                {settingsOpen && (
-                  <div className="absolute bottom-full right-0 mb-2 w-56 rounded-xl bg-popover border border-border shadow-2xl overflow-hidden backdrop-blur-xl">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        downloadVideo();
-                        setSettingsOpen(false);
-                      }}
-                      className="w-full px-3 py-2.5 text-sm hover:bg-accent flex items-center gap-2 transition-colors">
-                      <PiDownloadSimpleBold className="h-4 w-4" />
-                      Download
-                    </button>
-
-                    <div className="px-3 py-2 text-[10px] uppercase tracking-wider font-bold text-muted-foreground border-t border-border/40 bg-muted/30">
-                      Playback speed
-                    </div>
-                    {([0.5, 0.75, 1, 1.25, 1.5, 2] as const).map((rate) => (
-                      <button
-                        key={rate}
-                        type="button"
-                        onClick={() => setSpeed(rate)}
-                        className="w-full px-3 py-2 text-sm hover:bg-accent flex items-center justify-between transition-colors">
-                        <span
-                          className={cn(
-                            Math.abs(playbackRate - rate) < 0.001 &&
-                              "font-bold text-primary",
-                          )}>
-                          {rate === 1 ? "Normal" : `${rate}x`}
-                        </span>
-                        {Math.abs(playbackRate - rate) < 0.001 && (
-                          <PiCheckBold className="h-4 w-4 text-primary" />
-                        )}
-                      </button>
-                    ))}
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        void togglePiP();
-                        setSettingsOpen(false);
-                      }}
-                      className="w-full px-3 py-2.5 text-sm hover:bg-accent flex items-center justify-between border-t border-border/40 transition-colors">
-                      <span>Picture in picture</span>
-                      <span className="text-[10px] font-bold bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                        PiP
-                      </span>
-                    </button>
-                  </div>
-                )}
+                {/* Expandable Volume Slider */}
+                <div className="w-0 group-hover/volume:w-24 group-focus-within/volume:w-24 transition-all duration-300 overflow-hidden flex items-center ml-0">
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={isMuted ? 0 : volume}
+                    onChange={(e) => changeVolume(Number(e.target.value))}
+                    className="w-20 ml-2 h-1 appearance-none bg-white/30 dark:bg-white/20 rounded-full outline-none accent-white cursor-pointer"
+                  />
+                </div>
               </div>
 
               <button
                 type="button"
-                aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                onClick={() => setShowRemainingTime(!showRemainingTime)}
+                className="text-xs font-bold tabular-nums text-white hover:text-white/80 transition-colors py-1 px-2 rounded-lg hover:bg-white/20 dark:hover:bg-white/10">
+                {formatTime(currentTime)}{" "}
+                <span className="text-white/40 mx-0.5">/</span>{" "}
+                {showRemainingTime
+                  ? `-${formatTime(duration - currentTime)}`
+                  : formatTime(duration)}
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Picture-in-Picture Button (High Priority) */}
+              <button
+                type="button"
+                aria-label="Picture in Picture"
+                onClick={togglePiP}
+                className="h-10 w-10 rounded-xl bg-white/20 dark:bg-white/10 hover:bg-white/30 dark:hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all active:scale-95 border border-white/20 dark:border-white/10 text-white">
+                <PiAirplayBold className="h-5 w-5" />
+              </button>
+
+              <div ref={settingsRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSettingsOpen(!settingsOpen);
+                    showControls();
+                  }}
+                  className={cn(
+                    "h-10 w-10 rounded-xl backdrop-blur-md flex items-center justify-center transition-all active:scale-95 border shadow-sm",
+                    settingsOpen
+                      ? "bg-primary text-white border-primary shadow-primary/20"
+                      : "bg-white/20 dark:bg-white/10 hover:bg-white/30 dark:hover:bg-white/20 text-white border-white/20 dark:border-white/10",
+                  )}>
+                  <PiGearBold
+                    className={cn(
+                      "h-5 w-5 transition-transform duration-500",
+                      settingsOpen && "rotate-90",
+                    )}
+                  />
+                </button>
+
+                <AnimatePresence>
+                  {settingsOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      className="absolute bottom-full right-0 mb-3 w-60 rounded-2xl bg-white/95 dark:bg-black/85 backdrop-blur-2xl border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden z-40 p-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          downloadVideo();
+                          setSettingsOpen(false);
+                        }}
+                        className="w-full px-3 py-2.5 text-sm hover:bg-black/5 dark:hover:bg-white/10 rounded-xl flex items-center gap-3 transition-colors text-black dark:text-white">
+                        <PiDownloadSimpleBold className="h-5 w-5 opacity-70" />
+                        <span className="font-semibold">Download Archive</span>
+                      </button>
+
+                      <div className="my-1.5 h-px bg-black/5 dark:bg-white/5" />
+
+                      <div className="px-3 py-2 text-[10px] uppercase tracking-[0.1em] font-black text-black/40 dark:text-white/40 mb-1">
+                        Playback Speed
+                      </div>
+                      <div className="grid grid-cols-3 gap-1 px-1 mb-1">
+                        {([0.5, 0.75, 1, 1.25, 1.5, 2] as const).map((rate) => (
+                          <button
+                            key={rate}
+                            type="button"
+                            onClick={() => setSpeed(rate)}
+                            className={cn(
+                              "py-2 text-xs rounded-lg transition-all flex flex-col items-center justify-center gap-1",
+                              Math.abs(playbackRate - rate) < 0.001
+                                ? "bg-primary text-white font-bold shadow-lg shadow-primary/10"
+                                : "text-black/70 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10",
+                            )}>
+                            <span>{rate === 1 ? "Normal" : `${rate}x`}</span>
+                            {Math.abs(playbackRate - rate) < 0.001 && (
+                              <PiCheckBold className="h-3 w-3" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <button
+                type="button"
                 onClick={() => void toggleFullscreen()}
-                className="h-9 w-9 rounded-lg bg-secondary/50 hover:bg-secondary border border-border/40 flex items-center justify-center transition-colors">
+                className="h-10 w-10 rounded-xl bg-white/20 dark:bg-white/10 hover:bg-white/30 dark:hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition-all active:scale-95 border border-white/20 dark:border-white/10 text-white">
                 {isFullscreen ? (
-                  <PiCornersInBold className="h-4 w-4" />
+                  <PiCornersInBold className="h-5 w-5" />
                 ) : (
-                  <PiCornersOutBold className="h-4 w-4" />
+                  <PiCornersOutBold className="h-5 w-5" />
                 )}
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        .custom-video-range::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          height: 14px;
+          width: 14px;
+          border-radius: 50%;
+          background: white;
+          cursor: pointer;
+          border: 2px solid hsl(var(--primary));
+          box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+      `}</style>
     </div>
   );
 }
