@@ -13,22 +13,40 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: "autoUpdate",
+        includeAssets: ["logo.png"],
         manifest: {
           name: "Quad",
           short_name: "Quad",
           description:
             "The next-generation campus social platform. Express yourself with stories, polls, and real-time chat.",
-          theme_color: "#ffffff",
+          theme_color: "#0a0f1b",
+          background_color: "#0a0f1b",
+          display: "standalone",
+          start_url: "/",
           icons: [
+            {
+              src: "/logo.png",
+              sizes: "32x32",
+              type: "image/png",
+              purpose: "any",
+            },
+            {
+              src: "/logo.png",
+              sizes: "64x64",
+              type: "image/png",
+              purpose: "any",
+            },
             {
               src: "/logo.png",
               sizes: "192x192",
               type: "image/png",
+              purpose: "any maskable",
             },
             {
               src: "/logo.png",
               sizes: "512x512",
               type: "image/png",
+              purpose: "any maskable",
             },
           ],
         },
