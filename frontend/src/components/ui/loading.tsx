@@ -133,13 +133,12 @@ export function SkeletonAvatar({ className }: { className?: string }) {
 
 // Matches PostCard.tsx
 export function SkeletonPost({
-  mediaVariant = "wide",
+  mediaType = "image",
+  hasText = true,
 }: {
-  mediaVariant?: "none" | "wide" | "tall";
+  mediaType?: "image" | "video";
+  hasText?: boolean;
 }) {
-  const showMedia = mediaVariant !== "none";
-  const mediaClass = mediaVariant === "tall" ? "h-96" : "h-64";
-
   return (
     <div className="bg-card border border-border/40 rounded-[2rem] overflow-hidden">
       {/* Header */}
@@ -158,15 +157,24 @@ export function SkeletonPost({
 
       {/* Content */}
       <div className="px-6 pb-6 space-y-4">
-        <div className="space-y-2">
-          <SkeletonLine className="w-full h-4 rounded-md" />
-          <SkeletonLine className="w-11/12 h-4 rounded-md" />
-          <SkeletonLine className="w-9/12 h-4 rounded-md" />
-        </div>
-
-        {showMedia && (
-          <SkeletonBlock className={cn("w-full rounded-2xl", mediaClass)} />
+        {hasText && (
+          <div className="space-y-2">
+            <SkeletonLine className="w-full h-4 rounded-md" />
+            <SkeletonLine className="w-11/12 h-4 rounded-md" />
+          </div>
         )}
+
+        {/* Media Placeholder */}
+        <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-muted/20">
+          <SkeletonBlock className="absolute inset-0 h-full w-full opacity-40" />
+          {mediaType === "video" && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full border-2 border-primary/20 bg-primary/10 flex items-center justify-center">
+                <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-primary/60 border-b-[8px] border-b-transparent ml-1" />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Footer */}
@@ -429,9 +437,10 @@ export function StoryPageSkeleton() {
 export function FeedSkeleton() {
   return (
     <div className="space-y-6">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <SkeletonPost key={i} mediaVariant={i % 2 === 0 ? "wide" : "none"} />
-      ))}
+      <SkeletonPost mediaType="image" hasText={true} />
+      <SkeletonPost mediaType="video" hasText={true} />
+      <SkeletonPost mediaType="image" hasText={false} />
+      <SkeletonPost mediaType="video" hasText={false} />
     </div>
   );
 }
