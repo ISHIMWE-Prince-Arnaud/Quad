@@ -5,7 +5,10 @@ import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
 import { PiBellSlashBold, PiWarningCircleBold } from "react-icons/pi";
 import { EmptyState } from "@/components/ui/empty-state";
 
-import { NotificationSkeleton, LoadMoreButton } from "@/components/ui/loading";
+import {
+  NotificationsListSkeleton,
+  LoadMoreButton,
+} from "@/components/ui/loading";
 import { NotificationRow } from "./notifications/NotificationRow";
 import { NotificationsHeader } from "./notifications/NotificationsHeader";
 import { useNotificationsController } from "./notifications/useNotificationsController";
@@ -33,13 +36,7 @@ export default function NotificationsPage() {
         {/* Content */}
         <CardContent className="p-0">
           {/* Skeleton loading */}
-          {controller.initialLoading && (
-            <div className="flex flex-col gap-2 p-2 sm:p-3">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <NotificationSkeleton key={i} />
-              ))}
-            </div>
-          )}
+          {controller.initialLoading && <NotificationsListSkeleton />}
 
           {/* Error */}
           {controller.error && !controller.initialLoading && (

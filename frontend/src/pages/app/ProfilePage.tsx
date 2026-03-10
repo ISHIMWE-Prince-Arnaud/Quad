@@ -18,12 +18,9 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
   FeedSkeleton,
-  ProfileBookmarksPollsTabSkeleton,
-  ProfileBookmarksStoriesTabSkeleton,
-  ProfileBookmarksTabSkeleton,
-  ProfilePollsTabSkeleton,
+  StoriesGridSkeleton,
+  PollsListSkeleton,
   ProfileSkeleton,
-  ProfileStoriesTabSkeleton,
   LoadMoreButton,
 } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
@@ -200,7 +197,7 @@ export default function ProfilePage() {
               controller.storiesLoading &&
               !controller.storiesError &&
               controller.stories.length === 0 ? (
-                <ProfileStoriesTabSkeleton />
+                <StoriesGridSkeleton />
               ) : (
                 <motion.div
                   key="stories"
@@ -252,7 +249,7 @@ export default function ProfilePage() {
               controller.pollsLoading &&
               !controller.pollsError &&
               controller.polls.length === 0 ? (
-                <ProfilePollsTabSkeleton />
+                <PollsListSkeleton />
               ) : (
                 <motion.div
                   key="polls"
@@ -311,17 +308,47 @@ export default function ProfilePage() {
                 controller.savedPostsLoading &&
                 !controller.savedPostsError &&
                 controller.savedPosts.length === 0 ? (
-                <ProfileBookmarksTabSkeleton />
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-9 w-20 rounded-full bg-muted animate-pulse"
+                      />
+                    ))}
+                  </div>
+                  <FeedSkeleton />
+                </div>
               ) : controller.savedTab === "stories" &&
                 controller.savedStoriesLoading &&
                 !controller.savedStoriesError &&
                 controller.savedStories.length === 0 ? (
-                <ProfileBookmarksStoriesTabSkeleton />
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-9 w-20 rounded-full bg-muted animate-pulse"
+                      />
+                    ))}
+                  </div>
+                  <StoriesGridSkeleton />
+                </div>
               ) : controller.savedTab === "polls" &&
                 controller.savedPollsLoading &&
                 !controller.savedPollsError &&
                 controller.savedPolls.length === 0 ? (
-                <ProfileBookmarksPollsTabSkeleton />
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-9 w-20 rounded-full bg-muted animate-pulse"
+                      />
+                    ))}
+                  </div>
+                  <PollsListSkeleton />
+                </div>
               ) : (
                 <motion.div
                   key={`saved-${controller.savedTab}`}

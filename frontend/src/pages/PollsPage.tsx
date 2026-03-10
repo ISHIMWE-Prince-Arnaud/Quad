@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 
 import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams } from "@/types/poll";
-import { SkeletonPollCard, LoadMoreButton } from "@/components/ui/loading";
+import { PollsListSkeleton, LoadMoreButton } from "@/components/ui/loading";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PiChartBarBold } from "react-icons/pi";
 import { useSocketStore } from "@/stores/socketStore";
@@ -250,10 +250,8 @@ export default function PollsPage() {
       )}
 
       {loading && polls.length === 0 && (
-        <div className="space-y-4 py-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <SkeletonPollCard key={i} />
-          ))}
+        <div className="py-4">
+          <PollsListSkeleton />
         </div>
       )}
 
