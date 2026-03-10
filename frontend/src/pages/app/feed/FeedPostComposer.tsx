@@ -99,10 +99,7 @@ export function FeedPostComposer({
   const isOverLimit = charCount > 1000;
   const hasMedia = uploadedMedia.length > 0;
   const canSubmit =
-    !isOverLimit &&
-    (hasMedia || trimmedText.length > 0) &&
-    uploadingFiles.length === 0 &&
-    !disabled;
+    !isOverLimit && hasMedia && uploadingFiles.length === 0 && !disabled;
 
   useEffect(() => {
     if (!disabled && isExpanded) {
@@ -119,8 +116,8 @@ export function FeedPostComposer({
   const submit = async () => {
     if (disabled || isSubmitting) return;
 
-    if (!hasMedia && trimmedText.length === 0) {
-      showErrorToast("Post must have text or media");
+    if (!hasMedia) {
+      showErrorToast("Post must have at least one media item");
       setIsExpanded(true);
       inputRef.current?.focus();
       return;

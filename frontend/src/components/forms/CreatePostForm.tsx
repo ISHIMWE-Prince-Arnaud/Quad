@@ -94,8 +94,8 @@ export function CreatePostForm({
   const charCount = textValue.length;
   const isOverLimit = charCount > 1000;
   const hasMedia = uploadedMedia.length > 0;
-  const canPost =
-    (hasMedia || textValue.trim().length > 0) && !isOverLimit && !isLoading;
+  const isUploading = uploadingFiles.length > 0;
+  const canPost = hasMedia && !isUploading && !isOverLimit && !isLoading;
 
   const openFilePicker = (accept: string) => {
     if (!fileInputRef.current) return;
