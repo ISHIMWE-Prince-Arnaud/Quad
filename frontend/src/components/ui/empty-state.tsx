@@ -29,9 +29,11 @@ export function EmptyState({
 }) {
   const content = (
     <div className="text-muted-foreground max-w-md mx-auto w-full">
-      <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 text-muted-foreground/50 ring-1 ring-inset ring-border/50 shadow-sm">
-        {icon}
-      </div>
+      {icon && (
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 text-muted-foreground/50 ring-1 ring-inset ring-border/50 shadow-sm">
+          {icon}
+        </div>
+      )}
       <h3 className="text-lg font-semibold text-foreground mb-2 tracking-tight">
         {title}
       </h3>

@@ -224,6 +224,15 @@ export const router = createBrowserRouter([
               </LazyRoute>
             ),
           },
+          // 2.1 Catch-all for protected routes (inside MainLayout)
+          {
+            path: "*",
+            element: (
+              <LazyRoute>
+                <NotFoundPage />
+              </LazyRoute>
+            ),
+          },
         ],
       },
       // 3. Legacy Redirects
@@ -231,14 +240,15 @@ export const router = createBrowserRouter([
         path: "app/*",
         element: <Navigate to="/" replace />,
       },
+      // 4. Final Fallback (outside for public paths not matched by AuthLayout)
+      {
+        path: "*",
+        element: (
+          <LazyRoute>
+            <NotFoundPage />
+          </LazyRoute>
+        ),
+      },
     ],
-  },
-  {
-    path: "*",
-    element: (
-      <LazyRoute>
-        <NotFoundPage />
-      </LazyRoute>
-    ),
   },
 ]);
