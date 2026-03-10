@@ -192,7 +192,7 @@ export class StoryService {
           }
         }
       } else {
-        getSocketIO().emit("storyUpdated", story);
+        getSocketIO().emit("storyUpdated", story.toObject());
       }
     }
 

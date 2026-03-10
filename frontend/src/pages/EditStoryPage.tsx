@@ -262,7 +262,6 @@ export default function EditStoryPage() {
           coverImage={coverImage}
           uploadingCover={uploadingCover}
           validationErrors={validationErrors}
-          canSubmit={canSubmit}
           autoSaving={false}
           lastSaved={null}
           editor={editor}

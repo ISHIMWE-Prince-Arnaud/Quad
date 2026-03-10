@@ -7,6 +7,7 @@ import { logError } from "@/lib/errorHandling";
 import { PiBookOpenTextBold } from "react-icons/pi";
 import { LoadMoreButton, StoriesGridSkeleton } from "@/components/ui/loading";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useSocketStore } from "@/stores/socketStore";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -29,6 +30,7 @@ export default function StoriesPage() {
   const [limit] = useState(10);
   const [skip, setSkip] = useState(0);
   const [view, setView] = useState<"published" | "drafts">("published");
+  const socket = useSocketStore((state) => state.socket);
 
   const queryParams = useMemo(() => ({ limit, skip: 0 }), [limit]);
 
@@ -91,6 +93,41 @@ export default function StoriesPage() {
   const handleDeleteStory = (storyId: string) => {
     setStories((prev) => prev.filter((s) => s._id !== storyId));
   };
+
+  // Real-time socket listeners
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewStory = (story: Story) => {
+      // Only add to the published view and avoid duplicates
+      if (view === "published" && story.status === "published") {
+        setStories((prev) => {
+          if (prev.some((s) => s._id === story._id)) return prev;
+          return [story, ...prev];
+        });
+      }
+    };
+
+    const handleStoryDeleted = (storyId: string) => {
+      setStories((prev) => prev.filter((s) => s._id !== storyId));
+    };
+
+    const handleStoryUpdated = (story: Story) => {
+      setStories((prev) =>
+        prev.map((s) => (s._id === story._id ? { ...s, ...story } : s)),
+      );
+    };
+
+    socket.on("newStory", handleNewStory);
+    socket.on("storyDeleted", handleStoryDeleted);
+    socket.on("storyUpdated", handleStoryUpdated);
+
+    return () => {
+      socket.off("newStory", handleNewStory);
+      socket.off("storyDeleted", handleStoryDeleted);
+      socket.off("storyUpdated", handleStoryUpdated);
+    };
+  }, [socket, view]);
 
   return (
     <div className="w-full px-4 py-6">

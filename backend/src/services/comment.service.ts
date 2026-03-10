@@ -142,7 +142,7 @@ export class CommentService {
         contentType,
         contentId,
       );
-      if (contentType === "post") {
+      if (contentType === "post" || contentType === "story") {
         emitEngagementUpdate(
           io,
           contentType,
@@ -237,7 +237,7 @@ export class CommentService {
         comment.contentType,
         comment.contentId,
       );
-      if (comment.contentType === "post") {
+      if (comment.contentType === "post" || comment.contentType === "story") {
         emitEngagementUpdate(
           io,
           comment.contentType,

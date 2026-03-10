@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   PiSpinnerBold,
   PiArchiveBold,
@@ -15,7 +16,9 @@ import { formatErrorMessage } from "@/lib/error-handling/formatters";
 import { logError } from "@/lib/errorHandling";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/BackButton";
+
 export default function CreateStoryPage() {
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [coverImage, setCoverImage] = useState<string | undefined>(undefined);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -156,13 +159,7 @@ export default function CreateStoryPage() {
       showSuccessToast(
         status === "published" ? "Story published" : "Draft saved",
       );
-
-      // Clear form
-      setTitle("");
-      setCoverImage(undefined);
-      editor?.commands.clearContent();
-      setValidationErrors({});
-      setLastSaved(null);
+      navigate("/stories");
     } catch (err) {
       logError(err, { component: "CreateStoryPage", action: "submitStory" });
       showErrorToast(formatErrorMessage(err));
@@ -209,7 +206,6 @@ export default function CreateStoryPage() {
           coverImage={coverImage}
           uploadingCover={uploadingCover}
           validationErrors={validationErrors}
-          canSubmit={canSubmit}
           autoSaving={autoSaving}
           lastSaved={lastSaved}
           editor={editor}

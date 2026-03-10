@@ -5,10 +5,12 @@ import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useSocketStore } from "@/stores/socketStore";
 
 export function RecentStoriesBar({ className }: { className?: string }) {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
+  const socket = useSocketStore((state) => state.socket);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,6 +32,39 @@ export function RecentStoriesBar({ className }: { className?: string }) {
       cancelled = true;
     };
   }, []);
+
+  // Real-time socket listeners
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewStory = (story: Story) => {
+      if (story.status !== "published") return;
+      setStories((prev) => {
+        if (prev.some((s) => s._id === story._id)) return prev;
+        return [story, ...prev].slice(0, 12);
+      });
+    };
+
+    const handleStoryDeleted = (storyId: string) => {
+      setStories((prev) => prev.filter((s) => s._id !== storyId));
+    };
+
+    const handleStoryUpdated = (story: Story) => {
+      setStories((prev) =>
+        prev.map((s) => (s._id === story._id ? { ...s, ...story } : s)),
+      );
+    };
+
+    socket.on("newStory", handleNewStory);
+    socket.on("storyDeleted", handleStoryDeleted);
+    socket.on("storyUpdated", handleStoryUpdated);
+
+    return () => {
+      socket.off("newStory", handleNewStory);
+      socket.off("storyDeleted", handleStoryDeleted);
+      socket.off("storyUpdated", handleStoryUpdated);
+    };
+  }, [socket]);
 
   if (!loading && stories.length === 0) return null;
 
@@ -83,5 +118,3 @@ export function RecentStoriesBar({ className }: { className?: string }) {
     </div>
   );
 }
-
-

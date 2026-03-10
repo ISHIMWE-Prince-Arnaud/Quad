@@ -6,6 +6,8 @@ import type { Story } from "@/types/story";
 import { logError } from "@/lib/errorHandling";
 import { copyToClipboard } from "@/lib/utils";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
+import { useSocketStore } from "@/stores/socketStore";
+import type { FeedEngagementUpdatePayload } from "@/lib/socket";
 
 import { getErrorMessage } from "./getErrorMessage";
 
@@ -28,6 +30,7 @@ export function useStoryPageController({
 
   const [userReaction, setUserReaction] = useState<ReactionType | null>(null);
   const [totalReactions, setTotalReactions] = useState(0);
+  const socket = useSocketStore((state) => state.socket);
 
   const readingTime = useMemo(() => {
     if (!story?.content) return 0;
@@ -90,6 +93,25 @@ export function useStoryPageController({
       cancelled = true;
     };
   }, [id]);
+
+  // Live engagement updates from other users
+  useEffect(() => {
+    if (!socket || !id) return;
+
+    const handleEngagementUpdate = (payload: FeedEngagementUpdatePayload) => {
+      if (payload.contentType !== "story") return;
+      if (String(payload.contentId) !== String(id)) return;
+      if (typeof payload.reactionsCount === "number") {
+        setTotalReactions(payload.reactionsCount);
+      }
+    };
+
+    socket.on("feed:engagement-update", handleEngagementUpdate);
+
+    return () => {
+      socket.off("feed:engagement-update", handleEngagementUpdate);
+    };
+  }, [socket, id]);
 
   const handleShare = useCallback(async () => {
     try {
@@ -196,5 +218,3 @@ export function useStoryPageController({
     handleSelectReaction,
   };
 }
-
-

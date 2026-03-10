@@ -3,11 +3,18 @@ import type { FeedItemType } from "../types/feed.types.js";
 import { logger } from "../utils/logger.util.js";
 
 /**
+ * Extended content type that includes story for engagement broadcasts.
+ * Stories are not feed items but can have reactions/comments that need
+ * real-time engagement updates.
+ */
+type EngagementContentType = FeedItemType | "story";
+
+/**
  * Emit engagement update event
  */
 export const emitEngagementUpdate = (
   io: Server,
-  contentType: FeedItemType,
+  contentType: EngagementContentType,
   contentId: string,
   reactionsCount: number,
   commentsCount?: number,
@@ -28,7 +35,7 @@ export const emitEngagementUpdate = (
  */
 export const emitContentDeleted = (
   io: Server,
-  contentType: FeedItemType,
+  contentType: EngagementContentType,
   contentId: string,
 ) => {
   io.emit("feed:content-deleted", {

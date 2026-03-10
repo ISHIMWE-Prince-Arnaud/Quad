@@ -73,14 +73,14 @@ export function disconnectSocket() {
 }
 
 export type FeedNewContentPayload = {
-  contentType: "post" | "poll";
+  contentType: "post" | "poll" | "story";
   contentId: string;
   authorId: string;
   timestamp: string | number;
 };
 
 export type FeedEngagementUpdatePayload = {
-  contentType: "post" | "poll";
+  contentType: "post" | "poll" | "story";
   contentId: string;
   reactionsCount?: number;
   commentsCount?: number;
@@ -89,7 +89,7 @@ export type FeedEngagementUpdatePayload = {
 };
 
 export type FeedContentDeletedPayload = {
-  contentType: "post" | "poll";
+  contentType: "post" | "poll" | "story";
   contentId: string;
   timestamp: string | number;
 };

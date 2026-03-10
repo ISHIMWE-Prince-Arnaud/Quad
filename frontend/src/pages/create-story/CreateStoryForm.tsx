@@ -26,7 +26,6 @@ export function CreateStoryForm({
   coverImage,
   uploadingCover,
   validationErrors,
-  canSubmit,
   autoSaving,
   lastSaved,
   editor,
@@ -40,7 +39,6 @@ export function CreateStoryForm({
   coverImage: string | undefined;
   uploadingCover: boolean;
   validationErrors: { title?: string; content?: string };
-  canSubmit: boolean;
   autoSaving: boolean;
   lastSaved: Date | null;
   editor: Editor | null;
@@ -54,12 +52,6 @@ export function CreateStoryForm({
 
   return (
     <div className="space-y-6">
-      {!canSubmit && (
-        <p className="text-[11px] font-semibold text-muted-foreground">
-          Add a title and some content to enable publishing.
-        </p>
-      )}
-
       <StoryCoverSection
         coverImage={coverImage}
         uploadingCover={uploadingCover}
