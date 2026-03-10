@@ -18,6 +18,7 @@ export class StoryService {
    */
   static async create(data: CreateStoryInput): Promise<StoryResponse> {
     const response = await endpoints.stories.create(data);
+    invalidateCache(/^\/stories(\/|\?|$)/);
     return response.data;
   }
 
@@ -66,7 +67,7 @@ export class StoryService {
    */
   static async update(
     id: string,
-    data: UpdateStoryInput
+    data: UpdateStoryInput,
   ): Promise<StoryResponse> {
     const response = await endpoints.stories.update(id, data);
     invalidateCache(/^\/stories(\/|\?|$)/);
@@ -79,9 +80,10 @@ export class StoryService {
    * @returns Delete confirmation
    */
   static async delete(
-    id: string
+    id: string,
   ): Promise<{ success: boolean; message?: string }> {
     const response = await endpoints.stories.delete(id);
+    invalidateCache(/^\/stories(\/|\?|$)/);
     return response.data;
   }
 }
