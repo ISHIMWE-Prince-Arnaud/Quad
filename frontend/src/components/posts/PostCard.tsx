@@ -150,7 +150,7 @@ export function PostCard({
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         title="Delete post?"
-        description="This action cannot be undone. This will permanently delete your post and remove it from feeds."
+        description="This action cannot be undone. This will permanently delete your post and remove it from Home."
         confirmLabel="Delete"
         variant="destructive"
         onConfirm={handleDelete}
@@ -158,4 +158,3 @@ export function PostCard({
     </>
   );
 }
-

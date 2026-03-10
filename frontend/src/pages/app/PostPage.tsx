@@ -107,7 +107,7 @@ export default function PostPage() {
           "The post you are looking for does not exist or has been moved."
         }
         icon={<PiFileTextBold className="h-10 w-10 text-primary" />}
-        backLabel="Back to Feed"
+        backLabel="Back to Home"
         backPath="/"
       />
     );

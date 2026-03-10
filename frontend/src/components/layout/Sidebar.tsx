@@ -26,7 +26,7 @@ export function Sidebar() {
   const { unreadCount } = useNotificationStore();
 
   const navigationItems: NavItem[] = [
-    { name: "Feed", href: "/", icon: PiHouseBold },
+    { name: "Home", href: "/", icon: PiHouseBold },
     { name: "Polls", href: "/polls", icon: PiChartBarBold },
     { name: "Stories", href: "/stories", icon: PiBookOpenTextBold },
     { name: "Chat", href: "/chat", icon: PiChatCircleBold },
@@ -64,7 +64,10 @@ export function Sidebar() {
         className="flex-1 px-4 space-y-1 overflow-y-auto overscroll-contain pb-6"
         aria-label="Sidebar navigation">
         {navigationItems.map((item) => {
-          const isActive = location.pathname.startsWith(item.href);
+          const isActive =
+            item.href === "/"
+              ? location.pathname === "/"
+              : location.pathname.startsWith(item.href);
           const Icon = item.icon;
 
           return (
@@ -111,5 +114,3 @@ export function Sidebar() {
     </div>
   );
 }
-
-

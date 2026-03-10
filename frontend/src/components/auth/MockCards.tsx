@@ -131,7 +131,7 @@ export const MockPollCard = () => {
           />
           <div className="relative z-10 flex h-full items-center justify-between gap-4 px-5">
             <span className="truncate text-[13px] font-bold text-primary-foreground">
-              Feed
+              Home
             </span>
             <span className="shrink-0 text-[13px] font-bold text-primary-foreground">
               45%

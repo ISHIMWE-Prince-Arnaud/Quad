@@ -99,7 +99,7 @@ export default function ProfilePage() {
           "The user profile you are looking for does not exist."
         }
         icon={<PiUserBold className="h-10 w-10 text-primary" />}
-        backLabel="Back to Feed"
+        backLabel="Back to Home"
         backPath="/"
       />
     );

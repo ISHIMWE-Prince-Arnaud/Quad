@@ -41,7 +41,7 @@ export function Navbar() {
   // Core navigation items matching sidebar
   const navigationItems = [
     {
-      name: "Feed",
+      name: "Home",
       href: "/",
       icon: PiHouseBold,
       badge: 0,
@@ -208,5 +208,3 @@ export function Navbar() {
     </>
   );
 }
-
-

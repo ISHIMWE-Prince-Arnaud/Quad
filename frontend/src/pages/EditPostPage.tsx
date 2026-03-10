@@ -124,7 +124,7 @@ export default function EditPostPage() {
           "The post you are trying to edit does not exist or cannot be loaded."
         }
         icon={<PiFileTextBold className="h-10 w-10 text-primary" />}
-        backLabel="Back to Feed"
+        backLabel="Back to Home"
         backPath="/"
       />
     );

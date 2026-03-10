@@ -11,14 +11,14 @@ export type FeedEmptyState = {
 
 export const emptyStateCopy: Record<FeedTab, FeedEmptyState> = {
   home: {
-    title: "Your feed is quiet",
+    title: "Your home is quiet",
     description:
       "Follow more people or share something to get the conversation going.",
   },
   posts: {
     title: "No posts yet",
     description: "Be the first to publish a post for this community.",
-    secondaryActionLabel: "Back to Feed",
+    secondaryActionLabel: "Back to Home",
     secondaryActionHref: "/",
   },
   polls: {
@@ -29,5 +29,3 @@ export const emptyStateCopy: Record<FeedTab, FeedEmptyState> = {
     secondaryActionHref: "/polls",
   },
 };
-
-

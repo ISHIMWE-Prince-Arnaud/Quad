@@ -14,7 +14,7 @@ interface Shortcut {
 }
 
 const shortcuts: Shortcut[] = [
-  { key: "H", description: "Go to home/feed" },
+  { key: "H", description: "Go to Home" },
   { key: "P", description: "Go to your profile" },
   { key: "B", description: "Go to notifications (Bell)" },
   { key: "/", description: "Show this help dialog" },

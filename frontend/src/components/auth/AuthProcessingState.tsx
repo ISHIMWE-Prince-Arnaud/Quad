@@ -13,7 +13,7 @@ const defaultMessages = [
   "Preparing your college grid...",
   "Validating your identity...",
   "Almost ready to move...",
-  "Calibrating the feed...",
+  "Calibrating your Home...",
   "Generating your neural identity...",
   "Constructing your timeline...",
   "Establishing secure handshake...",

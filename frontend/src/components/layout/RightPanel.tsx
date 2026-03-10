@@ -55,7 +55,7 @@ function QuickCreate() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       window.dispatchEvent(new CustomEvent("focus-post-composer"));
     } else {
-      navigate("/feed?create=post");
+      navigate("/?create=post");
     }
   };
 
@@ -240,9 +240,7 @@ function AccountMiniCard() {
       ? `${user.firstName} ${user.lastName}`
       : user?.firstName || user?.username || "User";
 
-  const profileHref = user?.username
-    ? `/profile/${user.username}`
-    : "/";
+  const profileHref = user?.username ? `/profile/${user.username}` : "/";
 
   const handleSignOut = async () => {
     try {
@@ -288,7 +286,9 @@ function AccountMiniCard() {
           </div>
         </Link>
 
-        <Dialog open={isDialogOpen} onOpenChange={(open) => !isLoggingOut && setIsDialogOpen(open)}>
+        <Dialog
+          open={isDialogOpen}
+          onOpenChange={(open) => !isLoggingOut && setIsDialogOpen(open)}>
           <DialogTrigger asChild>
             <Button
               type="button"
@@ -299,7 +299,9 @@ function AccountMiniCard() {
               <PiSignOutBold className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-card border-border text-card-foreground" showClose={!isLoggingOut}>
+          <DialogContent
+            className="bg-card border-border text-card-foreground"
+            showClose={!isLoggingOut}>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <PiWarningCircleBold className="h-5 w-5 text-destructive" />
@@ -333,6 +335,3 @@ function AccountMiniCard() {
     </section>
   );
 }
-
-
-
