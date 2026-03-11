@@ -28,6 +28,7 @@ import { logError } from "@/lib/errorHandling";
 import { useAuthStore } from "@/stores/authStore";
 import { ChatService } from "@/services/chatService";
 import type { ChatAuthor } from "@/types/chat";
+import { SkeletonAvatar } from "@/components/ui/loading";
 
 export function RightPanel() {
   return (
@@ -193,13 +194,12 @@ function ActiveChatsMini() {
                 ))
               : loading && user
                 ? [0, 1, 2].map((i) => (
-                    <div
+                    <SkeletonAvatar
                       key={i}
                       className={cn(
-                        "h-9 w-9 rounded-full border-2 border-sidebar bg-skeleton animate-pulse",
+                        "h-9 w-9 border-2 border-sidebar",
                         i > 0 && "-ml-2",
                       )}
-                      aria-hidden="true"
                     />
                   ))
                 : [0, 1, 2].map((i) => (

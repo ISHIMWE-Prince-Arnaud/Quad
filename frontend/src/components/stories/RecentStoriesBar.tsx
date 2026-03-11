@@ -6,6 +6,7 @@ import type { Story } from "@/types/story";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSocketStore } from "@/stores/socketStore";
+import { SkeletonStoryAvatar } from "@/components/ui/loading";
 
 export function RecentStoriesBar({ className }: { className?: string }) {
   const [stories, setStories] = useState<Story[]>([]);
@@ -84,12 +85,7 @@ export function RecentStoriesBar({ className }: { className?: string }) {
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
         {loading
           ? Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex flex-col items-center gap-2 shrink-0">
-                <div className="h-16 w-16 animate-pulse rounded-full bg-skeleton border border-border/40" />
-                <div className="h-3 w-12 animate-pulse rounded bg-skeleton" />
-              </div>
+              <SkeletonStoryAvatar key={i} />
             ))
           : stories.map((story) => (
               <Link

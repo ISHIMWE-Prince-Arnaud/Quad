@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ChatListSkeleton } from "@/components/ui/loading";
+import { ChatListSkeleton, ChatLoadingOlderSkeleton } from "@/components/ui/loading";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { ChatMessage } from "@/types/chat";
 import {
@@ -173,15 +173,7 @@ export const ChatMessageList = memo(function ChatMessageList({
 
         {!loading && messages.length > 0 && (
           <div>
-            {loadingOlder && (
-              <div className="flex items-center justify-center py-6">
-                <div className="flex items-center gap-1.5 rounded-full border border-border/40 bg-muted/20 px-4 py-2 animate-pulse">
-                  <div className="h-2 w-2 rounded-full bg-muted-foreground/30" />
-                  <div className="h-2 w-2 rounded-full bg-muted-foreground/30 [animation-delay:150ms]" />
-                  <div className="h-2 w-2 rounded-full bg-muted-foreground/30 [animation-delay:300ms]" />
-                </div>
-              </div>
-            )}
+            {loadingOlder && <ChatLoadingOlderSkeleton />}
 
             {messages.map((m, i) => {
               const prev = i > 0 ? messages[i - 1] : undefined;

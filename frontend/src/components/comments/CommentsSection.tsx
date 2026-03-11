@@ -58,18 +58,19 @@ function CommentSkeletonRow() {
   return (
     <div className="py-4">
       <div className="flex gap-3">
-        <Skeleton variant="circular" className="h-9 w-9 shrink-0 bg-skeleton" />
+        <Skeleton variant="circular" className="h-10 w-10 shrink-0" />
         <div className="flex-1 min-w-0 space-y-2">
           <div className="flex items-center justify-between gap-3">
-            <Skeleton variant="text" className="h-4 w-28 bg-skeleton" />
-            <Skeleton variant="text" className="h-3 w-16 bg-skeleton" />
+            <Skeleton variant="text" className="w-24 h-4 rounded-md" />
+            <Skeleton variant="text" className="w-16 h-3 rounded-md opacity-40" />
           </div>
           <div className="space-y-2">
-            <Skeleton variant="text" className="h-4 w-full bg-skeleton" />
-            <Skeleton variant="text" className="h-4 w-10/12 bg-skeleton" />
+            <Skeleton variant="text" className="w-full h-4 rounded-md opacity-80" />
+            <Skeleton variant="text" className="w-10/12 h-4 rounded-md opacity-80" />
           </div>
-          <div className="pt-1">
-            <Skeleton variant="text" className="h-4 w-20 bg-skeleton" />
+          <div className="pt-2 flex items-center gap-4">
+            <Skeleton variant="text" className="w-20 h-4 rounded-md opacity-40" />
+            <Skeleton variant="text" className="w-12 h-4 rounded-md opacity-40" />
           </div>
         </div>
       </div>

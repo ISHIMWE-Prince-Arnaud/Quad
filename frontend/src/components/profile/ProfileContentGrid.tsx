@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Card } from "@/components/ui/card";
 import { PiTrayBold } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 
 export type { ContentItem } from "./profile-content-grid/types";
 import type { ContentItem } from "./profile-content-grid/types";
 import { ContentCard } from "./profile-content-grid/ContentCard";
-import { InfiniteScrollLoader } from "@/components/ui/loading";
+import { InfiniteScrollLoader, SkeletonBlock } from "@/components/ui/loading";
 import { EmptyState } from "@/components/ui/empty-state";
 
 interface ProfileContentGridProps {
@@ -85,11 +84,9 @@ export function ProfileContentGrid({
 
   if (loading && items.length === 0) {
     return (
-      <div className={cn("space-y-4", className)}>
+      <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6", className)}>
         {Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <div className="h-48 bg-muted rounded-lg" />
-          </Card>
+          <SkeletonBlock key={i} className="h-48 w-full rounded-2xl" />
         ))}
       </div>
     );

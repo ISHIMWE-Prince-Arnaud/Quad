@@ -22,6 +22,7 @@ import {
   PollsListSkeleton,
   ProfileSkeleton,
   LoadMoreButton,
+  SavedTabsSkeleton,
 } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
 import { useAuthStore } from "@/stores/authStore";
@@ -308,47 +309,17 @@ export default function ProfilePage() {
                 controller.savedPostsLoading &&
                 !controller.savedPostsError &&
                 controller.savedPosts.length === 0 ? (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="h-9 w-20 rounded-full bg-muted animate-pulse"
-                      />
-                    ))}
-                  </div>
-                  <FeedSkeleton />
-                </div>
+                <SavedTabsSkeleton />
               ) : controller.savedTab === "stories" &&
                 controller.savedStoriesLoading &&
                 !controller.savedStoriesError &&
                 controller.savedStories.length === 0 ? (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="h-9 w-20 rounded-full bg-muted animate-pulse"
-                      />
-                    ))}
-                  </div>
-                  <StoriesGridSkeleton />
-                </div>
+                <SavedTabsSkeleton />
               ) : controller.savedTab === "polls" &&
                 controller.savedPollsLoading &&
                 !controller.savedPollsError &&
                 controller.savedPolls.length === 0 ? (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="h-9 w-20 rounded-full bg-muted animate-pulse"
-                      />
-                    ))}
-                  </div>
-                  <PollsListSkeleton />
-                </div>
+                <SavedTabsSkeleton />
               ) : (
                 <motion.div
                   key={`saved-${controller.savedTab}`}

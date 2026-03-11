@@ -104,14 +104,32 @@ export function InfiniteScrollLoader({ className }: { className?: string }) {
         "flex flex-col items-center justify-center gap-4 py-12 w-full",
         className,
       )}>
-      <div className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-border/40 bg-muted/20 animate-pulse">
-        <div className="h-2 w-2 rounded-full bg-primary/40" />
-        <div className="h-2 w-2 rounded-full bg-primary/40 [animation-delay:150ms]" />
-        <div className="h-2 w-2 rounded-full bg-primary/40 [animation-delay:300ms]" />
-      </div>
+      <TypingIndicator />
       <span className="text-xs font-medium text-muted-foreground/60 tracking-wider uppercase">
         Loading more content
       </span>
+    </div>
+  );
+}
+
+export function TypingIndicator({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-1.5 px-4 py-2 rounded-full border border-border/40 bg-muted/20 animate-pulse",
+        className,
+      )}>
+      <div className="h-2 w-2 rounded-full bg-primary/40" />
+      <div className="h-2 w-2 rounded-full bg-primary/40 [animation-delay:150ms]" />
+      <div className="h-2 w-2 rounded-full bg-primary/40 [animation-delay:300ms]" />
+    </div>
+  );
+}
+
+export function ChatLoadingOlderSkeleton() {
+  return (
+    <div className="flex items-center justify-center py-6">
+      <TypingIndicator />
     </div>
   );
 }
@@ -126,6 +144,15 @@ export function SkeletonLine({ className }: { className?: string }) {
 
 export function SkeletonAvatar({ className }: { className?: string }) {
   return <Skeleton className={cn("rounded-full h-10 w-10", className)} />;
+}
+
+export function SkeletonStoryAvatar() {
+  return (
+    <div className="flex flex-col items-center gap-2 shrink-0">
+      <SkeletonAvatar className="h-16 w-16 border border-border/40" />
+      <SkeletonLine className="h-3 w-12 rounded" />
+    </div>
+  );
 }
 
 // Matches PostCard.tsx
@@ -521,6 +548,22 @@ export function NotificationsListSkeleton() {
       {Array.from({ length: 12 }).map((_, i) => (
         <NotificationSkeleton key={i} isUnread={i < 3} />
       ))}
+    </div>
+  );
+}
+
+export function SavedTabsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <SkeletonBlock
+            key={i}
+            className="h-9 w-20 rounded-full bg-muted/40"
+          />
+        ))}
+      </div>
+      <FeedSkeleton />
     </div>
   );
 }
