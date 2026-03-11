@@ -23,11 +23,43 @@ import { authRateLimiter } from "../middlewares/rateLimiter.middleware.js";
 const router = Router();
 
 /**
- * -------------------------
- * CREATE USER
- * POST /api/users
- * Protected: Must be signed in
- * -------------------------
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Create a new user account
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - clerkId
+ *               - email
+ *               - username
+ *               - firstName
+ *               - lastName
+ *             properties:
+ *               clerkId:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               username:
+ *                 type: string
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Invalid input data
+ *       409:
+ *         description: User already exists
  */
 router.post(
   "/",
@@ -38,21 +70,60 @@ router.post(
 );
 
 /**
- * -------------------------
- * CHECK USERNAME AVAILABILITY
- * GET /api/users/check/:username
- * Public: Anyone can check
- * -------------------------
+ * @swagger
+ * /users/check/{username}:
+ *   get:
+ *     summary: Check if a username is available
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Availability status returned
  */
 router.get("/check/:username", checkUsername);
+
+/**
+ * @swagger
+ * /users/check-email/{email}:
+ *   get:
+ *     summary: Check if an email is available
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Availability status returned
+ */
 router.get("/check-email/:email", checkEmail);
 
 /**
- * -------------------------
- * GET USER BY ID
- * GET /api/users/:clerkId
- * Protected: Users can only access their own info
- * -------------------------
+ * @swagger
+ * /users/{clerkId}:
+ *   get:
+ *     summary: Get user profile by Clerk ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: clerkId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User profile data
+ *       404:
+ *         description: User not found
  */
 router.get(
   "/:clerkId",
@@ -62,11 +133,41 @@ router.get(
 );
 
 /**
- * -------------------------
- * UPDATE USER
- * PUT /api/users/:clerkId
- * Protected: Users can only update their own info
- * -------------------------
+ * @swagger
+ * /users/{clerkId}:
+ *   put:
+ *     summary: Update user profile
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: clerkId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               bio:
+ *                 type: string
+ *               profileImageUrl:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User profile updated
+ *       404:
+ *         description: User not found
  */
 router.put(
   "/:clerkId",
@@ -76,11 +177,24 @@ router.put(
 );
 
 /**
- * -------------------------
- * DELETE USER
- * DELETE /api/users/:clerkId
- * Protected: Users can only delete their own account
- * -------------------------
+ * @swagger
+ * /users/{clerkId}:
+ *   delete:
+ *     summary: Delete user account
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: clerkId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
  */
 router.delete(
   "/:clerkId",

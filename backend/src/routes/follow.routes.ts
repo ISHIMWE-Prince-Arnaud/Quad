@@ -20,7 +20,24 @@ const router = Router();
 // FOLLOW/UNFOLLOW ROUTES
 // ===========================
 
-// Follow a user
+/**
+ * @swagger
+ * /follow/{userId}:
+ *   post:
+ *     summary: Follow a user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User followed successfully
+ */
 router.post(
   "/:userId",
   requireApiAuth,
@@ -28,7 +45,24 @@ router.post(
   followUser,
 );
 
-// Unfollow a user
+/**
+ * @swagger
+ * /follow/{userId}:
+ *   delete:
+ *     summary: Unfollow a user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User unfollowed successfully
+ */
 router.delete(
   "/:userId",
   requireApiAuth,
@@ -40,7 +74,32 @@ router.delete(
 // FOLLOW LIST ROUTES
 // ===========================
 
-// Get user's followers
+/**
+ * @swagger
+ * /follow/{userId}/followers:
+ *   get:
+ *     summary: Get a list of the user's followers
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Followers list returned
+ */
 router.get(
   "/:userId/followers",
   requireApiAuth,
@@ -49,7 +108,32 @@ router.get(
   getFollowers,
 );
 
-// Get users that a user is following
+/**
+ * @swagger
+ * /follow/{userId}/following:
+ *   get:
+ *     summary: Get the list of users this user is following
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Following list returned
+ */
 router.get(
   "/:userId/following",
   requireApiAuth,
@@ -62,7 +146,24 @@ router.get(
 // FOLLOW STATUS ROUTES
 // ===========================
 
-// Check if following a user
+/**
+ * @swagger
+ * /follow/{userId}/check:
+ *   get:
+ *     summary: Check if the authenticated user is following this user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Follow status boolean returned
+ */
 router.get(
   "/:userId/check",
   requireApiAuth,
@@ -70,7 +171,24 @@ router.get(
   checkFollowing,
 );
 
-// Get follow statistics
+/**
+ * @swagger
+ * /follow/{userId}/stats:
+ *   get:
+ *     summary: Get user follow statistics (follower/following counts)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Follow statistics object
+ */
 router.get(
   "/:userId/stats",
   requireApiAuth,

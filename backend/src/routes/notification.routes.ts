@@ -20,37 +20,124 @@ const router = Router();
 // NOTIFICATION ROUTES
 // ===========================
 
-// Get user's notifications
+/**
+ * @swagger
+ * /notifications:
+ *   get:
+ *     summary: Get user's notifications
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of user notifications
+ */
 router.get(
   "/",
   requireApiAuth,
   validateSchema(getNotificationsQuerySchema, "query"),
-  getNotifications
+  getNotifications,
 );
 
-// Get unread notification count
+/**
+ * @swagger
+ * /notifications/unread-count:
+ *   get:
+ *     summary: Get the count of unread notifications
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Unread notification count
+ */
 router.get("/unread-count", requireApiAuth, getUnreadCountController);
 
-// Mark all notifications as read
+/**
+ * @swagger
+ * /notifications/read-all:
+ *   patch:
+ *     summary: Mark all system notifications as read
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All notifications marked as read
+ */
 router.patch("/read-all", requireApiAuth, markAllAsRead);
 
-// Delete all read notifications
+/**
+ * @swagger
+ * /notifications/read:
+ *   delete:
+ *     summary: Delete all currently read notifications
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Read notifications deleted
+ */
 router.delete("/read", requireApiAuth, deleteAllRead);
 
-// Mark notification as read
+/**
+ * @swagger
+ * /notifications/{id}/read:
+ *   patch:
+ *     summary: Mark a single notification as read
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Notification marked as read
+ */
 router.patch(
   "/:id/read",
   requireApiAuth,
   validateSchema(notificationIdParamSchema, "params"),
-  markAsRead
+  markAsRead,
 );
 
-// Delete a notification
+/**
+ * @swagger
+ * /notifications/{id}:
+ *   delete:
+ *     summary: Delete a single notification
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Notification deleted successfully
+ */
 router.delete(
   "/:id",
   requireApiAuth,
   validateSchema(notificationIdParamSchema, "params"),
-  deleteNotification
+  deleteNotification,
 );
 
 export default router;

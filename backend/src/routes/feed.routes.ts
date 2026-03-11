@@ -13,7 +13,27 @@ const router = Router();
 // FEED ROUTES
 // ===========================
 
-// Get general feed (defaults to for you feed)
+/**
+ * @swagger
+ * /feed:
+ *   get:
+ *     summary: Get the personalized feed
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Feed data returned
+ */
 router.get(
   "/",
   requireApiAuth,
@@ -21,7 +41,27 @@ router.get(
   getForYouFeed,
 );
 
-// Get following feed
+/**
+ * @swagger
+ * /feed/following:
+ *   get:
+ *     summary: Get feed consisting only of followed users
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Following Feed data returned
+ */
 router.get(
   "/following",
   requireApiAuth,
@@ -29,7 +69,27 @@ router.get(
   getFollowingFeed,
 );
 
-// Get for you feed
+/**
+ * @swagger
+ * /feed/foryou:
+ *   get:
+ *     summary: Get the 'For You' personalized feed
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: For You Feed data returned
+ */
 router.get(
   "/foryou",
   requireApiAuth,

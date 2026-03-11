@@ -25,6 +25,7 @@ import { clerkMiddleware } from "@clerk/express";
 import { verifyToken } from "@clerk/backend";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger.config.js";
+import { swaggerUiOptions } from "./config/swagger-ui.config.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { requestLogger } from "./middlewares/requestLogger.middleware.js";
 
@@ -40,11 +41,15 @@ app.use(cors(corsOptions));
 // Request logging
 app.use(requestLogger);
 
+// API Documentation (Must be before health and other catch-alls)
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, swaggerUiOptions),
+);
+
 // Health check routes (no auth required, before body parsing)
 app.use("/health", healthRoutes);
-
-// API Documentation
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //
 // because Clerk webhooks need raw body for signature verification

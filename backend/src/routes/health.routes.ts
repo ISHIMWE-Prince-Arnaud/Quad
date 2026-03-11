@@ -14,30 +14,50 @@ import {
 const router = Router();
 
 /**
- * @route   GET /health
- * @desc    Basic health check
- * @access  Public
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Basic health check
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: API is healthy
  */
 router.get("/", healthCheck);
 
 /**
- * @route   GET /health/detailed
- * @desc    Detailed health check with service status
- * @access  Public
+ * @swagger
+ * /health/detailed:
+ *   get:
+ *     summary: Detailed health check with service status
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Detailed health status
  */
 router.get("/detailed", detailedHealthCheck);
 
 /**
- * @route   GET /health/ready
- * @desc    Readiness check (for Kubernetes/load balancers)
- * @access  Public
+ * @swagger
+ * /health/ready:
+ *   get:
+ *     summary: Readiness check (for Kubernetes/load balancers)
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Ready to safely accept traffic
  */
 router.get("/ready", readinessCheck);
 
 /**
- * @route   GET /health/live
- * @desc    Liveness check (for Kubernetes/load balancers)
- * @access  Public
+ * @swagger
+ * /health/live:
+ *   get:
+ *     summary: Liveness check (for Kubernetes/load balancers)
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Service is still alive
  */
 router.get("/live", livenessCheck);
 
