@@ -48,7 +48,7 @@ export function LoadingPage() {
 
 export function LoadingCard() {
   return (
-    <div className="bg-card border border-border/40 rounded-[2rem] p-6 space-y-4 animate-pulse">
+    <div className="bg-card border border-border/40 rounded-3xl p-6 space-y-4 animate-pulse">
       <div className="flex items-center gap-3">
         <SkeletonAvatar className="h-10 w-10" />
         <div className="space-y-2">
@@ -149,7 +149,7 @@ export function SkeletonAvatar({ className }: { className?: string }) {
 export function SkeletonStoryAvatar() {
   return (
     <div className="flex flex-col items-center gap-2 shrink-0">
-      <SkeletonAvatar className="h-16 w-16 border border-border/40" />
+      <SkeletonAvatar className="h-14 w-14 border border-border/40" />
       <SkeletonLine className="h-3 w-12 rounded" />
     </div>
   );
@@ -164,7 +164,7 @@ export function SkeletonPost({
   hasText?: boolean;
 }) {
   return (
-    <div className="bg-card border border-border/40 rounded-[2rem] overflow-hidden">
+    <div className="bg-card border border-border/40 rounded-3xl overflow-hidden">
       {/* Header */}
       <div className="p-6 pb-4 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 w-full">
@@ -465,11 +465,11 @@ export function StoryPageSkeleton() {
           <SkeletonLine className="h-10 w-3/4 rounded-xl" />
         </div>
 
-        <div className="relative w-full aspect-[21/9] rounded-[2rem] overflow-hidden bg-muted/20 border border-border/40 shadow-xl">
+        <div className="relative w-full aspect-[21/9] rounded-3xl overflow-hidden bg-muted/20 border border-border/40 shadow-xl">
           <SkeletonBlock className="absolute inset-0 h-full w-full opacity-30" />
         </div>
 
-        <div className="rounded-[2.5rem] border border-border/40 bg-card overflow-hidden shadow-card p-1">
+        <div className="rounded-3xl border border-border/40 bg-card overflow-hidden shadow-card p-1">
           <div className="p-8 md:p-10 space-y-8">
             {/* Metadata bar */}
             <div className="flex items-center gap-4 rounded-2xl border border-border/40 bg-muted/10 px-5 py-4">
@@ -601,55 +601,55 @@ function ProfileHeaderSkeleton({
   isOwnProfile?: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden border-0 shadow-xl rounded-[2.5rem] bg-card">
-      <div className="relative h-56 sm:h-64 lg:h-72 bg-muted/40 animate-pulse">
+    <div className="relative overflow-hidden border-0 shadow-lg rounded-xl bg-card">
+      <div className="relative h-48 sm:h-56 lg:h-64 bg-muted/40 animate-pulse">
         {isOwnProfile && (
-          <div className="absolute top-6 right-6">
-            <SkeletonBlock className="h-10 w-32 rounded-full bg-black/20 backdrop-blur-md" />
+          <div className="absolute top-4 right-4">
+            <SkeletonBlock className="h-9 w-32 rounded-lg bg-black/20 backdrop-blur-md" />
           </div>
         )}
       </div>
 
-      <div className="relative px-8 pb-8">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between -mt-20 relative z-10">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-6">
+      <div className="relative px-6 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between -mt-12 sm:-mt-16 relative z-10">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
             <div className="relative">
-              <SkeletonAvatar className="h-32 w-32 sm:h-40 sm:w-40 border-8 border-card shadow-2xl" />
+              <SkeletonAvatar className="h-24 w-24 sm:h-32 sm:w-32 border-4 border-card shadow-xl" />
               {isOwnProfile && (
                 <SkeletonBlock className="absolute bottom-2 right-2 h-10 w-10 rounded-full border-4 border-card shadow-lg bg-primary/20" />
               )}
             </div>
 
-            <div className="flex-1 min-w-0 pt-4 sm:pt-0 space-y-3">
-              <SkeletonLine className="w-64 h-8 rounded-xl" />
-              <SkeletonLine className="w-36 h-4 opacity-50 rounded-lg" />
+            <div className="flex-1 min-w-0 pt-4 sm:pt-0 space-y-2">
+              <SkeletonLine className="w-56 h-7 rounded-lg" />
+              <SkeletonLine className="w-32 h-3.5 opacity-50 rounded-md" />
             </div>
           </div>
 
-          <div className="flex gap-3 mt-6 sm:mt-0">
-            <SkeletonBlock className="h-12 w-36 rounded-2xl shadow-sm" />
+          <div className="flex gap-2 mt-4 sm:mt-0">
+            <SkeletonBlock className="h-10 w-32 rounded-full shadow-sm" />
             {!isOwnProfile && (
-              <SkeletonBlock className="h-12 w-12 rounded-2xl shadow-sm bg-muted/40" />
+              <SkeletonBlock className="h-10 w-10 rounded-full shadow-sm bg-muted/40" />
             )}
           </div>
         </div>
 
-        <div className="mt-10 space-y-6">
+        <div className="mt-6 space-y-6">
           <div className="space-y-2.5">
-            <SkeletonLine className="w-full h-4 opacity-80" />
-            <SkeletonLine className="w-10/12 h-4 opacity-80" />
+            <SkeletonLine className="w-full h-3.5 opacity-80" />
+            <SkeletonLine className="w-10/12 h-3.5 opacity-80" />
           </div>
 
-          <div className="flex flex-wrap gap-6 border-y border-border/10 py-6">
-            <SkeletonLine className="w-48 h-4 opacity-60" />
-            <SkeletonLine className="w-40 h-4 opacity-60" />
+          <div className="flex flex-wrap gap-4 border-y border-border/10 py-5">
+            <SkeletonLine className="w-48 h-3.5 opacity-60" />
+            <SkeletonLine className="w-40 h-3.5 opacity-60" />
           </div>
 
-          <div className="grid grid-cols-3 gap-8 px-4">
+          <div className="grid grid-cols-3 gap-6 px-2">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="text-center space-y-3">
-                <SkeletonLine className="h-6 w-16 mx-auto rounded-lg" />
-                <SkeletonLine className="h-3.5 w-20 mx-auto opacity-50 rounded-md" />
+              <div key={i} className="text-center space-y-2.5">
+                <SkeletonLine className="h-5 w-14 mx-auto rounded-md" />
+                <SkeletonLine className="h-3 w-16 mx-auto opacity-50 rounded-sm" />
               </div>
             ))}
           </div>
@@ -726,11 +726,11 @@ export function MainAppSkeleton() {
           <div className="h-full px-8 py-10 space-y-10 border-l border-border/40 bg-card/5 animate-pulse">
             <div className="space-y-5">
               <SkeletonLine className="w-40 h-5 opacity-60 rounded-lg" />
-              <SkeletonBlock className="h-56 rounded-[2.5rem] opacity-30 bg-muted shadow-sm" />
+              <SkeletonBlock className="h-56 rounded-3xl opacity-30 bg-muted shadow-sm" />
             </div>
             <div className="space-y-5">
               <SkeletonLine className="w-32 h-5 opacity-60 rounded-lg" />
-              <SkeletonBlock className="h-40 rounded-[2.5rem] opacity-30 bg-muted shadow-sm" />
+              <SkeletonBlock className="h-40 rounded-3xl opacity-30 bg-muted shadow-sm" />
             </div>
             <div className="space-y-5">
               <SkeletonLine className="w-48 h-5 opacity-60 rounded-lg" />
