@@ -33,17 +33,19 @@ export function FeedStatusCards({
           icon={<PiWarningCircleBold className="h-8 w-8 text-destructive" />}
           title="Something went wrong"
           description={error}>
-          <Button
-            onClick={onRetry}
-            className="rounded-full shadow-md font-bold px-8">
-            Try Again
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="rounded-full shadow-sm font-bold px-6">
-            <Link to="/">Go to Home</Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button
+              onClick={onRetry}
+              className="rounded-full shadow-md font-bold px-8">
+              Try Again
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-full shadow-sm font-bold px-6">
+              <Link to="/">Go to Home</Link>
+            </Button>
+          </div>
         </EmptyState>
       </motion.div>
     );

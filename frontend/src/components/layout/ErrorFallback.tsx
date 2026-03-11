@@ -52,7 +52,7 @@ export function ErrorFallback({
             </details>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-2 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             {resetErrorBoundary && (
               <Button onClick={resetErrorBoundary} className="flex-1 gap-2">
                 <PiArrowsClockwiseBold className="h-4 w-4" />

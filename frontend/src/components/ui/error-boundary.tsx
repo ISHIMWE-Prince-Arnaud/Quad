@@ -118,7 +118,7 @@ export function DefaultErrorFallback({
             </details>
           )}
 
-          <div className="flex flex-col gap-2 pt-2">
+          <div className="flex flex-col gap-3 pt-2">
             <Button onClick={resetErrorBoundary} className="w-full">
               <PiArrowsClockwiseBold className="h-4 w-4 mr-2" />
               Try Again
