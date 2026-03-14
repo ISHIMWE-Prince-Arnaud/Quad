@@ -13,8 +13,7 @@ import { StoryService } from "@/services/storyService";
 import type { Story, StoryStatus, UpdateStoryInput } from "@/types/story";
 import { createStorySchema } from "@/schemas/story.schema";
 import { logError } from "@/lib/errorHandling";
-import { ContentNotFound } from "@/components/ui/ContentNotFound";
-import { PiBookOpenTextBold } from "react-icons/pi";
+import { ErrorMessage } from "@/components/ui/error-message";
 
 import { CreateStoryForm } from "./create-story/CreateStoryForm";
 import { useStoryEditor } from "./create-story/useStoryEditor";
@@ -211,15 +210,16 @@ export default function EditStoryPage() {
 
   if (error || !story) {
     return (
-      <ContentNotFound
+      <ErrorMessage
         title="Unable to edit story"
         description={
           error ||
           "The story you are trying to edit does not exist or cannot be loaded."
         }
-        icon={<PiBookOpenTextBold className="h-10 w-10 text-primary" />}
-        backLabel="Back to Stories"
-        backPath="/stories"
+        onGoHome={() => navigate("/stories")}
+        goHomeLabel="Back to Stories"
+        showRetry={false}
+        variant="not-found"
       />
     );
   }

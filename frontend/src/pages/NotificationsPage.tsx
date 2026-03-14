@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
-import { PiBellSlashBold, PiWarningCircleBold } from "react-icons/pi";
+import { PiBellSlashBold } from "react-icons/pi";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorMessage } from "@/components/ui/error-message";
 
 import {
   NotificationsListSkeleton,
@@ -40,20 +41,11 @@ export default function NotificationsPage() {
 
           {/* Error */}
           {controller.error && !controller.initialLoading && (
-            <EmptyState
-              variant="inline"
-              icon={
-                <PiWarningCircleBold className="h-8 w-8 text-destructive" />
-              }
-              title="Something went wrong"
-              description={controller.error}>
-              <Button
-                variant="default"
-                className="rounded-full shadow-md font-bold px-8 mt-2"
-                onClick={() => window.location.reload()}>
-                Retry
-              </Button>
-            </EmptyState>
+            <ErrorMessage
+              description={controller.error}
+              onRetry={() => window.location.reload()}
+              showGoHome={false}
+            />
           )}
 
           {/* Empty */}

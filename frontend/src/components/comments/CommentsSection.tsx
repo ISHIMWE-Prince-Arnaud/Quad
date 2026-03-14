@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { CommentComposer } from "@/components/comments/CommentComposer";
 import { CommentItem } from "@/components/comments/CommentItem";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { CommentService } from "@/services/commentService";
 import type { Comment } from "@/types/comment";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PiCaretDownBold, PiChatCircleBold } from "react-icons/pi";
 import { useSocketStore } from "@/stores/socketStore";
 
@@ -269,6 +270,11 @@ export function CommentsSection({
     socket,
   ]);
 
+  const handleRetry = () => {
+    setError(null);
+    loadComments(true);
+  };
+
   const handleCommentCreated = (comment: Comment) => {
     setComments((prev) => {
       if (prev.some((c) => c._id === comment._id)) return prev;
@@ -299,7 +305,16 @@ export function CommentsSection({
         />
       </div>
 
-      {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+      {error && (
+        <div className="mt-3">
+          <ErrorMessage
+            description={error}
+            onRetry={handleRetry}
+            showGoHome={false}
+            className="min-h-0"
+          />
+        </div>
+      )}
 
       <div className="mt-4 divide-y divide-border/40">
         {initialLoading && (

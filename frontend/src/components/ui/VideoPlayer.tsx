@@ -15,6 +15,7 @@ import {
 } from "react-icons/pi";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { ErrorMessage } from "@/components/ui/error-message";
 
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -660,47 +661,48 @@ export function VideoPlayer({
         )}
       </AnimatePresence>
 
-      {/* Center States (Loading, Buffering, Error) */}
+      {/* Error State Overlay */}
       <AnimatePresence>
-        {(isInitialLoading || isBuffering || hasError) && (
+        {hasError && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/80 flex items-center justify-center z-20">
+            <div className="text-center max-w-sm mx-4">
+              <ErrorMessage
+                title="Failed to load video"
+                description="The video could not be loaded. Please try again."
+                onRetry={retryLoad}
+                retryLabel="Try Again"
+                showGoHome={false}
+                className="min-h-0"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Center States (Loading, Buffering) */}
+      <AnimatePresence>
+        {(isInitialLoading || isBuffering) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="absolute inset-0 flex items-center justify-center bg-black/40 dark:bg-background/40 backdrop-blur-[4px] z-10">
             <div className="flex flex-col items-center gap-4 text-white dark:text-foreground text-center px-6">
-              {!hasError ? (
-                <>
-                  <PiSpinnerBold className="h-10 w-10 animate-spin text-primary filter drop-shadow-lg" />
-                  <div className="flex flex-col gap-1">
-                    <div className="text-base font-semibold">
-                      {isSlowNetwork ? "Poor connection…" : "Loading media…"}
-                    </div>
-                    {isSlowNetwork && (
-                      <div className="text-sm opacity-70 max-w-xs">
-                        Trying to fetch your video. Please check your network.
-                      </div>
-                    )}
+              <PiSpinnerBold className="h-10 w-10 animate-spin text-primary filter drop-shadow-lg" />
+              <div className="flex flex-col gap-1">
+                <div className="text-base font-semibold">
+                  {isSlowNetwork ? "Poor connection…" : "Loading media…"}
+                </div>
+                {isSlowNetwork && (
+                  <div className="text-sm opacity-70 max-w-xs">
+                    Trying to fetch your video. Please check your network.
                   </div>
-                </>
-              ) : (
-                <>
-                  <div className="bg-red-500/20 p-4 rounded-full mb-2">
-                    <PiAirplayBold className="h-8 w-8 text-red-500" />
-                  </div>
-                  <div className="text-base font-bold">
-                    Failed to load video
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      retryLoad();
-                    }}
-                    className="mt-2 px-6 py-2 bg-primary text-primary-foreground rounded-full font-bold hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/20">
-                    Try Again
-                  </button>
-                </>
-              )}
+                )}
+              </div>
             </div>
           </motion.div>
         )}

@@ -8,8 +8,7 @@ import type { CreatePostData } from "@/schemas/post.schema";
 import type { Post } from "@/types/post";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
 import { logError } from "@/lib/errorHandling";
-import { ContentNotFound } from "@/components/ui/ContentNotFound";
-import { PiFileTextBold } from "react-icons/pi";
+import { ErrorMessage } from "@/components/ui/error-message";
 
 function getErrorMessage(error: unknown): string {
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -117,15 +116,16 @@ export default function EditPostPage() {
 
   if (error || !post) {
     return (
-      <ContentNotFound
+      <ErrorMessage
         title="Unable to edit post"
         description={
           error ||
           "The post you are trying to edit does not exist or cannot be loaded."
         }
-        icon={<PiFileTextBold className="h-10 w-10 text-primary" />}
-        backLabel="Back to Home"
-        backPath="/"
+        onGoHome={() => navigate("/")}
+        goHomeLabel="Back to Home"
+        showRetry={false}
+        variant="not-found"
       />
     );
   }

@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StoryService } from "@/services/storyService";
 import type { Story } from "@/types/story";
@@ -7,6 +7,7 @@ import { logError } from "@/lib/errorHandling";
 import { PiBookOpenTextBold } from "react-icons/pi";
 import { LoadMoreButton, StoriesGridSkeleton } from "@/components/ui/loading";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { useSocketStore } from "@/stores/socketStore";
 
 function getErrorMessage(error: unknown): string {
@@ -90,6 +91,12 @@ export default function StoriesPage() {
     }
   };
 
+  const handleRetry = () => {
+    setError(null);
+    // Trigger the useEffect to refetch stories
+    setSkip(0);
+  };
+
   const handleDeleteStory = (storyId: string) => {
     setStories((prev) => prev.filter((s) => s._id !== storyId));
   };
@@ -159,8 +166,11 @@ export default function StoriesPage() {
         </div>
 
         {error && (
-          <div className="mb-4 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-            {error}
+          <div className="mb-6">
+            <ErrorMessage
+              description={error}
+              onRetry={handleRetry}
+            />
           </div>
         )}
 
@@ -170,7 +180,7 @@ export default function StoriesPage() {
           </div>
         )}
 
-        {!loading && stories.length === 0 && (
+        {!loading && stories.length === 0 && !error && (
           <EmptyState
             icon={<PiBookOpenTextBold className="h-8 w-8 text-primary" />}
             title={view === "drafts" ? "No drafts yet" : "No stories yet"}

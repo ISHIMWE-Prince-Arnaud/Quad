@@ -3,12 +3,11 @@ import type { RefObject } from "react";
 import { Link } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { ChatListSkeleton, ChatLoadingOlderSkeleton } from "@/components/ui/loading";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorMessage } from "@/components/ui/error-message";
 import type { ChatMessage } from "@/types/chat";
 import {
-  PiWarningBold,
   PiChatCircleBold,
   PiPencilBold,
   PiTrashBold,
@@ -95,19 +94,14 @@ function ChatEmptyState() {
 
 function ChatErrorState({ onRetry }: { onRetry?: () => void }) {
   return (
-    <EmptyState
-      variant="inline"
-      icon={<PiWarningBold className="h-8 w-8 text-destructive" />}
+    <ErrorMessage
       title="Couldn't load chat"
-      description="Check your connection and try again.">
-      <Button
-        type="button"
-        onClick={onRetry}
-        variant="default"
-        className="rounded-full shadow-md px-8 mt-2 font-bold">
-        Retry
-      </Button>
-    </EmptyState>
+      description="Check your connection and try again."
+      onRetry={onRetry}
+      retryLabel="Retry"
+      showGoHome={false}
+      className="min-h-0"
+    />
   );
 }
 

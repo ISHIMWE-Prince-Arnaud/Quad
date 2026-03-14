@@ -5,6 +5,7 @@ import { PollService } from "@/services/pollService";
 import type { Poll, PollQueryParams } from "@/types/poll";
 import { PollsListSkeleton, LoadMoreButton } from "@/components/ui/loading";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { PiChartBarBold } from "react-icons/pi";
 import { useSocketStore } from "@/stores/socketStore";
 import { showSuccessToast, showErrorToast } from "@/lib/error-handling/toasts";
@@ -241,12 +242,18 @@ export default function PollsPage() {
     setPage(next);
   };
 
+  const handleRetry = () => {
+    setError(null);
+    setPage(1);
+  };
+
   return (
     <div className="mx-auto max-w-[620px] space-y-6">
       {error && (
-        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
-        </div>
+        <ErrorMessage
+          description={error}
+          onRetry={handleRetry}
+        />
       )}
 
       {loading && polls.length === 0 && (

@@ -11,8 +11,7 @@ import { UploadService } from "@/services/uploadService";
 import type { Poll, PollMedia } from "@/types/poll";
 import { logError } from "@/lib/errorHandling";
 import { invalidateCache } from "@/lib/api";
-import { ContentNotFound } from "@/components/ui/ContentNotFound";
-import { PiChartBarBold } from "react-icons/pi";
+import { ErrorMessage } from "@/components/ui/error-message";
 
 import type {
   LocalOption,
@@ -408,15 +407,16 @@ export default function EditPollPage() {
 
   if (error || !poll) {
     return (
-      <ContentNotFound
+      <ErrorMessage
         title="Unable to edit poll"
         description={
           error ||
           "The poll you are trying to edit does not exist or cannot be loaded."
         }
-        icon={<PiChartBarBold className="h-10 w-10 text-primary" />}
-        backLabel="Back to Polls"
-        backPath="/polls"
+        onGoHome={() => navigate("/polls")}
+        goHomeLabel="Back to Polls"
+        showRetry={false}
+        variant="not-found"
       />
     );
   }

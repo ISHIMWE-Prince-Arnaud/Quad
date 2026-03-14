@@ -5,9 +5,7 @@ import {
   PiBookOpenTextBold,
   PiFileTextBold,
   PiChartBarBold,
-  PiUserBold,
 } from "react-icons/pi";
-import { ContentNotFound } from "@/components/ui/ContentNotFound";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
@@ -25,6 +23,7 @@ import {
   SavedTabsSkeleton,
 } from "@/components/ui/loading";
 import { ErrorFallback } from "@/components/layout/ErrorFallback";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { useAuthStore } from "@/stores/authStore";
 import { ComponentErrorBoundary } from "@/components/ui/error-boundary";
 import type { ApiProfile } from "@/types/api";
@@ -88,7 +87,7 @@ export default function ProfilePage() {
 
   if (controller.isNotFound || !controller.user || !profileHeaderUser) {
     return (
-      <ContentNotFound
+      <ErrorMessage
         title={
           controller.isNotFound ? "Profile Not Found" : "Something Went Wrong"
         }
@@ -96,9 +95,10 @@ export default function ProfilePage() {
           controller.error ||
           "The user profile you are looking for does not exist."
         }
-        icon={<PiUserBold className="h-10 w-10 text-primary" />}
-        backLabel="Back to Home"
-        backPath="/"
+        onGoHome={() => navigate("/")}
+        goHomeLabel="Back to Home"
+        showRetry={false}
+        variant="not-found"
       />
     );
   }
@@ -156,9 +156,10 @@ export default function ProfilePage() {
                 transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                 className="px-4 py-8 space-y-6">
                 {controller.postsError && (
-                  <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                    {controller.postsError}
-                  </div>
+                  <ErrorMessage
+                    description={controller.postsError}
+                    showGoHome={false}
+                  />
                 )}
 
                 {!controller.postsError &&
@@ -208,9 +209,10 @@ export default function ProfilePage() {
                   transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                   className="px-4 py-8 space-y-6">
                   {controller.storiesError && (
-                    <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                      {controller.storiesError}
-                    </div>
+                    <ErrorMessage
+                      description={controller.storiesError}
+                      showGoHome={false}
+                    />
                   )}
 
                   {!controller.storiesError &&
@@ -260,9 +262,10 @@ export default function ProfilePage() {
                   transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                   className="px-4 py-8 space-y-6">
                   {controller.pollsError && (
-                    <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                      {controller.pollsError}
-                    </div>
+                    <ErrorMessage
+                      description={controller.pollsError}
+                      showGoHome={false}
+                    />
                   )}
 
                   {!controller.pollsError &&
@@ -368,9 +371,10 @@ export default function ProfilePage() {
                   {controller.savedTab === "posts" ? (
                     <div className="space-y-6">
                       {controller.savedPostsError && (
-                        <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                          {controller.savedPostsError}
-                        </div>
+                        <ErrorMessage
+                          description={controller.savedPostsError}
+                          showGoHome={false}
+                        />
                       )}
 
                       {!controller.savedPostsError &&
@@ -401,9 +405,10 @@ export default function ProfilePage() {
                   {controller.savedTab === "stories" ? (
                     <div className="space-y-6">
                       {controller.savedStoriesError && (
-                        <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                          {controller.savedStoriesError}
-                        </div>
+                        <ErrorMessage
+                          description={controller.savedStoriesError}
+                          showGoHome={false}
+                        />
                       )}
 
                       {!controller.savedStoriesError &&
@@ -440,9 +445,10 @@ export default function ProfilePage() {
                   {controller.savedTab === "polls" ? (
                     <div className="space-y-6">
                       {controller.savedPollsError && (
-                        <div className="rounded-2xl border border-border bg-card/40 p-6 text-center text-muted-foreground">
-                          {controller.savedPollsError}
-                        </div>
+                        <ErrorMessage
+                          description={controller.savedPollsError}
+                          showGoHome={false}
+                        />
                       )}
 
                       {!controller.savedPollsError &&

@@ -9,8 +9,7 @@ import { StoryDeleteDialog } from "./story/StoryDeleteDialog";
 import { StoryPageBody } from "./story/StoryPageBody";
 import { StoryPageHeader } from "./story/StoryPageHeader";
 import { useStoryPageController } from "./story/useStoryPageController";
-import { ContentNotFound } from "@/components/ui/ContentNotFound";
-import { PiBookOpenTextBold } from "react-icons/pi";
+import { ErrorMessage } from "@/components/ui/error-message";
 
 export default function StoryPage() {
   const { id } = useParams<{ id: string }>();
@@ -41,15 +40,16 @@ export default function StoryPage() {
 
   if (controller.error) {
     return (
-      <ContentNotFound
+      <ErrorMessage
         title="Story Not Found"
         description={
           controller.error ||
           "The story you are looking for could not be found."
         }
-        icon={<PiBookOpenTextBold className="h-10 w-10 text-primary" />}
-        backLabel="Back to Stories"
-        backPath="/stories"
+        onGoHome={() => navigate("/stories")}
+        goHomeLabel="Back to Stories"
+        showRetry={false}
+        variant="not-found"
       />
     );
   }

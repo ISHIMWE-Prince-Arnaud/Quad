@@ -1,6 +1,7 @@
-﻿import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as fc from "fast-check";
 import { render, screen, cleanup } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
 import {
   ErrorBoundary,
   PageErrorBoundary,
@@ -38,9 +39,11 @@ describe("Property 67: Error Boundary Catch", () => {
         async (errorMessage) => {
           // Render a component that throws an error inside an ErrorBoundary
           render(
-            <ErrorBoundary>
-              <ThrowError message={errorMessage} />
-            </ErrorBoundary>
+            <BrowserRouter>
+              <ErrorBoundary>
+                <ThrowError message={errorMessage} />
+              </ErrorBoundary>
+            </BrowserRouter>
           );
 
           // Property: Error boundary should catch the error and display fallback
@@ -75,9 +78,11 @@ describe("Property 67: Error Boundary Catch", () => {
           (import.meta.env as any).DEV = true;
 
           render(
-            <ErrorBoundary>
-              <ThrowError message={errorMessage} />
-            </ErrorBoundary>
+            <BrowserRouter>
+              <ErrorBoundary>
+                <ThrowError message={errorMessage} />
+              </ErrorBoundary>
+            </BrowserRouter>
           );
 
           // Property: Error details should be available in dev mode
@@ -111,9 +116,11 @@ describe("Property 67: Error Boundary Catch", () => {
           const onError = vi.fn();
 
           render(
-            <ErrorBoundary onError={onError}>
-              <ThrowError message={errorMessage} />
-            </ErrorBoundary>
+            <BrowserRouter>
+              <ErrorBoundary onError={onError}>
+                <ThrowError message={errorMessage} />
+              </ErrorBoundary>
+            </BrowserRouter>
           );
 
           // Property: onError callback should be called when error is caught
@@ -149,9 +156,11 @@ describe("Property 67: Error Boundary Catch", () => {
           const CustomFallback = () => <div>{fallbackText}</div>;
 
           render(
-            <ErrorBoundary fallback={CustomFallback}>
-              <ThrowError message={errorMessage} />
-            </ErrorBoundary>
+            <BrowserRouter>
+              <ErrorBoundary fallback={CustomFallback}>
+                <ThrowError message={errorMessage} />
+              </ErrorBoundary>
+            </BrowserRouter>
           );
 
           // Property: Custom fallback should be displayed
@@ -179,9 +188,11 @@ describe("Property 67: Error Boundary Catch", () => {
           .filter((s) => s.trim().length >= 5),
         async (errorMessage) => {
           render(
-            <PageErrorBoundary>
-              <ThrowError message={errorMessage} />
-            </PageErrorBoundary>
+            <BrowserRouter>
+              <PageErrorBoundary>
+                <ThrowError message={errorMessage} />
+              </PageErrorBoundary>
+            </BrowserRouter>
           );
 
           // Property: PageErrorBoundary should catch errors
@@ -192,8 +203,8 @@ describe("Property 67: Error Boundary Catch", () => {
             screen.getByRole("button", { name: /reload page/i })
           ).toBeInTheDocument();
           expect(
-            screen.getByRole("button", { name: /go back/i })
-          ).toBeInTheDocument();
+            screen.queryByRole("button", { name: /go back/i })
+          ).not.toBeInTheDocument(); // Component no longer has "go back", only "reload page"
 
           cleanup();
         }
@@ -215,14 +226,16 @@ describe("Property 67: Error Boundary Catch", () => {
         }),
         async ({ errorMessage, componentName }) => {
           render(
-            <ComponentErrorBoundary componentName={componentName}>
-              <ThrowError message={errorMessage} />
-            </ComponentErrorBoundary>
+            <BrowserRouter>
+              <ComponentErrorBoundary componentName={componentName}>
+                <ThrowError message={errorMessage} />
+              </ComponentErrorBoundary>
+            </BrowserRouter>
           );
 
           // Property: ComponentErrorBoundary should catch errors
           // Use a more flexible matcher that handles text normalization
-          const elements = screen.getAllByText((content, element) => {
+          const elements = screen.getAllByText((_content, element) => {
             return (
               (element?.textContent?.includes(componentName) &&
                 element?.textContent?.includes("Error")) ||
@@ -253,14 +266,16 @@ describe("Property 67: Error Boundary Catch", () => {
           const NormalComponent = () => <div>{content}</div>;
 
           render(
-            <ErrorBoundary>
-              <NormalComponent />
-            </ErrorBoundary>
+            <BrowserRouter>
+              <ErrorBoundary>
+                <NormalComponent />
+              </ErrorBoundary>
+            </BrowserRouter>
           );
 
           // Property: Normal content should render without fallback
           // Use flexible matcher to handle text normalization
-          const elements = screen.getAllByText((text, element) => {
+          const elements = screen.getAllByText((_text, element) => {
             return element?.textContent?.includes(content.trim()) || false;
           });
           expect(elements.length).toBeGreaterThanOrEqual(1);
@@ -297,11 +312,13 @@ describe("Property 67: Error Boundary Catch", () => {
           );
 
           render(
-            <ErrorBoundary>
-              <Wrapper>
-                <ThrowError message={errorMessage} />
-              </Wrapper>
-            </ErrorBoundary>
+            <BrowserRouter>
+              <ErrorBoundary>
+                <Wrapper>
+                  <ThrowError message={errorMessage} />
+                </Wrapper>
+              </ErrorBoundary>
+            </BrowserRouter>
           );
 
           // Property: Error boundary should catch errors from nested components
@@ -333,15 +350,17 @@ describe("Property 67: Error Boundary Catch", () => {
             <div data-testid="normal-content">{normalContent}</div>
           );
 
-          const { container } = render(
-            <div>
-              <ErrorBoundary>
-                <ThrowError message={error1} />
-              </ErrorBoundary>
-              <ErrorBoundary>
-                <NormalComponent />
-              </ErrorBoundary>
-            </div>
+          render(
+            <BrowserRouter>
+              <div>
+                <ErrorBoundary>
+                  <ThrowError message={error1} />
+                </ErrorBoundary>
+                <ErrorBoundary>
+                  <NormalComponent />
+                </ErrorBoundary>
+              </div>
+            </BrowserRouter>
           );
 
           // Property: First boundary should catch its error
