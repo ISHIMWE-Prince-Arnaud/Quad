@@ -25,12 +25,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  PiPlusBold,
   PiChartBarBold,
   PiBookOpenTextBold,
   PiSunBold,
   PiMoonBold,
   PiSignOutBold,
+  PiFileTextBold,
+  PiUserBold,
 } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 
@@ -97,7 +98,13 @@ export function UserMenu() {
 }
 
 // Simplified version for navigation
-export function UserAvatar({ className }: { className?: string }) {
+export function UserAvatar({
+  className,
+  noLink = false,
+}: {
+  className?: string;
+  noLink?: boolean;
+}) {
   const { user } = useAuthStore();
 
   const displayName =
@@ -118,7 +125,7 @@ export function UserAvatar({ className }: { className?: string }) {
     </Avatar>
   );
 
-  if (user?.username) {
+  if (user?.username && !noLink) {
     return (
       <Link
         to={`/profile/${user.username}`}
@@ -168,16 +175,30 @@ export function UserNavMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="focus:outline-none rounded-full overflow-hidden">
-          <UserAvatar className="h-9 w-9 border border-border/40" />
+          <UserAvatar
+            noLink
+            className="h-9 w-9 border border-border/40"
+          />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl shadow-xl border-border/40">
-        <DropdownMenuLabel className="flex flex-col gap-0.5 px-2 py-1.5">
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Features</span>
+      <DropdownMenuContent align="end" className="w-60 p-2 rounded-2xl shadow-xl border-border/40">
+        <DropdownMenuLabel className="flex flex-col gap-0.5 px-2 py-1.5 mb-1">
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Account</span>
+        </DropdownMenuLabel>
+        
+        <DropdownMenuItem onClick={() => navigate(`/profile/${useAuthStore.getState().user?.username}`)}>
+          <PiUserBold className="mr-2 h-4 w-4" />
+          <span>View Profile</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator />
+        
+        <DropdownMenuLabel className="flex flex-col gap-0.5 px-2 py-1.5 mt-1">
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Quick Create</span>
         </DropdownMenuLabel>
 
         <DropdownMenuItem onClick={() => handleQuickCreate("post")}>
-          <PiPlusBold className="mr-2 h-4 w-4" />
+          <PiFileTextBold className="mr-2 h-4 w-4" />
           <span>New Post</span>
         </DropdownMenuItem>
 
