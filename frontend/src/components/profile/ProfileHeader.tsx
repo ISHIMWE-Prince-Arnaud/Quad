@@ -142,7 +142,7 @@ export function ProfileHeader({
         </div>
 
         {/* Profile Content */}
-        <div className="relative px-6 pb-6">
+        <div className="relative px-4 sm:px-6 pb-6">
           {/* Profile Picture */}
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between -mt-16 relative z-10">
             <div className="flex flex-col sm:flex-row sm:items-end gap-4">
@@ -300,8 +300,8 @@ export function ProfileHeader({
               <div className="mt-4">
                 <div
                   className={cn(
-                    "grid gap-3",
-                    isOwnProfile ? "grid-cols-4" : "grid-cols-3",
+                    "grid gap-2 sm:gap-3",
+                    isOwnProfile ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3",
                   )}>
                   <button
                     type="button"

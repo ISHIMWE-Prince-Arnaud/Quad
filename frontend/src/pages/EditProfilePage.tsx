@@ -142,7 +142,7 @@ export default function EditProfilePage() {
     );
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10 space-y-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-10">
       <header className="flex items-center gap-4">
         <BackButton
           label="Edit Profile"
@@ -151,7 +151,7 @@ export default function EditProfilePage() {
       </header>
 
       <Card className="bg-card border border-border/40 rounded-[2rem] overflow-hidden shadow-2xl">
-        <CardContent className="p-8 sm:p-12 space-y-12">
+        <CardContent className="p-4 sm:p-8 md:p-12 space-y-8 sm:space-y-12">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-12">
             <CoverImageSection
               src={coverImage.preview}

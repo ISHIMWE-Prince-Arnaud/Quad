@@ -139,7 +139,7 @@ export default function StoriesPage() {
   return (
     <div className="w-full px-4 py-6">
       <div className="mx-auto max-w-5xl">
-        <div className="mb-6 flex items-start justify-between gap-4">
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-lg font-semibold text-foreground">Stories</h1>
             <p className="text-xs text-muted-foreground">
@@ -192,7 +192,7 @@ export default function StoriesPage() {
           />
         )}
 
-        <div className="grid gap-6 md:grid-cols-2 items-start">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 items-start">
           {stories.map((story) => (
             <StoryCard
               key={story._id}

@@ -44,7 +44,7 @@ export default function FeedPage() {
   return (
     <ComponentErrorBoundary>
       <PageTransition>
-        <div className="max-w-4xl mx-auto px-6 py-8 space-y-10">
+        <div className="max-w-4xl mx-auto px-2 py-4 sm:px-6 sm:py-8 space-y-6 sm:space-y-10">
           <div className="space-y-6">
             <FeedHeaderTabs
               feedType={feedType}

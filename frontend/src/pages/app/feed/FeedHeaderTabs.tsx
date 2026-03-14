@@ -14,7 +14,7 @@ export function FeedHeaderTabs({
   onTabChange: (next: FeedTab) => void;
 }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-wrap items-center justify-between gap-2">
       {/* Feed type selector with sliding indicator */}
       <div className="inline-flex rounded-full border border-border/40 p-1 bg-muted/20 backdrop-blur-sm">
         {(
@@ -30,7 +30,7 @@ export function FeedHeaderTabs({
               type="button"
               onClick={() => onFeedTypeChange(value)}
               className={cn(
-                "relative px-5 py-1.5 text-sm font-bold rounded-full transition-colors duration-200 z-10",
+                "relative px-3 py-1.5 sm:px-5 text-sm font-bold rounded-full transition-colors duration-200 z-10",
                 isActive
                   ? "text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
@@ -64,7 +64,7 @@ export function FeedHeaderTabs({
               type="button"
               onClick={() => onTabChange(value)}
               className={cn(
-                "relative px-4 py-1.5 text-sm font-bold rounded-xl transition-colors duration-200 z-10",
+                "relative px-2.5 py-1.5 sm:px-4 text-sm font-bold rounded-xl transition-colors duration-200 z-10",
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground",

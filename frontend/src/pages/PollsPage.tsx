@@ -248,7 +248,7 @@ export default function PollsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-[620px] space-y-6">
+    <div className="mx-auto max-w-[620px] px-3 sm:px-0 space-y-6">
       {error && (
         <ErrorMessage
           description={error}

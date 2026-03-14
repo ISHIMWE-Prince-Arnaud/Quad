@@ -338,6 +338,18 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* iOS safe-area padding for bottom navigation */
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Ensure scroll-padding accounts for bottom nav on mobile */
+  @media (max-width: 1023px) {
+    html {
+      scroll-padding-bottom: 4rem;
+    }
+  }
 }
 
 /* Accessibility: Respect user's motion preferences */

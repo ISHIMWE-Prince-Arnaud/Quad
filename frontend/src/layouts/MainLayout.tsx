@@ -1,10 +1,19 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "../components/layout/Navbar";
 import { Sidebar } from "../components/layout/Sidebar";
 import { RightPanel } from "../components/layout/RightPanel";
 import { useAuthStore } from "@/stores/authStore";
 import { MainAppSkeleton } from "@/components/ui/loading";
 import { AnimatePresence, motion } from "framer-motion";
+import {
+  PiHouseBold,
+  PiChartBarBold,
+  PiBookOpenTextBold,
+  PiChatCircleBold,
+  PiBellBold,
+} from "react-icons/pi";
+import { cn } from "@/lib/utils";
+import { useNotificationStore } from "@/stores/notificationStore";
 
 export function MainLayout() {
   const { isLoading } = useAuthStore();
@@ -47,8 +56,8 @@ export function MainLayout() {
               id="main-content"
               className={
                 isChatRoute
-                  ? "p-0 h-[calc(100vh-4rem)] lg:h-screen overflow-hidden"
-                  : "px-4 py-6 sm:px-6 lg:px-8"
+                  ? "p-0 h-[calc(100dvh-4rem)] lg:h-screen overflow-hidden"
+                  : "px-3 py-4 sm:px-6 sm:py-6 lg:px-8 pb-20 lg:pb-6"
               }
               tabIndex={-1}>
               <AnimatePresence mode="wait">
@@ -71,7 +80,82 @@ export function MainLayout() {
           <RightPanel />
         </div>
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <MobileBottomNav />
     </div>
+  );
+}
+
+function MobileBottomNav() {
+  const location = useLocation();
+  const { unreadCount } = useNotificationStore();
+
+  const navItems = [
+    { href: "/", icon: PiHouseBold, label: "Home" },
+    { href: "/polls", icon: PiChartBarBold, label: "Polls" },
+    { href: "/stories", icon: PiBookOpenTextBold, label: "Stories" },
+    { href: "/chat", icon: PiChatCircleBold, label: "Chat" },
+    { href: "/notifications", icon: PiBellBold, label: "Notifications", badge: unreadCount },
+  ];
+
+  // Don't show on chat route (chat uses full height)
+  const isChatRoute =
+    location.pathname === "/chat" || location.pathname.startsWith("/chat/");
+  if (isChatRoute) return null;
+
+  return (
+    <nav
+      className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-card/95 backdrop-blur-md border-t border-border/60 safe-area-pb"
+      aria-label="Mobile navigation">
+      <div className="flex items-stretch h-16">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive =
+            item.href === "/"
+              ? location.pathname === "/"
+              : location.pathname.startsWith(item.href);
+          const hasBadge = item.badge && item.badge > 0;
+
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              aria-label={item.label}
+              aria-current={isActive ? "page" : undefined}
+              className={cn(
+                "relative flex-1 flex flex-col items-center justify-center gap-1 text-[10px] font-semibold transition-colors duration-150",
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground",
+              )}>
+              <span className="relative">
+                <Icon
+                  className={cn(
+                    "h-[22px] w-[22px] transition-all duration-150",
+                    isActive ? "scale-110" : "",
+                  )}
+                  aria-hidden="true"
+                />
+                {hasBadge && (
+                  <span className="absolute -top-1 -right-1.5 inline-flex min-w-[14px] h-[14px] items-center justify-center rounded-full bg-destructive px-0.5 text-[9px] font-bold text-destructive-foreground">
+                    {item.badge! > 99 ? "99+" : item.badge}
+                  </span>
+                )}
+              </span>
+              <span className="leading-none">{item.label}</span>
+              {isActive && (
+                <motion.div
+                  layoutId="mobileNavIndicator"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-primary"
+                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                />
+              )}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
 

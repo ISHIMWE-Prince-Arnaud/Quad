@@ -41,7 +41,7 @@ const tabs = [
   },
   {
     id: "saved" as ProfileTab,
-    label: "Bookmarks",
+    label: "Saved",
     icon: PiBookmarkSimpleBold,
     description: "Saved posts and content",
     public: false, // Only visible to own profile
@@ -63,22 +63,8 @@ export function ProfileTabs({
         className,
       )}>
       <div className="max-w-4xl mx-auto">
-        {/* Mobile Tab Navigation */}
-        <div className="sm:hidden">
-          <select
-            value={activeTab}
-            onChange={(e) => onTabChange(e.target.value as ProfileTab)}
-            className="w-full p-3 bg-background border-0 text-foreground font-medium focus:outline-none">
-            {visibleTabs.map((tab) => (
-              <option key={tab.id} value={tab.id}>
-                {tab.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Desktop Tab Navigation */}
-        <div className="hidden sm:flex">
+        {/* Tab Navigation — shown at all screen sizes */}
+        <div className="flex">
           <div className="flex w-full">
             {visibleTabs.map((tab) => {
               const Icon = tab.icon;
@@ -94,7 +80,7 @@ export function ProfileTabs({
                   title={tab.description}>
                   <span
                     className={cn(
-                      "relative z-10 inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200",
+                      "relative z-10 inline-flex items-center justify-center gap-1.5 px-2 sm:px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200",
                       isActive
                         ? "text-primary"
                         : "text-muted-foreground hover:text-foreground",
@@ -110,8 +96,9 @@ export function ProfileTabs({
                         }}
                       />
                     )}
-                    <Icon className="h-4 w-4 relative z-10" />
-                    <span className="hidden sm:inline relative z-10">
+                    <Icon className="h-4 w-4 relative z-10 shrink-0" />
+                    {/* Label hidden on very small screens, shown from xs+ */}
+                    <span className="hidden xs:inline sm:inline relative z-10 truncate">
                       {tab.label}
                     </span>
                   </span>

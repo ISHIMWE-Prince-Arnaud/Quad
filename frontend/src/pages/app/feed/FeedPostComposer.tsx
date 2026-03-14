@@ -144,7 +144,7 @@ export function FeedPostComposer({
     <div
       ref={containerRef}
       className={cn(
-        "bg-card border border-border/40 rounded-[2rem] p-4 shadow-card transition-all hover:border-border/60",
+        "bg-card border border-border/40 rounded-[1.5rem] sm:rounded-[2rem] p-3 sm:p-4 shadow-card transition-all hover:border-border/60",
         disabled && "opacity-60",
       )}
       onClick={() => {
@@ -162,8 +162,8 @@ export function FeedPostComposer({
         }}
       />
 
-      <div className="flex gap-4">
-        <Avatar className="h-12 w-12 border-2 border-border/40">
+      <div className="flex gap-2 sm:gap-4">
+        <Avatar className="h-9 w-9 sm:h-12 sm:w-12 border-2 border-border/40 shrink-0">
           <AvatarImage src={user?.profileImage} />
           <AvatarFallback className="bg-secondary text-secondary-foreground">
             {user?.username?.[0]?.toUpperCase() || "U"}
