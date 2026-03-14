@@ -56,7 +56,7 @@ export function MainLayout() {
               id="main-content"
               className={
                 isChatRoute
-                  ? "p-0 h-[calc(100dvh-4rem)] lg:h-screen overflow-hidden"
+                  ? "p-0 h-[calc(100dvh-8rem)] lg:h-screen overflow-hidden"
                   : "px-3 py-4 sm:px-6 sm:py-6 lg:px-8 pb-20 lg:pb-6"
               }
               tabIndex={-1}>
@@ -100,9 +100,7 @@ function MobileBottomNav() {
   ];
 
   // Don't show on chat route (chat uses full height)
-  const isChatRoute =
-    location.pathname === "/chat" || location.pathname.startsWith("/chat/");
-  if (isChatRoute) return null;
+  // We keep the bottom nav even on chat routes now to allow navigation
 
   return (
     <nav

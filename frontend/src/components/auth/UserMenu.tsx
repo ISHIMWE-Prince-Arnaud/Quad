@@ -16,6 +16,23 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  PiPlusBold,
+  PiChartBarBold,
+  PiBookOpenTextBold,
+  PiSunBold,
+  PiMoonBold,
+  PiSignOutBold,
+} from "react-icons/pi";
+import { useNavigate } from "react-router-dom";
 
 export function UserMenu() {
   const { signOut } = useAuth();
@@ -112,4 +129,91 @@ export function UserAvatar({ className }: { className?: string }) {
   }
 
   return content;
+}
+
+export function UserNavMenu() {
+  const { signOut } = useAuth();
+  const { logout } = useAuthStore();
+  const { isDarkMode, setTheme } = useThemeStore();
+  const navigate = useNavigate();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    try {
+      setIsSigningOut(true);
+      logout();
+      await signOut();
+    } catch (error) {
+      logError(error, { component: "UserNavMenu", action: "signOut" });
+      showErrorToast(error, "Failed to sign out");
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
+
+  const handleQuickCreate = (type: "post" | "poll" | "story") => {
+    if (type === "post") {
+      if (window.location.pathname === "/") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.dispatchEvent(new CustomEvent("focus-post-composer"));
+      } else {
+        navigate("/?create=post");
+      }
+    } else {
+      navigate(`/create/${type}`);
+    }
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="focus:outline-none rounded-full overflow-hidden">
+          <UserAvatar className="h-9 w-9 border border-border/40" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl shadow-xl border-border/40">
+        <DropdownMenuLabel className="flex flex-col gap-0.5 px-2 py-1.5">
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Features</span>
+        </DropdownMenuLabel>
+
+        <DropdownMenuItem onClick={() => handleQuickCreate("post")}>
+          <PiPlusBold className="mr-2 h-4 w-4" />
+          <span>New Post</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={() => handleQuickCreate("poll")}>
+          <PiChartBarBold className="mr-2 h-4 w-4" />
+          <span>New Poll</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={() => handleQuickCreate("story")}>
+          <PiBookOpenTextBold className="mr-2 h-4 w-4" />
+          <span>New Story</span>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem onClick={() => setTheme(isDarkMode ? "light" : "dark")}>
+          {isDarkMode ? (
+            <>
+              <PiSunBold className="mr-2 h-4 w-4" />
+              <span>Light Mode</span>
+            </>
+          ) : (
+            <>
+              <PiMoonBold className="mr-2 h-4 w-4" />
+              <span>Dark Mode</span>
+            </>
+          )}
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+          <PiSignOutBold className="mr-2 h-4 w-4" />
+          <span>{isSigningOut ? "Logging out..." : "Logout"}</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }

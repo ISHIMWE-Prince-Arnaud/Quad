@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { PiBellBold } from "react-icons/pi";
 import { LogoWithText } from "@/components/ui/Logo";
-import { UserAvatar } from "@/components/auth/UserMenu";
+import { UserNavMenu } from "@/components/auth/UserMenu";
 import { useNotificationStore } from "@/stores/notificationStore";
 import { useAppKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { KeyboardShortcutsDialog } from "@/components/ui/keyboard-shortcuts-dialog";
@@ -52,8 +52,8 @@ export function Navbar() {
               )}
             </Link>
 
-            {/* User Avatar */}
-            <UserAvatar />
+            {/* User Avatar with Menu */}
+            <UserNavMenu />
           </div>
         </div>
       </header>
