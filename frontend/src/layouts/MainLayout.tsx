@@ -113,7 +113,6 @@ function MobileBottomNav() {
             item.href === "/"
               ? location.pathname === "/"
               : location.pathname.startsWith(item.href);
-          const hasBadge = item.badge && item.badge > 0;
 
           return (
             <Link
@@ -135,9 +134,9 @@ function MobileBottomNav() {
                   )}
                   aria-hidden="true"
                 />
-                {hasBadge && (
+                {!!item.badge && item.badge > 0 && (
                   <span className="absolute -top-1 -right-1.5 inline-flex min-w-[14px] h-[14px] items-center justify-center rounded-full bg-destructive px-0.5 text-[9px] font-bold text-destructive-foreground">
-                    {item.badge! > 99 ? "99+" : item.badge}
+                    {item.badge > 99 ? "99+" : item.badge}
                   </span>
                 )}
               </span>
