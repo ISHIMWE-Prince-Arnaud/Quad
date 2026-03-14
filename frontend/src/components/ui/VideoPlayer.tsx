@@ -40,6 +40,7 @@ export function VideoPlayer({
   preload = "metadata",
   containerClassName,
   videoClassName,
+  loop,
 }: {
   src: string;
   autoPlay?: boolean;
@@ -47,6 +48,7 @@ export function VideoPlayer({
   preload?: "auto" | "metadata" | "none";
   containerClassName?: string;
   videoClassName?: string;
+  loop?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -85,6 +87,11 @@ export function VideoPlayer({
   const [seekOverlay, setSeekOverlay] = useState<"forward" | "backward" | null>(
     null,
   );
+  const [isLooping, setIsLooping] = useState(() => {
+    if (loop !== undefined) return loop;
+    const saved = localStorage.getItem("quad_video_loop");
+    return saved === null ? true : saved === "true";
+  });
   const [wasPlayingBeforeScroll, setWasPlayingBeforeScroll] = useState(false);
 
   const clearHideTimer = useCallback(() => {
@@ -427,6 +434,13 @@ export function VideoPlayer({
       clearHideTimer();
     };
 
+    const handleEnded = () => {
+      if (!isLooping) {
+        setIsPlaying(false);
+        setControlsVisible(true);
+      }
+    };
+
     const handleVolume = () => {
       setIsMuted(video.muted);
       setVolume(video.volume);
@@ -448,6 +462,7 @@ export function VideoPlayer({
     video.addEventListener("timeupdate", handleTimeUpdate);
     video.addEventListener("play", handlePlay);
     video.addEventListener("pause", handlePause);
+    video.addEventListener("ended", handleEnded);
     video.addEventListener("volumechange", handleVolume);
 
     return () => {
@@ -463,9 +478,10 @@ export function VideoPlayer({
       video.removeEventListener("timeupdate", handleTimeUpdate);
       video.removeEventListener("play", handlePlay);
       video.removeEventListener("pause", handlePause);
+      video.removeEventListener("ended", handleEnded);
       video.removeEventListener("volumechange", handleVolume);
     };
-  }, [clearHideTimer, isSeeking, scheduleHide, volume]);
+  }, [clearHideTimer, isSeeking, scheduleHide, volume, isLooping]);
 
   useEffect(() => {
     clearBufferingTimer();
@@ -627,6 +643,7 @@ export function VideoPlayer({
         poster={poster}
         preload={preload}
         autoPlay={autoPlay}
+        loop={isLooping}
         playsInline
         className={cn(
           "w-full h-full object-contain bg-zinc-100 dark:bg-black",
@@ -910,6 +927,37 @@ export function VideoPlayer({
                         className="w-full px-3 py-2.5 text-sm hover:bg-black/5 dark:hover:bg-white/10 rounded-xl flex items-center gap-3 transition-colors text-black dark:text-white">
                         <PiDownloadSimpleBold className="h-5 w-5 opacity-70" />
                         <span className="font-semibold">Download Archive</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newVal = !isLooping;
+                          setIsLooping(newVal);
+                          localStorage.setItem("quad_video_loop", String(newVal));
+                          setSettingsOpen(false);
+                        }}
+                        className="w-full px-3 py-2.5 text-sm hover:bg-black/5 dark:hover:bg-white/10 rounded-xl flex items-center justify-between transition-colors text-black dark:text-white">
+                        <div className="flex items-center gap-3">
+                          <PiArrowsClockwiseBold
+                            className={cn(
+                              "h-5 w-5 transition-transform duration-500",
+                              isLooping && "rotate-180",
+                              !isLooping && "opacity-70",
+                            )}
+                          />
+                          <span className="font-semibold">Auto Replay</span>
+                        </div>
+                        <div
+                          className={cn(
+                            "h-5 w-9 rounded-full transition-colors relative flex items-center px-1",
+                            isLooping ? "bg-primary" : "bg-black/20 dark:bg-white/20",
+                          )}>
+                          <motion.div
+                            animate={{ x: isLooping ? 16 : 0 }}
+                            className="h-3 w-3 rounded-full bg-white shadow-sm"
+                          />
+                        </div>
                       </button>
 
                       <div className="my-1.5 h-px bg-black/5 dark:bg-white/5" />
