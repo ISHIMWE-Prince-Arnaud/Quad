@@ -5,15 +5,14 @@ import { RightPanel } from "../components/layout/RightPanel";
 import { useAuthStore } from "@/stores/authStore";
 import { MainAppSkeleton } from "@/components/ui/loading";
 import { AnimatePresence, motion } from "framer-motion";
+import { MobileMoreMenu } from "../components/layout/MobileMoreMenu";
 import {
   PiHouseBold,
   PiChartBarBold,
   PiBookOpenTextBold,
   PiChatCircleBold,
-  PiBellBold,
 } from "react-icons/pi";
 import { cn } from "@/lib/utils";
-import { useNotificationStore } from "@/stores/notificationStore";
 
 export function MainLayout() {
   const { isLoading } = useAuthStore();
@@ -89,18 +88,13 @@ export function MainLayout() {
 
 function MobileBottomNav() {
   const location = useLocation();
-  const { unreadCount } = useNotificationStore();
 
   const navItems = [
     { href: "/", icon: PiHouseBold, label: "Home" },
     { href: "/polls", icon: PiChartBarBold, label: "Polls" },
     { href: "/stories", icon: PiBookOpenTextBold, label: "Stories" },
     { href: "/chat", icon: PiChatCircleBold, label: "Chat" },
-    { href: "/notifications", icon: PiBellBold, label: "Notifications", badge: unreadCount },
   ];
-
-  // Don't show on chat route (chat uses full height)
-  // We keep the bottom nav even on chat routes now to allow navigation
 
   return (
     <nav
@@ -134,11 +128,6 @@ function MobileBottomNav() {
                   )}
                   aria-hidden="true"
                 />
-                {!!item.badge && item.badge > 0 && (
-                  <span className="absolute -top-1 -right-1.5 inline-flex min-w-[14px] h-[14px] items-center justify-center rounded-full bg-destructive px-0.5 text-[9px] font-bold text-destructive-foreground">
-                    {item.badge > 99 ? "99+" : item.badge}
-                  </span>
-                )}
               </span>
               <span className="leading-none">{item.label}</span>
               {isActive && (
@@ -151,6 +140,9 @@ function MobileBottomNav() {
             </Link>
           );
         })}
+
+        {/* More Menu */}
+        <MobileMoreMenu />
       </div>
     </nav>
   );
