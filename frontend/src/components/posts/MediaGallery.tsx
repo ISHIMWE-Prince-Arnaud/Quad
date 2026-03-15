@@ -59,7 +59,6 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
           ) : (
             <VideoPlayer
               src={item.url}
-              autoPlay={false}
               containerClassName="rounded-xl"
               videoClassName="rounded-xl object-contain"
             />
@@ -100,7 +99,6 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
               ) : (
                 <VideoPlayer
                   src={item.url}
-                  autoPlay={false}
                   containerClassName="rounded-lg"
                   videoClassName="rounded-lg"
                 />
@@ -143,7 +141,6 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
               ) : (
                 <VideoPlayer
                   src={item.url}
-                  autoPlay={false}
                   containerClassName="rounded-lg"
                   videoClassName="rounded-lg"
                 />
@@ -161,7 +158,6 @@ export function MediaGallery({ media, className }: MediaGalleryProps) {
             ) : (
               <VideoPlayer
                 src={media[2].url}
-                autoPlay={false}
                 containerClassName="rounded-lg"
                 videoClassName="rounded-lg"
               />

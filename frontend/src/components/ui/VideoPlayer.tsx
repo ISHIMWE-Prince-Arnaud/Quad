@@ -255,7 +255,6 @@ export function VideoPlayer({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    let wasPlayingBeforeScrollLocal = false;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -263,32 +262,34 @@ export function VideoPlayer({
           const video = videoRef.current;
           if (!video) return;
 
-          const isVisible = entry.intersectionRatio >= 0.5;
+          const isVisible = entry.isIntersecting && entry.intersectionRatio >= 0.5;
 
-          if (!isVisible) {
-            if (!video.paused) {
-              video.pause();
-              wasPlayingBeforeScrollLocal = true;
-            } else {
-              wasPlayingBeforeScrollLocal = false;
-            }
-          } else {
-            if (wasPlayingBeforeScrollLocal) {
-              void video.play().catch(() => {});
-              wasPlayingBeforeScrollLocal = false;
-            } else if (effectiveAutoPlay) {
-              void video.play().catch((err: DOMException | Error) => {
-                if (err.name === "NotAllowedError" || err.message.includes("interact")) {
+          if (isVisible) {
+            if (effectiveAutoPlay && video.paused) {
+              const playPromise = video.play();
+              if (playPromise !== undefined) {
+                playPromise.catch((err: DOMException | Error) => {
+                  console.log("Autoplay blocked, attempting mute...", err);
+                  // Force play muted
                   video.muted = true;
                   setIsMuted(true);
-                  void video.play().catch(() => {});
-                }
-              });
+                  const retryPromise = video.play();
+                  if (retryPromise !== undefined) {
+                    retryPromise.catch((err2) => {
+                      console.error("Autoplay completely failed after mute:", err2);
+                    });
+                  }
+                });
+              }
+            }
+          } else {
+            if (!video.paused) {
+              video.pause();
             }
           }
         });
       },
-      { threshold: [0, 0.6] },
+      { threshold: [0, 0.25, 0.5, 0.75, 1] },
     );
 
     observer.observe(containerRef.current);
@@ -658,8 +659,8 @@ export function VideoPlayer({
         src={src}
         poster={poster}
         preload={preload}
-        autoPlay={autoPlay}
         loop={isLooping}
+        muted={isMuted}
         playsInline
         className={cn(
           "w-full h-full object-contain bg-zinc-100 dark:bg-black",
