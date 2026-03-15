@@ -16,6 +16,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { useVideoStore } from "@/stores/videoStore";
 
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -87,12 +88,10 @@ export function VideoPlayer({
   const [seekOverlay, setSeekOverlay] = useState<"forward" | "backward" | null>(
     null,
   );
-  const [isLooping, setIsLooping] = useState(() => {
-    if (loop !== undefined) return loop;
-    const saved = localStorage.getItem("quad_video_loop");
-    return saved === null ? true : saved === "true";
-  });
-  const [wasPlayingBeforeScroll, setWasPlayingBeforeScroll] = useState(false);
+  
+  const { autoPlay: globalAutoPlay, autoReplay, setAutoPlay, setAutoReplay } = useVideoStore();
+  const effectiveAutoPlay = autoPlay ?? globalAutoPlay;
+  const isLooping = loop ?? autoReplay;
 
   const clearHideTimer = useCallback(() => {
     if (hideTimerRef.current) {
@@ -256,28 +255,45 @@ export function VideoPlayer({
   useEffect(() => {
     if (!containerRef.current) return;
 
+    let wasPlayingBeforeScrollLocal = false;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) {
-            if (isPlaying) {
-              videoRef.current?.pause();
-              setWasPlayingBeforeScroll(true);
+          const video = videoRef.current;
+          if (!video) return;
+
+          const isVisible = entry.intersectionRatio >= 0.5;
+
+          if (!isVisible) {
+            if (!video.paused) {
+              video.pause();
+              wasPlayingBeforeScrollLocal = true;
+            } else {
+              wasPlayingBeforeScrollLocal = false;
             }
           } else {
-            if (wasPlayingBeforeScroll) {
-              void videoRef.current?.play();
-              setWasPlayingBeforeScroll(false);
+            if (wasPlayingBeforeScrollLocal) {
+              void video.play().catch(() => {});
+              wasPlayingBeforeScrollLocal = false;
+            } else if (effectiveAutoPlay) {
+              void video.play().catch((err: DOMException | Error) => {
+                if (err.name === "NotAllowedError" || err.message.includes("interact")) {
+                  video.muted = true;
+                  setIsMuted(true);
+                  void video.play().catch(() => {});
+                }
+              });
             }
           }
         });
       },
-      { threshold: 0.6 },
+      { threshold: [0, 0.6] },
     );
 
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [isPlaying, wasPlayingBeforeScroll]);
+  }, [effectiveAutoPlay]);
 
   // Keyboard Shortcuts
   useEffect(() => {
@@ -932,18 +948,42 @@ export function VideoPlayer({
                       <button
                         type="button"
                         onClick={() => {
-                          const newVal = !isLooping;
-                          setIsLooping(newVal);
-                          localStorage.setItem("quad_video_loop", String(newVal));
-                          setSettingsOpen(false);
+                          setAutoPlay(!globalAutoPlay);
+                        }}
+                        className="w-full px-3 py-2.5 text-sm hover:bg-black/5 dark:hover:bg-white/10 rounded-xl flex items-center justify-between transition-colors text-black dark:text-white">
+                        <div className="flex items-center gap-3">
+                          <PiPlayBold
+                            className={cn(
+                              "h-5 w-5 transition-transform duration-500",
+                              !globalAutoPlay && "opacity-70",
+                            )}
+                          />
+                          <span className="font-semibold">Auto Play</span>
+                        </div>
+                        <div
+                          className={cn(
+                            "h-5 w-9 rounded-full transition-colors relative flex items-center px-1",
+                            globalAutoPlay ? "bg-primary" : "bg-black/20 dark:bg-white/20",
+                          )}>
+                          <motion.div
+                            animate={{ x: globalAutoPlay ? 16 : 0 }}
+                            className="h-3 w-3 rounded-full bg-white shadow-sm"
+                          />
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAutoReplay(!autoReplay);
                         }}
                         className="w-full px-3 py-2.5 text-sm hover:bg-black/5 dark:hover:bg-white/10 rounded-xl flex items-center justify-between transition-colors text-black dark:text-white">
                         <div className="flex items-center gap-3">
                           <PiArrowsClockwiseBold
                             className={cn(
                               "h-5 w-5 transition-transform duration-500",
-                              isLooping && "rotate-180",
-                              !isLooping && "opacity-70",
+                              autoReplay && "rotate-180",
+                              !autoReplay && "opacity-70",
                             )}
                           />
                           <span className="font-semibold">Auto Replay</span>
@@ -951,10 +991,10 @@ export function VideoPlayer({
                         <div
                           className={cn(
                             "h-5 w-9 rounded-full transition-colors relative flex items-center px-1",
-                            isLooping ? "bg-primary" : "bg-black/20 dark:bg-white/20",
+                            autoReplay ? "bg-primary" : "bg-black/20 dark:bg-white/20",
                           )}>
                           <motion.div
-                            animate={{ x: isLooping ? 16 : 0 }}
+                            animate={{ x: autoReplay ? 16 : 0 }}
                             className="h-3 w-3 rounded-full bg-white shadow-sm"
                           />
                         </div>
