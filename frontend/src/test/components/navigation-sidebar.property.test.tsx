@@ -71,7 +71,7 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
 
           // Property 1: All required navigation items must be present
           const requiredItems = [
-            "Feed",
+            "Home",
             "Polls",
             "Stories",
             "Chat",
@@ -134,7 +134,7 @@ describe("Navigation Sidebar Completeness Property Tests", () => {
 
           // Property: Each navigation item must have the correct href
           const expectedHrefs: Record<string, string> = {
-            Feed: "/",
+            Home: "/",
             Polls: "/polls",
             Stories: "/stories",
             Chat: "/chat",

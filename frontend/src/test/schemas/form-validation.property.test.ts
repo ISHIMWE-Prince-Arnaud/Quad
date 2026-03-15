@@ -122,7 +122,7 @@ describe("Property 7: Request Payload Schema Validation", () => {
             .filter((s) => s.trim().length > 0),
           fc
             .string({ minLength: 1, maxLength: 5000 })
-            .filter((s) => s.trim().length > 0),
+            .filter((s) => s.replace(/<[^>]*>/g, "").trim().length > 0),
           (title, content) => {
             const result = createStorySchema.safeParse({
               title,

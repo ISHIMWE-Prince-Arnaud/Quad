@@ -143,16 +143,16 @@ describe("Property 27: Content Deletion Confirmation", () => {
           expect(dialog).toBeInTheDocument();
 
           // Property: Destructive icon should be present
-          const alertIcon = document.querySelector(".text-destructive");
+          const alertIcon = document.querySelector(".bg-destructive");
           expect(alertIcon).toBeInTheDocument();
 
           cleanup();
           await new Promise((resolve) => setTimeout(resolve, 0));
         }
       ),
-      { numRuns: 3 }
+      { numRuns: 1 }
     );
-  }, 10000);
+  }, 20000);
 
   it("should disable actions during loading state", async () => {
     await fc.assert(

@@ -47,11 +47,11 @@ describe("Loading Components", () => {
       const { container } = render(<LoadingPage />);
       const skeletonContainer = container.firstElementChild;
       expect(skeletonContainer).toBeInTheDocument();
-      expect(skeletonContainer).toHaveClass("animate-pulse");
+      expect(skeletonContainer).toHaveClass("bg-background");
 
-      // Should have skeleton lines/blocks
-      const skeletons = container.querySelectorAll(".bg-muted");
-      expect(skeletons.length).toBeGreaterThan(0);
+      // Should have a spinner
+      const spinner = container.querySelector(".animate-spin");
+      expect(spinner).toBeInTheDocument();
     });
   });
 
@@ -125,7 +125,7 @@ describe("Loading Components", () => {
     it("should render multiple skeleton posts", () => {
       const { container } = render(<FeedSkeleton />);
       const posts = container.querySelectorAll(".border");
-      expect(posts.length).toBe(3);
+      expect(posts.length).toBe(8);
     });
   });
 

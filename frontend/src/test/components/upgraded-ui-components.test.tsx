@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -83,7 +83,7 @@ describe("Upgraded UI Components", () => {
     it("should have focus ring with primary color", () => {
       const { container } = render(<Input />);
       const input = container.querySelector("input");
-      expect(input).toHaveClass("focus-visible:ring-primary");
+      expect(input).toHaveClass("focus:ring-primary/10");
     });
   });
 

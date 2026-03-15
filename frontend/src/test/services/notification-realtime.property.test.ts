@@ -12,6 +12,16 @@ describe("Real-time Notification Property Tests", () => {
     vi.clearAllMocks();
   });
 
+  vi.mock("@/lib/socket", async () => {
+    const { EventEmitter } = await import("events");
+    const mockSocket = new EventEmitter();
+    return {
+      getSocket: vi.fn(() => mockSocket),
+      connectSocket: vi.fn(),
+      disconnectSocket: vi.fn(),
+    };
+  });
+
   // Arbitrary for generating valid notification payloads
   const notificationPayloadArbitrary = fc.record({
     id: fc.uuid(),
@@ -68,9 +78,8 @@ describe("Real-time Notification Property Tests", () => {
           // Simulate server emitting the event
           socket.emit("notification:new", notificationPayload);
 
-          // In a real scenario, we'd wait for the event
-          // For testing, we verify the payload structure
-          const payload = notificationPayload as NotificationPayload;
+          // Wait for the event to be received
+          const payload = await eventPromise;
 
           // Verify required fields for toast display
           expect(payload.message).toBeDefined();

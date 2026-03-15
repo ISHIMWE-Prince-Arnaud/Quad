@@ -86,7 +86,7 @@ export function MainLayout() {
   );
 }
 
-function MobileBottomNav() {
+export function MobileBottomNav() {
   const location = useLocation();
 
   const navItems = [

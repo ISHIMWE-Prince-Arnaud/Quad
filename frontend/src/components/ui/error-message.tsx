@@ -56,13 +56,7 @@ export function ErrorMessage({
     }
   };
 
-  const handleGoHome = () => {
-    if (onGoHome) {
-      onGoHome();
-    } else {
-      window.location.href = "/";
-    }
-  };
+
 
   return (
     <motion.div
@@ -86,13 +80,10 @@ export function ErrorMessage({
             {showGoHome && (
               <Button
                 asChild={!onGoHome}
+                onClick={onGoHome}
                 variant="outline"
                 className="rounded-full shadow-sm font-bold px-6">
-                {onGoHome ? (
-                  <button onClick={handleGoHome}>{goHomeLabel}</button>
-                ) : (
-                  <Link to="/">{goHomeLabel}</Link>
-                )}
+                {!onGoHome ? <Link to="/">{goHomeLabel}</Link> : goHomeLabel}
               </Button>
             )}
           </div>

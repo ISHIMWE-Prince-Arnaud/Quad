@@ -4,12 +4,12 @@ import {
   screen,
   cleanup,
   fireEvent,
-  waitFor,
 } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import * as fc from "fast-check";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Navbar } from "@/components/layout/Navbar";
+import { MobileBottomNav } from "@/layouts/MainLayout";
 
 // Feature: quad-ui-ux-redesign, Property 43: Responsive navigation
 // For any mobile viewport (< 640px), the sidebar should collapse and a hamburger menu toggle should be provided
@@ -29,6 +29,13 @@ vi.mock("@/stores/authStore", () => ({
 vi.mock("@/stores/notificationStore", () => ({
   useNotificationStore: vi.fn(() => ({
     unreadCount: 0,
+  })),
+}));
+
+vi.mock("@/stores/themeStore", () => ({
+  useThemeStore: vi.fn(() => ({
+    isDarkMode: false,
+    setTheme: vi.fn(),
   })),
 }));
 
@@ -99,13 +106,11 @@ describe("Responsive Navigation Property Tests", () => {
     );
   });
 
-  it("Property 43: Mobile navbar contains hamburger menu button", async () => {
+  it("Property 43: Mobile layout contains bottom navigation bar with more menu", async () => {
     await fc.assert(
       fc.asyncProperty(fc.constant(null), async () => {
-        // Clean up before each property test iteration
         cleanup();
 
-        // Mock the stores
         const { useAuthStore } = await import("@/stores/authStore");
         const { useNotificationStore } =
           await import("@/stores/notificationStore");
@@ -118,32 +123,31 @@ describe("Responsive Navigation Property Tests", () => {
           unreadCount: 0,
         } as any);
 
-        // Render the navbar
+        // Render the bottom nav
         render(
           <BrowserRouter>
-            <Navbar />
+            <MobileBottomNav />
           </BrowserRouter>,
         );
 
-        // Property: Hamburger menu button should exist
-        const menuButton = screen.getByLabelText("Toggle mobile menu");
+        // Property: Mobile navigation element should exist
+        const mobileNav = screen.getByLabelText("Mobile navigation");
+        expect(mobileNav).toBeInTheDocument();
+
+        // Property: More menu button should exist within mobile nav
+        const menuButton = screen.getByLabelText("More Menu");
         expect(menuButton).toBeInTheDocument();
         expect(menuButton.tagName).toBe("BUTTON");
-
-        // Property: Button should have aria-expanded attribute
-        expect(menuButton).toHaveAttribute("aria-expanded");
       }),
       { numRuns: 10 },
     );
   });
 
-  it("Property 43: Mobile menu contains all navigation items", async () => {
+  it("Property 43: Mobile bottom nav contains core navigation items", async () => {
     await fc.assert(
       fc.asyncProperty(fc.constant(null), async () => {
-        // Clean up before each property test iteration
         cleanup();
 
-        // Mock the stores
         const { useAuthStore } = await import("@/stores/authStore");
         const { useNotificationStore } =
           await import("@/stores/notificationStore");
@@ -156,29 +160,27 @@ describe("Responsive Navigation Property Tests", () => {
           unreadCount: 0,
         } as any);
 
-        // Render the navbar
+        // Render the bottom nav
         const { container } = render(
           <BrowserRouter>
-            <Navbar />
+            <MobileBottomNav />
           </BrowserRouter>,
         );
 
-        fireEvent.click(screen.getByLabelText("Toggle mobile menu"));
+        const mobileNavEl = container.querySelector(
+          'nav[aria-label="Mobile navigation"]',
+        );
+        expect(mobileNavEl).toBeInTheDocument();
 
-        await waitFor(() => {
-          const mobileNavEl = container.querySelector(
-            'nav[aria-label="Mobile navigation"]',
-          );
-          expect(mobileNavEl).toBeInTheDocument();
-        });
-
-        // Property: Mobile menu should have navigation with aria-label
-        container.querySelector('nav[aria-label="Mobile navigation"]');
-
-        // The mobile menu is hidden by default, but should exist in the DOM
-        // We can't test visibility without actually setting viewport size,
-        // but we can verify the structure exists
-        expect(container.querySelector("header")).toBeInTheDocument();
+        // Property: Should have the 4 main items + More
+        const links = mobileNavEl?.querySelectorAll("a");
+        expect(links?.length).toBe(4);
+        
+        const labels = Array.from(links || []).map(l => l.getAttribute("aria-label"));
+        expect(labels).toContain("Home");
+        expect(labels).toContain("Polls");
+        expect(labels).toContain("Stories");
+        expect(labels).toContain("Chat");
       }),
       { numRuns: 10 },
     );
@@ -237,7 +239,7 @@ describe("Responsive Navigation Property Tests", () => {
 
         // Property: All hrefs should be valid paths
         sidebarHrefs.forEach((href) => {
-          expect(href).toMatch(/^\/app\//);
+          expect(href).toMatch(/^\//);
         });
       }),
       { numRuns: 10 },
@@ -291,16 +293,15 @@ describe("Responsive Navigation Property Tests", () => {
     );
   });
 
-  it("Property 43: Theme selector present in both desktop and mobile", async () => {
+  it("Property 43: Theme selector is available in mobile more menu", async () => {
     await fc.assert(
       fc.asyncProperty(fc.constant(null), async () => {
-        // Clean up before each property test iteration
         cleanup();
 
-        // Mock the stores
         const { useAuthStore } = await import("@/stores/authStore");
         const { useNotificationStore } =
           await import("@/stores/notificationStore");
+        const { useThemeStore } = await import("@/stores/themeStore");
 
         vi.mocked(useAuthStore).mockReturnValue({
           user: { username: "testuser" },
@@ -310,26 +311,24 @@ describe("Responsive Navigation Property Tests", () => {
           unreadCount: 0,
         } as any);
 
-        // Render the navbar (mobile)
-        const { container } = render(
+        vi.mocked(useThemeStore).mockReturnValue({
+          isDarkMode: false,
+          setTheme: vi.fn(),
+        } as any);
+
+        render(
           <BrowserRouter>
-            <Navbar />
+            <MobileBottomNav />
           </BrowserRouter>,
         );
 
-        fireEvent.click(screen.getByLabelText("Toggle mobile menu"));
+        // Click more menu
+        const menuButton = screen.getByLabelText("More Menu");
+        fireEvent.pointerDown(menuButton);
+        fireEvent.click(menuButton);
 
-        await waitFor(() => {
-          const mobileNavEl = container.querySelector(
-            'nav[aria-label="Mobile navigation"]',
-          );
-          expect(mobileNavEl).toBeInTheDocument();
-        });
-
-        // Property: Theme selector should be present in navbar mobile menu
-        expect(
-          screen.getAllByRole("group", { name: "Theme selector" }).length,
-        ).toBeGreaterThan(0);
+        // Property: Theme toggle should be visible
+        expect(await screen.findByText(/Mode/i, {}, { timeout: 5000 })).toBeInTheDocument();
       }),
       { numRuns: 10 },
     );

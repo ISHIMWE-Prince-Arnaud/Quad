@@ -27,7 +27,7 @@ export class NotificationService {
     const response = await endpoints.notifications.getAll({
       page: params.page,
       limit: params.limit,
-      unreadOnly: params.unreadOnly ? true : undefined,
+      unreadOnly: params.unreadOnly,
     });
     return response.data as GetNotificationsResponse;
   }

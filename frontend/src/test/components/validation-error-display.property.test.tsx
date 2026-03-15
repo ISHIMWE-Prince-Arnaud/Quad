@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import * as fc from "fast-check";
 import { Input } from "@/components/ui/input";
 
@@ -44,7 +44,7 @@ describe("Form Validation Error Display Property Tests", () => {
             // Property 3: Input should have error styling
             const input = container.querySelector("input");
             expect(input).toHaveClass("border-destructive");
-            expect(input).toHaveClass("focus-visible:ring-destructive");
+            expect(input).toHaveClass("focus:ring-destructive/10");
 
             // Property 4: Error message should have proper ARIA attributes
             expect(input).toHaveAttribute("aria-invalid", "true");
