@@ -51,8 +51,7 @@ app.use(
 // Health check routes (no auth required, before body parsing)
 app.use("/health", healthRoutes);
 
-//
-// because Clerk webhooks need raw body for signature verification
+// Because Clerk webhooks need raw body for signature verification
 app.use("/api/webhooks", webhookRoutes);
 
 // Parse JSON body for all other routes (limit prevents oversized payloads)

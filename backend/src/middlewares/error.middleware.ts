@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/appError.util.js";
 import { logger } from "../utils/logger.util.js";
-import { errorTracker } from "../utils/errorTracking.util.js";
 import { env } from "../config/env.config.js";
 
 export const errorHandler = (
@@ -25,16 +24,6 @@ export const errorHandler = (
     userId,
     requestId,
   });
-
-  if (!isAppError || statusCode >= 500) {
-    errorTracker.captureException(err, {
-      path: req.path,
-      method: req.method,
-      userId,
-      statusCode,
-      requestId,
-    });
-  }
 
   res.status(statusCode).json({
     success: false,
