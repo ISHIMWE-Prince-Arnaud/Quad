@@ -42,12 +42,13 @@ Controller:
 Request contract (validated by `createMessageSchema`):
 
 - Body:
-  - `text`: non-empty string
+  - `content`: non-empty string
+  - `receiverId`: required string (recipient user ID)
 
 Response contract:
 
-- `201`/`200` (implementation returns formatted message):
-  - `{ success: true, data: FormattedChatMessage }` (see controller for exact wrapper)
+- `201` (implementation returns formatted message):
+  - `{ success: true, data: FormattedChatMessage }` (see `formatMessageResponse` in `chat.util.ts`)
 
 Service:
 
@@ -60,32 +61,31 @@ Service:
 Side effects:
 
 - Mention notifications (`chat_mention`).
-- Emits `chat:message:new` with formatted message.
+- Emits `chat:message:new` with formatted message globally.
 
 Failure modes:
 
 - `401 Unauthorized`: missing auth.
 - `404 User not found`.
-- `400 Message must have text` (sanitization produced empty).
+- `400 Message must have content` (sanitization produced empty).
 
 ## Get messages: `GET /api/chat/messages`
 
-- Supports:
-  - page/limit pagination
-  - cursor-like `before` (translates to `createdAt < beforeMessage.createdAt`)
-- Returns messages in chronological order (reversed at end).
+- Supports cursor-based pagination via `cursor` (translates to `createdAt < cursor.createdAt`).
+- Requires `otherUserId` to scope the message history.
+- Returns messages in chronological order.
 
 Request contract (validated by `getMessagesQuerySchema`):
 
 - Query:
-  - `page`: string -> number, default 1
+  - `otherUserId`: required non-empty string
   - `limit`: string -> number, default 20, must be 1-50
-  - `before?`: 24-hex message id
+  - `cursor?`: 24-hex message id
 
 Response contract:
 
 - `200`:
-  - `{ success: true, data: FormattedChatMessage[], pagination }`
+  - `{ success: true, data: FormattedChatMessage[], nextCursor }`
 
 ## Edit message: `PUT /api/chat/messages/:id`
 
@@ -102,14 +102,14 @@ Request contract (validated by `messageIdSchema` + `updateMessageSchema`):
 - Params:
   - `id`: 24-hex
 - Body:
-  - `text`: must be provided (refine enforces not undefined)
+  - `content`: required string
 
 Failure modes:
 
 - `401 Unauthorized`: missing auth.
 - `403 Only the author can edit this message`.
 - `404 Message not found`.
-- `400 Message must have text after editing`.
+- `400 Message must have content after editing`.
 
 ## Delete message: `DELETE /api/chat/messages/:id`
 
@@ -122,20 +122,7 @@ Failure modes:
 - `403 Only the author can delete this message`.
 - `404 Message not found`.
 
-## Mark as read: `POST /api/chat/read`
-
-- Currently returns `{ lastReadMessageId, readAt }`.
-- Does not persist read receipts to Mongo.
-
-Request contract (validated by `markAsReadSchema`):
-
-- Body:
-  - `lastReadMessageId`: 24-hex
-
-Failure modes:
-
-- `401 Unauthorized`: missing auth.
-- `404 Message not found` (the referenced id must exist).
+> **Note:** There is **no** mark-as-read endpoint for chat. Chat does not support read receipts at the REST layer.
 
 ## Typing indicators (Socket.IO)
 

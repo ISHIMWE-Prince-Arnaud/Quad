@@ -15,7 +15,7 @@ The socket server URL is derived from the API base URL:
 
 - API base URL: `VITE_API_BASE_URL` (default `http://localhost:4000/api`)
 - Socket URL: API base URL with `/api` removed
-  - Implemented as: `API_BASE_URL.replace(/\/\/_?api\/?$/, "")`
+  - Implemented as: `API_BASE_URL.replace(/\/_?api\/?$/, "")`
 
 Socket initialization options:
 

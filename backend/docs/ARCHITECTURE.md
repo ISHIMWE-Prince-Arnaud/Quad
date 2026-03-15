@@ -27,16 +27,18 @@ Responsibilities:
 Order (see `server.ts`):
 
 1. `helmet()`
-2. `cors(corsOptions)` where `corsOptions` comes from `backend/src/config/cors.config.ts`
-3. `requestLogger` (`backend/src/middlewares/requestLogger.middleware.ts`)
-4. `/health` routes
-5. `/api-docs` swagger
-6. `/api/webhooks` routes
-7. `express.json()` for other routes
-8. `clerkMiddleware()`
-9. `/api` routes (`backend/src/routes/index.ts`)
-10. fallback `/` test route
-11. `errorHandler` (`backend/src/middlewares/error.middleware.ts`)
+2. `cors(corsOptions)` — options from `backend/src/config/cors.config.ts`
+3. `requestLogger` — from `backend/src/middlewares/requestLogger.middleware.ts`
+4. `/api-docs` (Swagger UI) — served before body parsing
+5. `/health` routes — no auth, before body parsing
+6. `/api/webhooks` routes — raw body parsing (required by Svix Clerk signature verification)
+7. `express.json({ limit: "1mb" })` — body parsing for all other routes
+8. `clerkMiddleware()` — attaches Clerk auth context to `req.auth`
+9. `/api` routes — via `backend/src/routes/index.ts`
+10. `GET /` — simple "API is running" test response
+11. `errorHandler` — from `backend/src/middlewares/error.middleware.ts`
+
+Note: Socket.IO uses a **separate auth middleware** that verifies Clerk JWT via `verifyToken()` before any socket handler runs.
 
 ## API routing
 
@@ -62,23 +64,10 @@ It mounts domain routers under `/api`:
 
 ### Rate limiting
 
-Rate limiting is applied at 3 levels:
-
-- **General**: applied to the entire `/api` router via `generalRateLimiter`.
-- **Write operations**: applied to write-heavy routers via `writeRateLimiter`.
-- **Uploads**: applied to upload router via `uploadRateLimiter`.
-
-Implementation:
-
-- `backend/src/middlewares/rateLimiter.middleware.ts`
-
-Config:
-
-- Values are sourced from env via `backend/src/config/env.config.ts`:
-  - `RATE_LIMIT_GENERAL_*`
-  - `RATE_LIMIT_WRITE_*`
-  - `RATE_LIMIT_UPLOAD_*`
-  - `RATE_LIMIT_AUTH_*` (defined but not currently mounted in `routes/index.ts`)
+- **General**: applied to the entire `/api` router via `generalRateLimiter` in `routes/index.ts`.
+- **Write operations**: applied to write-heavy routers via `writeRateLimiter` in `routes/index.ts`.
+- **Uploads**: applied to the `/upload` router via `uploadRateLimiter` in `routes/index.ts`.
+- **Auth**: `authRateLimiter` is applied directly inside `user.routes.ts` on `POST /users` (route-level, not in `routes/index.ts`).
 
 ## Error handling
 

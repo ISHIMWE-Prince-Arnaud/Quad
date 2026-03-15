@@ -60,7 +60,7 @@ High-level flow:
   - clears auth audit data
   - resets Zustand auth store state
 - If signed in:
-  - fetches an auth token via `useTokenManager()` (see `frontend/src/lib/tokens`)
+  - fetches an auth token via `useTokenManager()` (see `frontend/src/lib/tokens.ts`)
   - attempts to eagerly fetch the backend profile via `ProfileService.getProfileById(clerkUser.id)`
   - calls `syncWithClerk(clerkUser)`
   - merges backend profile fields into the auth store when available
@@ -69,7 +69,7 @@ This enables UI components to use a consistent `user` object even when the backe
 
 ## Logging/auditing
 
-- Protected route events are logged via `logAuthEvent` (`frontend/src/lib/authAudit`).
+- Protected route events are logged via `logAuthEvent` (`frontend/src/lib/authAudit.ts`).
 
 ## Related docs
 

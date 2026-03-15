@@ -20,19 +20,21 @@ All frontend environment variables must be prefixed with `VITE_` to be exposed t
 | ------------------------------ | ------------------------- | ------------- | --------------------------- |
 | `VITE_CLERK_SIGN_IN_URL`       | Sign in page route        | `/login`      | `/login`                    |
 | `VITE_CLERK_SIGN_UP_URL`       | Sign up page route        | `/signup`     | `/signup`                   |
-| `VITE_CLERK_AFTER_SIGN_IN_URL` | Redirect after sign in    | `/app/feed`   | `/app/feed`                 |
-| `VITE_CLERK_AFTER_SIGN_UP_URL` | Redirect after sign up    | `/app/feed`   | `/app/feed`                 |
+| `VITE_CLERK_AFTER_SIGN_IN_URL` | Redirect after sign in    | `/`           | `/`                         |
+| `VITE_CLERK_AFTER_SIGN_UP_URL` | Redirect after sign up    | `/`           | `/`                         |
 | `VITE_ENABLE_PWA`              | Enable PWA features       | `false`       | `true`                      |
 | `VITE_ENABLE_NOTIFICATIONS`    | Enable push notifications | `false`       | `true`                      |
 | `VITE_NODE_ENV`                | Environment mode          | `development` | `production`                |
 | `VITE_SENTRY_DSN`              | Sentry error tracking DSN | -             | `https://...@sentry.io/...` |
 | `VITE_SENTRY_ENVIRONMENT`      | Sentry environment name   | -             | `production`                |
+| `VITE_UPLOAD_TIMEOUT_MS`       | File upload timeout       | `300000`      | `300000`                    |
+| `VITE_API_TIMEOUT_MS`          | API request timeout       | `10000`       | `10000`                     |
 
 ### Configuration Files
 
 - **Development**: `.env` or `.env.development`
 - **Production**: `.env.production`
-- **Example**: `.env.example` (template with placeholder values)
+- **Example**: `.env.example` and `.env.production.example` (templates with placeholders)
 
 ## Backend Environment Variables
 
@@ -52,18 +54,26 @@ All frontend environment variables must be prefixed with `VITE_` to be exposed t
 
 ### Optional Variables
 
-| Variable              | Description                             | Default | Example                          |
-| --------------------- | --------------------------------------- | ------- | -------------------------------- |
-| `FRONTEND_URL`        | Frontend application URL (for CORS)     | `*`     | `https://<YOUR_FRONTEND_DOMAIN>` |
-| `SENTRY_DSN`          | Sentry error tracking DSN               | -       | `https://...@sentry.io/...`      |
-| `SENTRY_ENVIRONMENT`  | Sentry environment name                 | -       | `production`                     |
-| `SKIP_INDEX_CREATION` | Skip database index creation on startup | `false` | `true`                           |
+| Variable                     | Description                             | Default | Example                          |
+| ---------------------------- | --------------------------------------- | ------- | -------------------------------- |
+| `FRONTEND_URL`               | Frontend application URL (for CORS)     | `*`     | `https://<YOUR_FRONTEND_DOMAIN>` |
+| `SENTRY_DSN`                 | Sentry error tracking DSN               | -       | `https://...@sentry.io/...`      |
+| `SENTRY_ENVIRONMENT`         | Sentry environment name                 | -       | `production`                     |
+| `SKIP_INDEX_CREATION`        | Skip database index creation on startup | `false` | `true`                           |
+| `RATE_LIMIT_*_WINDOW_MS`     | Rate limiting windows (e.g. GENERAL)    | -       | `60000`                          |
+| `RATE_LIMIT_*_MAX`           | Rate limiting max requests per window   | -       | `500`                            |
+| `SERVER_TIMEOUT_MS`          | Global HTTP server request timeout      | -       | `300000`                         |
+| `UPLOAD_MAX_FILE_SIZE_BYTES` | Max overall file size for multer        | -       | `1073741824`                     |
+| `IMAGE_MAX_FILE_SIZE_BYTES`  | Max size for image files                | -       | `10485760`                       |
+| `CLOUDINARY_TIMEOUT_MS`      | Cloudinary upload connection timeout    | -       | `300000`                         |
+| `SOCKET_PING_TIMEOUT_MS`     | Socket.IO connection ping timeout       | -       | `60000`                          |
+| `SOCKET_PING_INTERVAL_MS`    | Socket.IO connection ping interval      | -       | `25000`                          |
 
 ### Configuration Files
 
 - **Development**: `.env`
 - **Production**: `.env.production`
-- **Example**: `.env.example` (template with placeholder values)
+- **Example**: `.env.example` and `.env.production.example` (templates with placeholders)
 
 ## Environment Setup Instructions
 

@@ -1,42 +1,126 @@
-# Follow API Documentation
+# Follow API
 
-Follow/unfollow and follow list endpoints.
+Follow/unfollow users and retrieve follower/following lists with cursor-based pagination.
 
-## 4dd Endpoints
+> **Rate limit:** `writeRateLimiter` applies to POST/DELETE.
 
-### Follow a user
+## Endpoints
+
+All endpoints require `Authorization: Bearer <clerk_jwt_token>`.
+
+---
+
+### Follow a User
+
 **POST** `/api/follow/:userId`
 
-### Unfollow a user
+Follow the user identified by `userId`. Cannot follow yourself.
+
+**Params:** `userId` — Clerk or MongoDB user ID of the user to follow.
+
+**Response (200):** `{ "success": true, "message": "User followed" }`
+
+**Side effects:** Emits `follow:new` (Socket.IO) with `{ userId, followingId }`. Creates a notification for the followed user.
+
+---
+
+### Unfollow a User
+
 **DELETE** `/api/follow/:userId`
 
-### Get followers
+Unfollow a user.
+
+**Params:** `userId` — user ID of the user to unfollow.
+
+**Response (200):** `{ "success": true, "message": "User unfollowed" }`
+
+**Side effects:** Emits `follow:removed` (Socket.IO) with `{ userId, followingId }`.
+
+---
+
+### Get Followers
+
 **GET** `/api/follow/:userId/followers`
 
-Query params are validated by `getFollowListQuerySchema`.
+Get a paginated list of users following `userId`.
 
-### Get following
+**Params:** `userId`
+
+**Query Parameters:**
+- `limit` (optional, default: `20`)
+- `cursor` (optional): Cursor for cursor-based pagination (last returned user ID).
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "followers": [ /* User objects */ ],
+    "nextCursor": "<userId or null>"
+  }
+}
+```
+
+---
+
+### Get Following
+
 **GET** `/api/follow/:userId/following`
 
-Query params are validated by `getFollowListQuerySchema`.
+Get a paginated list of users that `userId` is following.
 
-### Check following
+**Params:** `userId`
+
+**Query Parameters:** Same as Get Followers (`limit`, `cursor`).
+
+**Response (200):** Same structure as Get Followers.
+
+---
+
+### Check Follow Status
+
 **GET** `/api/follow/:userId/check`
 
-### Get follow stats
+Check whether the authenticated user is following `userId`.
+
+**Params:** `userId`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": { "isFollowing": true }
+}
+```
+
+---
+
+### Get Follow Statistics
+
 **GET** `/api/follow/:userId/stats`
 
-## 510 Authentication
+Get follower and following counts for `userId`.
 
-All endpoints require `Authorization: Bearer <jwt_token>`.
+**Params:** `userId`
 
-## 4cb Validation
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "followersCount": 120,
+    "followingCount": 85
+  }
+}
+```
 
-Validation is enforced by Zod schemas in `backend/src/schemas/follow.schema.ts`.
+---
 
-## 6a8 Common failure modes
+## Error Responses
 
-- **400** invalid params/query
-- **401** missing/invalid auth
-- **404** target user not found
-- **409** already following (if enforced by service)
+| Status | Meaning                         |
+|--------|---------------------------------|
+| 400    | Validation error / self-follow  |
+| 401    | No or invalid Clerk JWT         |
+| 404    | Target user not found           |
+| 409    | Already following (if enforced) |

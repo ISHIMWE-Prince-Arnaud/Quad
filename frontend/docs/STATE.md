@@ -1,57 +1,57 @@
 # Frontend State Management
 
-This document describes state management patterns used in the Quad frontend.
+This document describes the state management patterns used in the Quad frontend.
 
-## Principle: local state first
+## Principle: Local State First
 
-Use React local state for state that:
+Use React local state (`useState`, `useReducer`, or custom hooks) for state that:
 
-- is scoped to one page/component
-- is not shared across routes
-- can be reset naturally on navigation
+- is scoped to one component or route
+- is not shared across distant parts of the React tree
+- naturally resets on navigation (e.g. form inputs)
 
 Example:
+- The `FeedPage` component manages its own pagination, loading flags, and feed data locally instead of pushing it into a global store.
 
-- Feed list state is handled locally by `useFeedController` (`frontend/src/pages/app/feed/useFeedController.ts`) rather than a global store.
+## Global/Domain State: Zustand
 
-## Global/domain state: Zustand
+Zustand is used for global state that must be shared across multiple areas of the application.
 
-Zustand is used for domain state that is shared across multiple areas of the app.
+All global stores are located in `frontend/src/stores/`.
 
-Current stores:
+### Current Stores
 
-- `frontend/src/stores/authStore.ts`
-  - user session snapshot, loading, error
-  - persisted to localStorage (`quad-auth-storage`)
-- `frontend/src/stores/themeStore.ts`
-  - theme preference (light/dark/system)
-  - applies theme classes to the DOM
-  - persisted (`quad-theme-storage`)
-- `frontend/src/stores/notificationStore.ts`
-  - unread count, unread count loading
-  - fetch action using `NotificationService`
-- `frontend/src/stores/followStore.ts`
-  - follow relationships and follower/following counts
-  - optimistic follow/unfollow
-  - updates via socket events `follow:new` and `follow:removed`
+- **`authStore.ts`**
+  - Manages the user session snapshot, loading state, and any authentication errors.
+  - Persisted to localStorage under the key `quad-auth-storage`.
+- **`themeStore.ts`**
+  - Manages theme preference (`light | dark | system`), effective theme, and DOM class application with color interpolation transitions.
+  - Persisted to localStorage under the key `quad-theme-storage`.
+  - Also listens to `prefers-color-scheme` media queries and custom cross-tab storage events.
+- **`notificationStore.ts`**
+  - Manages the global unread counts badge.
+  - Exposes actions like `fetchUnreadCount()`, `increment()`, and `decrement()`.
+- **`followStore.ts`**
+  - Caches follow relationships and tracks follower/following counts.
+  - Handles optimistic follow/unfollow updates to make the UI feel instantaneous.
+- **`socketStore.ts`**
+  - Holds the global `Socket` instance from `socket.io-client`.
 
-## How global state is fed by realtime
+## Real-time Store Updates
 
-`frontend/src/layouts/RootLayout.tsx` listens to socket events and updates stores:
+`frontend/src/providers/SocketProvider.tsx` or `frontend/src/layouts/RootLayout.tsx` listens to global socket events to keep stores synchronized:
 
-- `notification:unread_count` -> `notificationStore.setUnreadCount`
-- `follow:new` / `follow:removed` -> `followStore.applyFollow*Event`
+- `notification:unread_count` ➔ `useNotificationStore.getState().setUnreadCount(payload)`
+- `follow:new` / `follow:removed` ➔ `useFollowStore.getState().applyFollowEvent(payload)`
 
-The feed itself uses local state and listens to socket events inside `useFeedController`.
+## Persistence Mechanisms
 
-## Persistence
+- **`authStore`**: Uses the `zustand/middleware/persist` middleware.
+- **`themeStore`**: Uses `persist` middleware alongside an event listener to synchronize across open browser tabs.
+- **Other Stores**: Maintained strictly in-memory and are re-populated via REST queries or Socket events upon reload.
 
-- Auth state uses `zustand/middleware/persist` to persist the `user` field.
-- Theme state uses `persist`.
-- Other stores are currently in-memory only.
+## Recommended Conventions
 
-## Recommended conventions
-
-- Keep stores “thin”: domain state + domain actions.
-- Put network calls in services and call them from stores or controllers.
-- Avoid using stores as a dumping ground for page-scoped UI state.
+- **Keep stores thin**: Focus on holding domain data and domain-specific actions.
+- **Isolate network logic**: Perform API calls in dedicated `services` rather than mixing HTTP fetching logic directly inside stores (except for very simple getters like `fetchUnreadCount`).
+- **Encapsulate UI state**: Avoid using global Zustand stores as a dumping ground for transient UI state (like "is this modal open").

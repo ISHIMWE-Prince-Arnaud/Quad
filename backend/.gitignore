@@ -23,8 +23,7 @@ coverage/
 
 # Environment files
 .env
-.env.*
-!.env.example
+!.env.production.example
 
 # Next.js build output (if you ever use Next.js with Express)
 .next/

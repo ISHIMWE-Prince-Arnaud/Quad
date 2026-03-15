@@ -1,33 +1,104 @@
-# Bookmarks API Documentation
+# Bookmarks API
 
-Save/unsave and list bookmarked content.
+Save and retrieve bookmarked content (Posts, Stories, Polls).
 
-## 4dd Endpoints
+> **Rate limit:** `writeRateLimiter` applies to POST/DELETE.
 
-### Create bookmark
+## Endpoints
+
+All endpoints require `Authorization: Bearer <clerk_jwt_token>`.
+
+---
+
+### Create Bookmark
+
 **POST** `/api/bookmarks`
 
-### List bookmarks
+Save a content item to the user's bookmarks.
+
+**Request Body:**
+```json
+{
+  "contentType": "Post",
+  "contentId": "<MongoDB ObjectId>"
+}
+```
+
+- `contentType`: **Required.** `"Post"` | `"Story"` | `"Poll"`
+- `contentId`: **Required.** MongoDB ObjectId of the item.
+
+**Response (201):** `{ "success": true, "data": { /* Bookmark document */ } }`
+
+---
+
+### Get Bookmarks
+
 **GET** `/api/bookmarks`
 
-Query params validated by `getBookmarksQuerySchema`.
+Get the authenticated user's bookmarked content with cursor-based pagination.
 
-### Check bookmark
+**Query Parameters:**
+- `limit` (optional, default: `20`)
+- `cursor` (optional): Last returned bookmark ID for cursor-based pagination.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "bookmarks": [
+      {
+        "_id": "<bookmarkId>",
+        "contentType": "Post",
+        "contentId": { /* Populated content object */ },
+        "createdAt": "2024-01-15T10:30:00Z"
+      }
+    ],
+    "nextCursor": "<bookmarkId or null>"
+  }
+}
+```
+
+---
+
+### Check Bookmark Status
+
 **GET** `/api/bookmarks/:contentType/:contentId/check`
 
-### Remove bookmark
+Check whether the authenticated user has bookmarked a specific content item.
+
+**Params:**
+- `contentType`: `"Post"` | `"Story"` | `"Poll"`
+- `contentId`: MongoDB ObjectId
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": { "isBookmarked": true }
+}
+```
+
+---
+
+### Remove Bookmark
+
 **DELETE** `/api/bookmarks/:contentType/:contentId`
 
-## 510 Authentication
+Remove a bookmark.
 
-All endpoints require `Authorization: Bearer <jwt_token>`.
+**Params:**
+- `contentType`: `"Post"` | `"Story"` | `"Poll"`
+- `contentId`: MongoDB ObjectId
 
-## 4cb Validation
+**Response (200):** `{ "success": true, "message": "Bookmark removed" }`
 
-Validation is enforced by Zod schemas in `backend/src/schemas/bookmark.schema.ts`.
+---
 
-## 6a8 Common failure modes
+## Error Responses
 
-- **400** invalid params/body/query
-- **401** missing/invalid auth
-- **404** bookmark not found
+| Status | Meaning                        |
+|--------|--------------------------------|
+| 400    | Validation error               |
+| 401    | No or invalid Clerk JWT        |
+| 404    | Bookmark not found             |

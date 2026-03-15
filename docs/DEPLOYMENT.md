@@ -99,7 +99,7 @@ See [ENVIRONMENT_VARIABLES.md](./ENVIRONMENT_VARIABLES.md) for detailed document
 4. Configure redirect URLs:
    - Sign-in URL: `https://<YOUR_FRONTEND_DOMAIN>/login`
    - Sign-up URL: `https://<YOUR_FRONTEND_DOMAIN>/signup`
-   - After sign-in: `https://<YOUR_FRONTEND_DOMAIN>/app/feed`
+   - After sign-in: `https://<YOUR_FRONTEND_DOMAIN>/`
 5. Set up webhook endpoint: `https://<API_DOMAIN>/api/webhooks/clerk`
 6. Copy webhook signing secret
 

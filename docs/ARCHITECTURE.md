@@ -70,29 +70,31 @@ Key entry points:
 
 ## Frontend route map (current)
 
-Public:
+Public Auth:
 
-- `/` - Home
 - `/login/*` - Clerk Sign In page wrapper
 - `/signup/*` - Clerk Sign Up page wrapper
+- `/login/sso-callback` - SSO callback handler
+- `/signup/sso-callback` - SSO callback handler
 
-Protected (requires auth):
+Protected (requires auth, handled at root `""`):
 
-- `/app/feed`
-- `/app/profile/:username`
-- `/app/profile/:username/edit`
-- `/app/posts/:id`
-- `/app/posts/:id/edit`
-- `/app/create/post`
-- `/app/stories`
-- `/app/stories/:id`
-- `/app/stories/:id/edit`
-- `/app/create/story`
-- `/app/polls`
-- `/app/polls/:id/edit`
-- `/app/create/poll`
-- `/app/chat` (global chat timeline)
-- `/app/notifications`
+- `/` - Feed / Home
+- `/profile/:username`
+- `/profile/:username/edit`
+- `/posts/:id`
+- `/posts/:id/edit`
+- `/stories`
+- `/stories/:id`
+- `/stories/:id/edit`
+- `/create/story`
+- `/polls`
+- `/polls/:id/edit`
+- `/create/poll`
+- `/chat` (global chat timeline)
+- `/notifications`
+
+*(Note: Legacy `/app/*` routes automatically redirect to `/`)*
 
 ## Backend API domains (router-level)
 

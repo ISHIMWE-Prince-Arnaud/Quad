@@ -1,40 +1,158 @@
-# Users API Documentation
+# Users API
 
-User CRUD mapped to Clerk identity.
+CRUD for application users, mapped to Clerk identities. User creation is typically triggered after a successful Clerk signup session (or via webhooks).
 
-## 4dd Endpoints
+> **Rate limit:** `authRateLimiter` is applied to `POST /users`. `generalRateLimiter` applies to all other routes.
 
-### Create user
+## Endpoints
+
+---
+
+### Create User
+
 **POST** `/api/users`
 
-Creates an application `User` for the authenticated Clerk user.
+Creates an application `User` document for the authenticated Clerk session. Typically called once after a fresh sign-up.
 
-### Get user
+**Auth:** Required (`requireApiAuth` + `authRateLimiter`).
+
+**Request Body:**
+```json
+{
+  "clerkId": "user_2abc...",
+  "email": "user@example.com",
+  "username": "johndoe",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+```
+
+- All fields are **required**.
+- `username`: Must be unique across the platform.
+- `email`: Must be unique across the platform.
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "data": { /* User document */ }
+}
+```
+
+**Errors:**
+- `409` — Username or email already exists.
+
+---
+
+### Check Username Availability
+
+**GET** `/api/users/check/:username`
+
+Check if a username is available (no auth required).
+
+**Params:** `username` — string to check.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": { "available": true }
+}
+```
+
+---
+
+### Check Email Availability
+
+**GET** `/api/users/check-email/:email`
+
+Check if an email is available (no auth required).
+
+**Params:** `email` — email address to check.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": { "available": true }
+}
+```
+
+---
+
+### Get User by Clerk ID
+
 **GET** `/api/users/:clerkId`
 
-Fetches a user by Clerk ID.
+Retrieve a user document by their Clerk ID.
 
-### Update user
+**Auth:** Required.
+
+**Params:** `clerkId` — the Clerk user ID (e.g., `user_2abc...`).
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": { /* User document */ }
+}
+```
+
+---
+
+### Update User
+
 **PUT** `/api/users/:clerkId`
 
-Updates a user (intended for the same authenticated user).
+Update user profile fields (authenticated user only).
 
-### Delete user
+**Auth:** Required.
+
+**Params:** `clerkId` — target user's Clerk ID.
+
+**Request Body (all optional):**
+```json
+{
+  "username": "newname",
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "bio": "New bio",
+  "profileImageUrl": "https://res.cloudinary.com/..."
+}
+```
+
+**Response (200):** `{ "success": true, "data": { /* Updated user */ } }`
+
+---
+
+### Delete User
+
 **DELETE** `/api/users/:clerkId`
 
-Deletes a user (intended for the same authenticated user).
+Delete a user account (authenticated user only).
 
-## 510 Authentication
+**Auth:** Required.
 
-All endpoints require `Authorization: Bearer <jwt_token>`.
+**Params:** `clerkId` — target user's Clerk ID.
 
-## 4cb Validation
+**Response (200):** `{ "success": true, "message": "User deleted" }`
 
-Validation is enforced by Zod schemas in `backend/src/schemas/user.schema.ts`.
+---
 
-## 6a8 Common failure modes
+## Error Responses
 
-- **400** invalid params/body
-- **401** missing/invalid auth
-- **403** attempting to access another user's record (enforced in controller/service)
-- **404** user not found
+| Status | Meaning                                      |
+|--------|----------------------------------------------|
+| 400    | Validation error                             |
+| 401    | No or invalid Clerk JWT                      |
+| 403    | Attempting to modify another user's account  |
+| 404    | User not found                               |
+| 409    | Username or email already exists             |
+
+---
+
+## Notes
+
+- `clerkId` is the Clerk user ID (`user_xxx...`) — not a MongoDB ObjectId.
+- For public profile data (bio, avatar, follow counts), use [`/api/profile/:username`](./profile.md) instead.
+- Username/email check endpoints do **not** require authentication and are safe to call during the registration flow.

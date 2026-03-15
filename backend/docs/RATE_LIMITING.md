@@ -38,7 +38,7 @@ This document describes the current rate limiting implementation in the backend.
 
 ### `authRateLimiter`
 
-- Defined but not currently mounted in `backend/src/routes/index.ts`.
+- Applied to `POST /api/users` **within** `backend/src/routes/user.routes.ts` (route-level, not in `routes/index.ts`).
 - Window: `env.RATE_LIMIT_AUTH_WINDOW_MS`
 - Max: `env.RATE_LIMIT_AUTH_MAX`
 

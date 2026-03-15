@@ -1,40 +1,131 @@
-# Stories API Documentation
+# Stories API
 
-Long-form stories (draft + published).
+Long-form content with draft and published states.
 
-## 4dd Endpoints
+> **Rate limit:** `writeRateLimiter` applies to POST/PUT/DELETE.
 
-### Create story
+## Endpoints
+
+All endpoints require `Authorization: Bearer <clerk_jwt_token>`.
+
+---
+
+### Create Story
+
 **POST** `/api/stories`
 
-### Get all published stories
+Create a new story. Stories can be saved as `"draft"` or published immediately as `"published"`.
+
+**Request Body:**
+```json
+{
+  "title": "Story Title",
+  "content": "Full story body here...",
+  "excerpt": "Short summary",
+  "coverImage": {
+    "url": "https://res.cloudinary.com/.../cover.jpg",
+    "publicId": "quad/stories/cover123"
+  },
+  "status": "published",
+  "tags": ["tech", "learning"]
+}
+```
+
+- `title`: **Required.** String.
+- `content`: **Required.** String.
+- `excerpt`: Optional string.
+- `coverImage`: Optional object with `url` and `publicId`.
+- `status`: Optional, `"draft"` | `"published"` (default: `"draft"`).
+- `tags`: Optional array of strings.
+
+**Response (201):** `{ "success": true, "data": { /* Story document */ } }`
+
+**Side effects:** If `status` is `"published"`, emits `newStory` (Socket.IO) globally.
+
+---
+
+### Get All Published Stories
+
 **GET** `/api/stories`
 
-Query params validated by `getStoriesQuerySchema`.
+Returns a paginated list of published stories (no drafts).
 
-### Get my stories (includes drafts)
+**Query Parameters:**
+- `limit` (optional, default: `20`)
+- `skip` (optional, default: `0`)
+
+**Response (200):** `{ "success": true, "data": { "stories": [...] } }`
+
+---
+
+### Get My Stories
+
 **GET** `/api/stories/me`
 
-### Get single story
+Get stories created by the authenticated user, **including drafts**.
+
+**Query Parameters:**
+- `status` (optional): `"draft"` | `"published"` — filter by status.
+- `limit` (optional, default: `20`)
+- `skip` (optional, default: `0`)
+
+**Response (200):** `{ "success": true, "data": { "stories": [...] } }`
+
+---
+
+### Get Single Story
+
 **GET** `/api/stories/:id`
 
-### Update story
+Retrieve a single published story by ID. Auto-increments the view count if the viewer is not the author.
+
+**Params:** `id` — MongoDB ObjectId
+
+**Response (200):** `{ "success": true, "data": { /* Story document with view count */ } }`
+
+---
+
+### Update Story
+
 **PUT** `/api/stories/:id`
 
-### Delete story
+Update a story (author only). You can transition a `draft` to `published` by setting `status`.
+
+**Params:** `id` — MongoDB ObjectId
+
+**Request Body:** Same fields as Create (all optional).
+
+**Side effects:** If updated story is `"published"`, emits `storyUpdated`. If transitioning draft → published, emits `newStory`.
+
+**Response (200):** `{ "success": true, "data": { /* Updated story */ } }`
+
+---
+
+### Delete Story
+
 **DELETE** `/api/stories/:id`
 
-## 510 Authentication
+Delete a story and all associated views (author only).
 
-All endpoints require `Authorization: Bearer <jwt_token>`.
+**Side effects:** Emits `storyDeleted` (Socket.IO) globally if the deleted story was published.
 
-## 4cb Validation
+**Response (200):** `{ "success": true, "message": "Story deleted successfully" }`
 
-Validation is enforced by Zod schemas in `backend/src/schemas/story.schema.ts`.
+---
 
-## 6a8 Common failure modes
+## Error Responses
 
-- **400** invalid params/body/query
-- **401** missing/invalid auth
-- **403** non-author update/delete
-- **404** story not found
+| Status | Meaning                             |
+|--------|-------------------------------------|
+| 400    | Validation error                    |
+| 401    | No or invalid Clerk JWT             |
+| 403    | Updating/deleting another author's story |
+| 404    | Story not found                     |
+
+---
+
+## Related Endpoints
+
+- User's published stories: `GET /api/profile/:username/stories`
+- Comments on a story: `GET /api/comments/Story/:storyId`
+- Reactions: `GET /api/reactions/Story/:storyId`

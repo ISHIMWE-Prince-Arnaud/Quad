@@ -1,265 +1,130 @@
-# Posts API Documentation
+# Posts API
 
-Manage text posts with media attachments.
+Manage text posts with optional media.
 
-## 📝 Endpoints
+> **Rate limit:** `writeRateLimiter` applies to all write operations (POST/PUT/DELETE). `generalRateLimiter` applies to reads.
+
+## Endpoints
+
+All endpoints require `Authorization: Bearer <clerk_jwt_token>`.
+
+---
 
 ### Create Post
+
 **POST** `/api/posts`
 
-Create a new post with optional media.
-
-**Headers:**
-```
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-```
+Creates a new post for the authenticated user.
 
 **Request Body:**
 ```json
 {
-  "text": "Post content (required, 1-500 chars)",
+  "text": "Post content here",
   "media": [
     {
-      "url": "https://cloudinary.com/image.jpg",
+      "url": "https://res.cloudinary.com/.../image.jpg",
       "type": "image",
       "width": 1080,
-      "height": 1080
+      "height": 1080,
+      "publicId": "quad/posts/abc123"
     }
   ]
 }
 ```
+
+- `text`: **Required.** String, 1–500 characters.
+- `media`: **Optional.** Array of media objects. Each item:
+  - `url`: Required (string, valid URL)
+  - `type`: Required (`"image"` | `"video"`)
+  - `width`, `height`: Optional number
+  - `publicId`: Optional string (Cloudinary public ID)
 
 **Response (201):**
 ```json
 {
   "success": true,
-  "data": {
-    "_id": "64f8a1b2c3d4e5f6a7b8c9d0",
-    "author": {
-      "_id": "64f8a1b2c3d4e5f6a7b8c9d1",
-      "username": "johndoe",
-      "displayName": "John Doe",
-      "profileImage": "https://avatar.iran.liara.run/public/42"
-    },
-    "text": "Post content",
-    "media": [...],
-    "reactionsCount": 0,
-    "commentsCount": 0,
-    "createdAt": "2023-12-01T10:30:00Z",
-    "updatedAt": "2023-12-01T10:30:00Z"
-  }
+  "data": { /* Post document with populated author */ }
 }
 ```
+
+**Side effects:** Emits `newPost` (Socket.IO) to all connected clients.
+
+---
 
 ### Get All Posts
+
 **GET** `/api/posts`
 
-Retrieve paginated list of posts.
+Returns a paginated list of all posts.
 
 **Query Parameters:**
-- `limit` (optional): Number of posts to return (default: 20, max: 50)
-- `offset` (optional): Number of posts to skip (default: 0)
-- `sortBy` (optional): Sort order - `newest` | `oldest` | `popular` (default: newest)
+- `limit` (optional, default: `20`): Number of posts to return.
+- `skip` (optional, default: `0`): Number of posts to skip (offset).
 
 **Response (200):**
 ```json
 {
   "success": true,
-  "data": {
-    "posts": [
-      {
-        "_id": "64f8a1b2c3d4e5f6a7b8c9d0",
-        "author": {
-          "_id": "64f8a1b2c3d4e5f6a7b8c9d1",
-          "username": "johndoe",
-          "displayName": "John Doe",
-          "profileImage": "https://avatar.iran.liara.run/public/42"
-        },
-        "text": "Post content",
-        "media": [...],
-        "reactionsCount": 15,
-        "commentsCount": 3,
-        "createdAt": "2023-12-01T10:30:00Z",
-        "updatedAt": "2023-12-01T10:30:00Z"
-      }
-    ],
-    "pagination": {
-      "total": 150,
-      "limit": 20,
-      "offset": 0,
-      "hasMore": true
-    }
-  }
+  "data": { "posts": [...], "pagination": { "limit": 20, "skip": 0 } }
 }
 ```
+
+---
 
 ### Get Single Post
-**GET** `/api/posts/:postId`
 
-Retrieve a specific post by ID.
+**GET** `/api/posts/:id`
 
-**Parameters:**
-- `postId`: MongoDB ObjectId of the post
+Retrieve a post by its MongoDB ObjectId.
 
-**Response (200):**
-```json
-{
-  "success": true,
-  "data": {
-    "_id": "64f8a1b2c3d4e5f6a7b8c9d0",
-    "author": {
-      "_id": "64f8a1b2c3d4e5f6a7b8c9d1",
-      "username": "johndoe",
-      "displayName": "John Doe",
-      "profileImage": "https://avatar.iran.liara.run/public/42"
-    },
-    "text": "Post content",
-    "media": [...],
-    "reactionsCount": 15,
-    "commentsCount": 3,
-    "createdAt": "2023-12-01T10:30:00Z",
-    "updatedAt": "2023-12-01T10:30:00Z"
-  }
-}
-```
+**Params:**
+- `id`: MongoDB ObjectId
+
+**Response (200):** `{ "success": true, "data": { /* Post document */ } }`
+
+---
 
 ### Update Post
-**PUT** `/api/posts/:postId`
 
-Update an existing post (author only).
+**PUT** `/api/posts/:id`
 
-**Headers:**
-```
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-```
+Update a post's text or media (author only).
 
-**Request Body:**
-```json
-{
-  "text": "Updated post content",
-  "media": [
-    {
-      "url": "https://cloudinary.com/new-image.jpg",
-      "type": "image",
-      "width": 1080,
-      "height": 1080
-    }
-  ]
-}
-```
+**Params:** `id` — MongoDB ObjectId
 
-**Response (200):**
-```json
-{
-  "success": true,
-  "data": {
-    "_id": "64f8a1b2c3d4e5f6a7b8c9d0",
-    "text": "Updated post content",
-    "media": [...],
-    "updatedAt": "2023-12-01T11:30:00Z"
-  }
-}
-```
+**Request Body:** Same fields as Create (all optional in update).
+
+**Response (200):** `{ "success": true, "data": { /* Updated post */ } }`
+
+**Side effects:** Emits `updatePost` (Socket.IO) to all connected clients.
+
+---
 
 ### Delete Post
-**DELETE** `/api/posts/:postId`
 
-Delete a post (author only).
+**DELETE** `/api/posts/:id`
 
-**Parameters:**
-- `postId`: MongoDB ObjectId of the post
+Delete a post and its associated data (author only).
 
-**Response (200):**
-```json
-{
-  "success": true,
-  "message": "Post deleted successfully"
-}
-```
+**Side effects:** Emits `deletePost` and `feed:content-deleted` (Socket.IO) to all connected clients.
 
-## 📋 Validation Rules
+**Response (200):** `{ "success": true, "message": "Post deleted successfully" }`
 
-### Post Creation/Update
-- **text**: Required, string, 1-500 characters
-- **media**: Optional array of media objects
-  - **url**: Required if media provided, valid URL
-  - **type**: Required, enum: `image` | `video`
-  - **width**: Optional number
-  - **height**: Optional number
+---
 
-## ❌ Error Responses
+## Error Responses
 
-### 400 - Bad Request
-```json
-{
-  "success": false,
-  "message": "Validation error",
-  "error": "Text is required and must be between 1-500 characters"
-}
-```
+| Status | Meaning                              |
+|--------|--------------------------------------|
+| 400    | Validation error (text length, etc.) |
+| 401    | No or invalid Clerk JWT              |
+| 403    | Attempting to edit/delete another user's post |
+| 404    | Post not found                       |
 
-### 401 - Unauthorized
-```json
-{
-  "success": false,
-  "message": "Authentication required"
-}
-```
+---
 
-### 403 - Forbidden
-```json
-{
-  "success": false,
-  "message": "You can only edit your own posts"
-}
-```
+## Related Endpoints
 
-### 404 - Not Found
-```json
-{
-  "success": false,
-  "message": "Post not found"
-}
-```
-
-## 🔗 Related Endpoints
-
-- **Comments**: `/api/comments?contentType=post&contentId=<postId>`
-- **Reactions**: `/api/reactions?contentType=post&contentId=<postId>`
-- **User Posts**: `/api/profile/:username/posts`
-
-## 💡 Usage Examples
-
-### Create a text-only post
-```bash
-curl -X POST "http://localhost:4000/api/posts" \
-  -H "Authorization: Bearer <jwt_token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "Just launched my new project! 🚀"
-  }'
-```
-
-### Create a post with image
-```bash
-curl -X POST "http://localhost:4000/api/posts" \
-  -H "Authorization: Bearer <jwt_token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "Beautiful sunset today",
-    "media": [{
-      "url": "https://res.cloudinary.com/demo/image/upload/v1/sunset.jpg",
-      "type": "image",
-      "width": 1080,
-      "height": 720
-    }]
-  }'
-```
-
-### Get recent posts
-```bash
-curl -X GET "http://localhost:4000/api/posts?limit=10&sortBy=newest" \
-  -H "Authorization: Bearer <jwt_token>"
-```
+- Comments on a post: `GET /api/comments/Post/:postId`
+- Reactions on a post: `GET /api/reactions/Post/:postId`
+- User's posts: `GET /api/profile/:username/posts`

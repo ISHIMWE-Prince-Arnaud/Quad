@@ -1,50 +1,125 @@
-# Profile API Documentation
+# Profile API
 
-Public profile retrieval plus "user content" listing endpoints.
+Public profile data and user content listings. Use this domain for displaying user profiles, timelines, and profile updates.
 
-## 4dd Endpoints
+## Endpoints
 
-### Get profile by ID
-**GET** `/api/profile/id/:userId`
+All endpoints require `Authorization: Bearer <clerk_jwt_token>`.
 
-Convenience endpoint for profile lookup by Clerk ID.
+---
 
-### Get profile by username
+### Get Profile by Username
+
 **GET** `/api/profile/:username`
 
-Returns profile for a username.
+Retrieve a user's public profile by their username.
 
-### Update profile
+**Params:** `username` — string username (validated by `usernameParamSchema`).
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "<MongoId>",
+    "clerkId": "user_2abc...",
+    "username": "johndoe",
+    "firstName": "John",
+    "lastName": "Doe",
+    "bio": "Student, developer",
+    "profileImageUrl": "https://res.cloudinary.com/...",
+    "coverImageUrl": "https://res.cloudinary.com/...",
+    "createdAt": "2024-01-01T00:00:00Z"
+  }
+}
+```
+
+---
+
+### Get Profile by ID
+
+**GET** `/api/profile/id/:userId`
+
+Convenience endpoint: look up a profile by Clerk user ID (not MongoDB ObjectId).
+
+**Params:** `userId` — Clerk user ID.
+
+**Response (200):** Same shape as Get Profile by Username.
+
+---
+
+### Update Profile
+
 **PUT** `/api/profile/:username`
 
-Updates the authenticated user's profile.
+Update the authenticated user's own profile. You cannot update another user's profile.
 
-### Get user's posts
+**Params:** `username` — must match the authenticated user's username.
+
+**Request Body (all optional):**
+```json
+{
+  "bio": "Updated bio",
+  "profileImageUrl": "https://res.cloudinary.com/.../profile.jpg",
+  "coverImageUrl": "https://res.cloudinary.com/.../cover.jpg",
+  "firstName": "Jane",
+  "lastName": "Doe"
+}
+```
+
+**Response (200):** `{ "success": true, "data": { /* Updated user */ } }`
+
+---
+
+### Get User's Posts
+
 **GET** `/api/profile/:username/posts`
 
-Supports pagination query params (validated by `paginationQuerySchema`).
+Get paginated posts created by a user.
 
-### Get user's stories
+**Params:** `username`
+
+**Query Parameters:**
+- `limit` (optional, default: `20`)
+- `cursor` (optional): Cursor-based pagination.
+
+**Response (200):** `{ "success": true, "data": { "posts": [...], "nextCursor": "..." } }`
+
+---
+
+### Get User's Stories
+
 **GET** `/api/profile/:username/stories`
 
-Supports pagination query params.
+Get paginated *published* stories by a user (drafts not included).
 
-### Get user's polls
+**Params:** `username`
+
+**Query Parameters:** Same as Get User's Posts.
+
+**Response (200):** `{ "success": true, "data": { "stories": [...], "nextCursor": "..." } }`
+
+---
+
+### Get User's Polls
+
 **GET** `/api/profile/:username/polls`
 
-Supports pagination query params.
+Get paginated polls created by a user.
 
-## 510 Authentication
+**Params:** `username`
 
-All endpoints require `Authorization: Bearer <jwt_token>`.
+**Query Parameters:** Same as Get User's Posts.
 
-## 4cb Validation
+**Response (200):** `{ "success": true, "data": { "polls": [...], "nextCursor": "..." } }`
 
-Validation is enforced by Zod schemas in `backend/src/schemas/profile.schema.ts`.
+---
 
-## 6a8 Common failure modes
+## Error Responses
 
-- **400** invalid params/body/query
-- **401** missing/invalid auth
-- **403** updating a profile that is not yours
-- **404** user not found
+| Status | Meaning                              |
+|--------|--------------------------------------|
+| 400    | Validation error                     |
+| 401    | No or invalid Clerk JWT              |
+| 403    | Updating another user's profile      |
+| 404    | User not found                       |

@@ -54,7 +54,12 @@ Implementation:
   - Calls `propagateUserSnapshotUpdates(...)` to update embedded snapshots across documents.
 
 - `user.deleted`
-  - Deletes the `User` record matching the Clerk user.
+  - Performs a **parallel cascade delete** via `Promise.all` across:
+    - `User` document
+    - All `Post`, `Story`, `Poll` documents authored by the user
+    - All `PollVote`, `Reaction` documents created by the user
+    - All `ChatMessage` documents authored by the user
+    - All `Notification` documents received **and** triggered by the user
 
 ### Username conflict behavior
 

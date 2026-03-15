@@ -18,7 +18,7 @@ This document explains how end-users interact with Quad’s main features:
    - Choose **Sign Up** to create a new account, or
    - Choose **Log In** if you already have one.
 3. Complete the authentication flow (email and/or provider sign-in, managed by Clerk).
-4. After successful auth, you’ll be redirected into the app (`/app/feed`).
+4. After successful auth, you’ll be redirected into the app (`/`).
 
 ### 1.2 Setting Up Your Profile
 
@@ -51,7 +51,7 @@ Once logged in, you’ll see three main areas:
 ### 2.1 Feed & Posts
 
 - **Viewing the feed**
-  - The **Feed** page (`/app/feed`) shows posts from users you follow and relevant content.
+  - The **Feed** page (`/`) shows posts from users you follow and relevant content.
   - Cards show the author, text/media, and basic stats (reactions, comments).
 
 - **Creating a post**
@@ -95,7 +95,7 @@ Once logged in, you’ll see three main areas:
 ### 2.4 Chat (Messages)
 
 - **Accessing chat**
-  - Click **Messages** in the sidebar or visit `/app/chat`.
+  - Click **Messages** in the sidebar or visit `/chat`.
 
 - **Using chat**
   - Send and receive messages in real time (powered by sockets).
@@ -155,7 +155,7 @@ Once logged in, you’ll see three main areas:
 
 **Q: My chat messages don’t appear in real time.**
 
-- Check that you’re on the **Messages** page (`/app/chat`).
+- Check that you’re on the **Messages** page (`/chat`).
 - Ensure your internet connection is stable.
 - Refresh the page; this forces a re-connection to the chat socket.
 
