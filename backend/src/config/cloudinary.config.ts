@@ -16,7 +16,6 @@ export const CLOUDINARY_FOLDERS = {
   STORIES: "quad/stories",
   POLLS: "quad/polls",
   PROFILES: "quad/profiles",
-  CHAT: "quad/chat",
   COVERS: "quad/covers",
 } as const;
 
