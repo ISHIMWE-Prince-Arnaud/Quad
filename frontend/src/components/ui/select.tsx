@@ -18,21 +18,33 @@ export interface SelectItemProps {
   className?: string;
 }
 
+type TriggerRect = {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+};
+
 const SelectContext = React.createContext<{
   value?: string;
   onValueChange?: (value: string) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
+  triggerRect: TriggerRect | null;
+  setTriggerRect: (rect: TriggerRect | null) => void;
 }>({
   open: false,
   setOpen: () => {},
+  triggerRect: null,
+  setTriggerRect: () => {},
 });
 
 const Select = ({ value, onValueChange, children, className }: SelectProps) => {
   const [open, setOpen] = React.useState(false);
+  const [triggerRect, setTriggerRect] = React.useState<TriggerRect | null>(null);
 
   return (
-    <SelectContext.Provider value={{ value, onValueChange, open, setOpen }}>
+    <SelectContext.Provider value={{ value, onValueChange, open, setOpen, triggerRect, setTriggerRect }}>
       <div className={cn("relative", className)}>{children}</div>
     </SelectContext.Provider>
   );
@@ -41,12 +53,34 @@ const Select = ({ value, onValueChange, children, className }: SelectProps) => {
 const SelectTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & { placeholder?: string }
->(({ className, children, placeholder, ...props }, ref) => {
-  const { value, open, setOpen } = React.useContext(SelectContext);
+>(({ className, children, placeholder, ...props }, forwardedRef) => {
+  const { value, open, setOpen, setTriggerRect } = React.useContext(SelectContext);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+
+  const handleClick = () => {
+    const button = buttonRef.current;
+    if (button) {
+      const rect = button.getBoundingClientRect();
+      setTriggerRect({
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+      });
+    }
+    setOpen(!open);
+  };
 
   return (
     <button
-      ref={ref}
+      ref={(node) => {
+        buttonRef.current = node;
+        if (typeof forwardedRef === 'function') {
+          forwardedRef(node);
+        } else if (forwardedRef) {
+          forwardedRef.current = node;
+        }
+      }}
       type="button"
       role="combobox"
       aria-expanded={open}
@@ -54,7 +88,7 @@ const SelectTrigger = React.forwardRef<
         "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
-      onClick={() => setOpen(!open)}
+      onClick={handleClick}
       {...props}>
       <span className={cn(!value && "text-muted-foreground")}>
         {children || placeholder}
@@ -69,9 +103,9 @@ const SelectContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, ref) => {
-  const { open, setOpen } = React.useContext(SelectContext);
+  const { open, setOpen, triggerRect } = React.useContext(SelectContext);
 
-  if (!open) return null;
+  if (!open || !triggerRect) return null;
 
   return (
     <>
@@ -79,9 +113,14 @@ const SelectContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+          "fixed z-50 max-h-60 overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
           className,
         )}
+        style={{
+          top: triggerRect.top + triggerRect.height + 4,
+          left: triggerRect.left,
+          minWidth: triggerRect.width,
+        }}
         {...props}>
         {children}
       </div>

@@ -93,17 +93,17 @@ export function PollSettingsAndDuration({
           </SelectTrigger>
           <SelectContent className="mt-2 rounded-2xl border border-border/40 bg-popover p-2 shadow-xl backdrop-blur-xl">
             <SelectItem
-              className="rounded-xl focus:bg-accent focus:text-accent-foreground"
+              className="rounded-xl mb-1 last:mb-0 focus:bg-accent focus:text-accent-foreground"
               value="none">
               none
             </SelectItem>
             <SelectItem
-              className="rounded-xl focus:bg-accent focus:text-accent-foreground"
+              className="rounded-xl mb-1 last:mb-0 focus:bg-accent focus:text-accent-foreground"
               value="1d">
               1 day
             </SelectItem>
             <SelectItem
-              className="rounded-xl focus:bg-accent focus:text-accent-foreground"
+              className="rounded-xl mb-1 last:mb-0 focus:bg-accent focus:text-accent-foreground"
               value="1w">
               1 week
             </SelectItem>
