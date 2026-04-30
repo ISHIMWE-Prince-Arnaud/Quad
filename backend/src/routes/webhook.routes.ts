@@ -195,6 +195,10 @@ router.post(
             await import("../models/ChatMessage.model.js");
           const { Notification } =
             await import("../models/Notification.model.js");
+          const { Bookmark } = await import("../models/Bookmark.model.js");
+          const { Follow } = await import("../models/Follow.model.js");
+          const { Comment } = await import("../models/Comment.model.js");
+          const { CommentLike } = await import("../models/CommentLike.model.js");
 
           // Run these in parallel for speed
           await Promise.all([
@@ -207,6 +211,10 @@ router.post(
             ChatMessage.deleteMany({ "author.clerkId": userId }),
             Notification.deleteMany({ userId }), // Notifications received by user
             Notification.deleteMany({ actorId: userId }), // Notifications triggered by user
+            Bookmark.deleteMany({ userId }),
+            Follow.deleteMany({ $or: [{ userId }, { followingId: userId }] }),
+            Comment.deleteMany({ "author.clerkId": userId }),
+            CommentLike.deleteMany({ userId }),
           ]);
 
           logger.info("User and related data deleted via Clerk webhook", {

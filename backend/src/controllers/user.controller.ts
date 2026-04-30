@@ -248,9 +248,9 @@ export const checkUsername = asyncHandler(
       return res.status(200).json({ success: true, available: false });
     }
 
-    const existingUser = await User.findOne({
-      username: { $regex: new RegExp(`^${username}$`, "i") },
-    }).lean();
+    const existingUser = await User.findOne({ username })
+      .collation({ locale: "en", strength: 2 })
+      .lean();
 
     return res.status(200).json({
       success: true,
@@ -289,12 +289,39 @@ export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
     throw new AppError("Unauthenticated", 401);
   }
 
-  // ✅ Only allow deleting own account
+  // Only allow deleting own account
   if (userId !== clerkId) {
     throw new AppError("Forbidden", 403);
   }
 
-  const deletedUser = await User.findOneAndDelete({ clerkId });
+  // Cascade delete all user data
+  const { Post } = await import("../models/Post.model.js");
+  const { Story } = await import("../models/Story.model.js");
+  const { Poll } = await import("../models/Poll.model.js");
+  const { PollVote } = await import("../models/PollVote.model.js");
+  const { Reaction } = await import("../models/Reaction.model.js");
+  const { ChatMessage } = await import("../models/ChatMessage.model.js");
+  const { Notification } = await import("../models/Notification.model.js");
+  const { Bookmark } = await import("../models/Bookmark.model.js");
+  const { Follow } = await import("../models/Follow.model.js");
+  const { Comment } = await import("../models/Comment.model.js");
+  const { CommentLike } = await import("../models/CommentLike.model.js");
+
+  const [deletedUser] = await Promise.all([
+    User.findOneAndDelete({ clerkId }),
+    Post.deleteMany({ "author.clerkId": clerkId }),
+    Story.deleteMany({ "author.clerkId": clerkId }),
+    Poll.deleteMany({ "author.clerkId": clerkId }),
+    PollVote.deleteMany({ userId: clerkId }),
+    Reaction.deleteMany({ userId: clerkId }),
+    ChatMessage.deleteMany({ "author.clerkId": clerkId }),
+    Notification.deleteMany({ userId: clerkId }),
+    Notification.deleteMany({ actorId: clerkId }),
+    Bookmark.deleteMany({ userId: clerkId }),
+    Follow.deleteMany({ $or: [{ userId: clerkId }, { followingId: clerkId }] }),
+    Comment.deleteMany({ "author.clerkId": clerkId }),
+    CommentLike.deleteMany({ userId: clerkId }),
+  ]);
 
   if (!deletedUser) {
     throw new AppError("User not found", 404);
@@ -302,5 +329,5 @@ export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
 
   return res
     .status(200)
-    .json({ success: true, message: "User deleted successfully" });
+    .json({ success: true, message: "User and all related data deleted successfully" });
 });
