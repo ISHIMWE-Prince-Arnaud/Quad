@@ -99,8 +99,9 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "quad-auth-storage",
-      partialize: (state) => ({
-        user: state.user,
+      partialize: () => ({
+        // Only persist minimal non-sensitive state, not user data
+        // This prevents user data lingering after logout and reduces XSS attack surface
       }),
     }
   )

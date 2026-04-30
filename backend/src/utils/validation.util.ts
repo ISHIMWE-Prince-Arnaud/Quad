@@ -5,7 +5,8 @@ export const validateSchema =
   (schema: ZodSchema<unknown>, property: "body" | "params" | "query" = "body") =>
   (req: Request, res: Response, next: NextFunction) => {
     try {
-      schema.parse(req[property]);
+      const parsed = schema.parse(req[property]);
+      req[property] = parsed; // Apply Zod transformations (defaults, transforms, etc.)
       next();
     } catch (error: unknown) {
       const zodError = error instanceof ZodError ? error : undefined;

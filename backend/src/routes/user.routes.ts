@@ -84,8 +84,8 @@ router.post(
  *     responses:
  *       200:
  *         description: Availability status returned
- */
-router.get("/check/:username", checkUsername);
+
+router.get("/check/:username", authRateLimiter, checkUsername);
 
 /**
  * @swagger
@@ -104,7 +104,6 @@ router.get("/check/:username", checkUsername);
  *         description: Availability status returned
  */
 router.get("/check-email/:email", checkEmail);
-
 /**
  * @swagger
  * /users/{clerkId}:
