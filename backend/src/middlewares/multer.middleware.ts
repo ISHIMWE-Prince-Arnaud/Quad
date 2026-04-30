@@ -52,9 +52,10 @@ const fileFilter = (
   }
 };
 
-// Multer config for single file upload
+// Multer config for single file upload - use disk storage to prevent memory exhaustion
+// The upload controller's getFileBuffer handles both memory and disk storage
 export const uploadSingle = multer({
-  storage: memoryStorage,
+  storage: diskStorage,
   fileFilter,
   limits: {
     fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES,
