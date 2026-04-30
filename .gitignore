@@ -1,0 +1,55 @@
+# Node modules
+node_modules/
+
+# Build artifacts
+dist/
+build/
+dist-ssr/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Testing
+coverage/
+*.lcov
+
+# Temporary files
+tmp/
+temp/
+
+# Locks (following project pattern of ignoring them)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
