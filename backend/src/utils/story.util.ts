@@ -113,7 +113,6 @@ export const sanitizeHtmlContent = (content: string): string => {
       "td": ["colspan", "rowspan", "colwidth"],
       "span": ["class", "style"],
       "div": ["class", "style"],
-      "*": ["id", "style"]
     },
     
     // URL schemes allowed in links

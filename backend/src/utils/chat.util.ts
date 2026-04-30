@@ -1,3 +1,4 @@
+import sanitizeHtml from "sanitize-html";
 import type { IChatMessageDocument } from "../models/ChatMessage.model.js";
 
 /**
@@ -68,12 +69,19 @@ export const hasValidContent = (text?: string, media?: unknown): boolean => {
 
 /**
  * Sanitize message text
- * Remove excessive whitespace and trim
+ * Remove HTML tags, excessive whitespace, and trim
+ * Prevents XSS via chat messages
  */
 export const sanitizeMessageText = (text?: string): string | undefined => {
   if (!text) return undefined;
 
+  // Strip all HTML tags to prevent XSS
+  const noHtml = sanitizeHtml(text, {
+    allowedTags: [],
+    allowedAttributes: {},
+  });
+
   // Replace multiple spaces/newlines with single space
-  const next = text.replace(/\s+/g, " ").trim();
-  return next.length > 0 ? next : undefined;
+  const normalized = noHtml.replace(/\s+/g, " ").trim();
+  return normalized.length > 0 ? normalized : undefined;
 };

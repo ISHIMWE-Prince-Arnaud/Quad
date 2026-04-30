@@ -1,3 +1,5 @@
+import DOMPurify from "dompurify";
+
 export function sanitizeInput(input: string): string {
   if (!input) return "";
 
@@ -10,6 +12,10 @@ export function sanitizeInput(input: string): string {
     .replace(/\//g, "&#x2F;");
 }
 
+/**
+ * Basic HTML sanitization using textContent (escapes all HTML)
+ * For production, prefer DOMPurify.sanitize() with explicit allowlists
+ */
 export function sanitizeHTML(html: string): string {
   if (!html) return "";
 
@@ -26,17 +32,17 @@ export function stripHTML(input: string): string {
   return temp.textContent || temp.innerText || "";
 }
 
+/**
+ * Sanitize HTML for display using DOMPurify
+ * Replaces weak regex-based sanitization with robust XSS protection
+ */
 export function sanitizeForDisplay(input: string): string {
   if (!input) return "";
 
-  let sanitized = input.replace(
-    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-    ""
-  );
-
-  sanitized = sanitized.replace(/on\w+\s*=\s*["'][^"']*["']/gi, "");
-  sanitized = sanitized.replace(/on\w+\s*=\s*[^\s>]*/gi, "");
-  sanitized = sanitized.replace(/javascript:/gi, "");
-
-  return sanitized;
+  // Use DOMPurify for robust XSS protection
+  return DOMPurify.sanitize(input, {
+    ALLOWED_TAGS: ["b", "i", "em", "strong", "a", "p", "br"],
+    ALLOWED_ATTR: ["href", "target", "rel"],
+    ALLOW_DATA_ATTR: false,
+  });
 }

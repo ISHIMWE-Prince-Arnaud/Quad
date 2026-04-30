@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import DOMPurify from "dompurify";
 import { Card, CardContent } from "@/components/ui/card";
 import { HeartReactionButton } from "@/components/reactions/HeartReactionButton";
 import { BookmarkButton } from "@/components/engagement/BookmarkButton";
@@ -6,6 +7,29 @@ import type { ReactionType } from "@/services/reactionService";
 import { timeAgo } from "@/lib/timeUtils";
 import { useStoryBookmark } from "@/components/stories/story-card/useStoryBookmark";
 import { MediaLightbox } from "@/components/ui/MediaLightbox";
+
+function StoryContent({ contentHtml }: { contentHtml: string }) {
+  const sanitizedContent = useMemo(() =>
+    DOMPurify.sanitize(contentHtml, {
+      ALLOWED_TAGS: [
+        "p", "br", "strong", "b", "em", "i", "u", "s", "del", "mark",
+        "h1", "h2", "h3", "h4", "h5", "h6",
+        "ul", "ol", "li",
+        "blockquote", "pre", "code",
+        "a", "table", "thead", "tbody", "tr", "th", "td",
+        "hr", "span", "div", "img"
+      ],
+      ALLOWED_ATTR: [
+        "href", "title", "target", "rel",
+        "class", "style", "src", "alt", "width", "height"
+      ],
+      ALLOW_DATA_ATTR: false,
+    }),
+    [contentHtml]
+  );
+
+  return <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />;
+}
 
 export function StoryPageBody({
   storyId,
@@ -64,7 +88,7 @@ export function StoryPageBody({
           </div>
 
           <div className="prose dark:prose-invert max-w-none text-foreground/90 leading-relaxed">
-            <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
+            <StoryContent contentHtml={contentHtml} />
           </div>
 
           <div className="mt-8 flex items-center justify-between gap-3 border-t pt-4">
