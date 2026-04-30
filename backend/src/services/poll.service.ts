@@ -295,17 +295,21 @@ export class PollService {
       throw new AppError(validation.error || "Invalid vote", 400);
     }
 
-    const existingVote = await PollVote.findOne({ pollId: id, userId });
-    if (existingVote) {
-      throw new AppError("You have already voted on this poll", 400);
+    let vote;
+    try {
+      vote = await PollVote.create({
+        pollId: id,
+        userId,
+        optionIndices,
+        votedAt: new Date(),
+      });
+    } catch (err: unknown) {
+      const mongoError = err as { code?: number };
+      if (mongoError.code === 11000) {
+        throw new AppError("You have already voted on this poll", 400);
+      }
+      throw err;
     }
-
-    const vote = await PollVote.create({
-      pollId: id,
-      userId,
-      optionIndices,
-      votedAt: new Date(),
-    });
 
     const previousTotalVotes = poll.totalVotes;
 
