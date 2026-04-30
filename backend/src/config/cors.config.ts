@@ -40,8 +40,11 @@ export const corsOptions: CorsOptions = {
     origin: string | undefined,
     callback: (err: Error | null, allow?: boolean) => void,
   ) => {
-    // Allow requests with no origin (mobile apps, Postman, curl, etc.)
+    // Reject null origin in production (security risk)
     if (!origin) {
+      if (env.NODE_ENV === "production") {
+        return callback(new Error("Null origin not allowed in production"));
+      }
       return callback(null, true);
     }
 

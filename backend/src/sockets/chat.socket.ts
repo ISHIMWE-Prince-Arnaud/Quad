@@ -1,5 +1,6 @@
 import type { Server, Socket } from "socket.io";
 import { logger } from "../utils/logger.util.js";
+import { User } from "../models/User.model.js";
 
 // Store typing users: Map<socketId, {userId, username}>
 const typingUsers = new Map<string, { userId: string; username: string }>();
@@ -14,15 +15,21 @@ const TYPING_THROTTLE_MS = 2000;
  * All authenticated users share one chat space.
  */
 export const setupChatSocket = (io: Server) => {
-  io.on("connection", (socket: Socket) => {
+  io.on("connection", async (socket: Socket) => {
     const authenticatedUserId = socket.data.userId as string | undefined;
     if (!authenticatedUserId) return; // Should never happen (auth middleware rejects first)
+
+    // Fetch username from database to prevent impersonation
+    const user = await User.findOne({ clerkId: authenticatedUserId }).select("username");
+    const username = user?.username || "Unknown";
+    socket.data.username = username;
 
     // Auto-join the global chat room
     socket.join("chat:global");
     logger.socket("User connected to chat", {
       socketId: socket.id,
       userId: authenticatedUserId,
+      username,
     });
 
     // ===========================
@@ -31,10 +38,9 @@ export const setupChatSocket = (io: Server) => {
 
     /**
      * User starts typing
-     * Client sends: { username: string }
-     * userId is sourced from the authenticated socket, not from client data.
+     * Uses authenticated username from socket.data, not client-supplied data.
      */
-    socket.on("chat:typing:start", (data: { username: string }) => {
+    socket.on("chat:typing:start", () => {
       // Throttle: ignore rapid typing events (max 1 per 2s)
       const now = Date.now();
       const lastEmit = lastTypingEmit.get(socket.id) || 0;
@@ -42,20 +48,21 @@ export const setupChatSocket = (io: Server) => {
       lastTypingEmit.set(socket.id, now);
 
       const userId = authenticatedUserId;
+      const userName = socket.data.username as string;
 
       // Store typing user
       typingUsers.set(socket.id, {
         userId,
-        username: data.username,
+        username: userName,
       });
 
       // Broadcast to the chat room only (not globally)
       socket.to("chat:global").emit("chat:typing:start", {
         userId,
-        username: data.username,
+        username: userName,
       });
 
-      logger.socket("User is typing", { username: data.username, userId });
+      logger.socket("User is typing", { username: userName, userId });
     });
 
     /**

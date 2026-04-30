@@ -156,16 +156,23 @@ startServer().catch((error) => {
 // --- Graceful Shutdown ---
 const gracefulShutdown = async (signal: string) => {
   logger.info(`Received ${signal}. Shutting down gracefully...`);
-  server.close(() => {
-    logger.info("HTTP server closed.");
-    io.close(() => {
-      logger.info("Socket.IO server closed.");
+  
+  // Close Socket.IO first (gracefully disconnects clients)
+  io.close(() => {
+    logger.info("Socket.IO server closed.");
+    
+    // Then close HTTP server
+    server.close(() => {
+      logger.info("HTTP server closed.");
+      
+      // Finally close database connection
       mongoose.connection.close().then(() => {
         logger.info("MongoDB connection closed.");
         process.exit(0);
       });
     });
   });
+  
   // Force exit after 10s if graceful shutdown hangs
   setTimeout(() => {
     logger.error("Graceful shutdown timed out, forcing exit.");

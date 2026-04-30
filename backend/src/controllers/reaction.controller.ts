@@ -62,7 +62,11 @@ export const getUserReactions = asyncHandler(async (req: Request, res: Response)
     skip?: string;
   };
 
-  const result = await ReactionService.getUserReactions(userId, limit, skip);
+  const result = await ReactionService.getUserReactions(
+    userId,
+    Number(limit),
+    Number(skip)
+  );
 
   return res.status(200).json({
     success: true,

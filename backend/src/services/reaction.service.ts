@@ -261,11 +261,15 @@ export class ReactionService {
     };
   }
 
-  static async getUserReactions(userId: string, limit = "20", skip = "0") {
+  static async getUserReactions(userId: string, limit: number = 20, skip: number = 0) {
+    // Clamp to safe limits: min 1, max 100
+    const safeLimit = Math.max(1, Math.min(100, limit));
+    const safeSkip = Math.max(0, skip);
+
     const reactions = await Reaction.find({ userId })
       .sort({ createdAt: -1 })
-      .limit(Number(limit))
-      .skip(Number(skip));
+      .limit(safeLimit)
+      .skip(safeSkip);
 
     const total = await Reaction.countDocuments({ userId });
 
@@ -273,9 +277,9 @@ export class ReactionService {
       reactions,
       pagination: {
         total,
-        limit: Number(limit),
-        skip: Number(skip),
-        hasMore: Number(skip) + reactions.length < total,
+        limit: safeLimit,
+        skip: safeSkip,
+        hasMore: safeSkip + reactions.length < total,
       },
     };
   }
