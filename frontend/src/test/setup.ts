@@ -6,6 +6,24 @@ vi.mock("@clerk/clerk-react", () => ({
   useAuth: vi.fn(() => ({
     isLoaded: true,
     isSignedIn: true,
+    userId: "test-user-id",
+    sessionId: "test-session-id",
+    sessionClaims: {
+      __raw: "mock-jwt",
+      iss: "https://clerk.test",
+      sid: "test-session-id",
+      sub: "test-user-id",
+      iat: 1234567890,
+      exp: 1234567890,
+      nbf: 1234567890,
+      jti: "test-jti",
+      azp: "test-azp",
+    } as any,
+    actor: null,
+    orgId: null,
+    orgRole: null,
+    orgSlug: null,
+    has: vi.fn(() => false),
     getToken: vi.fn(async () => "mock-test-jwt-token"),
     signOut: vi.fn(async () => undefined),
   })),
@@ -19,7 +37,7 @@ vi.mock("@clerk/clerk-react", () => ({
       lastName: "User",
       publicMetadata: {},
       unsafeMetadata: {},
-    },
+    } as any,
   })),
   ClerkProvider: ({ children }: { children: any }) => children,
   SignedIn: ({ children }: { children: any }) => children,
@@ -71,6 +89,24 @@ beforeEach(async () => {
   clerk.useAuth.mockImplementation(() => ({
     isLoaded: true,
     isSignedIn: true,
+    userId: "test-user-id",
+    sessionId: "test-session-id",
+    sessionClaims: {
+      __raw: "mock-jwt",
+      iss: "https://clerk.test",
+      sid: "test-session-id",
+      sub: "test-user-id",
+      iat: 1234567890,
+      exp: 1234567890,
+      nbf: 1234567890,
+      jti: "test-jti",
+      azp: "test-azp",
+    } as any,
+    actor: null,
+    orgId: null,
+    orgRole: null,
+    orgSlug: null,
+    has: vi.fn(() => false),
     getToken: vi.fn(async () => "mock-test-jwt-token"),
     signOut: vi.fn(async () => undefined),
   }));
@@ -84,16 +120,9 @@ beforeEach(async () => {
       lastName: "User",
       publicMetadata: {},
       unsafeMetadata: {},
-    },
+    } as any,
   }));
 });
-
-// Mock CSRF protection module
-vi.mock("@/lib/csrfProtection", () => ({
-  getCSRFToken: () => "mock-csrf-token",
-  setCSRFToken: vi.fn(),
-  clearCSRFToken: vi.fn(),
-}));
 
 // Mock rate limit handler module
 vi.mock("@/lib/rateLimitHandler", () => ({

@@ -53,25 +53,10 @@ export function attachInterceptors(api: AxiosInstance) {
         );
       }
 
-      let token = localStorage.getItem("clerk-db-jwt");
-      if (!token) {
-        token = await getRuntimeClerkToken();
-        if (token) {
-          localStorage.setItem("clerk-db-jwt", token);
-        }
-      }
+      const token = await getRuntimeClerkToken();
 
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-      }
-
-      const method = config.method?.toUpperCase() || "GET";
-      if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-        const { getCSRFToken } = await import("../csrfProtection");
-        const csrfToken = getCSRFToken();
-        if (csrfToken) {
-          config.headers["X-CSRF-Token"] = csrfToken;
-        }
       }
 
       if (!config.headers["X-Retry-Count"]) {
@@ -124,20 +109,13 @@ export function attachInterceptors(api: AxiosInstance) {
             response.config.params as Record<string, unknown>
           );
 
-          let ttl = 5 * 60 * 1000;
+          let ttl = 30 * 1000; // Default: 30s for feeds/dynamic content
 
           if (
             response.config.url?.includes("/profile/") ||
             response.config.url?.includes("/users/")
           ) {
-            ttl = 10 * 60 * 1000;
-          }
-
-          if (
-            response.config.url?.includes("/") ||
-            response.config.url?.includes("/notifications")
-          ) {
-            ttl = 30 * 1000;
+            ttl = 10 * 60 * 1000; // 10 min for profiles
           }
 
           requestCache.set(cacheKey, response, ttl);
@@ -164,14 +142,11 @@ export function attachInterceptors(api: AxiosInstance) {
 
           const refreshed = await getRuntimeClerkToken();
           if (refreshed) {
-            localStorage.setItem("clerk-db-jwt", refreshed);
             originalRequest.headers = originalRequest.headers ?? {};
             originalRequest.headers.Authorization = `Bearer ${refreshed}`;
             return api(originalRequest);
           }
         }
-
-        localStorage.removeItem("clerk-db-jwt");
 
         logError(axiosError, {
           component: "API",
