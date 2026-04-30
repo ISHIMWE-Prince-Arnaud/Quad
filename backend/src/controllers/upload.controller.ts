@@ -1,16 +1,42 @@
 import type { Request, Response } from "express";
-import type { AspectRatio } from "../config/cloudinary.config.js";
-import { logger } from "../utils/logger.util.js";
-import {
-  uploadToCloudinary,
-  deleteFromCloudinary,
-  extractPublicIdFromUrl,
-  validateFileType,
-  validateFileSize,
-  getValidationRules,
-} from "../utils/upload.util.js";
+import { fileTypeFromBuffer } from "file-type";
+import { readFile } from "fs/promises";
+import { uploadToCloudinary, deleteFromCloudinary, extractPublicIdFromUrl, validateFileType, validateFileSize, getValidationRules } from "../utils/upload.util.js";
 import { User } from "../models/User.model.js";
 import { clerkClient } from "@clerk/express";
+import type { AspectRatio } from "../config/cloudinary.config.js";
+import { logger } from "../utils/logger.util.js";
+
+/**
+ * Validate file content type by inspecting the actual file bytes
+ * This prevents attackers from forging the Content-Type header
+ */
+async function validateFileContent(
+  buffer: Buffer,
+  allowedTypes: string[]
+): Promise<{ valid: boolean; detectedMime?: string }> {
+  const detected = await fileTypeFromBuffer(buffer);
+  if (!detected) {
+    return { valid: false };
+  }
+  return {
+    valid: allowedTypes.includes(detected.mime),
+    detectedMime: detected.mime,
+  };
+}
+
+/**
+ * Get file buffer from either memory storage (buffer) or disk storage (path)
+ */
+async function getFileBuffer(file: Express.Multer.File): Promise<Buffer> {
+  if (file.buffer) {
+    return file.buffer;
+  }
+  if (file.path) {
+    return await readFile(file.path);
+  }
+  throw new Error("File has no buffer or path");
+}
 
 // =========================
 // UPLOAD POST MEDIA (Image or Video)
@@ -24,7 +50,7 @@ export const uploadPostMedia = async (req: Request, res: Response) => {
       });
     }
 
-    const { buffer, mimetype, size } = req.file;
+    const { mimetype, size } = req.file;
     const aspectRatio = (req.body.aspectRatio as AspectRatio) || "1:1";
 
     // Validate aspect ratio
@@ -53,6 +79,18 @@ export const uploadPostMedia = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: `File too large. Maximum size is ${rules.maxSize}MB`,
+      });
+    }
+
+    // Get file buffer (handles both memory and disk storage)
+    const buffer = await getFileBuffer(req.file);
+
+    // Validate actual file content type (prevents forged Content-Type header)
+    const contentValidation = await validateFileContent(buffer, rules.allowedTypes);
+    if (!contentValidation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: `File content does not match allowed types. Detected: ${contentValidation.detectedMime || "unknown"}`,
       });
     }
 
@@ -90,7 +128,7 @@ export const uploadStoryMedia = async (req: Request, res: Response) => {
       });
     }
 
-    const { buffer, mimetype, size } = req.file;
+    const { mimetype, size } = req.file;
     const aspectRatio = (req.body.aspectRatio as AspectRatio) || "9:16";
 
     // Validate aspect ratio
@@ -119,6 +157,18 @@ export const uploadStoryMedia = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: `File too large. Maximum size is ${rules.maxSize}MB`,
+      });
+    }
+
+    // Get file buffer (handles both memory and disk storage)
+    const buffer = await getFileBuffer(req.file);
+
+    // Validate actual file content type (prevents forged Content-Type header)
+    const contentValidation = await validateFileContent(buffer, rules.allowedTypes);
+    if (!contentValidation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: `File content does not match allowed types. Detected: ${contentValidation.detectedMime || "unknown"}`,
       });
     }
 
@@ -156,7 +206,7 @@ export const uploadPollMedia = async (req: Request, res: Response) => {
       });
     }
 
-    const { buffer, mimetype, size } = req.file;
+    const { mimetype, size } = req.file;
     const aspectRatio = (req.body.aspectRatio as AspectRatio) || "1:1";
 
     // Validate aspect ratio
@@ -190,6 +240,18 @@ export const uploadPollMedia = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: `File too large. Maximum size is ${rules.maxSize}MB`,
+      });
+    }
+
+    // Get file buffer (handles both memory and disk storage)
+    const buffer = await getFileBuffer(req.file);
+
+    // Validate actual file content type (prevents forged Content-Type header)
+    const contentValidation = await validateFileContent(buffer, rules.allowedTypes);
+    if (!contentValidation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: `File content does not match allowed types. Detected: ${contentValidation.detectedMime || "unknown"}`,
       });
     }
 
@@ -227,7 +289,7 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
       });
     }
 
-    const { buffer, mimetype, size } = req.file;
+    const { mimetype, size } = req.file;
     const rules = getValidationRules("PROFILE");
 
     // Validate file type (images only)
@@ -243,6 +305,18 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: `File too large. Maximum size is ${rules.maxSize}MB`,
+      });
+    }
+
+    // Get file buffer (handles both memory and disk storage)
+    const buffer = await getFileBuffer(req.file);
+
+    // Validate actual file content type (prevents forged Content-Type header)
+    const contentValidation = await validateFileContent(buffer, rules.allowedTypes);
+    if (!contentValidation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: `File content does not match allowed types. Detected: ${contentValidation.detectedMime || "unknown"}`,
       });
     }
 
@@ -299,7 +373,7 @@ export const uploadCoverImage = async (req: Request, res: Response) => {
       });
     }
 
-    const { buffer, mimetype, size } = req.file;
+    const { mimetype, size } = req.file;
     const rules = getValidationRules("COVER");
 
     // Validate file type (images only)
@@ -315,6 +389,18 @@ export const uploadCoverImage = async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         message: `File too large. Maximum size is ${rules.maxSize}MB`,
+      });
+    }
+
+    // Get file buffer (handles both memory and disk storage)
+    const buffer = await getFileBuffer(req.file);
+
+    // Validate actual file content type (prevents forged Content-Type header)
+    const contentValidation = await validateFileContent(buffer, rules.allowedTypes);
+    if (!contentValidation.valid) {
+      return res.status(400).json({
+        success: false,
+        message: `File content does not match allowed types. Detected: ${contentValidation.detectedMime || "unknown"}`,
       });
     }
 
@@ -453,7 +539,7 @@ async function verifyFileOwnership(
   // Check stories
   const story = await Story.findOne({
     "author.clerkId": userId,
-    $or: [{ coverImage: url }, { content: { $regex: url } }],
+    $or: [{ coverImage: url }, { content: { $eq: url } }],
   });
   if (story) return true;
 

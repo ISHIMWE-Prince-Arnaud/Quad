@@ -1,9 +1,39 @@
 import multer from "multer";
+import os from "os";
 import type { Request } from "express";
 import { env } from "../config/env.config.js";
 
-// Store files in memory as buffers
-const storage = multer.memoryStorage();
+// Shared file type constants
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/heic",
+];
+
+const ALLOWED_VIDEO_TYPES = [
+  "video/mp4",
+  "video/quicktime", // .mov
+  "video/x-msvideo", // .avi
+  "video/x-matroska", // .mkv
+  "video/webm",
+];
+
+const ALLOWED_ALL_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES];
+
+// Store files in memory as buffers (for small images)
+const memoryStorage = multer.memoryStorage();
+
+// Store large files on disk (for videos to prevent memory exhaustion)
+const diskStorage = multer.diskStorage({
+  destination: os.tmpdir(),
+  filename: (_req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  },
+});
 
 // File filter function
 const fileFilter = (
@@ -11,27 +41,7 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: multer.FileFilterCallback,
 ) => {
-  // Allowed mime types
-  const allowedImageTypes = [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "image/webp",
-    "image/gif",
-    "image/heic",
-  ];
-
-  const allowedVideoTypes = [
-    "video/mp4",
-    "video/quicktime", // .mov
-    "video/x-msvideo", // .avi
-    "video/x-matroska", // .mkv
-    "video/webm",
-  ];
-
-  const allAllowedTypes = [...allowedImageTypes, ...allowedVideoTypes];
-
-  if (allAllowedTypes.includes(file.mimetype)) {
+  if (ALLOWED_ALL_TYPES.includes(file.mimetype)) {
     cb(null, true); // Accept file
   } else {
     cb(
@@ -44,86 +54,58 @@ const fileFilter = (
 
 // Multer config for single file upload
 export const uploadSingle = multer({
-  storage,
+  storage: memoryStorage,
   fileFilter,
   limits: {
-    fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES, // max (Controller enforces specific limits per type)
+    fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES,
   },
 }).single("file");
 
 // Multer config for multiple files upload (max 10 files)
 export const uploadMultiple = multer({
-  storage,
+  storage: memoryStorage,
   fileFilter,
   limits: {
     fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES,
-    files: 10, // Max 10 files
+    files: 10,
   },
 }).array("files", 10);
 
 // Image-only upload
 export const uploadImage = multer({
-  storage,
+  storage: memoryStorage,
   fileFilter: (req, file, cb) => {
-    const allowedImageTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/webp",
-      "image/gif",
-      "image/heic",
-    ];
-
-    if (allowedImageTypes.includes(file.mimetype)) {
+    if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(
-        new Error("Only image files are allowed (JPEG, PNG, WebP, GIF, HEIC)"),
-      );
+      cb(new Error("Only image files are allowed (JPEG, PNG, WebP, GIF, HEIC)"));
     }
   },
   limits: {
-    fileSize: env.IMAGE_MAX_FILE_SIZE_BYTES, // for images
+    fileSize: env.IMAGE_MAX_FILE_SIZE_BYTES,
   },
 }).single("image");
 
-// Video-only upload
+// Video-only upload - use disk storage to prevent memory exhaustion
 export const uploadVideo = multer({
-  storage,
+  storage: diskStorage,
   fileFilter: (req, file, cb) => {
-    const allowedVideoTypes = [
-      "video/mp4",
-      "video/quicktime",
-      "video/x-msvideo",
-      "video/x-matroska",
-      "video/webm",
-    ];
-
-    if (allowedVideoTypes.includes(file.mimetype)) {
+    if (ALLOWED_VIDEO_TYPES.includes(file.mimetype)) {
       cb(null, true);
     } else {
       cb(new Error("Only video files are allowed (MP4, MOV, AVI, MKV, WebM)"));
     }
   },
   limits: {
-    fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES, // for videos
+    fileSize: env.UPLOAD_MAX_FILE_SIZE_BYTES,
   },
 }).single("video");
 
 // Multiple images upload
 export const uploadImages = multer({
-  storage,
+  storage: memoryStorage,
   fileFilter: (req, file, cb) => {
-    const allowedImageTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/webp",
-      "image/gif",
-      "image/heic",
-    ];
-
-    if (allowedImageTypes.includes(file.mimetype)) {
+    if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
       cb(null, true);
     } else {
       cb(new Error("Only image files are allowed"));
@@ -131,6 +113,6 @@ export const uploadImages = multer({
   },
   limits: {
     fileSize: env.IMAGE_MAX_FILE_SIZE_BYTES,
-    files: 10, // Max 10 images
+    files: 10,
   },
 }).array("images", 10);
