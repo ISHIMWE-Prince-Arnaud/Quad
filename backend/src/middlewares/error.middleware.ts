@@ -29,6 +29,8 @@ export const errorHandler = (
     success: false,
     message,
     ...(requestId && { requestId }),
-    ...(env.NODE_ENV === "development" && { stack: err.stack }),
+    // Stack traces only shown when DEBUG_MODE explicitly enabled
+    // Never expose stack traces based solely on NODE_ENV
+    ...(env.DEBUG_MODE === "true" && { stack: err.stack }),
   });
 };

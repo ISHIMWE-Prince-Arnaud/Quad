@@ -21,7 +21,8 @@ function StoryContent({ contentHtml }: { contentHtml: string }) {
       ],
       ALLOWED_ATTR: [
         "href", "title", "target", "rel",
-        "class", "style", "src", "alt", "width", "height"
+        "class", "src", "alt", "width", "height"
+        // Note: 'style' intentionally omitted to prevent CSS injection (XSS vector)
       ],
       ALLOW_DATA_ATTR: false,
     }),

@@ -63,6 +63,9 @@ const envSchema = z.object({
   CLOUDINARY_TIMEOUT_MS: z.coerce.number().int().positive().default(300000), // Default to 5 minutes
   SOCKET_PING_TIMEOUT_MS: z.coerce.number().int().positive().default(60000),
   SOCKET_PING_INTERVAL_MS: z.coerce.number().int().positive().default(25000),
+  // Debug mode - enables stack traces in error responses
+  // Should only be enabled in development, NEVER in production
+  DEBUG_MODE: z.string().optional().default("false"),
 });
 
 const parsed = envSchema.safeParse(process.env);

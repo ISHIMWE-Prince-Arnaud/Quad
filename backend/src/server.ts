@@ -32,8 +32,36 @@ import { requestLogger } from "./middlewares/requestLogger.middleware.js";
 // --- Initialize Express ---
 const app = express();
 
-// Security Headers
-app.use(helmet());
+// Security Headers with CSP and HSTS
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"], // Required for Swagger UI
+        styleSrc: ["'self'", "'unsafe-inline'"], // Required for Swagger UI
+        imgSrc: ["'self'", "data:", "https:", "blob:"], // Allow Cloudinary images
+        connectSrc: ["'self'", env.FRONTEND_URL || "http://localhost:5173"],
+        fontSrc: ["'self'", "data:"],
+        objectSrc: ["'none'"], // Disallow Flash/Java applets
+        mediaSrc: ["'self'", "https:"], // Allow video/audio from Cloudinary
+        frameSrc: ["'none'"], // Prevent clickjacking via frames
+        upgradeInsecureRequests: [], // Upgrade HTTP to HTTPS
+      },
+    },
+    hsts: {
+      maxAge: 31536000, // 1 year
+      includeSubDomains: true,
+      preload: true, // Allow browser preload list
+    },
+    referrerPolicy: {
+      policy: "strict-origin-when-cross-origin",
+    },
+    xFrameOptions: { action: "deny" }, // Prevent clickjacking
+    crossOriginEmbedderPolicy: false, // Disable for API compatibility
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow Cloudinary resources
+  }),
+);
 
 // Configure CORS (imported from cors.config.ts)
 app.use(cors(corsOptions));

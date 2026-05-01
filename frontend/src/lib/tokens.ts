@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/clerk-react";
 import { useCallback, useEffect, useRef } from "react";
-import { verifyToken, ensureFreshToken, logAuthEvent } from "./authAudit";
+import { ensureFreshToken, logAuthEvent } from "./authAudit";
 import { logError } from "./errorHandling";
 
 // Hook for token management with enhanced security
@@ -14,8 +14,8 @@ export function useTokenManager() {
 
       if (token) {
         logAuthEvent("Token retrieved successfully");
-        // Store in localStorage for API interceptor
-        localStorage.setItem("clerk-db-jwt", token);
+        // Token is NOT stored in localStorage for security
+        // Retrieve fresh token from Clerk for each request
       } else {
         logAuthEvent("Token retrieval failed");
       }
@@ -56,38 +56,13 @@ export function useTokenManager() {
     [getToken]
   );
 
-  // Verify stored token on mount
+  // Periodic token refresh to ensure fresh tokens
   useEffect(() => {
-    const verifyStoredToken = async () => {
-      const storedToken = localStorage.getItem("clerk-db-jwt");
-
-      if (storedToken) {
-        const isValid = await verifyToken(storedToken);
-
-        if (!isValid) {
-          // Token is missing/expired/near-expiry (per verifier). Try to refresh first
-          // to avoid a window where requests have no Authorization header.
-          logAuthEvent("Stored token invalid, attempting refresh");
-
-          const refreshed = await getAuthToken();
-          if (!refreshed) {
-            logAuthEvent("Token refresh failed, clearing stored token");
-            localStorage.removeItem("clerk-db-jwt");
-          }
-        } else {
-          logAuthEvent("Stored token valid");
-        }
-      }
-    };
-
-    verifyStoredToken();
-
     // Set up periodic token refresh (every 4 minutes)
+    // This ensures tokens are fresh without storing them in localStorage
     refreshIntervalRef.current = window.setInterval(async () => {
-      const storedToken = localStorage.getItem("clerk-db-jwt");
-      if (storedToken) {
-        await getAuthToken();
-      }
+      await getAuthToken();
+      logAuthEvent("Periodic token refresh completed");
     }, 4 * 60 * 1000);
 
     return () => {

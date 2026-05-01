@@ -2,17 +2,32 @@ import express, { type Request, type Response } from "express";
 import mongoose from "mongoose";
 import { Webhook } from "svix";
 import type { WebhookEvent } from "@clerk/express";
+import rateLimit from "express-rate-limit";
 import { env } from "../config/env.config.js";
 import { User } from "../models/User.model.js";
 import { propagateUserSnapshotUpdates } from "../utils/userSnapshotPropagation.util.js";
 import { logger } from "../utils/logger.util.js";
 
+// Strict rate limiter for webhooks to prevent DoS against signature verification
+const webhookRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30, // limit each IP to 30 webhook requests per minute
+  message: {
+    success: false,
+    message: "Too many webhook requests, please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 const router = express.Router();
 const webhookSecret = env.CLERK_WEBHOOK_SECRET as string;
 
 // Clerk requires raw body parsing for signature verification
+// Rate limited to prevent DoS attacks against expensive signature verification
 router.post(
   "/clerk",
+  webhookRateLimiter,
   express.raw({ type: "application/json" }),
   async (req: Request, res: Response) => {
     logger.info("Clerk webhook endpoint hit", {

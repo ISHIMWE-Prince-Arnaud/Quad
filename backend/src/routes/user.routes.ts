@@ -85,7 +85,7 @@ router.post(
  *       200:
  *         description: Availability status returned
 
-router.get("/check/:username", authRateLimiter, checkUsername);
+router.get("/check/:username", requireApiAuth, authRateLimiter, checkUsername);
 
 /**
  * @swagger
@@ -93,6 +93,8 @@ router.get("/check/:username", authRateLimiter, checkUsername);
  *   get:
  *     summary: Check if an email is available
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: email
@@ -103,7 +105,7 @@ router.get("/check/:username", authRateLimiter, checkUsername);
  *       200:
  *         description: Availability status returned
  */
-router.get("/check-email/:email", checkEmail);
+router.get("/check-email/:email", requireApiAuth, authRateLimiter, checkEmail);
 /**
  * @swagger
  * /users/{clerkId}:

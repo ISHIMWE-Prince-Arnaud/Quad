@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { fileTypeFromBuffer } from "file-type";
-import { readFile } from "fs/promises";
+import { readFile, unlink } from "fs/promises";
 import { uploadToCloudinary, deleteFromCloudinary, extractPublicIdFromUrl, validateFileType, validateFileSize, getValidationRules } from "../utils/upload.util.js";
 import { User } from "../models/User.model.js";
 import { clerkClient } from "@clerk/express";
@@ -36,6 +36,22 @@ async function getFileBuffer(file: Express.Multer.File): Promise<Buffer> {
     return await readFile(file.path);
   }
   throw new Error("File has no buffer or path");
+}
+
+/**
+ * Clean up temporary file from disk storage
+ * Should be called after file is processed to prevent disk exhaustion
+ */
+async function cleanupTempFile(file: Express.Multer.File): Promise<void> {
+  if (file.path) {
+    try {
+      await unlink(file.path);
+      logger.debug(`Cleaned up temp file: ${file.path}`);
+    } catch (error) {
+      // Log but don't throw - cleanup failure shouldn't fail the request
+      logger.warn(`Failed to clean up temp file: ${file.path}`, error);
+    }
+  }
 }
 
 // =========================
@@ -97,6 +113,9 @@ export const uploadPostMedia = async (req: Request, res: Response) => {
     // Upload to Cloudinary
     const result = await uploadToCloudinary(buffer, preset);
 
+    // Clean up temp file after successful upload
+    await cleanupTempFile(req.file);
+
     return res.status(200).json({
       success: true,
       message: `${isVideo ? "Video" : "Image"} uploaded successfully`,
@@ -107,6 +126,10 @@ export const uploadPostMedia = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error("Post media upload error", error);
+    // Clean up temp file on error
+    if (req.file) {
+      await cleanupTempFile(req.file);
+    }
     const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
@@ -175,6 +198,9 @@ export const uploadStoryMedia = async (req: Request, res: Response) => {
     // Upload to Cloudinary
     const result = await uploadToCloudinary(buffer, preset);
 
+    // Clean up temp file after successful upload
+    await cleanupTempFile(req.file);
+
     return res.status(200).json({
       success: true,
       message: "Story media uploaded successfully",
@@ -185,6 +211,10 @@ export const uploadStoryMedia = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error("Story upload error", error);
+    // Clean up temp file on error as well
+    if (req.file) {
+      await cleanupTempFile(req.file);
+    }
     const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
@@ -258,6 +288,9 @@ export const uploadPollMedia = async (req: Request, res: Response) => {
     // Upload to Cloudinary
     const result = await uploadToCloudinary(buffer, preset);
 
+    // Clean up temp file after successful upload
+    await cleanupTempFile(req.file);
+
     return res.status(200).json({
       success: true,
       message: "Poll media uploaded successfully",
@@ -268,6 +301,10 @@ export const uploadPollMedia = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error("Poll upload error", error);
+    // Clean up temp file on error
+    if (req.file) {
+      await cleanupTempFile(req.file);
+    }
     const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
@@ -342,6 +379,9 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
       }
     }
 
+    // Clean up temp file after successful upload
+    await cleanupTempFile(req.file);
+
     return res.status(200).json({
       success: true,
       message: "Profile image uploaded successfully",
@@ -352,6 +392,10 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error("Profile image upload error", error);
+    // Clean up temp file on error
+    if (req.file) {
+      await cleanupTempFile(req.file);
+    }
     const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
@@ -421,6 +465,9 @@ export const uploadCoverImage = async (req: Request, res: Response) => {
       }
     }
 
+    // Clean up temp file after successful upload
+    await cleanupTempFile(req.file);
+
     return res.status(200).json({
       success: true,
       message: "Cover image uploaded successfully",
@@ -431,6 +478,10 @@ export const uploadCoverImage = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error("Cover image upload error", error);
+    // Clean up temp file on error
+    if (req.file) {
+      await cleanupTempFile(req.file);
+    }
     const message = error instanceof Error ? error.message : "Unknown error";
     return res.status(500).json({
       success: false,
