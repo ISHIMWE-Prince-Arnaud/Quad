@@ -1,11 +1,6 @@
 import { endpoints } from "@/lib/api";
+import type { NotificationQueryParams } from "@/lib/api/paginationTypes";
 import type { ApiNotification } from "@/types/api";
-
-export interface GetNotificationsParams {
-  page?: number;
-  limit?: number;
-  unreadOnly?: boolean;
-}
 
 export interface GetNotificationsResponse {
   success: boolean;
@@ -22,13 +17,9 @@ export interface GetNotificationsResponse {
 
 export class NotificationService {
   static async getNotifications(
-    params: GetNotificationsParams = {},
+    params: NotificationQueryParams = {},
   ): Promise<GetNotificationsResponse> {
-    const response = await endpoints.notifications.getAll({
-      page: params.page,
-      limit: params.limit,
-      unreadOnly: params.unreadOnly,
-    });
+    const response = await endpoints.notifications.getAll(params);
     return response.data as GetNotificationsResponse;
   }
 

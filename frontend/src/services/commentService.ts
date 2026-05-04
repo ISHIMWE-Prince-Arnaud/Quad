@@ -1,11 +1,12 @@
 import { endpoints } from "@/lib/api";
+import type { SkipPaginationParams } from "@/lib/api/paginationTypes";
 import type { Comment } from "@/types/comment";
 
 export class CommentService {
   static async getByContent(
     contentType: "post" | "story" | "poll",
     contentId: string,
-    params?: { limit?: number; skip?: number }
+    params?: SkipPaginationParams
   ): Promise<{
     success: boolean;
     data: Comment[];

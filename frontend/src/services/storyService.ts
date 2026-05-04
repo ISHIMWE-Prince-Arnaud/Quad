@@ -1,4 +1,5 @@
 import { endpoints, invalidateCache } from "@/lib/api";
+import type { StoryQueryParams } from "@/lib/api/paginationTypes";
 import type {
   StoriesListResponse,
   StoryResponse,
@@ -27,10 +28,7 @@ export class StoryService {
    * @param params - Query parameters (limit, skip)
    * @returns Paginated stories response
    */
-  static async getAll(params?: {
-    limit?: number;
-    skip?: number;
-  }): Promise<StoriesListResponse> {
+  static async getAll(params?: StoryQueryParams): Promise<StoriesListResponse> {
     const response = await endpoints.stories.getAll(params);
     return response.data;
   }
@@ -40,11 +38,7 @@ export class StoryService {
    * @param params - Query parameters (limit, skip, status)
    * @returns Paginated stories response
    */
-  static async getMine(params?: {
-    limit?: number;
-    skip?: number;
-    status?: "draft" | "published";
-  }): Promise<StoriesListResponse> {
+  static async getMine(params?: StoryQueryParams): Promise<StoriesListResponse> {
     const response = await endpoints.stories.getMine(params);
     return response.data;
   }

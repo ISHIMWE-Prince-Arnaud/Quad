@@ -1,4 +1,5 @@
 import { endpoints } from "@/lib/api";
+import type { ChatMessageQueryParams } from "@/lib/api/paginationTypes";
 import type {
   ChatMessagesResponse,
   ChatEditMessageResponse,
@@ -15,11 +16,7 @@ export class ChatService {
     return response.data as ChatSendMessageResponse;
   }
 
-  static async getMessages(params?: {
-    page?: number;
-    limit?: number;
-    before?: string;
-  }): Promise<ChatMessagesResponse> {
+  static async getMessages(params?: ChatMessageQueryParams): Promise<ChatMessagesResponse> {
     const response = await endpoints.chat.getMessages(params);
     return response.data as ChatMessagesResponse;
   }

@@ -1,4 +1,5 @@
 import { endpoints } from "@/lib/api";
+import type { PostQueryParams } from "@/lib/api/paginationTypes";
 import type { CreatePostData } from "@/schemas/post.schema";
 import type { Post } from "@/types/post";
 
@@ -24,10 +25,7 @@ export class PostService {
    * @param params - Query parameters (limit, skip)
    * @returns Paginated posts response
    */
-  static async getAllPosts(params?: {
-    limit?: number;
-    skip?: number;
-  }): Promise<{ success: boolean; data: Post[]; message?: string }> {
+  static async getAllPosts(params?: PostQueryParams): Promise<{ success: boolean; data: Post[]; message?: string }> {
     const response = await endpoints.posts.getAll(params);
     return response.data;
   }

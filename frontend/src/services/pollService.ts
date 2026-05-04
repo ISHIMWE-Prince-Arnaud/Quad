@@ -1,11 +1,11 @@
 import { endpoints } from "@/lib/api";
+import type { PollQueryParams } from "@/lib/api/paginationTypes";
 import type {
   PollsListResponse,
   PollResponse,
   CreatePollInput,
   UpdatePollInput,
   VoteOnPollInput,
-  PollQueryParams,
 } from "@/types/poll";
 
 /**
@@ -38,10 +38,7 @@ export class PollService {
    * @param params - Query parameters (page, limit)
    * @returns Paginated polls response
    */
-  static async getMine(params?: {
-    page?: number;
-    limit?: number;
-  }): Promise<PollsListResponse> {
+  static async getMine(params?: PollQueryParams): Promise<PollsListResponse> {
     const response = await endpoints.polls.getMine(params);
     return response.data;
   }

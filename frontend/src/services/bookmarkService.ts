@@ -1,4 +1,5 @@
 import { endpoints } from "@/lib/api";
+import type { BookmarkQueryParams } from "@/lib/api/paginationTypes";
 
 export type BookmarkContentType = "post" | "story" | "poll";
 
@@ -29,11 +30,7 @@ export class BookmarkService {
     return Boolean(res.data?.data?.bookmarked);
   }
 
-  static async list(params?: {
-    page?: number;
-    limit?: number;
-    contentType?: BookmarkContentType;
-  }): Promise<{ success: boolean; data: BookmarkRecord[]; pagination?: Pagination }> {
+  static async list(params?: BookmarkQueryParams): Promise<{ success: boolean; data: BookmarkRecord[]; pagination?: Pagination }> {
     const res = await endpoints.bookmarks.list(params);
     return res.data;
   }

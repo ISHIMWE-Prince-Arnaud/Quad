@@ -1,4 +1,5 @@
 import type { ApiUser } from "./api";
+import type { PollQueryParams as SharedPollQueryParams } from "@/lib/api/paginationTypes";
 
 export type PollStatus = "active" | "expired";
 
@@ -91,10 +92,5 @@ export interface VoteOnPollInput {
   optionIndices: number[];
 }
 
-export interface PollQueryParams {
-  page?: number | string;
-  limit?: number | string;
-  status?: PollStatus | "all";
-  author?: string;
-  voted?: boolean;
-}
+// Re-export from shared pagination types for consistency
+export type PollQueryParams = SharedPollQueryParams;

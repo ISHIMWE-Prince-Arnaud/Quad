@@ -1,8 +1,8 @@
 import { endpoints } from "@/lib/api";
+import type { FollowListQueryParams } from "@/lib/api/paginationTypes";
 import type {
   ApiFollowUser,
   ApiFollowStats,
-  FollowListParams,
 } from "@/types/api";
 
 export class FollowService {
@@ -25,13 +25,9 @@ export class FollowService {
   // Get user's followers
   static async getFollowers(
     userId: string,
-    params: FollowListParams = {},
+    params: FollowListQueryParams = {},
   ): Promise<{ followers: ApiFollowUser[]; hasMore: boolean; total: number }> {
-    const response = await endpoints.follow.getFollowers(userId, {
-      page: params.page || 1,
-      limit: params.limit || 20,
-      ...params,
-    });
+    const response = await endpoints.follow.getFollowers(userId, params);
     const payload = response.data;
     const followers: ApiFollowUser[] = Array.isArray(payload.data)
       ? payload.data
@@ -48,13 +44,9 @@ export class FollowService {
   // Get users that a user is following
   static async getFollowing(
     userId: string,
-    params: FollowListParams = {},
+    params: FollowListQueryParams = {},
   ): Promise<{ following: ApiFollowUser[]; hasMore: boolean; total: number }> {
-    const response = await endpoints.follow.getFollowing(userId, {
-      page: params.page || 1,
-      limit: params.limit || 20,
-      ...params,
-    });
+    const response = await endpoints.follow.getFollowing(userId, params);
     const payload = response.data;
     const following: ApiFollowUser[] = Array.isArray(payload.data)
       ? payload.data
