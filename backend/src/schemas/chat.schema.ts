@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { offsetPaginationSchema } from "./pagination.schema.js";
 
 // ===========================
 // CREATE MESSAGE SCHEMA
@@ -39,30 +40,13 @@ export type MessageIdSchemaType = z.infer<typeof messageIdSchema>;
 // ===========================
 // GET MESSAGES QUERY SCHEMA
 // ===========================
-export const getMessagesQuerySchema = z
-  .object({
-  // Pagination
-  page: z
-    .string()
-    .optional()
-    .default("1")
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0, "Page must be greater than 0"),
-
-  limit: z
-    .string()
-    .optional()
-    .default("20")
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0 && val <= 50, "Limit must be between 1 and 50"),
-
-  // Get messages before a specific message ID (for infinite scroll)
+export const getMessagesQuerySchema = offsetPaginationSchema.extend({
+  // Use 'before' to filter messages before a specific message ID (for infinite scroll)
   before: z
     .string()
     .regex(/^[0-9a-fA-F]{24}$/, "Invalid message ID format")
     .optional(),
-  })
-  .strict();
+});
 
 export type GetMessagesQuerySchemaType = z.infer<typeof getMessagesQuerySchema>;
 

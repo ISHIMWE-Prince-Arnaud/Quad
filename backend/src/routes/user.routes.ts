@@ -84,7 +84,9 @@ router.post(
  *     responses:
  *       200:
  *         description: Availability status returned
-
+ *     security:
+ *       - bearerAuth: []
+ */
 router.get("/check/:username", requireApiAuth, authRateLimiter, checkUsername);
 
 /**

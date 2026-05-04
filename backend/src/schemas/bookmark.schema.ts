@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { offsetPaginationSchema } from "./pagination.schema.js";
 
 export const bookmarkContentTypes = ["post", "story", "poll"] as const;
 
@@ -12,21 +13,7 @@ export const bookmarkParamsSchema = z.object({
   contentId: z.string().min(1, "Content ID is required"),
 });
 
-export const getBookmarksQuerySchema = z.object({
-  page: z
-    .string()
-    .optional()
-    .default("1")
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0, "Page must be greater than 0"),
-
-  limit: z
-    .string()
-    .optional()
-    .default("20")
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0 && val <= 50, "Limit must be between 1 and 50"),
-
+export const getBookmarksQuerySchema = offsetPaginationSchema.extend({
   contentType: z.enum(bookmarkContentTypes).optional(),
 });
 

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { skipPaginationSchema } from "./pagination.schema.js";
 
 // Media validation
 const mediaSchema = z
@@ -80,9 +81,6 @@ export type PostIdSchemaType = z.infer<typeof postIdSchema>;
 // ---------------------
 // GET ALL POSTS QUERY
 // ---------------------
-export const getPostsQuerySchema = z.object({
-  limit: z.coerce.number().min(1).max(50).default(20),
-  skip: z.coerce.number().min(0).default(0),
-});
+export const getPostsQuerySchema = skipPaginationSchema;
 
 export type GetPostsQuerySchemaType = z.infer<typeof getPostsQuerySchema>;

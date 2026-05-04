@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { skipPaginationSchema } from "./pagination.schema.js";
 
 /**
  * Story Status Enum
@@ -119,26 +120,11 @@ export type StoryIdSchemaType = z.infer<typeof storyIdSchema>;
 /**
  * GET STORIES QUERY SCHEMA
  * Validates query parameters for fetching stories
+ * Extends shared skip pagination with higher limit (100 instead of 50)
  */
-export const getStoriesQuerySchema = z
-  .object({
-  limit: z
-    .string()
-    .optional()
-    .default("20")
-    .refine((val) => /^\d+$/.test(val), "Limit must be a number")
-    .transform(Number)
-    .refine((val) => val > 0 && val <= 100, "Limit must be between 1 and 100"),
-  
-  skip: z
-    .string()
-    .optional()
-    .default("0")
-    .refine((val) => /^\d+$/.test(val), "Skip must be a number")
-    .transform(Number)
-    .refine((val) => val >= 0, "Skip must be non-negative"),
-  })
-  .strict();
+export const getStoriesQuerySchema = skipPaginationSchema.extend({
+  limit: z.coerce.number().min(1).max(100).default(20),
+});
 
 export type GetStoriesQuerySchemaType = z.infer<typeof getStoriesQuerySchema>;
 

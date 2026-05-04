@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { offsetPaginationSchema } from "./pagination.schema.js";
 
 // ===========================
 // MEDIA SCHEMA (reusable)
@@ -186,35 +187,19 @@ export type PollIdSchemaType = z.infer<typeof pollIdSchema>;
 // ===========================
 // GET POLLS QUERY SCHEMA
 // ===========================
-export const getPollsQuerySchema = z
-  .object({
-    // Pagination
-    page: z
-      .string()
-      .optional()
-      .default("1")
-      .transform((val) => parseInt(val, 10))
-      .refine((val) => val > 0, "Page must be greater than 0"),
+export const getPollsQuerySchema = offsetPaginationSchema.extend({
+  // Pagination uses shared offset schema (page + limit with coerce)
+  limit: z.coerce.number().min(1).max(50).default(10), // Polls use default of 10
 
-    limit: z
-      .string()
-      .optional()
-      .default("10")
-      .transform((val) => parseInt(val, 10))
-      .refine((val) => val > 0 && val <= 50, "Limit must be between 1 and 50"),
-
-    // Filters
-    status: z.enum(["active", "expired", "all"]).optional().default("all"),
-
-    author: z.string().optional(), // Filter by author clerkId
-
-    voted: z
-      .enum(["true", "false"])
-      .optional()
-      .transform((val) =>
-        val === "true" ? true : val === "false" ? false : undefined,
-      ),
-  })
-  .strict();
+  // Filters
+  status: z.enum(["active", "expired", "all"]).optional().default("all"),
+  author: z.string().optional(), // Filter by author clerkId
+  voted: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((val) =>
+      val === "true" ? true : val === "false" ? false : undefined,
+    ),
+});
 
 export type GetPollsQuerySchemaType = z.infer<typeof getPollsQuerySchema>;

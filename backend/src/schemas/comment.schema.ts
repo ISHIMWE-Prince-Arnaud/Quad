@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { skipPaginationSchema } from "./pagination.schema.js";
 
 // Valid content types that can receive comments
 export const commentableContentTypes = ["post", "story"] as const;
@@ -32,14 +33,10 @@ export const updateCommentSchema = z
 // ---------------------
 // GET COMMENTS BY CONTENT
 // ---------------------
-export const getCommentsByContentSchema = z
-  .object({
-    contentType: z.enum(commentableContentTypes),
-    contentId: z.string().min(1, "Content ID is required"),
-    limit: z.string().optional(),
-    skip: z.string().optional(),
-  })
-  .strict();
+export const getCommentsByContentSchema = z.object({
+  contentType: z.enum(commentableContentTypes),
+  contentId: z.string().min(1, "Content ID is required"),
+}).merge(skipPaginationSchema);
 
 // ---------------------
 // COMMENT ID PARAM

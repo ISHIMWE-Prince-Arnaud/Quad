@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { offsetPaginationSchema } from "./pagination.schema.js";
 
 // ===========================
 // USER ID PARAM SCHEMA
@@ -12,20 +13,8 @@ export type UserIdParamSchemaType = z.infer<typeof userIdParamSchema>;
 // ===========================
 // GET FOLLOWERS/FOLLOWING QUERY SCHEMA
 // ===========================
-export const getFollowListQuerySchema = z.object({
-  page: z
-    .string()
-    .optional()
-    .default("1")
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0, "Page must be greater than 0"),
-
-  limit: z
-    .string()
-    .optional()
-    .default("20")
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0 && val <= 100, "Limit must be between 1 and 100"),
+export const getFollowListQuerySchema = offsetPaginationSchema.extend({
+  limit: z.coerce.number().min(1).max(100).default(20), // Follow lists allow up to 100
 });
 
 export type GetFollowListQuerySchemaType = z.infer<typeof getFollowListQuerySchema>;

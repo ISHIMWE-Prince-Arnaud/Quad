@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { offsetPaginationSchema } from "./pagination.schema.js";
 
 // ===========================
 // NOTIFICATION ID PARAM SCHEMA
@@ -12,21 +13,7 @@ export type NotificationIdParamSchemaType = z.infer<typeof notificationIdParamSc
 // ===========================
 // GET NOTIFICATIONS QUERY SCHEMA
 // ===========================
-export const getNotificationsQuerySchema = z.object({
-  page: z
-    .string()
-    .optional()
-    .default("1")
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0, "Page must be greater than 0"),
-
-  limit: z
-    .string()
-    .optional()
-    .default("20")
-    .transform((val) => parseInt(val, 10))
-    .refine((val) => val > 0 && val <= 50, "Limit must be between 1 and 50"),
-
+export const getNotificationsQuerySchema = offsetPaginationSchema.extend({
   unreadOnly: z
     .string()
     .optional()
