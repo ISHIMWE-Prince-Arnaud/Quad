@@ -14,6 +14,7 @@ import type mongoose from "mongoose";
 import type { Document } from "mongoose";
 import type { AnyBulkWriteOperation } from "mongoose/node_modules/mongodb";
 import type { LeanDocument } from "../types/mongoose.types.js";
+import type { ReactableContentType } from "../types/reaction.types.js";
 
 export class DatabaseService {
   /**
@@ -114,7 +115,7 @@ export class DatabaseService {
    */
   static async getUserReaction(
     userId: string,
-    contentType: string,
+    contentType: ReactableContentType,
     contentId: string,
   ): Promise<string | null> {
     try {
@@ -135,7 +136,7 @@ export class DatabaseService {
    */
   static async getMultipleUserReactions(
     userId: string,
-    contentItems: Array<{ type: string; id: string }>,
+    contentItems: Array<{ type: ReactableContentType; id: string }>,
   ): Promise<Map<string, string>> {
     try {
       const queries = contentItems.map((item) => ({
@@ -145,7 +146,7 @@ export class DatabaseService {
       }));
 
       const reactions = await Reaction.find({
-        $or: queries,
+        $or: queries as Array<Record<string, unknown>>,
       }).lean();
 
       const reactionMap = new Map<string, string>();
@@ -165,7 +166,7 @@ export class DatabaseService {
    * Update content reaction count
    */
   static async updateReactionCount(
-    contentType: string,
+    contentType: ReactableContentType,
     contentId: string,
     increment: number = 1,
   ): Promise<boolean> {
@@ -205,7 +206,7 @@ export class DatabaseService {
    * Update content comment count
    */
   static async updateCommentCount(
-    contentType: string,
+    contentType: ReactableContentType,
     contentId: string,
     increment: number = 1,
   ): Promise<boolean> {
