@@ -85,9 +85,7 @@ export interface StoryQueryParams extends SkipPaginationParams {
 /**
  * Post query parameters (skip-based)
  */
-export interface PostQueryParams extends SkipPaginationParams {
-  // Add any post-specific filters here
-}
+export type PostQueryParams = SkipPaginationParams;
 
 /**
  * Comment query parameters (skip-based + content filters)
@@ -114,6 +112,4 @@ export interface BookmarkQueryParams extends OffsetPaginationParams {
 /**
  * Follow list query parameters (offset-based with higher limit)
  */
-export interface FollowListQueryParams extends OffsetPaginationParams {
-  // Follow lists allow up to 100 items per page
-}
+export type FollowListQueryParams = OffsetPaginationParams;

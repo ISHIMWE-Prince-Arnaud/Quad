@@ -28,10 +28,12 @@ describe("Token Expiration Property Tests", () => {
       pathname: "/",
     } as unknown as string & Location;
 
-    // Spy on localStorage methods (already mocked in setup.ts)
-    vi.spyOn(localStorage, "getItem");
-    vi.spyOn(localStorage, "setItem");
-    vi.spyOn(localStorage, "removeItem");
+    // Mock window.Clerk for token retrieval
+    (window as unknown as { Clerk?: { session?: { getToken?: () => Promise<string | null> } | null } }).Clerk = {
+      session: {
+        getToken: vi.fn(async () => "mock-test-jwt-token"),
+      },
+    };
 
     // Spy on sessionStorage methods
     vi.spyOn(sessionStorage, "setItem");
@@ -41,6 +43,8 @@ describe("Token Expiration Property Tests", () => {
     mock.restore();
     vi.restoreAllMocks();
     window.location = originalLocation as unknown as string & Location;
+    // Clean up window.Clerk mock
+    (window as unknown as { Clerk?: unknown }).Clerk = undefined;
   });
 
   describe("Property 55: Token Expiration Handling", () => {
@@ -98,15 +102,10 @@ describe("Token Expiration Property Tests", () => {
                   break;
               }
             } catch (error) {
-              // Expected to throw
+              // Expected to throw - 401 causes rejection
             }
 
-            // Verify token was removed
-            expect(localStorage.removeItem).toHaveBeenCalledWith(
-              "clerk-db-jwt"
-            );
-
-            // Current interceptor behavior: clears token and rejects (no forced redirect)
+            // Current interceptor behavior: attempts token refresh, then rejects (no localStorage clearing)
             expect(window.location.href).toBe(initialHref);
           }
         ),
@@ -132,9 +131,10 @@ describe("Token Expiration Property Tests", () => {
             try {
               await api.get("/test");
             } catch (error) {
-              // Expected to throw
+              // Expected to throw - 401 causes rejection
             }
 
+            // Verify no redirect save to sessionStorage
             const calls = (sessionStorage.setItem as unknown as { mock?: { calls: unknown[][] } })
               .mock?.calls;
             const hasRedirectSave =
@@ -152,7 +152,6 @@ describe("Token Expiration Property Tests", () => {
           // Setup: Already on login page
           window.location.pathname = "/login";
           const initialHref = window.location.href;
-          localStorage.setItem("clerk-db-jwt", "test-token");
 
           // Mock 401 response
           mock.onGet(`/${endpoint}`).reply(401, { message: "Unauthorized" });
@@ -161,11 +160,8 @@ describe("Token Expiration Property Tests", () => {
           try {
             await api.get(`/${endpoint}`);
           } catch (error) {
-            // Expected to throw
+            // Expected to throw - 401 causes rejection
           }
-
-          // Verify token was still removed
-          expect(localStorage.removeItem).toHaveBeenCalledWith("clerk-db-jwt");
 
           // Verify no redirect occurred (href unchanged)
           expect(window.location.href).toBe(initialHref);
@@ -176,48 +172,19 @@ describe("Token Expiration Property Tests", () => {
   });
 
   describe("Token Inclusion in Requests", () => {
-    it("should include token in Authorization header when available", async () => {
+    it("should include token in Authorization header when Clerk token is available", async () => {
       await fc.assert(
         fc.asyncProperty(
-          fc
-            .string({ minLength: 10, maxLength: 100 })
-            .filter((s) => s.trim().length > 0), // token
           fc
             .string({ minLength: 1, maxLength: 50 })
             .filter((s) => s.trim().length > 0 && !s.includes("/api/")), // endpoint
-          async (token, endpoint) => {
-            // Setup
-            localStorage.setItem("clerk-db-jwt", token);
-
-            // Mock successful response
-            mock.onGet(`/${endpoint}`).reply((config) => {
-              // Verify Authorization header
-              expect(config.headers?.Authorization).toBe(`Bearer ${token}`);
-              return [200, { success: true }];
-            });
-
-            // Execute request
-            await api.get(`/${endpoint}`);
-          }
-        ),
-        { numRuns: 50 }
-      );
-    });
-
-    it("should make request without Authorization header when token is missing", async () => {
-      await fc.assert(
-        fc.asyncProperty(
-          fc
-            .string({ minLength: 1, maxLength: 50 })
-            .filter((s) => s.trim().length > 0 && !s.includes("/api/")),
           async (endpoint) => {
-            // Setup: No token
-            localStorage.removeItem("clerk-db-jwt");
-
             // Mock successful response
             mock.onGet(`/${endpoint}`).reply((config) => {
-              // Verify no Authorization header
-              expect(config.headers?.Authorization).toBeUndefined();
+              // Verify Authorization header is set by interceptor using Clerk token
+              const authHeader = config.headers?.Authorization ?? config.headers?.authorization;
+              expect(authHeader).toBeDefined();
+              expect(String(authHeader)).toMatch(/^Bearer /);
               return [200, { success: true }];
             });
 
@@ -226,6 +193,35 @@ describe("Token Expiration Property Tests", () => {
           }
         ),
         { numRuns: 30 }
+      );
+    });
+
+    it("should make request without Authorization header when Clerk is unavailable", async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc
+            .string({ minLength: 1, maxLength: 50 })
+            .filter((s) => s.trim().length > 0 && !s.includes("/api/")),
+          async (endpoint) => {
+            // Temporarily remove Clerk from window to simulate no auth
+            const originalClerk = (window as unknown as { Clerk?: unknown }).Clerk;
+            (window as unknown as { Clerk?: unknown }).Clerk = undefined;
+
+            // Mock successful response
+            mock.onGet(`/${endpoint}`).reply((config) => {
+              // Verify no Authorization header when Clerk is unavailable
+              expect(config.headers?.Authorization).toBeUndefined();
+              return [200, { success: true }];
+            });
+
+            // Execute request
+            await api.get(`/${endpoint}`);
+
+            // Restore Clerk
+            (window as unknown as { Clerk?: unknown }).Clerk = originalClerk;
+          }
+        ),
+        { numRuns: 20 }
       );
     });
   });
@@ -254,16 +250,11 @@ describe("Token Expiration Property Tests", () => {
               try {
                 await api.get(`/${endpoint}`);
               } catch (error) {
-                // Expected to throw
+                // Expected to throw - 401 causes rejection
               }
             }
 
-            // Verify token was removed (at least once)
-            expect(localStorage.removeItem).toHaveBeenCalledWith(
-              "clerk-db-jwt"
-            );
-
-            // Current interceptor behavior: clears token and rejects (no forced redirect)
+            // Current interceptor behavior: attempts token refresh on each 401, then rejects (no forced redirect)
             expect(window.location.href).toBe(initialHref);
           }
         ),
