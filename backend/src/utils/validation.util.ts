@@ -6,7 +6,14 @@ export const validateSchema =
   (req: Request, res: Response, next: NextFunction) => {
     try {
       const parsed = schema.parse(req[property]);
-      req[property] = parsed; // Apply Zod transformations (defaults, transforms, etc.)
+      // Apply Zod transformations (defaults, coerced types, etc.)
+      // Use Object.assign for req.query/params to avoid throwing on
+      // non-writable property descriptors in some Express versions.
+      if (req[property] && typeof req[property] === "object") {
+        Object.assign(req[property], parsed);
+      } else {
+        req[property] = parsed;
+      }
       next();
     } catch (error: unknown) {
       const zodError = error instanceof ZodError ? error : undefined;
