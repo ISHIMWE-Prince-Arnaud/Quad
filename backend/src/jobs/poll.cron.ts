@@ -3,6 +3,7 @@ import { Poll } from "../models/Poll.model.js";
 import { getSocketIO } from "../config/socket.config.js";
 import { createNotification, generateNotificationMessage } from "../utils/notification.util.js";
 import { logger } from "../utils/logger.util.js";
+import { acquireLock } from "../utils/jobLock.util.js";
 
 /**
  * Cron job to check for expired polls and update their status
@@ -13,6 +14,15 @@ import { logger } from "../utils/logger.util.js";
 export const startPollExpiryJob = () => {
   // Run every 5 minutes
   cron.schedule("*/5 * * * *", async () => {
+    // Acquire distributed lock to prevent duplicate execution
+    // This is important when running multiple server instances
+    const lock = await acquireLock("poll-expiry-job", 300); // 5 minute lock
+
+    if (!lock.acquired) {
+      logger.info("Poll expiry job already running on another instance, skipping");
+      return;
+    }
+
     try {
       logger.info("Checking for expired polls...");
 
@@ -62,6 +72,9 @@ export const startPollExpiryJob = () => {
       }
     } catch (error: unknown) {
       logger.error("Error in poll expiry cron job", error);
+    } finally {
+      // Always release the lock when done
+      await lock.release();
     }
   });
 
