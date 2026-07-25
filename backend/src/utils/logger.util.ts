@@ -4,6 +4,20 @@
  */
 
 import pino from "pino";
+import {
+  isObject,
+  isString,
+  isArray,
+  isNil,
+} from "../guards/typeGuards.js";
+import {
+  SENSITIVE_FIELDS,
+  REDACTED_MARKER,
+  MAX_STRING_LENGTH,
+  MAX_ARRAY_LENGTH,
+  MAX_OBJECT_KEYS,
+  type SafeLogObject,
+} from "../types/logger.types.js";
 
 class Logger {
   private isProduction: boolean;
@@ -12,16 +26,129 @@ class Logger {
   private databaseLogger: pino.Logger;
   private socketLogger: pino.Logger;
 
-  private toLogObject(data: unknown): Record<string, unknown> {
-    if (data && typeof data === "object") {
-      return data as Record<string, unknown>;
+  /**
+   * Recursively sanitizes data for safe logging
+   * - Redacts sensitive fields
+   * - Truncates long strings
+   * - Limits array and object sizes
+   * - Handles nested objects safely
+   */
+  private sanitizeForLogging(data: unknown, depth: number = 0): SafeLogObject | unknown {
+    // Prevent excessive recursion
+    if (depth > 5) {
+      return "[Max depth reached]";
     }
 
-    if (data === undefined) {
+    // Handle null/undefined
+    if (isNil(data)) {
+      return data;
+    }
+
+    // Handle Error objects specially
+    if (data instanceof Error) {
+      return {
+        name: data.name,
+        message: this.truncateString(data.message, MAX_STRING_LENGTH),
+        ...(this.isProduction ? {} : { stack: data.stack }),
+      };
+    }
+
+    // Handle Date objects
+    if (data instanceof Date) {
+      return data.toISOString();
+    }
+
+    // Handle RegExp
+    if (data instanceof RegExp) {
+      return data.toString();
+    }
+
+    // Handle strings
+    if (isString(data)) {
+      return this.truncateString(data, MAX_STRING_LENGTH);
+    }
+
+    // Handle numbers, booleans, symbols - return as-is
+    if (typeof data !== "object") {
+      return data;
+    }
+
+    // Handle arrays
+    if (isArray(data)) {
+      const truncated = data.length > MAX_ARRAY_LENGTH
+        ? data.slice(0, MAX_ARRAY_LENGTH)
+        : data;
+      return {
+        data: truncated.map((item) => this.sanitizeForLogging(item, depth + 1)),
+        ...(data.length > MAX_ARRAY_LENGTH && { truncated: data.length - MAX_ARRAY_LENGTH }),
+      };
+    }
+
+    // Handle objects
+    if (isObject(data)) {
+      return this.sanitizeObject(data, depth);
+    }
+
+    // Fallback for any other type
+    return { data: String(data) };
+  }
+
+  /**
+   * Sanitize an object, redacting sensitive fields
+   */
+  private sanitizeObject(
+    obj: Record<string, unknown>,
+    depth: number,
+  ): SafeLogObject {
+    const sanitized: SafeLogObject = {};
+    const keys = Object.keys(obj);
+    const hasMoreKeys = keys.length > MAX_OBJECT_KEYS;
+    const keysToProcess = hasMoreKeys ? keys.slice(0, MAX_OBJECT_KEYS) : keys;
+
+    for (const key of keysToProcess) {
+      const normalizedKey = key.toLowerCase().replace(/[_-]/g, "");
+
+      // Check if this is a sensitive field
+      const isSensitive = SENSITIVE_FIELDS.has(normalizedKey);
+
+      if (isSensitive) {
+        sanitized[key] = REDACTED_MARKER;
+      } else {
+        const value = obj[key];
+        sanitized[key] = this.sanitizeForLogging(value, depth + 1);
+      }
+    }
+
+    if (hasMoreKeys) {
+      sanitized._truncated = keys.length - MAX_OBJECT_KEYS;
+    }
+
+    return sanitized;
+  }
+
+  /**
+   * Truncate a string if it exceeds maximum length
+   */
+  private truncateString(str: string, maxLength: number): string {
+    if (str.length <= maxLength) return str;
+    return str.substring(0, maxLength) + "...[truncated]";
+  }
+
+  /**
+   * Convert data to a safe log object
+   */
+  private toLogObject(data: unknown): Record<string, unknown> {
+    if (isNil(data)) {
       return {};
     }
 
-    return { data };
+    const sanitized = this.sanitizeForLogging(data);
+
+    if (isObject(sanitized)) {
+      return sanitized;
+    }
+
+    return { data: sanitized };
   }
 
   constructor() {
@@ -86,7 +213,7 @@ class Logger {
   }
 
   /**
-   * Log info messages 
+   * Log info messages
    */
   info(message: string, data?: unknown): void {
     this.baseLogger.info(this.toLogObject(data), message);
@@ -103,11 +230,6 @@ class Logger {
    * Log error messages (always logged)
    */
   error(message: string, error?: unknown): void {
-    if (error instanceof Error) {
-      this.baseLogger.error({ err: error }, message);
-      return;
-    }
-
     this.baseLogger.error(this.toLogObject(error), message);
   }
 

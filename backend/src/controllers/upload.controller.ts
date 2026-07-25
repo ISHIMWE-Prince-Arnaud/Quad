@@ -7,22 +7,34 @@ import { clerkClient } from "@clerk/express";
 import type { AspectRatio } from "../config/cloudinary.config.js";
 import { logger } from "../utils/logger.util.js";
 
+interface FileValidationResult {
+  valid: boolean;
+  detectedMime?: string;
+  error?: string;
+}
+
 /**
  * Validate file content type by inspecting the actual file bytes
  * This prevents attackers from forging the Content-Type header
  */
 async function validateFileContent(
   buffer: Buffer,
-  allowedTypes: string[]
-): Promise<{ valid: boolean; detectedMime?: string }> {
+  allowedTypes: string[],
+): Promise<FileValidationResult> {
   const detected = await fileTypeFromBuffer(buffer);
   if (!detected) {
-    return { valid: false };
+    return { valid: false, error: "Unable to detect file type from content" };
   }
-  return {
-    valid: allowedTypes.includes(detected.mime),
-    detectedMime: detected.mime,
-  };
+
+  if (!allowedTypes.includes(detected.mime)) {
+    return {
+      valid: false,
+      detectedMime: detected.mime,
+      error: `File type not allowed. Detected: ${detected.mime}`,
+    };
+  }
+
+  return { valid: true, detectedMime: detected.mime };
 }
 
 /**
@@ -106,7 +118,8 @@ export const uploadPostMedia = async (req: Request, res: Response) => {
     if (!contentValidation.valid) {
       return res.status(400).json({
         success: false,
-        message: `File content does not match allowed types. Detected: ${contentValidation.detectedMime || "unknown"}`,
+        message: contentValidation.error || "Invalid file content",
+        detectedMime: contentValidation.detectedMime,
       });
     }
 
@@ -191,7 +204,8 @@ export const uploadStoryMedia = async (req: Request, res: Response) => {
     if (!contentValidation.valid) {
       return res.status(400).json({
         success: false,
-        message: `File content does not match allowed types. Detected: ${contentValidation.detectedMime || "unknown"}`,
+        message: contentValidation.error || "Invalid file content",
+        detectedMime: contentValidation.detectedMime,
       });
     }
 
@@ -281,7 +295,8 @@ export const uploadPollMedia = async (req: Request, res: Response) => {
     if (!contentValidation.valid) {
       return res.status(400).json({
         success: false,
-        message: `File content does not match allowed types. Detected: ${contentValidation.detectedMime || "unknown"}`,
+        message: contentValidation.error || "Invalid file content",
+        detectedMime: contentValidation.detectedMime,
       });
     }
 
@@ -353,7 +368,8 @@ export const uploadProfileImage = async (req: Request, res: Response) => {
     if (!contentValidation.valid) {
       return res.status(400).json({
         success: false,
-        message: `File content does not match allowed types. Detected: ${contentValidation.detectedMime || "unknown"}`,
+        message: contentValidation.error || "Invalid file content",
+        detectedMime: contentValidation.detectedMime,
       });
     }
 
@@ -444,7 +460,8 @@ export const uploadCoverImage = async (req: Request, res: Response) => {
     if (!contentValidation.valid) {
       return res.status(400).json({
         success: false,
-        message: `File content does not match allowed types. Detected: ${contentValidation.detectedMime || "unknown"}`,
+        message: contentValidation.error || "Invalid file content",
+        detectedMime: contentValidation.detectedMime,
       });
     }
 
